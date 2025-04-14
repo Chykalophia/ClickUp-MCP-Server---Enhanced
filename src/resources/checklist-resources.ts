@@ -13,6 +13,9 @@ export function setupChecklistResources(server: McpServer): void {
   server.resource(
     'task-checklists',
     new ResourceTemplate('clickup://task/{task_id}/checklist', { list: undefined }),
+    {
+      description: 'Get all checklists for a specific ClickUp task, including their names, items, and completion status.'
+    },
     async (uri, params) => {
       try {
         const task_id = params.task_id as string;
@@ -44,7 +47,7 @@ export function setupChecklistResources(server: McpServer): void {
           ],
         };
       } catch (error: any) {
-        console.error(`[ChecklistResources] Error fetching checklists:`, error);
+        console.error('[ChecklistResources] Error fetching checklists:', error);
         throw new Error(`Error fetching checklists: ${error.message}`);
       }
     }
@@ -54,6 +57,9 @@ export function setupChecklistResources(server: McpServer): void {
   server.resource(
     'checklist-items',
     new ResourceTemplate('clickup://checklist/{checklist_id}/items', { list: undefined }),
+    {
+      description: 'Get all items in a specific ClickUp checklist, including their names, assignees, and completion status.'
+    },
     async (uri, params) => {
       try {
         const checklist_id = params.checklist_id as string;
@@ -78,7 +84,7 @@ export function setupChecklistResources(server: McpServer): void {
           ],
         };
       } catch (error: any) {
-        console.error(`[ChecklistResources] Error fetching checklist items:`, error);
+        console.error('[ChecklistResources] Error fetching checklist items:', error);
         throw new Error(`Error fetching checklist items: ${error.message}`);
       }
     }
@@ -88,6 +94,9 @@ export function setupChecklistResources(server: McpServer): void {
   server.resource(
     'example-task-checklists',
     'clickup://task/86rkjvttt/checklist',
+    {
+      description: 'An example task checklists resource demonstrating the checklist data format.'
+    },
     async (uri) => {
       try {
         const task_id = '86rkjvttt';
@@ -112,7 +121,7 @@ export function setupChecklistResources(server: McpServer): void {
           ],
         };
       } catch (error: any) {
-        console.error(`[ChecklistResources] Error fetching example checklists:`, error);
+        console.error('[ChecklistResources] Error fetching example checklists:', error);
         throw new Error(`Error fetching example checklists: ${error.message}`);
       }
     }

@@ -13,6 +13,7 @@ export function setupDocTools(server: McpServer): void {
   // Register get_doc_content tool
   server.tool(
     'get_doc_content',
+    'Get the content of a specific ClickUp doc. Returns combined content from all pages in the doc.',
     {
       doc_id: z.string().describe('The ID of the doc to get'),
       workspace_id: z.string().describe('The ID of the workspace containing the doc')
@@ -48,6 +49,7 @@ export function setupDocTools(server: McpServer): void {
   // Register search_docs tool
   server.tool(
     'search_docs',
+    'Search for docs in a ClickUp workspace using a query string. Returns matching docs with their metadata.',
     {
       workspace_id: z.string().describe('The ID of the workspace to search in'),
       query: z.string().describe('The search query'),
@@ -74,6 +76,7 @@ export function setupDocTools(server: McpServer): void {
   // Register get_docs_from_workspace tool
   server.tool(
     'get_docs_from_workspace',
+    'Get all docs from a ClickUp workspace. Supports pagination and filtering for deleted/archived docs.',
     {
       workspace_id: z.string().describe('The ID of the workspace to get docs from'),
       cursor: z.string().optional().describe('Cursor for pagination'),
@@ -107,6 +110,7 @@ export function setupDocTools(server: McpServer): void {
   // Register get_doc_pages tool
   server.tool(
     'get_doc_pages',
+    'Get the pages of a specific ClickUp doc. Returns page content in the requested format (markdown or plain text).',
     {
       doc_id: z.string().describe('The ID of the doc to get pages from'),
       workspace_id: z.string().describe('The ID of the workspace containing the doc'),

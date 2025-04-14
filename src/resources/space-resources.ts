@@ -11,12 +11,15 @@ export function setupSpaceResources(server: McpServer): void {
   server.resource(
     'workspace-spaces',
     new ResourceTemplate('clickup://workspace/{workspace_id}/spaces', { list: undefined }),
+    {
+      description: 'Get all spaces in a ClickUp workspace, including their names, settings, and features.'
+    },
     async (uri, params) => {
       try {
         const workspace_id = params.workspace_id as string;
-        console.error(`[SpaceResources] Fetching spaces for workspace: ${workspace_id}`);
+        console.log('[SpaceResources] Fetching spaces for workspace:', workspace_id);
         const spaces = await spacesClient.getSpacesFromWorkspace(workspace_id);
-        console.error(`[SpaceResources] Got spaces count: ${spaces.length}`);
+        console.log('[SpaceResources] Got spaces count:', spaces.length);
         
         return {
           contents: [
@@ -28,7 +31,7 @@ export function setupSpaceResources(server: McpServer): void {
           ],
         };
       } catch (error: any) {
-        console.error(`[SpaceResources] Error fetching workspace spaces:`, error);
+        console.error('[SpaceResources] Error fetching workspace spaces:', error);
         throw new Error(`Error fetching workspace spaces: ${error.message}`);
       }
     }
@@ -38,12 +41,15 @@ export function setupSpaceResources(server: McpServer): void {
   server.resource(
     'space-details',
     new ResourceTemplate('clickup://space/{space_id}', { list: undefined }),
+    {
+      description: 'Get detailed information about a specific ClickUp space, including its name, settings, features, and metadata.'
+    },
     async (uri, params) => {
       try {
         const space_id = params.space_id as string;
-        console.error(`[SpaceResources] Fetching space: ${space_id}`);
+        console.log('[SpaceResources] Fetching space:', space_id);
         const space = await spacesClient.getSpace(space_id);
-        console.error(`[SpaceResources] Got space: ${space.name}`);
+        console.log('[SpaceResources] Got space:', space.name);
         
         return {
           contents: [
@@ -55,7 +61,7 @@ export function setupSpaceResources(server: McpServer): void {
           ],
         };
       } catch (error: any) {
-        console.error(`[SpaceResources] Error fetching space:`, error);
+        console.error('[SpaceResources] Error fetching space:', error);
         throw new Error(`Error fetching space: ${error.message}`);
       }
     }
@@ -65,12 +71,15 @@ export function setupSpaceResources(server: McpServer): void {
   server.resource(
     'example-workspace-spaces',
     'clickup://workspace/9011839976/spaces',
+    {
+      description: 'An example workspace spaces resource demonstrating the space list format.'
+    },
     async (uri) => {
       try {
         const workspace_id = '9011839976';
-        console.error(`[SpaceResources] Fetching spaces for example workspace: ${workspace_id}`);
+        console.log('[SpaceResources] Fetching spaces for example workspace:', workspace_id);
         const spaces = await spacesClient.getSpacesFromWorkspace(workspace_id);
-        console.error(`[SpaceResources] Got example spaces count: ${spaces.length}`);
+        console.log('[SpaceResources] Got example spaces count:', spaces.length);
         
         return {
           contents: [
@@ -82,7 +91,7 @@ export function setupSpaceResources(server: McpServer): void {
           ],
         };
       } catch (error: any) {
-        console.error(`[SpaceResources] Error fetching example workspace spaces:`, error);
+        console.error('[SpaceResources] Error fetching example workspace spaces:', error);
         throw new Error(`Error fetching example workspace spaces: ${error.message}`);
       }
     }
@@ -91,12 +100,15 @@ export function setupSpaceResources(server: McpServer): void {
   server.resource(
     'example-space',
     'clickup://space/90113637923',
+    {
+      description: 'An example space resource demonstrating the space details format.'
+    },
     async (uri) => {
       try {
         const space_id = '90113637923';
-        console.error(`[SpaceResources] Fetching example space: ${space_id}`);
+        console.log('[SpaceResources] Fetching example space:', space_id);
         const space = await spacesClient.getSpace(space_id);
-        console.error(`[SpaceResources] Got example space: ${space.name}`);
+        console.log('[SpaceResources] Got example space:', space.name);
         
         return {
           contents: [
@@ -108,7 +120,7 @@ export function setupSpaceResources(server: McpServer): void {
           ],
         };
       } catch (error: any) {
-        console.error(`[SpaceResources] Error fetching example space:`, error);
+        console.error('[SpaceResources] Error fetching example space:', error);
         throw new Error(`Error fetching example space: ${error.message}`);
       }
     }

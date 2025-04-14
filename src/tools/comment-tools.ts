@@ -18,6 +18,7 @@ export function setupCommentTools(server: McpServer): void {
   // Register get_task_comments tool
   server.tool(
     'get_task_comments',
+    'Get comments for a ClickUp task. Returns comment details including text, author, and timestamps.',
     {
       task_id: z.string().describe('The ID of the task to get comments for'),
       start: z.number().optional().describe('Pagination start (timestamp)'),
@@ -42,6 +43,7 @@ export function setupCommentTools(server: McpServer): void {
   // Register create_task_comment tool
   server.tool(
     'create_task_comment',
+    'Create a new comment on a ClickUp task. Supports optional assignee and notification settings.',
     {
       task_id: z.string().describe('The ID of the task to comment on'),
       comment_text: z.string().describe('The text content of the comment'),
@@ -67,6 +69,7 @@ export function setupCommentTools(server: McpServer): void {
   // Register get_chat_view_comments tool
   server.tool(
     'get_chat_view_comments',
+    'Get comments for a ClickUp chat view. Returns comment details with pagination support.',
     {
       view_id: z.string().describe('The ID of the chat view to get comments for'),
       start: z.number().optional().describe('Pagination start (timestamp)'),
@@ -91,6 +94,7 @@ export function setupCommentTools(server: McpServer): void {
   // Register create_chat_view_comment tool
   server.tool(
     'create_chat_view_comment',
+    'Create a new comment in a ClickUp chat view. Supports notification settings.',
     {
       view_id: z.string().describe('The ID of the chat view to comment on'),
       comment_text: z.string().describe('The text content of the comment'),
@@ -115,6 +119,7 @@ export function setupCommentTools(server: McpServer): void {
   // Register get_list_comments tool
   server.tool(
     'get_list_comments',
+    'Get comments for a ClickUp list. Returns comment details with pagination support.',
     {
       list_id: z.string().describe('The ID of the list to get comments for'),
       start: z.number().optional().describe('Pagination start (timestamp)'),
@@ -139,6 +144,7 @@ export function setupCommentTools(server: McpServer): void {
   // Register create_list_comment tool
   server.tool(
     'create_list_comment',
+    'Create a new comment on a ClickUp list. Supports optional assignee and notification settings.',
     {
       list_id: z.string().describe('The ID of the list to comment on'),
       comment_text: z.string().describe('The text content of the comment'),
@@ -164,6 +170,7 @@ export function setupCommentTools(server: McpServer): void {
   // Register update_comment tool
   server.tool(
     'update_comment',
+    'Update an existing ClickUp comment\'s properties including text, assignee, and resolved status.',
     {
       comment_id: z.string().describe('The ID of the comment to update'),
       comment_text: z.string().describe('The new text content of the comment'),
@@ -189,6 +196,7 @@ export function setupCommentTools(server: McpServer): void {
   // Register delete_comment tool
   server.tool(
     'delete_comment',
+    'Delete a comment from ClickUp.',
     {
       comment_id: z.string().describe('The ID of the comment to delete')
     },
@@ -211,6 +219,7 @@ export function setupCommentTools(server: McpServer): void {
   // Register get_threaded_comments tool
   server.tool(
     'get_threaded_comments',
+    'Get threaded comments (replies) for a parent comment. Returns comment details with pagination support.',
     {
       comment_id: z.string().describe('The ID of the parent comment'),
       start: z.number().optional().describe('Pagination start (timestamp)'),
@@ -235,6 +244,7 @@ export function setupCommentTools(server: McpServer): void {
   // Register create_threaded_comment tool
   server.tool(
     'create_threaded_comment',
+    'Create a new threaded comment (reply) to a parent comment. Supports notification settings.',
     {
       comment_id: z.string().describe('The ID of the parent comment'),
       comment_text: z.string().describe('The text content of the comment'),

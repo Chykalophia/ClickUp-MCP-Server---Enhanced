@@ -1,6 +1,6 @@
 {
   "name": "clickup-mcp-server",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "description": "A Model Context Protocol (MCP) server that provides a standardized interface for AI assistants to interact with the ClickUp API",
   "main": "build/index.js",
   "bin": {

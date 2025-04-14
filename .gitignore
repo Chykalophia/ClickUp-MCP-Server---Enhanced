@@ -9,12 +9,13 @@ build/
 dist/
 *.tsbuildinfo
 
-# Environment variables
+# Environment variables and configuration
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+mcpclient.json
 
 # IDE and editor files
 .idea/

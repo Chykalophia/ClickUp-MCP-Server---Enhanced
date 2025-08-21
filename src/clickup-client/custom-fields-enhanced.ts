@@ -480,6 +480,97 @@ export class EnhancedCustomFieldsClient {
     }
   }
 
+  /**
+   * Get a custom field value from a task
+   */
+  async getCustomFieldValue(taskId: string, fieldId: string): Promise<any> {
+    try {
+      // Get task details which includes custom field values
+      const taskUrl = `https://api.clickup.com/api/v2/task/${taskId}`;
+      const response = await axios.get(taskUrl, {
+        headers: this.getHeaders()
+      });
+      
+      const task = response.data;
+      const customField = task.custom_fields?.find((field: any) => field.id === fieldId);
+      
+      if (!customField) {
+        throw new Error(`Custom field ${fieldId} not found on task ${taskId}`);
+      }
+      
+      return {
+        field_id: customField.id,
+        field_name: customField.name,
+        field_type: customField.type,
+        value: customField.value,
+        type_config: customField.type_config
+      };
+    } catch (error) {
+      console.error('Error getting custom field value:', error);
+      throw this.handleError(error, `Failed to get custom field value for task ${taskId}, field ${fieldId}`);
+    }
+  }
+
+  /**
+   * Get all custom field values for a task
+   */
+  async getTaskCustomFieldValues(taskId: string): Promise<any[]> {
+    try {
+      const taskUrl = `https://api.clickup.com/api/v2/task/${taskId}`;
+      const response = await axios.get(taskUrl, {
+        headers: this.getHeaders()
+      });
+      
+      const task = response.data;
+      return task.custom_fields?.map((field: any) => ({
+        field_id: field.id,
+        field_name: field.name,
+        field_type: field.type,
+        value: field.value,
+        type_config: field.type_config,
+        required: field.required,
+        hide_from_guests: field.hide_from_guests
+      })) || [];
+    } catch (error) {
+      console.error('Error getting task custom field values:', error);
+      throw this.handleError(error, `Failed to get custom field values for task ${taskId}`);
+    }
+  }
+
+  /**
+   * Bulk set multiple custom field values on a task
+   */
+  async bulkSetCustomFieldValues(taskId: string, fieldValues: Array<{field_id: string, value: any}>): Promise<any[]> {
+    try {
+      const results = [];
+      
+      // ClickUp doesn't have a native bulk API, so we'll set them individually
+      // but return consolidated results
+      for (const { field_id, value } of fieldValues) {
+        try {
+          await this.setCustomFieldValue(taskId, field_id, value);
+          results.push({
+            field_id,
+            value,
+            status: 'success'
+          });
+        } catch (error: any) {
+          results.push({
+            field_id,
+            value,
+            status: 'error',
+            error: error.message
+          });
+        }
+      }
+      
+      return results;
+    } catch (error) {
+      console.error('Error bulk setting custom field values:', error);
+      throw this.handleError(error, `Failed to bulk set custom field values for task ${taskId}`);
+    }
+  }
+
   // ========================================
   // VALIDATION UTILITIES
   // ========================================

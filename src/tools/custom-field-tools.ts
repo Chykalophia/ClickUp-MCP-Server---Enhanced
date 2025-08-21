@@ -262,6 +262,95 @@ export function setupCustomFieldTools(server: McpServer): void {
     }
   );
 
+  server.tool(
+    'get_custom_field_value',
+    'Get a custom field value from a ClickUp task. Returns the current value and field information.',
+    {
+      task_id: z.string().min(1).describe('The ID of the task to get the custom field value from'),
+      field_id: z.string().min(1).describe('The ID of the custom field to retrieve')
+    },
+    async ({ task_id, field_id }) => {
+      try {
+        const value = await customFieldsClient.getCustomFieldValue(task_id, field_id);
+
+        return {
+          content: [{ 
+            type: 'text', 
+            text: `Custom field value for task ${task_id}, field ${field_id}:\n\n${JSON.stringify(value, null, 2)}` 
+          }]
+        };
+      } catch (error: any) {
+        console.error('Error getting custom field value:', error);
+        return {
+          content: [{ type: 'text', text: `Error getting custom field value: ${error.message}` }],
+          isError: true
+        };
+      }
+    }
+  );
+
+  server.tool(
+    'bulk_set_custom_field_values',
+    'Set multiple custom field values on a ClickUp task in a single operation. More efficient than setting values individually.',
+    {
+      task_id: z.string().min(1).describe('The ID of the task to set custom field values on'),
+      field_values: z.array(z.object({
+        field_id: z.string().min(1).describe('The ID of the custom field'),
+        value: z.any().describe('The value to set (format depends on field type)')
+      })).min(1).describe('Array of field ID and value pairs to set')
+    },
+    async ({ task_id, field_values }) => {
+      try {
+        // Ensure all field_values have the required properties
+        const validatedFieldValues = field_values.map(fv => ({
+          field_id: fv.field_id,
+          value: fv.value
+        }));
+        
+        const results = await customFieldsClient.bulkSetCustomFieldValues(task_id, validatedFieldValues);
+
+        return {
+          content: [{ 
+            type: 'text', 
+            text: `Bulk custom field values set successfully on task ${task_id}!\n\nResults:\n${JSON.stringify(results, null, 2)}` 
+          }]
+        };
+      } catch (error: any) {
+        console.error('Error bulk setting custom field values:', error);
+        return {
+          content: [{ type: 'text', text: `Error bulk setting custom field values: ${error.message}` }],
+          isError: true
+        };
+      }
+    }
+  );
+
+  server.tool(
+    'get_task_custom_field_values',
+    'Get all custom field values for a ClickUp task. Returns all field values with their definitions.',
+    {
+      task_id: z.string().min(1).describe('The ID of the task to get custom field values from')
+    },
+    async ({ task_id }) => {
+      try {
+        const values = await customFieldsClient.getTaskCustomFieldValues(task_id);
+
+        return {
+          content: [{ 
+            type: 'text', 
+            text: `All custom field values for task ${task_id}:\n\n${JSON.stringify(values, null, 2)}` 
+          }]
+        };
+      } catch (error: any) {
+        console.error('Error getting task custom field values:', error);
+        return {
+          content: [{ type: 'text', text: `Error getting task custom field values: ${error.message}` }],
+          isError: true
+        };
+      }
+    }
+  );
+
   // ========================================
   // HELPER TOOLS FOR FIELD CREATION
   // ========================================

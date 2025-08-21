@@ -6,6 +6,7 @@ import { setupEnhancedDocTools } from './tools/doc-tools-enhanced.js';
 import { setupCustomFieldTools } from './tools/custom-field-tools.js';
 import { setupTimeTrackingTools } from './tools/time-tracking-tools.js';
 import { setupGoalsTools } from './tools/goals-tools.js';
+import { setupWebhookTools } from './tools/webhook-tools-setup.js';
 import { setupSpaceTools } from './tools/space-tools.js';
 import { setupChecklistTools } from './tools/checklist-tools.js';
 import { setupCommentTools } from './tools/comment-tools.js';
@@ -47,6 +48,7 @@ class ClickUpServer {
     setupCustomFieldTools(this.server); // Custom fields management
     setupTimeTrackingTools(this.server); // Time tracking and timer management
     setupGoalsTools(this.server); // Goals and targets management
+    setupWebhookTools(this.server); // Webhook management and processing
     setupSpaceTools(this.server);
     setupChecklistTools(this.server);
     setupCommentTools(this.server);
@@ -66,7 +68,7 @@ class ClickUpServer {
   async run() {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    console.error('ClickUp MCP server running on stdio with enhanced document management, custom fields, time tracking, and goals management');
+    console.error('ClickUp MCP server running on stdio with enhanced document management, custom fields, time tracking, goals management, and webhook processing');
   }
 }
 

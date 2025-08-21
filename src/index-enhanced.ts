@@ -7,6 +7,9 @@ import { setupCustomFieldTools } from './tools/custom-field-tools.js';
 import { setupTimeTrackingTools } from './tools/time-tracking-tools.js';
 import { setupGoalsTools } from './tools/goals-tools.js';
 import { setupWebhookTools } from './tools/webhook-tools-setup.js';
+import { setupViewsTools } from './tools/views-tools-setup.js';
+import { setupDependenciesTools } from './tools/dependencies-tools-setup.js';
+import { setupAttachmentsTools } from './tools/attachments-tools-setup.js';
 import { setupSpaceTools } from './tools/space-tools.js';
 import { setupChecklistTools } from './tools/checklist-tools.js';
 import { setupCommentTools } from './tools/comment-tools.js';
@@ -27,7 +30,7 @@ class ClickUpServer {
   constructor() {
     this.server = new McpServer({
       name: 'clickup-mcp-server',
-      version: '2.0.0', // Updated version for enhanced functionality
+      version: '3.0.0', // Updated version for comprehensive ClickUp API coverage
     });
     
     // Handle process termination
@@ -49,6 +52,9 @@ class ClickUpServer {
     setupTimeTrackingTools(this.server); // Time tracking and timer management
     setupGoalsTools(this.server); // Goals and targets management
     setupWebhookTools(this.server); // Webhook management and processing
+    setupViewsTools(this.server); // Views management and configuration
+    setupDependenciesTools(this.server); // Task dependencies and relationships
+    setupAttachmentsTools(this.server); // File attachments and media management
     setupSpaceTools(this.server);
     setupChecklistTools(this.server);
     setupCommentTools(this.server);
@@ -68,7 +74,7 @@ class ClickUpServer {
   async run() {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    console.error('ClickUp MCP server running on stdio with enhanced document management, custom fields, time tracking, goals management, and webhook processing');
+    console.error('ClickUp MCP server running on stdio with comprehensive API coverage: enhanced documents, custom fields, time tracking, goals, webhooks, views, dependencies, and attachments management');
   }
 }
 

@@ -118,7 +118,9 @@ export const DocumentToolSchemas = {
   createDoc: CreateDocSchema,
   updateDoc: z.object({
     doc_id: DocIdSchema,
-    ...UpdateDocSchema.shape
+    name: z.string().min(1).optional(),
+    content: z.string().optional(),
+    public: z.boolean().optional()
   }),
   deleteDoc: z.object({
     doc_id: DocIdSchema
@@ -130,12 +132,18 @@ export const DocumentToolSchemas = {
   // Page operations
   createPage: z.object({
     doc_id: DocIdSchema,
-    ...CreatePageSchema.shape
+    name: z.string().min(1),
+    content: z.string().optional(),
+    content_format: z.enum(['markdown', 'html']).optional().default('markdown'),
+    position: z.number().min(0).optional()
   }),
   updatePage: z.object({
     doc_id: DocIdSchema,
     page_id: PageIdSchema,
-    ...UpdatePageSchema.shape
+    name: z.string().min(1).optional(),
+    content: z.string().optional(),
+    content_format: z.enum(['markdown', 'html']).optional(),
+    position: z.number().min(0).optional()
   }),
   deletePage: z.object({
     doc_id: DocIdSchema,
@@ -153,19 +161,30 @@ export const DocumentToolSchemas = {
   }),
   updateDocSharing: z.object({
     doc_id: DocIdSchema,
-    ...SharingConfigSchema.shape
+    public: z.boolean().optional(),
+    public_share_expires_on: z.number().optional(),
+    public_fields: z.array(z.string()).optional(),
+    team_sharing: z.boolean().optional(),
+    guest_sharing: z.boolean().optional()
   }),
 
   // Template operations
   createDocFromTemplate: z.object({
     template_id: z.string().min(1, 'Template ID is required'),
-    ...CreateFromTemplateSchema.shape
+    workspace_id: z.string().optional(),
+    space_id: z.string().optional(),
+    folder_id: z.string().optional(),
+    name: z.string().min(1),
+    template_variables: z.record(z.any()).optional()
   }),
 
   // Read operations
   getDocsFromWorkspace: z.object({
     workspace_id: WorkspaceIdSchema,
-    ...GetDocsParamsSchema.shape
+    cursor: z.string().optional(),
+    deleted: z.boolean().optional().default(false),
+    archived: z.boolean().optional().default(false),
+    limit: z.number().min(1).max(100).optional().default(25)
   }),
   getDocPages: z.object({
     workspace_id: WorkspaceIdSchema,
@@ -174,21 +193,7 @@ export const DocumentToolSchemas = {
   }),
   searchDocs: z.object({
     workspace_id: WorkspaceIdSchema,
-    ...SearchDocsParamsSchema.shape
+    query: z.string().min(1),
+    cursor: z.string().optional()
   })
-};
-
-// Export individual schemas for reuse
-export {
-  CreateDocSchema,
-  UpdateDocSchema,
-  CreatePageSchema,
-  UpdatePageSchema,
-  SharingConfigSchema,
-  CreateFromTemplateSchema,
-  GetDocsParamsSchema,
-  SearchDocsParamsSchema,
-  DocIdSchema,
-  PageIdSchema,
-  WorkspaceIdSchema
 };

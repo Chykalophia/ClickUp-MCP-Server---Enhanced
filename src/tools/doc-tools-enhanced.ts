@@ -19,7 +19,11 @@ export function setupEnhancedDocTools(server: McpServer): void {
   server.tool(
     'get_doc_content',
     'Get the content of a specific ClickUp doc. Returns combined content from all pages in the doc.',
-    DocumentToolSchemas.getDocPages,
+    {
+      workspace_id: z.string().min(1).describe('The ID of the workspace containing the doc'),
+      doc_id: z.string().min(1).describe('The ID of the doc to get'),
+      content_format: z.enum(['markdown', 'html', 'text/md', 'text/plain', 'text/html']).optional().default('text/md').describe('The format to return the content in')
+    },
     async ({ doc_id, workspace_id, content_format }) => {
       try {
         const pages = await enhancedDocsClient.getDocPages(workspace_id, doc_id, content_format);
@@ -49,7 +53,11 @@ export function setupEnhancedDocTools(server: McpServer): void {
   server.tool(
     'search_docs',
     'Search for docs in a ClickUp workspace using a query string. Returns matching docs with their metadata.',
-    DocumentToolSchemas.searchDocs,
+    {
+      workspace_id: z.string().min(1).describe('The ID of the workspace to search in'),
+      query: z.string().min(1).describe('The search query'),
+      cursor: z.string().optional().describe('Cursor for pagination')
+    },
     async ({ workspace_id, query, cursor }) => {
       try {
         const result = await enhancedDocsClient.searchDocs(workspace_id, { query, cursor });
@@ -69,7 +77,13 @@ export function setupEnhancedDocTools(server: McpServer): void {
   server.tool(
     'get_docs_from_workspace',
     'Get all docs from a ClickUp workspace. Supports pagination and filtering for deleted/archived docs.',
-    DocumentToolSchemas.getDocsFromWorkspace,
+    {
+      workspace_id: z.string().min(1).describe('The ID of the workspace to get docs from'),
+      cursor: z.string().optional().describe('Cursor for pagination'),
+      deleted: z.boolean().optional().default(false).describe('Whether to include deleted docs'),
+      archived: z.boolean().optional().default(false).describe('Whether to include archived docs'),
+      limit: z.number().min(1).max(100).optional().default(25).describe('The maximum number of docs to return')
+    },
     async ({ workspace_id, cursor, deleted, archived, limit }) => {
       try {
         const result = await enhancedDocsClient.getDocsFromWorkspace(workspace_id, { 
@@ -95,7 +109,11 @@ export function setupEnhancedDocTools(server: McpServer): void {
   server.tool(
     'get_doc_pages',
     'Get the pages of a specific ClickUp doc. Returns page content in the requested format (markdown or plain text).',
-    DocumentToolSchemas.getDocPages,
+    {
+      workspace_id: z.string().min(1).describe('The ID of the workspace containing the doc'),
+      doc_id: z.string().min(1).describe('The ID of the doc to get pages from'),
+      content_format: z.enum(['markdown', 'html', 'text/md', 'text/plain', 'text/html']).optional().default('text/md').describe('The format to return the content in')
+    },
     async ({ doc_id, workspace_id, content_format }) => {
       try {
         const pages = await enhancedDocsClient.getDocPages(workspace_id, doc_id, content_format);

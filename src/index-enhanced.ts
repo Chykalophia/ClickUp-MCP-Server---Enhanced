@@ -3,6 +3,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { setupTaskTools } from './tools/task-tools.js';
 import { setupEnhancedDocTools } from './tools/doc-tools-enhanced.js';
+import { setupCustomFieldTools } from './tools/custom-field-tools.js';
 import { setupSpaceTools } from './tools/space-tools.js';
 import { setupChecklistTools } from './tools/checklist-tools.js';
 import { setupCommentTools } from './tools/comment-tools.js';
@@ -41,6 +42,7 @@ class ClickUpServer {
     // Set up all tools
     setupTaskTools(this.server);
     setupEnhancedDocTools(this.server); // Using enhanced document tools
+    setupCustomFieldTools(this.server); // Custom fields management
     setupSpaceTools(this.server);
     setupChecklistTools(this.server);
     setupCommentTools(this.server);
@@ -60,7 +62,7 @@ class ClickUpServer {
   async run() {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    console.error('ClickUp MCP server running on stdio with enhanced document management');
+    console.error('ClickUp MCP server running on stdio with enhanced document management and custom fields');
   }
 }
 

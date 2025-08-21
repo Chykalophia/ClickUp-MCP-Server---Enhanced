@@ -301,23 +301,38 @@ export const GetSpaceCustomFieldsSchema = z.object({
 // Create custom field schemas
 export const CreateListCustomFieldSchema = z.object({
   list_id: ListIdSchema,
-  ...CreateCustomFieldSchema.shape
+  name: z.string().min(1).max(255),
+  type: CustomFieldTypeSchema,
+  type_config: z.record(z.any()).optional(),
+  required: z.boolean().optional().default(false),
+  hide_from_guests: z.boolean().optional().default(false)
 });
 
 export const CreateFolderCustomFieldSchema = z.object({
   folder_id: FolderIdSchema,
-  ...CreateCustomFieldSchema.shape
+  name: z.string().min(1).max(255),
+  type: CustomFieldTypeSchema,
+  type_config: z.record(z.any()).optional(),
+  required: z.boolean().optional().default(false),
+  hide_from_guests: z.boolean().optional().default(false)
 });
 
 export const CreateSpaceCustomFieldSchema = z.object({
   space_id: SpaceIdSchema,
-  ...CreateCustomFieldSchema.shape
+  name: z.string().min(1).max(255),
+  type: CustomFieldTypeSchema,
+  type_config: z.record(z.any()).optional(),
+  required: z.boolean().optional().default(false),
+  hide_from_guests: z.boolean().optional().default(false)
 });
 
 // Update custom field schema
 export const UpdateCustomFieldToolSchema = z.object({
   field_id: FieldIdSchema,
-  ...UpdateCustomFieldSchema.shape
+  name: z.string().min(1).max(255).optional(),
+  type_config: z.record(z.any()).optional(),
+  required: z.boolean().optional(),
+  hide_from_guests: z.boolean().optional()
 });
 
 // Delete custom field schema
@@ -461,16 +476,3 @@ export function getFieldTypeConfigSchema(fieldType: string): z.ZodSchema {
       return z.record(z.any());
   }
 }
-
-// Export individual schemas for reuse
-export {
-  CreateCustomFieldSchema,
-  UpdateCustomFieldSchema,
-  CustomFieldTypeSchema,
-  DropdownOptionSchema,
-  ListIdSchema,
-  FolderIdSchema,
-  SpaceIdSchema,
-  FieldIdSchema,
-  TaskIdSchema
-};

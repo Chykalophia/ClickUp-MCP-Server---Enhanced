@@ -1,9 +1,12 @@
 import { ClickUpClient } from './index.js';
+import { prepareContentForClickUp, processClickUpResponse } from '../utils/markdown.js';
 
 export interface Task {
   id: string;
   name: string;
   description?: string;
+  text_content?: string; // Plain text version of description
+  description_markdown?: string; // Markdown version for display
   status?: {
     status: string;
     color: string;
@@ -122,10 +125,17 @@ export class TasksClient {
    * Get tasks from a specific list
    * @param listId The ID of the list to get tasks from
    * @param params Optional parameters for filtering tasks
-   * @returns A list of tasks
+   * @returns A list of tasks with processed content
    */
   async getTasksFromList(listId: string, params?: GetTasksParams): Promise<{ tasks: Task[] }> {
-    return this.client.get(`/list/${listId}/task`, params);
+    const result = await this.client.get(`/list/${listId}/task`, params);
+    
+    // Process each task's content
+    if (result.tasks && Array.isArray(result.tasks)) {
+      result.tasks = result.tasks.map((task: any) => processClickUpResponse(task));
+    }
+    
+    return result;
   }
 
   // Removed pseudo endpoints for getting tasks from spaces and folders
@@ -134,30 +144,49 @@ export class TasksClient {
    * Get a specific task by ID
    * @param taskId The ID of the task to get
    * @param params Optional parameters (include_subtasks)
-   * @returns The task details
+   * @returns The task details with processed content
    */
   async getTask(taskId: string, params?: { include_subtasks?: boolean }): Promise<Task> {
-    return this.client.get(`/task/${taskId}`, params);
+    const result = await this.client.get(`/task/${taskId}`, params);
+    return processClickUpResponse(result);
   }
 
   /**
    * Create a new task in a list
    * @param listId The ID of the list to create the task in
-   * @param params The task parameters
-   * @returns The created task
+   * @param params The task parameters (supports markdown in description)
+   * @returns The created task with processed content
    */
   async createTask(listId: string, params: CreateTaskParams): Promise<Task> {
-    return this.client.post(`/list/${listId}/task`, params);
+    // Process description for markdown support
+    const processedParams = { ...params };
+    if (params.description) {
+      const contentData = prepareContentForClickUp(params.description);
+      processedParams.description = contentData.description;
+      // Note: ClickUp API doesn't accept text_content on create, it generates it
+    }
+    
+    const result = await this.client.post(`/list/${listId}/task`, processedParams);
+    return processClickUpResponse(result);
   }
 
   /**
    * Update an existing task
    * @param taskId The ID of the task to update
-   * @param params The task parameters to update
-   * @returns The updated task
+   * @param params The task parameters to update (supports markdown in description)
+   * @returns The updated task with processed content
    */
   async updateTask(taskId: string, params: UpdateTaskParams): Promise<Task> {
-    return this.client.put(`/task/${taskId}`, params);
+    // Process description for markdown support
+    const processedParams = { ...params };
+    if (params.description) {
+      const contentData = prepareContentForClickUp(params.description);
+      processedParams.description = contentData.description;
+      // Note: ClickUp API doesn't accept text_content on update, it generates it
+    }
+    
+    const result = await this.client.put(`/task/${taskId}`, processedParams);
+    return processClickUpResponse(result);
   }
 
   /**

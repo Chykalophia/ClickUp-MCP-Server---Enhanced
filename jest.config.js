@@ -8,7 +8,7 @@ const config = {
   extensionsToTreatAsEsm: ['.ts'],
   
   // Module resolution
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
   
@@ -111,7 +111,7 @@ const config = {
   
   // Transform ignore patterns
   transformIgnorePatterns: [
-    'node_modules/(?!(@modelcontextprotocol)/)'
+    'node_modules/(?!(@modelcontextprotocol|marked|turndown)/)'
   ],
   
   // Max workers for parallel execution
@@ -134,4 +134,4 @@ const config = {
   ]
 };
 
-module.exports = config;
+export default config;

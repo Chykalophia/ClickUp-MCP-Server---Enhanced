@@ -108,11 +108,11 @@ export function setupTaskTools(server: McpServer): void {
 
   server.tool(
     'create_task',
-    'Create a new task in a ClickUp list with specified properties like name, description, assignees, status, and dates.',
+    'Create a new task in a ClickUp list with specified properties like name, description, assignees, status, and dates. Supports GitHub Flavored Markdown in description field.',
     {
       list_id: z.string().describe('The ID of the list to create the task in'),
       name: z.string().describe('The name of the task'),
-      description: z.string().optional().describe('The description of the task'),
+      description: z.string().optional().describe('The description of the task (supports GitHub Flavored Markdown including headers, bold, italic, code blocks, links, lists, etc.)'),
       assignees: z.array(z.number()).optional().describe('The IDs of the users to assign to the task'),
       tags: z.array(z.string()).optional().describe('The tags to add to the task'),
       status: z.string().optional().describe('The status of the task'),
@@ -143,11 +143,11 @@ export function setupTaskTools(server: McpServer): void {
 
   server.tool(
     'update_task',
-    'Update an existing ClickUp task\'s properties including name, description, assignees, status, and dates.',
+    'Update an existing ClickUp task\'s properties including name, description, assignees, status, and dates. Supports GitHub Flavored Markdown in description field.',
     {
       task_id: z.string().describe('The ID of the task to update'),
       name: z.string().optional().describe('The new name of the task'),
-      description: z.string().optional().describe('The new description of the task'),
+      description: z.string().optional().describe('The new description of the task (supports GitHub Flavored Markdown including headers, bold, italic, code blocks, links, lists, etc.)'),
       assignees: z.array(z.number()).optional().describe('The IDs of the users to assign to the task'),
       status: z.string().optional().describe('The new status of the task'),
       priority: z.number().optional().describe('The new priority of the task (1-4)'),

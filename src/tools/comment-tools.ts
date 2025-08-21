@@ -43,10 +43,10 @@ export function setupCommentTools(server: McpServer): void {
   // Register create_task_comment tool
   server.tool(
     'create_task_comment',
-    'Create a new comment on a ClickUp task. Supports optional assignee and notification settings.',
+    'Create a new comment on a ClickUp task. Supports optional assignee and notification settings. Supports GitHub Flavored Markdown in comment text.',
     {
       task_id: z.string().describe('The ID of the task to comment on'),
-      comment_text: z.string().describe('The text content of the comment'),
+      comment_text: z.string().describe('The text content of the comment (supports GitHub Flavored Markdown including headers, bold, italic, code blocks, links, lists, etc.)'),
       assignee: z.number().optional().describe('The ID of the user to assign to the comment'),
       notify_all: z.boolean().optional().describe('Whether to notify all assignees')
     },
@@ -94,10 +94,10 @@ export function setupCommentTools(server: McpServer): void {
   // Register create_chat_view_comment tool
   server.tool(
     'create_chat_view_comment',
-    'Create a new comment in a ClickUp chat view. Supports notification settings.',
+    'Create a new comment in a ClickUp chat view. Supports notification settings. Supports GitHub Flavored Markdown in comment text.',
     {
       view_id: z.string().describe('The ID of the chat view to comment on'),
-      comment_text: z.string().describe('The text content of the comment'),
+      comment_text: z.string().describe('The text content of the comment (supports GitHub Flavored Markdown including headers, bold, italic, code blocks, links, lists, etc.)'),
       notify_all: z.boolean().optional().describe('Whether to notify all assignees')
     },
     async ({ view_id, ...commentParams }) => {
@@ -144,10 +144,10 @@ export function setupCommentTools(server: McpServer): void {
   // Register create_list_comment tool
   server.tool(
     'create_list_comment',
-    'Create a new comment on a ClickUp list. Supports optional assignee and notification settings.',
+    'Create a new comment on a ClickUp list. Supports optional assignee and notification settings. Supports GitHub Flavored Markdown in comment text.',
     {
       list_id: z.string().describe('The ID of the list to comment on'),
-      comment_text: z.string().describe('The text content of the comment'),
+      comment_text: z.string().describe('The text content of the comment (supports GitHub Flavored Markdown including headers, bold, italic, code blocks, links, lists, etc.)'),
       assignee: z.number().optional().describe('The ID of the user to assign to the comment'),
       notify_all: z.boolean().optional().describe('Whether to notify all assignees')
     },
@@ -170,10 +170,10 @@ export function setupCommentTools(server: McpServer): void {
   // Register update_comment tool
   server.tool(
     'update_comment',
-    'Update an existing ClickUp comment\'s properties including text, assignee, and resolved status.',
+    'Update an existing ClickUp comment\'s properties including text, assignee, and resolved status. Supports GitHub Flavored Markdown in comment text.',
     {
       comment_id: z.string().describe('The ID of the comment to update'),
-      comment_text: z.string().describe('The new text content of the comment'),
+      comment_text: z.string().describe('The new text content of the comment (supports GitHub Flavored Markdown including headers, bold, italic, code blocks, links, lists, etc.)'),
       assignee: z.number().optional().describe('The ID of the user to assign to the comment'),
       resolved: z.boolean().optional().describe('Whether the comment is resolved')
     },
@@ -244,10 +244,10 @@ export function setupCommentTools(server: McpServer): void {
   // Register create_threaded_comment tool
   server.tool(
     'create_threaded_comment',
-    'Create a new threaded comment (reply) to a parent comment. Supports notification settings.',
+    'Create a new threaded comment (reply) to a parent comment. Supports notification settings. Supports GitHub Flavored Markdown in comment text.',
     {
       comment_id: z.string().describe('The ID of the parent comment'),
-      comment_text: z.string().describe('The text content of the comment'),
+      comment_text: z.string().describe('The text content of the comment (supports GitHub Flavored Markdown including headers, bold, italic, code blocks, links, lists, etc.)'),
       notify_all: z.boolean().optional().describe('Whether to notify all assignees')
     },
     async ({ comment_id, ...commentParams }) => {

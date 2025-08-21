@@ -1,0 +1,1119 @@
+c7322adcd8ee9bfb7fa168f0962067c3
+/* istanbul ignore next */
+function cov_1qfkmbolti() {
+  var path = "/Users/peterkrzyzek/Development/clickup-mcp-server/src/tools/webhook-tools.ts";
+  var hash = "f33784407f4e3ba2665444a05a6c8ca1d7bf6c87";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "/Users/peterkrzyzek/Development/clickup-mcp-server/src/tools/webhook-tools.ts",
+    statementMap: {
+      "0": {
+        start: {
+          line: 3,
+          column: 4
+        },
+        end: {
+          line: 275,
+          column: 6
+        }
+      },
+      "1": {
+        start: {
+          line: 278,
+          column: 4
+        },
+        end: {
+          line: 343,
+          column: 5
+        }
+      },
+      "2": {
+        start: {
+          line: 279,
+          column: 8
+        },
+        end: {
+          line: 336,
+          column: 9
+        }
+      },
+      "3": {
+        start: {
+          line: 281,
+          column: 32
+        },
+        end: {
+          line: 281,
+          column: 63
+        }
+      },
+      "4": {
+        start: {
+          line: 282,
+          column: 16
+        },
+        end: {
+          line: 282,
+          column: 59
+        }
+      },
+      "5": {
+        start: {
+          line: 285,
+          column: 31
+        },
+        end: {
+          line: 285,
+          column: 62
+        }
+      },
+      "6": {
+        start: {
+          line: 286,
+          column: 16
+        },
+        end: {
+          line: 286,
+          column: 56
+        }
+      },
+      "7": {
+        start: {
+          line: 289,
+          column: 39
+        },
+        end: {
+          line: 289,
+          column: 43
+        }
+      },
+      "8": {
+        start: {
+          line: 290,
+          column: 16
+        },
+        end: {
+          line: 290,
+          column: 59
+        }
+      },
+      "9": {
+        start: {
+          line: 293,
+          column: 32
+        },
+        end: {
+          line: 293,
+          column: 63
+        }
+      },
+      "10": {
+        start: {
+          line: 294,
+          column: 16
+        },
+        end: {
+          line: 294,
+          column: 59
+        }
+      },
+      "11": {
+        start: {
+          line: 297,
+          column: 39
+        },
+        end: {
+          line: 297,
+          column: 43
+        }
+      },
+      "12": {
+        start: {
+          line: 298,
+          column: 16
+        },
+        end: {
+          line: 298,
+          column: 62
+        }
+      },
+      "13": {
+        start: {
+          line: 301,
+          column: 46
+        },
+        end: {
+          line: 301,
+          column: 50
+        }
+      },
+      "14": {
+        start: {
+          line: 302,
+          column: 16
+        },
+        end: {
+          line: 302,
+          column: 78
+        }
+      },
+      "15": {
+        start: {
+          line: 305,
+          column: 39
+        },
+        end: {
+          line: 305,
+          column: 43
+        }
+      },
+      "16": {
+        start: {
+          line: 306,
+          column: 16
+        },
+        end: {
+          line: 306,
+          column: 60
+        }
+      },
+      "17": {
+        start: {
+          line: 309,
+          column: 32
+        },
+        end: {
+          line: 309,
+          column: 74
+        }
+      },
+      "18": {
+        start: {
+          line: 310,
+          column: 32
+        },
+        end: {
+          line: 310,
+          column: 72
+        }
+      },
+      "19": {
+        start: {
+          line: 311,
+          column: 16
+        },
+        end: {
+          line: 311,
+          column: 42
+        }
+      },
+      "20": {
+        start: {
+          line: 315,
+          column: 30
+        },
+        end: {
+          line: 315,
+          column: 42
+        }
+      },
+      "21": {
+        start: {
+          line: 316,
+          column: 16
+        },
+        end: {
+          line: 318,
+          column: 17
+        }
+      },
+      "22": {
+        start: {
+          line: 317,
+          column: 20
+        },
+        end: {
+          line: 317,
+          column: 50
+        }
+      },
+      "23": {
+        start: {
+          line: 319,
+          column: 38
+        },
+        end: {
+          line: 319,
+          column: 73
+        }
+      },
+      "24": {
+        start: {
+          line: 320,
+          column: 32
+        },
+        end: {
+          line: 323,
+          column: 18
+        }
+      },
+      "25": {
+        start: {
+          line: 324,
+          column: 16
+        },
+        end: {
+          line: 324,
+          column: 60
+        }
+      },
+      "26": {
+        start: {
+          line: 327,
+          column: 45
+        },
+        end: {
+          line: 327,
+          column: 49
+        }
+      },
+      "27": {
+        start: {
+          line: 328,
+          column: 16
+        },
+        end: {
+          line: 328,
+          column: 70
+        }
+      },
+      "28": {
+        start: {
+          line: 331,
+          column: 50
+        },
+        end: {
+          line: 331,
+          column: 54
+        }
+      },
+      "29": {
+        start: {
+          line: 332,
+          column: 16
+        },
+        end: {
+          line: 332,
+          column: 78
+        }
+      },
+      "30": {
+        start: {
+          line: 335,
+          column: 16
+        },
+        end: {
+          line: 335,
+          column: 65
+        }
+      },
+      "31": {
+        start: {
+          line: 339,
+          column: 8
+        },
+        end: {
+          line: 341,
+          column: 9
+        }
+      },
+      "32": {
+        start: {
+          line: 340,
+          column: 12
+        },
+        end: {
+          line: 340,
+          column: 68
+        }
+      },
+      "33": {
+        start: {
+          line: 342,
+          column: 8
+        },
+        end: {
+          line: 342,
+          column: 20
+        }
+      }
+    },
+    fnMap: {
+      "0": {
+        name: "createWebhookTools",
+        decl: {
+          start: {
+            line: 2,
+            column: 16
+          },
+          end: {
+            line: 2,
+            column: 34
+          }
+        },
+        loc: {
+          start: {
+            line: 2,
+            column: 43
+          },
+          end: {
+            line: 276,
+            column: 1
+          }
+        },
+        line: 2
+      },
+      "1": {
+        name: "handleWebhookTool",
+        decl: {
+          start: {
+            line: 277,
+            column: 22
+          },
+          end: {
+            line: 277,
+            column: 39
+          }
+        },
+        loc: {
+          start: {
+            line: 277,
+            column: 60
+          },
+          end: {
+            line: 344,
+            column: 1
+          }
+        },
+        line: 277
+      }
+    },
+    branchMap: {
+      "0": {
+        loc: {
+          start: {
+            line: 279,
+            column: 8
+          },
+          end: {
+            line: 336,
+            column: 9
+          }
+        },
+        type: "switch",
+        locations: [{
+          start: {
+            line: 280,
+            column: 12
+          },
+          end: {
+            line: 283,
+            column: 13
+          }
+        }, {
+          start: {
+            line: 284,
+            column: 12
+          },
+          end: {
+            line: 287,
+            column: 13
+          }
+        }, {
+          start: {
+            line: 288,
+            column: 12
+          },
+          end: {
+            line: 291,
+            column: 13
+          }
+        }, {
+          start: {
+            line: 292,
+            column: 12
+          },
+          end: {
+            line: 295,
+            column: 13
+          }
+        }, {
+          start: {
+            line: 296,
+            column: 12
+          },
+          end: {
+            line: 299,
+            column: 13
+          }
+        }, {
+          start: {
+            line: 300,
+            column: 12
+          },
+          end: {
+            line: 303,
+            column: 13
+          }
+        }, {
+          start: {
+            line: 304,
+            column: 12
+          },
+          end: {
+            line: 307,
+            column: 13
+          }
+        }, {
+          start: {
+            line: 308,
+            column: 12
+          },
+          end: {
+            line: 312,
+            column: 13
+          }
+        }, {
+          start: {
+            line: 313,
+            column: 12
+          },
+          end: {
+            line: 325,
+            column: 13
+          }
+        }, {
+          start: {
+            line: 326,
+            column: 12
+          },
+          end: {
+            line: 329,
+            column: 13
+          }
+        }, {
+          start: {
+            line: 330,
+            column: 12
+          },
+          end: {
+            line: 333,
+            column: 13
+          }
+        }, {
+          start: {
+            line: 334,
+            column: 12
+          },
+          end: {
+            line: 335,
+            column: 65
+          }
+        }],
+        line: 279
+      },
+      "1": {
+        loc: {
+          start: {
+            line: 316,
+            column: 16
+          },
+          end: {
+            line: 318,
+            column: 17
+          }
+        },
+        type: "if",
+        locations: [{
+          start: {
+            line: 316,
+            column: 16
+          },
+          end: {
+            line: 318,
+            column: 17
+          }
+        }, {
+          start: {
+            line: undefined,
+            column: undefined
+          },
+          end: {
+            line: undefined,
+            column: undefined
+          }
+        }],
+        line: 316
+      },
+      "2": {
+        loc: {
+          start: {
+            line: 339,
+            column: 8
+          },
+          end: {
+            line: 341,
+            column: 9
+          }
+        },
+        type: "if",
+        locations: [{
+          start: {
+            line: 339,
+            column: 8
+          },
+          end: {
+            line: 341,
+            column: 9
+          }
+        }, {
+          start: {
+            line: undefined,
+            column: undefined
+          },
+          end: {
+            line: undefined,
+            column: undefined
+          }
+        }],
+        line: 339
+      }
+    },
+    s: {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "10": 0,
+      "11": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "15": 0,
+      "16": 0,
+      "17": 0,
+      "18": 0,
+      "19": 0,
+      "20": 0,
+      "21": 0,
+      "22": 0,
+      "23": 0,
+      "24": 0,
+      "25": 0,
+      "26": 0,
+      "27": 0,
+      "28": 0,
+      "29": 0,
+      "30": 0,
+      "31": 0,
+      "32": 0,
+      "33": 0
+    },
+    f: {
+      "0": 0,
+      "1": 0
+    },
+    b: {
+      "0": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "1": [0, 0],
+      "2": [0, 0]
+    },
+    inputSourceMap: {
+      file: "/Users/peterkrzyzek/Development/clickup-mcp-server/src/tools/webhook-tools.ts",
+      mappings: "AAEA,OAAO,EACL,mBAAmB,EACnB,mBAAmB,EACnB,mBAAmB,EACnB,8BAA8B,EAC9B,oBAAoB,EACpB,oBAAoB,EACrB,MAAM,+BAA+B,CAAC;AAEvC,MAAM,UAAU,kBAAkB,CAAC,MAA8B;IAC/D,OAAO;QACL,iBAAiB;QACjB;YACE,IAAI,EAAE,gBAAgB;YACtB,WAAW,EAAE,wGAAwG;YACrH,WAAW,EAAE;gBACX,IAAI,EAAE,QAAQ;gBACd,UAAU,EAAE;oBACV,YAAY,EAAE;wBACZ,IAAI,EAAE,QAAQ;wBACd,WAAW,EAAE,kDAAkD;qBAChE;oBACD,QAAQ,EAAE;wBACR,IAAI,EAAE,QAAQ;wBACd,WAAW,EAAE,0DAA0D;qBACxE;oBACD,MAAM,EAAE;wBACN,IAAI,EAAE,OAAO;wBACb,KAAK,EAAE;4BACL,IAAI,EAAE,QAAQ;4BACd,IAAI,EAAE;gCACJ,aAAa,EAAE,aAAa,EAAE,aAAa,EAAE,mBAAmB;gCAChE,qBAAqB,EAAE,oBAAoB,EAAE,mBAAmB;gCAChE,oBAAoB,EAAE,iBAAiB,EAAE,iBAAiB;gCAC1D,aAAa,EAAE,aAAa,EAAE,aAAa;gCAC3C,eAAe,EAAE,eAAe,EAAE,eAAe;gCACjD,cAAc,EAAE,cAAc,EAAE,cAAc;gCAC9C,aAAa,EAAE,aAAa,EAAE,aAAa,EAAE,mBAAmB;6BACjE;yBACF;wBACD,WAAW,EAAE,iCAAiC;qBAC/C;oBACD,gBAAgB,EAAE;wBAChB,IAAI,EAAE,QAAQ;wBACd,WAAW,EAAE,wCAAwC;qBACtD;oBACD,MAAM,EAAE;wBACN,IAAI,EAAE,QAAQ;wBACd,WAAW,EAAE,+CAA+C;qBAC7D;iBACF;gBACD,QAAQ,EAAE,CAAC,cAAc,EAAE,UAAU,EAAE,QAAQ,CAAC;aACjD;SACF;QAED,eAAe;QACf;YACE,IAAI,EAAE,cAAc;YACpB,WAAW,EAAE,mFAAmF;YAChG,WAAW,EAAE;gBACX,IAAI,EAAE,QAAQ;gBACd,UAAU,EAAE;oBACV,YAAY,EAAE;wBACZ,IAAI,EAAE,QAAQ;wBACd,WAAW,EAAE,8CAA8C;qBAC5D;oBACD,MAAM,EAAE;wBACN,IAAI,EAAE,QAAQ;wBACd,IAAI,EAAE,CAAC,QAAQ,EAAE,UAAU,CAAC;wBAC5B,WAAW,EAAE,2BAA2B;qBACzC;oBACD,UAAU,EAAE;wBACV,IAAI,EAAE,QAAQ;wBACd,WAAW,EAAE,+BAA+B;qBAC7C;iBACF;gBACD,QAAQ,EAAE,CAAC,cAAc,CAAC;aAC3B;SACF;QAED,cAAc;QACd;YACE,IAAI,EAAE,aAAa;YACnB,WAAW,EAAE,8DAA8D;YAC3E,WAAW,EAAE;gBACX,IAAI,EAAE,QAAQ;gBACd,UAAU,EAAE;oBACV,UAAU,EAAE;wBACV,IAAI,EAAE,QAAQ;wBACd,WAAW,EAAE,8BAA8B;qBAC5C;iBACF;gBACD,QAAQ,EAAE,CAAC,YAAY,CAAC;aACzB;SACF;QAED,iBAAiB;QACjB;YACE,IAAI,EAAE,gBAAgB;YACtB,WAAW,EAAE,qFAAqF;YAClG,WAAW,EAAE;gBACX,IAAI,EAAE,QAAQ;gBACd,UAAU,EAAE;oBACV,UAAU,EAAE;wBACV,IAAI,EAAE,QAAQ;wBACd,WAAW,EAAE,iCAAiC;qBAC/C;oBACD,QAAQ,EAAE;wBACR,IAAI,EAAE,QAAQ;wBACd,WAAW,EAAE,gDAAgD;qBAC9D;oBACD,MAAM,EAAE;wBACN,IAAI,EAAE,OAAO;wBACb,KAAK,EAAE;4BACL,IAAI,EAAE,QAAQ;4BACd,IAAI,EAAE;gCACJ,aAAa,EAAE,aAAa,EAAE,aAAa,EAAE,mBAAmB;gCAChE,qBAAqB,EAAE,oBAAoB,EAAE,mBAAmB;gCAChE,oBAAoB,EAAE,iBAAiB,EAAE,iBAAiB;gCAC1D,aAAa,EAAE,aAAa,EAAE,aAAa;gCAC3C,eAAe,EAAE,eAAe,EAAE,eAAe;gCACjD,cAAc,EAAE,cAAc,EAAE,cAAc;gCAC9C,aAAa,EAAE,aAAa,EAAE,aAAa,EAAE,mBAAmB;6BACjE;yBACF;wBACD,WAAW,EAAE,qCAAqC;qBACnD;oBACD,gBAAgB,EAAE;wBAChB,IAAI,EAAE,QAAQ;wBACd,WAAW,EAAE,mCAAmC;qBACjD;oBACD,MAAM,EAAE;wBACN,IAAI,EAAE,QAAQ;wBACd,WAAW,EAAE,0CAA0C;qBACxD;oBACD,MAAM,EAAE;wBACN,IAAI,EAAE,QAAQ;wBACd,IAAI,EAAE,CAAC,QAAQ,EAAE,UAAU,CAAC;wBAC5B,WAAW,EAAE,4BAA4B;qBAC1C;iBACF;gBACD,QAAQ,EAAE,CAAC,YAAY,CAAC;aACzB;SACF;QAED,iBAAiB;QACjB;YACE,IAAI,EAAE,gBAAgB;YACtB,WAAW,EAAE,0FAA0F;YACvG,WAAW,EAAE;gBACX,IAAI,EAAE,QAAQ;gBACd,UAAU,EAAE;oBACV,UAAU,EAAE;wBACV,IAAI,EAAE,QAAQ;wBACd,WAAW,EAAE,iCAAiC;qBAC/C;iBACF;gBACD,QAAQ,EAAE,CAAC,YAAY,CAAC;aACzB;SACF;QAED,4BAA4B;QAC5B;YACE,IAAI,EAAE,2BAA2B;YACjC,WAAW,EAAE,mFAAmF;YAChG,WAAW,EAAE;gBACX,IAAI,EAAE,QAAQ;gBACd,UAAU,EAAE;oBACV,UAAU,EAAE;wBACV,IAAI,EAAE,QAAQ;wBACd,WAAW,EAAE,gDAAgD;qBAC9D;oBACD,KAAK,EAAE;wBACL,IAAI,EAAE,QAAQ;wBACd,WAAW,EAAE,oCAAoC;qBAClD;iBACF;gBACD,QAAQ,EAAE,CAAC,YAAY,CAAC;aACzB;SACF;QAED,eAAe;QACf;YACE,IAAI,EAAE,cAAc;YACpB,WAAW,EAAE,2EAA2E;YACxF,WAAW,EAAE;gBACX,IAAI,EAAE,QAAQ;gBACd,UAAU,EAAE;oBACV,UAAU,EAAE;wBACV,IAAI,EAAE,QAAQ;wBACd,WAAW,EAAE,+BAA+B;qBAC7C;iBACF;gBACD,QAAQ,EAAE,CAAC,YAAY,CAAC;aACzB;SACF;QAED,6BAA6B;QAC7B;YACE,IAAI,EAAE,4BAA4B;YAClC,WAAW,EAAE,0EAA0E;YACvF,WAAW,EAAE;gBACX,IAAI,EAAE,QAAQ;gBACd,UAAU,EAAE;oBACV,OAAO,EAAE;wBACP,IAAI,EAAE,QAAQ;wBACd,WAAW,EAAE,qCAAqC;qBACnD;oBACD,SAAS,EAAE;wBACT,IAAI,EAAE,QAAQ;wBACd,WAAW,EAAE,+CAA+C;qBAC7D;oBACD,MAAM,EAAE;wBACN,IAAI,EAAE,QAAQ;wBACd,WAAW,EAAE,kDAAkD;qBAChE;iBACF;gBACD,QAAQ,EAAE,CAAC,SAAS,EAAE,WAAW,EAAE,QAAQ,CAAC;aAC7C;SACF;QAED,kBAAkB;QAClB;YACE,IAAI,EAAE,iBAAiB;YACvB,WAAW,EAAE,yFAAyF;YACtG,WAAW,EAAE;gBACX,IAAI,EAAE,QAAQ;gBACd,UAAU,EAAE;oBACV,OAAO,EAAE;wBACP,IAAI,EAAE,QAAQ;wBACd,WAAW,EAAE,4BAA4B;qBAC1C;oBACD,kBAAkB,EAAE;wBAClB,IAAI,EAAE,SAAS;wBACf,WAAW,EAAE,2CAA2C;wBACxD,OAAO,EAAE,IAAI;qBACd;oBACD,SAAS,EAAE;wBACT,IAAI,EAAE,QAAQ;wBACd,WAAW,EAAE,qCAAqC;qBACnD;oBACD,MAAM,EAAE;wBACN,IAAI,EAAE,QAAQ;wBACd,WAAW,EAAE,6CAA6C;qBAC3D;iBACF;gBACD,QAAQ,EAAE,CAAC,SAAS,CAAC;aACtB;SACF;QAED,yBAAyB;QACzB;YACE,IAAI,EAAE,mBAAmB;YACzB,WAAW,EAAE,qFAAqF;YAClG,WAAW,EAAE;gBACX,IAAI,EAAE,QAAQ;gBACd,UAAU,EAAE;oBACV,UAAU,EAAE;wBACV,IAAI,EAAE,QAAQ;wBACd,WAAW,EAAE,6CAA6C;qBAC3D;oBACD,IAAI,EAAE;wBACJ,IAAI,EAAE,QAAQ;wBACd,WAAW,EAAE,uDAAuD;qBACrE;iBACF;gBACD,QAAQ,EAAE,CAAC,YAAY,CAAC;aACzB;SACF;QAED,uBAAuB;QACvB;YACE,IAAI,EAAE,sBAAsB;YAC5B,WAAW,EAAE,qDAAqD;YAClE,WAAW,EAAE;gBACX,IAAI,EAAE,QAAQ;gBACd,UAAU,EAAE;oBACV,UAAU,EAAE;wBACV,IAAI,EAAE,QAAQ;wBACd,WAAW,EAAE,2CAA2C;qBACzD;oBACD,SAAS,EAAE;wBACT,IAAI,EAAE,OAAO;wBACb,KAAK,EAAE;4BACL,IAAI,EAAE,QAAQ;yBACf;wBACD,WAAW,EAAE,oGAAoG;qBAClH;iBACF;gBACD,QAAQ,EAAE,CAAC,YAAY,CAAC;aACzB;SACF;KACF,CAAC;AACJ,CAAC;AAED,MAAM,CAAC,KAAK,UAAU,iBAAiB,CACrC,IAAY,EACZ,IAAS,EACT,MAA8B;IAE9B,IAAI,CAAC;QACH,QAAQ,IAAI,EAAE,CAAC;YACb,KAAK,gBAAgB,CAAC,CAAC,CAAC;gBACtB,MAAM,OAAO,GAAG,mBAAmB,CAAC,KAAK,CAAC,IAAI,CAAC,CAAC;gBAChD,OAAO,MAAM,MAAM,CAAC,aAAa,CAAC,OAAO,CAAC,CAAC;YAC7C,CAAC;YAED,KAAK,cAAc,CAAC,CAAC,CAAC;gBACpB,MAAM,MAAM,GAAG,mBAAmB,CAAC,KAAK,CAAC,IAAI,CAAC,CAAC;gBAC/C,OAAO,MAAM,MAAM,CAAC,WAAW,CAAC,MAAM,CAAC,CAAC;YAC1C,CAAC;YAED,KAAK,aAAa,CAAC,CAAC,CAAC;gBACnB,MAAM,EAAE,UAAU,EAAE,GAAG,IAAI,CAAC;gBAC5B,OAAO,MAAM,MAAM,CAAC,UAAU,CAAC,UAAU,CAAC,CAAC;YAC7C,CAAC;YAED,KAAK,gBAAgB,CAAC,CAAC,CAAC;gBACtB,MAAM,OAAO,GAAG,mBAAmB,CAAC,KAAK,CAAC,IAAI,CAAC,CAAC;gBAChD,OAAO,MAAM,MAAM,CAAC,aAAa,CAAC,OAAO,CAAC,CAAC;YAC7C,CAAC;YAED,KAAK,gBAAgB,CAAC,CAAC,CAAC;gBACtB,MAAM,EAAE,UAAU,EAAE,GAAG,IAAI,CAAC;gBAC5B,OAAO,MAAM,MAAM,CAAC,aAAa,CAAC,UAAU,CAAC,CAAC;YAChD,CAAC;YAED,KAAK,2BAA2B,CAAC,CAAC,CAAC;gBACjC,MAAM,EAAE,UAAU,EAAE,KAAK,EAAE,GAAG,IAAI,CAAC;gBACnC,OAAO,MAAM,MAAM,CAAC,sBAAsB,CAAC,UAAU,EAAE,KAAK,CAAC,CAAC;YAChE,CAAC;YAED,KAAK,cAAc,CAAC,CAAC,CAAC;gBACpB,MAAM,EAAE,UAAU,EAAE,GAAG,IAAI,CAAC;gBAC5B,OAAO,MAAM,MAAM,CAAC,WAAW,CAAC,UAAU,CAAC,CAAC;YAC9C,CAAC;YAED,KAAK,4BAA4B,CAAC,CAAC,CAAC;gBAClC,MAAM,OAAO,GAAG,8BAA8B,CAAC,KAAK,CAAC,IAAI,CAAC,CAAC;gBAC3D,MAAM,OAAO,GAAG,MAAM,CAAC,wBAAwB,CAAC,OAAO,CAAC,CAAC;gBACzD,OAAO,EAAE,KAAK,EAAE,OAAO,EAAE,CAAC;YAC5B,CAAC;YAED,KAAK,iBAAiB,CAAC,CAAC,CAAC;gBACvB,qCAAqC;gBACrC,IAAI,OAAO,GAAG,IAAI,CAAC,OAAO,CAAC;gBAC3B,IAAI,OAAO,OAAO,KAAK,QAAQ,EAAE,CAAC;oBAChC,OAAO,GAAG,IAAI,CAAC,KAAK,CAAC,OAAO,CAAC,CAAC;gBAChC,CAAC;gBAED,MAAM,aAAa,GAAG,oBAAoB,CAAC,KAAK,CAAC,OAAO,CAAC,CAAC;gBAC1D,MAAM,OAAO,GAAG,oBAAoB,CAAC,KAAK,CAAC;oBACzC,GAAG,IAAI;oBACP,OAAO,EAAE,aAAa;iBACvB,CAAC,CAAC;gBACH,OAAO,MAAM,MAAM,CAAC,cAAc,CAAC,OAAO,CAAC,CAAC;YAC9C,CAAC;YAED,KAAK,mBAAmB,CAAC,CAAC,CAAC;gBACzB,MAAM,EAAE,UAAU,EAAE,IAAI,EAAE,GAAG,IAAI,CAAC;gBAClC,OAAO,MAAM,MAAM,CAAC,eAAe,CAAC,UAAU,EAAE,IAAI,CAAC,CAAC;YACxD,CAAC;YAED,KAAK,sBAAsB,CAAC,CAAC,CAAC;gBAC5B,MAAM,EAAE,UAAU,EAAE,SAAS,EAAE,GAAG,IAAI,CAAC;gBACvC,OAAO,MAAM,MAAM,CAAC,kBAAkB,CAAC,UAAU,EAAE,SAAS,CAAC,CAAC;YAChE,CAAC;YAED;gBACE,MAAM,IAAI,KAAK,CAAC,yBAAyB,IAAI,EAAE,CAAC,CAAC;QACrD,CAAC;IACH,CAAC;IAAC,OAAO,KAAK,EAAE,CAAC;QACf,IAAI,KAAK,YAAY,KAAK,EAAE,CAAC;YAC3B,MAAM,IAAI,KAAK,CAAC,uBAAuB,KAAK,CAAC,OAAO,EAAE,CAAC,CAAC;QAC1D,CAAC;QACD,MAAM,KAAK,CAAC;IACd,CAAC;AACH,CAAC",
+      names: [],
+      sources: ["/Users/peterkrzyzek/Development/clickup-mcp-server/src/tools/webhook-tools.ts"],
+      sourcesContent: ["import { Tool } from '@modelcontextprotocol/sdk/types.js';\nimport { WebhooksEnhancedClient } from '../clickup-client/webhooks-enhanced.js';\nimport {\n  CreateWebhookSchema,\n  UpdateWebhookSchema,\n  WebhookFilterSchema,\n  ValidateWebhookSignatureSchema,\n  ProcessWebhookSchema,\n  WebhookPayloadSchema\n} from '../schemas/webhook-schemas.js';\n\nexport function createWebhookTools(client: WebhooksEnhancedClient): Tool[] {\n  return [\n    // Create webhook\n    {\n      name: 'create_webhook',\n      description: 'Create a new webhook in a ClickUp workspace. Webhooks allow real-time notifications when events occur.',\n      inputSchema: {\n        type: 'object',\n        properties: {\n          workspace_id: {\n            type: 'string',\n            description: 'The ID of the workspace to create the webhook in'\n          },\n          endpoint: {\n            type: 'string',\n            description: 'The URL endpoint that will receive webhook notifications'\n          },\n          events: {\n            type: 'array',\n            items: {\n              type: 'string',\n              enum: [\n                'taskCreated', 'taskUpdated', 'taskDeleted', 'taskStatusUpdated',\n                'taskAssigneeUpdated', 'taskDueDateUpdated', 'taskCommentPosted',\n                'taskCommentUpdated', 'taskTimeTracked', 'taskTimeUpdated',\n                'listCreated', 'listUpdated', 'listDeleted',\n                'folderCreated', 'folderUpdated', 'folderDeleted',\n                'spaceCreated', 'spaceUpdated', 'spaceDeleted',\n                'goalCreated', 'goalUpdated', 'goalDeleted', 'goalTargetUpdated'\n              ]\n            },\n            description: 'Array of events to subscribe to'\n          },\n          health_check_url: {\n            type: 'string',\n            description: 'Optional URL for webhook health checks'\n          },\n          secret: {\n            type: 'string',\n            description: 'Optional secret for HMAC signature validation'\n          }\n        },\n        required: ['workspace_id', 'endpoint', 'events']\n      }\n    },\n\n    // Get webhooks\n    {\n      name: 'get_webhooks',\n      description: 'Get all webhooks for a workspace with optional filtering by status or event type.',\n      inputSchema: {\n        type: 'object',\n        properties: {\n          workspace_id: {\n            type: 'string',\n            description: 'The ID of the workspace to get webhooks from'\n          },\n          status: {\n            type: 'string',\n            enum: ['active', 'inactive'],\n            description: 'Filter webhooks by status'\n          },\n          event_type: {\n            type: 'string',\n            description: 'Filter webhooks by event type'\n          }\n        },\n        required: ['workspace_id']\n      }\n    },\n\n    // Get webhook\n    {\n      name: 'get_webhook',\n      description: 'Get detailed information about a specific webhook by its ID.',\n      inputSchema: {\n        type: 'object',\n        properties: {\n          webhook_id: {\n            type: 'string',\n            description: 'The ID of the webhook to get'\n          }\n        },\n        required: ['webhook_id']\n      }\n    },\n\n    // Update webhook\n    {\n      name: 'update_webhook',\n      description: 'Update an existing webhook\\'s configuration including endpoint, events, and status.',\n      inputSchema: {\n        type: 'object',\n        properties: {\n          webhook_id: {\n            type: 'string',\n            description: 'The ID of the webhook to update'\n          },\n          endpoint: {\n            type: 'string',\n            description: 'The new URL endpoint for webhook notifications'\n          },\n          events: {\n            type: 'array',\n            items: {\n              type: 'string',\n              enum: [\n                'taskCreated', 'taskUpdated', 'taskDeleted', 'taskStatusUpdated',\n                'taskAssigneeUpdated', 'taskDueDateUpdated', 'taskCommentPosted',\n                'taskCommentUpdated', 'taskTimeTracked', 'taskTimeUpdated',\n                'listCreated', 'listUpdated', 'listDeleted',\n                'folderCreated', 'folderUpdated', 'folderDeleted',\n                'spaceCreated', 'spaceUpdated', 'spaceDeleted',\n                'goalCreated', 'goalUpdated', 'goalDeleted', 'goalTargetUpdated'\n              ]\n            },\n            description: 'New array of events to subscribe to'\n          },\n          health_check_url: {\n            type: 'string',\n            description: 'New URL for webhook health checks'\n          },\n          secret: {\n            type: 'string',\n            description: 'New secret for HMAC signature validation'\n          },\n          status: {\n            type: 'string',\n            enum: ['active', 'inactive'],\n            description: 'New status for the webhook'\n          }\n        },\n        required: ['webhook_id']\n      }\n    },\n\n    // Delete webhook\n    {\n      name: 'delete_webhook',\n      description: 'Delete a webhook from ClickUp. This will stop all notifications to the webhook endpoint.',\n      inputSchema: {\n        type: 'object',\n        properties: {\n          webhook_id: {\n            type: 'string',\n            description: 'The ID of the webhook to delete'\n          }\n        },\n        required: ['webhook_id']\n      }\n    },\n\n    // Get webhook event history\n    {\n      name: 'get_webhook_event_history',\n      description: 'Get the event history for a webhook including delivery status and response codes.',\n      inputSchema: {\n        type: 'object',\n        properties: {\n          webhook_id: {\n            type: 'string',\n            description: 'The ID of the webhook to get event history for'\n          },\n          limit: {\n            type: 'number',\n            description: 'Maximum number of events to return'\n          }\n        },\n        required: ['webhook_id']\n      }\n    },\n\n    // Ping webhook\n    {\n      name: 'ping_webhook',\n      description: 'Send a test ping to a webhook endpoint to verify it\\'s working correctly.',\n      inputSchema: {\n        type: 'object',\n        properties: {\n          webhook_id: {\n            type: 'string',\n            description: 'The ID of the webhook to ping'\n          }\n        },\n        required: ['webhook_id']\n      }\n    },\n\n    // Validate webhook signature\n    {\n      name: 'validate_webhook_signature',\n      description: 'Validate the HMAC signature of a webhook payload to ensure authenticity.',\n      inputSchema: {\n        type: 'object',\n        properties: {\n          payload: {\n            type: 'string',\n            description: 'The raw webhook payload as a string'\n          },\n          signature: {\n            type: 'string',\n            description: 'The signature header from the webhook request'\n          },\n          secret: {\n            type: 'string',\n            description: 'The webhook secret used for signature generation'\n          }\n        },\n        required: ['payload', 'signature', 'secret']\n      }\n    },\n\n    // Process webhook\n    {\n      name: 'process_webhook',\n      description: 'Process an incoming webhook payload and extract structured information about the event.',\n      inputSchema: {\n        type: 'object',\n        properties: {\n          payload: {\n            type: 'object',\n            description: 'The webhook payload object'\n          },\n          validate_signature: {\n            type: 'boolean',\n            description: 'Whether to validate the webhook signature',\n            default: true\n          },\n          signature: {\n            type: 'string',\n            description: 'The signature header for validation'\n          },\n          secret: {\n            type: 'string',\n            description: 'The webhook secret for signature validation'\n          }\n        },\n        required: ['payload']\n      }\n    },\n\n    // Get webhook statistics\n    {\n      name: 'get_webhook_stats',\n      description: 'Get statistics about webhook performance including success rate and response times.',\n      inputSchema: {\n        type: 'object',\n        properties: {\n          webhook_id: {\n            type: 'string',\n            description: 'The ID of the webhook to get statistics for'\n          },\n          days: {\n            type: 'number',\n            description: 'Number of days to include in statistics (default: 30)'\n          }\n        },\n        required: ['webhook_id']\n      }\n    },\n\n    // Retry webhook events\n    {\n      name: 'retry_webhook_events',\n      description: 'Retry failed webhook events for a specific webhook.',\n      inputSchema: {\n        type: 'object',\n        properties: {\n          webhook_id: {\n            type: 'string',\n            description: 'The ID of the webhook to retry events for'\n          },\n          event_ids: {\n            type: 'array',\n            items: {\n              type: 'string'\n            },\n            description: 'Optional array of specific event IDs to retry. If not provided, all failed events will be retried.'\n          }\n        },\n        required: ['webhook_id']\n      }\n    }\n  ];\n}\n\nexport async function handleWebhookTool(\n  name: string,\n  args: any,\n  client: WebhooksEnhancedClient\n): Promise<any> {\n  try {\n    switch (name) {\n      case 'create_webhook': {\n        const request = CreateWebhookSchema.parse(args);\n        return await client.createWebhook(request);\n      }\n\n      case 'get_webhooks': {\n        const filter = WebhookFilterSchema.parse(args);\n        return await client.getWebhooks(filter);\n      }\n\n      case 'get_webhook': {\n        const { webhook_id } = args;\n        return await client.getWebhook(webhook_id);\n      }\n\n      case 'update_webhook': {\n        const request = UpdateWebhookSchema.parse(args);\n        return await client.updateWebhook(request);\n      }\n\n      case 'delete_webhook': {\n        const { webhook_id } = args;\n        return await client.deleteWebhook(webhook_id);\n      }\n\n      case 'get_webhook_event_history': {\n        const { webhook_id, limit } = args;\n        return await client.getWebhookEventHistory(webhook_id, limit);\n      }\n\n      case 'ping_webhook': {\n        const { webhook_id } = args;\n        return await client.pingWebhook(webhook_id);\n      }\n\n      case 'validate_webhook_signature': {\n        const request = ValidateWebhookSignatureSchema.parse(args);\n        const isValid = client.validateWebhookSignature(request);\n        return { valid: isValid };\n      }\n\n      case 'process_webhook': {\n        // Parse the payload if it's a string\n        let payload = args.payload;\n        if (typeof payload === 'string') {\n          payload = JSON.parse(payload);\n        }\n        \n        const parsedPayload = WebhookPayloadSchema.parse(payload);\n        const request = ProcessWebhookSchema.parse({\n          ...args,\n          payload: parsedPayload\n        });\n        return await client.processWebhook(request);\n      }\n\n      case 'get_webhook_stats': {\n        const { webhook_id, days } = args;\n        return await client.getWebhookStats(webhook_id, days);\n      }\n\n      case 'retry_webhook_events': {\n        const { webhook_id, event_ids } = args;\n        return await client.retryWebhookEvents(webhook_id, event_ids);\n      }\n\n      default:\n        throw new Error(`Unknown webhook tool: ${name}`);\n    }\n  } catch (error) {\n    if (error instanceof Error) {\n      throw new Error(`Webhook tool error: ${error.message}`);\n    }\n    throw error;\n  }\n}\n"],
+      version: 3
+    },
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "f33784407f4e3ba2665444a05a6c8ca1d7bf6c87"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    // @ts-ignore
+    cov_1qfkmbolti = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_1qfkmbolti();
+import { CreateWebhookSchema, UpdateWebhookSchema, WebhookFilterSchema, ValidateWebhookSignatureSchema, ProcessWebhookSchema, WebhookPayloadSchema } from '../schemas/webhook-schemas.js';
+export function createWebhookTools(client) {
+  /* istanbul ignore next */
+  cov_1qfkmbolti().f[0]++;
+  cov_1qfkmbolti().s[0]++;
+  return [
+  // Create webhook
+  {
+    name: 'create_webhook',
+    description: 'Create a new webhook in a ClickUp workspace. Webhooks allow real-time notifications when events occur.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        workspace_id: {
+          type: 'string',
+          description: 'The ID of the workspace to create the webhook in'
+        },
+        endpoint: {
+          type: 'string',
+          description: 'The URL endpoint that will receive webhook notifications'
+        },
+        events: {
+          type: 'array',
+          items: {
+            type: 'string',
+            enum: ['taskCreated', 'taskUpdated', 'taskDeleted', 'taskStatusUpdated', 'taskAssigneeUpdated', 'taskDueDateUpdated', 'taskCommentPosted', 'taskCommentUpdated', 'taskTimeTracked', 'taskTimeUpdated', 'listCreated', 'listUpdated', 'listDeleted', 'folderCreated', 'folderUpdated', 'folderDeleted', 'spaceCreated', 'spaceUpdated', 'spaceDeleted', 'goalCreated', 'goalUpdated', 'goalDeleted', 'goalTargetUpdated']
+          },
+          description: 'Array of events to subscribe to'
+        },
+        health_check_url: {
+          type: 'string',
+          description: 'Optional URL for webhook health checks'
+        },
+        secret: {
+          type: 'string',
+          description: 'Optional secret for HMAC signature validation'
+        }
+      },
+      required: ['workspace_id', 'endpoint', 'events']
+    }
+  },
+  // Get webhooks
+  {
+    name: 'get_webhooks',
+    description: 'Get all webhooks for a workspace with optional filtering by status or event type.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        workspace_id: {
+          type: 'string',
+          description: 'The ID of the workspace to get webhooks from'
+        },
+        status: {
+          type: 'string',
+          enum: ['active', 'inactive'],
+          description: 'Filter webhooks by status'
+        },
+        event_type: {
+          type: 'string',
+          description: 'Filter webhooks by event type'
+        }
+      },
+      required: ['workspace_id']
+    }
+  },
+  // Get webhook
+  {
+    name: 'get_webhook',
+    description: 'Get detailed information about a specific webhook by its ID.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        webhook_id: {
+          type: 'string',
+          description: 'The ID of the webhook to get'
+        }
+      },
+      required: ['webhook_id']
+    }
+  },
+  // Update webhook
+  {
+    name: 'update_webhook',
+    description: 'Update an existing webhook\'s configuration including endpoint, events, and status.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        webhook_id: {
+          type: 'string',
+          description: 'The ID of the webhook to update'
+        },
+        endpoint: {
+          type: 'string',
+          description: 'The new URL endpoint for webhook notifications'
+        },
+        events: {
+          type: 'array',
+          items: {
+            type: 'string',
+            enum: ['taskCreated', 'taskUpdated', 'taskDeleted', 'taskStatusUpdated', 'taskAssigneeUpdated', 'taskDueDateUpdated', 'taskCommentPosted', 'taskCommentUpdated', 'taskTimeTracked', 'taskTimeUpdated', 'listCreated', 'listUpdated', 'listDeleted', 'folderCreated', 'folderUpdated', 'folderDeleted', 'spaceCreated', 'spaceUpdated', 'spaceDeleted', 'goalCreated', 'goalUpdated', 'goalDeleted', 'goalTargetUpdated']
+          },
+          description: 'New array of events to subscribe to'
+        },
+        health_check_url: {
+          type: 'string',
+          description: 'New URL for webhook health checks'
+        },
+        secret: {
+          type: 'string',
+          description: 'New secret for HMAC signature validation'
+        },
+        status: {
+          type: 'string',
+          enum: ['active', 'inactive'],
+          description: 'New status for the webhook'
+        }
+      },
+      required: ['webhook_id']
+    }
+  },
+  // Delete webhook
+  {
+    name: 'delete_webhook',
+    description: 'Delete a webhook from ClickUp. This will stop all notifications to the webhook endpoint.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        webhook_id: {
+          type: 'string',
+          description: 'The ID of the webhook to delete'
+        }
+      },
+      required: ['webhook_id']
+    }
+  },
+  // Get webhook event history
+  {
+    name: 'get_webhook_event_history',
+    description: 'Get the event history for a webhook including delivery status and response codes.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        webhook_id: {
+          type: 'string',
+          description: 'The ID of the webhook to get event history for'
+        },
+        limit: {
+          type: 'number',
+          description: 'Maximum number of events to return'
+        }
+      },
+      required: ['webhook_id']
+    }
+  },
+  // Ping webhook
+  {
+    name: 'ping_webhook',
+    description: 'Send a test ping to a webhook endpoint to verify it\'s working correctly.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        webhook_id: {
+          type: 'string',
+          description: 'The ID of the webhook to ping'
+        }
+      },
+      required: ['webhook_id']
+    }
+  },
+  // Validate webhook signature
+  {
+    name: 'validate_webhook_signature',
+    description: 'Validate the HMAC signature of a webhook payload to ensure authenticity.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        payload: {
+          type: 'string',
+          description: 'The raw webhook payload as a string'
+        },
+        signature: {
+          type: 'string',
+          description: 'The signature header from the webhook request'
+        },
+        secret: {
+          type: 'string',
+          description: 'The webhook secret used for signature generation'
+        }
+      },
+      required: ['payload', 'signature', 'secret']
+    }
+  },
+  // Process webhook
+  {
+    name: 'process_webhook',
+    description: 'Process an incoming webhook payload and extract structured information about the event.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        payload: {
+          type: 'object',
+          description: 'The webhook payload object'
+        },
+        validate_signature: {
+          type: 'boolean',
+          description: 'Whether to validate the webhook signature',
+          default: true
+        },
+        signature: {
+          type: 'string',
+          description: 'The signature header for validation'
+        },
+        secret: {
+          type: 'string',
+          description: 'The webhook secret for signature validation'
+        }
+      },
+      required: ['payload']
+    }
+  },
+  // Get webhook statistics
+  {
+    name: 'get_webhook_stats',
+    description: 'Get statistics about webhook performance including success rate and response times.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        webhook_id: {
+          type: 'string',
+          description: 'The ID of the webhook to get statistics for'
+        },
+        days: {
+          type: 'number',
+          description: 'Number of days to include in statistics (default: 30)'
+        }
+      },
+      required: ['webhook_id']
+    }
+  },
+  // Retry webhook events
+  {
+    name: 'retry_webhook_events',
+    description: 'Retry failed webhook events for a specific webhook.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        webhook_id: {
+          type: 'string',
+          description: 'The ID of the webhook to retry events for'
+        },
+        event_ids: {
+          type: 'array',
+          items: {
+            type: 'string'
+          },
+          description: 'Optional array of specific event IDs to retry. If not provided, all failed events will be retried.'
+        }
+      },
+      required: ['webhook_id']
+    }
+  }];
+}
+export async function handleWebhookTool(name, args, client) {
+  /* istanbul ignore next */
+  cov_1qfkmbolti().f[1]++;
+  cov_1qfkmbolti().s[1]++;
+  try {
+    /* istanbul ignore next */
+    cov_1qfkmbolti().s[2]++;
+    switch (name) {
+      case 'create_webhook':
+        /* istanbul ignore next */
+        cov_1qfkmbolti().b[0][0]++;
+        {
+          const request =
+          /* istanbul ignore next */
+          (cov_1qfkmbolti().s[3]++, CreateWebhookSchema.parse(args));
+          /* istanbul ignore next */
+          cov_1qfkmbolti().s[4]++;
+          return await client.createWebhook(request);
+        }
+      case 'get_webhooks':
+        /* istanbul ignore next */
+        cov_1qfkmbolti().b[0][1]++;
+        {
+          const filter =
+          /* istanbul ignore next */
+          (cov_1qfkmbolti().s[5]++, WebhookFilterSchema.parse(args));
+          /* istanbul ignore next */
+          cov_1qfkmbolti().s[6]++;
+          return await client.getWebhooks(filter);
+        }
+      case 'get_webhook':
+        /* istanbul ignore next */
+        cov_1qfkmbolti().b[0][2]++;
+        {
+          const {
+            webhook_id
+          } =
+          /* istanbul ignore next */
+          (cov_1qfkmbolti().s[7]++, args);
+          /* istanbul ignore next */
+          cov_1qfkmbolti().s[8]++;
+          return await client.getWebhook(webhook_id);
+        }
+      case 'update_webhook':
+        /* istanbul ignore next */
+        cov_1qfkmbolti().b[0][3]++;
+        {
+          const request =
+          /* istanbul ignore next */
+          (cov_1qfkmbolti().s[9]++, UpdateWebhookSchema.parse(args));
+          /* istanbul ignore next */
+          cov_1qfkmbolti().s[10]++;
+          return await client.updateWebhook(request);
+        }
+      case 'delete_webhook':
+        /* istanbul ignore next */
+        cov_1qfkmbolti().b[0][4]++;
+        {
+          const {
+            webhook_id
+          } =
+          /* istanbul ignore next */
+          (cov_1qfkmbolti().s[11]++, args);
+          /* istanbul ignore next */
+          cov_1qfkmbolti().s[12]++;
+          return await client.deleteWebhook(webhook_id);
+        }
+      case 'get_webhook_event_history':
+        /* istanbul ignore next */
+        cov_1qfkmbolti().b[0][5]++;
+        {
+          const {
+            webhook_id,
+            limit
+          } =
+          /* istanbul ignore next */
+          (cov_1qfkmbolti().s[13]++, args);
+          /* istanbul ignore next */
+          cov_1qfkmbolti().s[14]++;
+          return await client.getWebhookEventHistory(webhook_id, limit);
+        }
+      case 'ping_webhook':
+        /* istanbul ignore next */
+        cov_1qfkmbolti().b[0][6]++;
+        {
+          const {
+            webhook_id
+          } =
+          /* istanbul ignore next */
+          (cov_1qfkmbolti().s[15]++, args);
+          /* istanbul ignore next */
+          cov_1qfkmbolti().s[16]++;
+          return await client.pingWebhook(webhook_id);
+        }
+      case 'validate_webhook_signature':
+        /* istanbul ignore next */
+        cov_1qfkmbolti().b[0][7]++;
+        {
+          const request =
+          /* istanbul ignore next */
+          (cov_1qfkmbolti().s[17]++, ValidateWebhookSignatureSchema.parse(args));
+          const isValid =
+          /* istanbul ignore next */
+          (cov_1qfkmbolti().s[18]++, client.validateWebhookSignature(request));
+          /* istanbul ignore next */
+          cov_1qfkmbolti().s[19]++;
+          return {
+            valid: isValid
+          };
+        }
+      case 'process_webhook':
+        /* istanbul ignore next */
+        cov_1qfkmbolti().b[0][8]++;
+        {
+          // Parse the payload if it's a string
+          let payload =
+          /* istanbul ignore next */
+          (cov_1qfkmbolti().s[20]++, args.payload);
+          /* istanbul ignore next */
+          cov_1qfkmbolti().s[21]++;
+          if (typeof payload === 'string') {
+            /* istanbul ignore next */
+            cov_1qfkmbolti().b[1][0]++;
+            cov_1qfkmbolti().s[22]++;
+            payload = JSON.parse(payload);
+          } else
+          /* istanbul ignore next */
+          {
+            cov_1qfkmbolti().b[1][1]++;
+          }
+          const parsedPayload =
+          /* istanbul ignore next */
+          (cov_1qfkmbolti().s[23]++, WebhookPayloadSchema.parse(payload));
+          const request =
+          /* istanbul ignore next */
+          (cov_1qfkmbolti().s[24]++, ProcessWebhookSchema.parse({
+            ...args,
+            payload: parsedPayload
+          }));
+          /* istanbul ignore next */
+          cov_1qfkmbolti().s[25]++;
+          return await client.processWebhook(request);
+        }
+      case 'get_webhook_stats':
+        /* istanbul ignore next */
+        cov_1qfkmbolti().b[0][9]++;
+        {
+          const {
+            webhook_id,
+            days
+          } =
+          /* istanbul ignore next */
+          (cov_1qfkmbolti().s[26]++, args);
+          /* istanbul ignore next */
+          cov_1qfkmbolti().s[27]++;
+          return await client.getWebhookStats(webhook_id, days);
+        }
+      case 'retry_webhook_events':
+        /* istanbul ignore next */
+        cov_1qfkmbolti().b[0][10]++;
+        {
+          const {
+            webhook_id,
+            event_ids
+          } =
+          /* istanbul ignore next */
+          (cov_1qfkmbolti().s[28]++, args);
+          /* istanbul ignore next */
+          cov_1qfkmbolti().s[29]++;
+          return await client.retryWebhookEvents(webhook_id, event_ids);
+        }
+      default:
+        /* istanbul ignore next */
+        cov_1qfkmbolti().b[0][11]++;
+        cov_1qfkmbolti().s[30]++;
+        throw new Error(`Unknown webhook tool: ${name}`);
+    }
+  } catch (error) {
+    /* istanbul ignore next */
+    cov_1qfkmbolti().s[31]++;
+    if (error instanceof Error) {
+      /* istanbul ignore next */
+      cov_1qfkmbolti().b[2][0]++;
+      cov_1qfkmbolti().s[32]++;
+      throw new Error(`Webhook tool error: ${error.message}`);
+    } else
+    /* istanbul ignore next */
+    {
+      cov_1qfkmbolti().b[2][1]++;
+    }
+    cov_1qfkmbolti().s[33]++;
+    throw error;
+  }
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJDcmVhdGVXZWJob29rU2NoZW1hIiwiVXBkYXRlV2ViaG9va1NjaGVtYSIsIldlYmhvb2tGaWx0ZXJTY2hlbWEiLCJWYWxpZGF0ZVdlYmhvb2tTaWduYXR1cmVTY2hlbWEiLCJQcm9jZXNzV2ViaG9va1NjaGVtYSIsIldlYmhvb2tQYXlsb2FkU2NoZW1hIiwiY3JlYXRlV2ViaG9va1Rvb2xzIiwiY2xpZW50IiwiY292XzFxZmttYm9sdGkiLCJmIiwicyIsIm5hbWUiLCJkZXNjcmlwdGlvbiIsImlucHV0U2NoZW1hIiwidHlwZSIsInByb3BlcnRpZXMiLCJ3b3Jrc3BhY2VfaWQiLCJlbmRwb2ludCIsImV2ZW50cyIsIml0ZW1zIiwiZW51bSIsImhlYWx0aF9jaGVja191cmwiLCJzZWNyZXQiLCJyZXF1aXJlZCIsInN0YXR1cyIsImV2ZW50X3R5cGUiLCJ3ZWJob29rX2lkIiwibGltaXQiLCJwYXlsb2FkIiwic2lnbmF0dXJlIiwidmFsaWRhdGVfc2lnbmF0dXJlIiwiZGVmYXVsdCIsImRheXMiLCJldmVudF9pZHMiLCJoYW5kbGVXZWJob29rVG9vbCIsImFyZ3MiLCJiIiwicmVxdWVzdCIsInBhcnNlIiwiY3JlYXRlV2ViaG9vayIsImZpbHRlciIsImdldFdlYmhvb2tzIiwiZ2V0V2ViaG9vayIsInVwZGF0ZVdlYmhvb2siLCJkZWxldGVXZWJob29rIiwiZ2V0V2ViaG9va0V2ZW50SGlzdG9yeSIsInBpbmdXZWJob29rIiwiaXNWYWxpZCIsInZhbGlkYXRlV2ViaG9va1NpZ25hdHVyZSIsInZhbGlkIiwiSlNPTiIsInBhcnNlZFBheWxvYWQiLCJwcm9jZXNzV2ViaG9vayIsImdldFdlYmhvb2tTdGF0cyIsInJldHJ5V2ViaG9va0V2ZW50cyIsIkVycm9yIiwiZXJyb3IiLCJtZXNzYWdlIl0sInNvdXJjZXMiOlsiL1VzZXJzL3BldGVya3J6eXplay9EZXZlbG9wbWVudC9jbGlja3VwLW1jcC1zZXJ2ZXIvc3JjL3Rvb2xzL3dlYmhvb2stdG9vbHMudHMiXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgVG9vbCB9IGZyb20gJ0Btb2RlbGNvbnRleHRwcm90b2NvbC9zZGsvdHlwZXMuanMnO1xuaW1wb3J0IHsgV2ViaG9va3NFbmhhbmNlZENsaWVudCB9IGZyb20gJy4uL2NsaWNrdXAtY2xpZW50L3dlYmhvb2tzLWVuaGFuY2VkLmpzJztcbmltcG9ydCB7XG4gIENyZWF0ZVdlYmhvb2tTY2hlbWEsXG4gIFVwZGF0ZVdlYmhvb2tTY2hlbWEsXG4gIFdlYmhvb2tGaWx0ZXJTY2hlbWEsXG4gIFZhbGlkYXRlV2ViaG9va1NpZ25hdHVyZVNjaGVtYSxcbiAgUHJvY2Vzc1dlYmhvb2tTY2hlbWEsXG4gIFdlYmhvb2tQYXlsb2FkU2NoZW1hXG59IGZyb20gJy4uL3NjaGVtYXMvd2ViaG9vay1zY2hlbWFzLmpzJztcblxuZXhwb3J0IGZ1bmN0aW9uIGNyZWF0ZVdlYmhvb2tUb29scyhjbGllbnQ6IFdlYmhvb2tzRW5oYW5jZWRDbGllbnQpOiBUb29sW10ge1xuICByZXR1cm4gW1xuICAgIC8vIENyZWF0ZSB3ZWJob29rXG4gICAge1xuICAgICAgbmFtZTogJ2NyZWF0ZV93ZWJob29rJyxcbiAgICAgIGRlc2NyaXB0aW9uOiAnQ3JlYXRlIGEgbmV3IHdlYmhvb2sgaW4gYSBDbGlja1VwIHdvcmtzcGFjZS4gV2ViaG9va3MgYWxsb3cgcmVhbC10aW1lIG5vdGlmaWNhdGlvbnMgd2hlbiBldmVudHMgb2NjdXIuJyxcbiAgICAgIGlucHV0U2NoZW1hOiB7XG4gICAgICAgIHR5cGU6ICdvYmplY3QnLFxuICAgICAgICBwcm9wZXJ0aWVzOiB7XG4gICAgICAgICAgd29ya3NwYWNlX2lkOiB7XG4gICAgICAgICAgICB0eXBlOiAnc3RyaW5nJyxcbiAgICAgICAgICAgIGRlc2NyaXB0aW9uOiAnVGhlIElEIG9mIHRoZSB3b3Jrc3BhY2UgdG8gY3JlYXRlIHRoZSB3ZWJob29rIGluJ1xuICAgICAgICAgIH0sXG4gICAgICAgICAgZW5kcG9pbnQ6IHtcbiAgICAgICAgICAgIHR5cGU6ICdzdHJpbmcnLFxuICAgICAgICAgICAgZGVzY3JpcHRpb246ICdUaGUgVVJMIGVuZHBvaW50IHRoYXQgd2lsbCByZWNlaXZlIHdlYmhvb2sgbm90aWZpY2F0aW9ucydcbiAgICAgICAgICB9LFxuICAgICAgICAgIGV2ZW50czoge1xuICAgICAgICAgICAgdHlwZTogJ2FycmF5JyxcbiAgICAgICAgICAgIGl0ZW1zOiB7XG4gICAgICAgICAgICAgIHR5cGU6ICdzdHJpbmcnLFxuICAgICAgICAgICAgICBlbnVtOiBbXG4gICAgICAgICAgICAgICAgJ3Rhc2tDcmVhdGVkJywgJ3Rhc2tVcGRhdGVkJywgJ3Rhc2tEZWxldGVkJywgJ3Rhc2tTdGF0dXNVcGRhdGVkJyxcbiAgICAgICAgICAgICAgICAndGFza0Fzc2lnbmVlVXBkYXRlZCcsICd0YXNrRHVlRGF0ZVVwZGF0ZWQnLCAndGFza0NvbW1lbnRQb3N0ZWQnLFxuICAgICAgICAgICAgICAgICd0YXNrQ29tbWVudFVwZGF0ZWQnLCAndGFza1RpbWVUcmFja2VkJywgJ3Rhc2tUaW1lVXBkYXRlZCcsXG4gICAgICAgICAgICAgICAgJ2xpc3RDcmVhdGVkJywgJ2xpc3RVcGRhdGVkJywgJ2xpc3REZWxldGVkJyxcbiAgICAgICAgICAgICAgICAnZm9sZGVyQ3JlYXRlZCcsICdmb2xkZXJVcGRhdGVkJywgJ2ZvbGRlckRlbGV0ZWQnLFxuICAgICAgICAgICAgICAgICdzcGFjZUNyZWF0ZWQnLCAnc3BhY2VVcGRhdGVkJywgJ3NwYWNlRGVsZXRlZCcsXG4gICAgICAgICAgICAgICAgJ2dvYWxDcmVhdGVkJywgJ2dvYWxVcGRhdGVkJywgJ2dvYWxEZWxldGVkJywgJ2dvYWxUYXJnZXRVcGRhdGVkJ1xuICAgICAgICAgICAgICBdXG4gICAgICAgICAgICB9LFxuICAgICAgICAgICAgZGVzY3JpcHRpb246ICdBcnJheSBvZiBldmVudHMgdG8gc3Vic2NyaWJlIHRvJ1xuICAgICAgICAgIH0sXG4gICAgICAgICAgaGVhbHRoX2NoZWNrX3VybDoge1xuICAgICAgICAgICAgdHlwZTogJ3N0cmluZycsXG4gICAgICAgICAgICBkZXNjcmlwdGlvbjogJ09wdGlvbmFsIFVSTCBmb3Igd2ViaG9vayBoZWFsdGggY2hlY2tzJ1xuICAgICAgICAgIH0sXG4gICAgICAgICAgc2VjcmV0OiB7XG4gICAgICAgICAgICB0eXBlOiAnc3RyaW5nJyxcbiAgICAgICAgICAgIGRlc2NyaXB0aW9uOiAnT3B0aW9uYWwgc2VjcmV0IGZvciBITUFDIHNpZ25hdHVyZSB2YWxpZGF0aW9uJ1xuICAgICAgICAgIH1cbiAgICAgICAgfSxcbiAgICAgICAgcmVxdWlyZWQ6IFsnd29ya3NwYWNlX2lkJywgJ2VuZHBvaW50JywgJ2V2ZW50cyddXG4gICAgICB9XG4gICAgfSxcblxuICAgIC8vIEdldCB3ZWJob29rc1xuICAgIHtcbiAgICAgIG5hbWU6ICdnZXRfd2ViaG9va3MnLFxuICAgICAgZGVzY3JpcHRpb246ICdHZXQgYWxsIHdlYmhvb2tzIGZvciBhIHdvcmtzcGFjZSB3aXRoIG9wdGlvbmFsIGZpbHRlcmluZyBieSBzdGF0dXMgb3IgZXZlbnQgdHlwZS4nLFxuICAgICAgaW5wdXRTY2hlbWE6IHtcbiAgICAgICAgdHlwZTogJ29iamVjdCcsXG4gICAgICAgIHByb3BlcnRpZXM6IHtcbiAgICAgICAgICB3b3Jrc3BhY2VfaWQ6IHtcbiAgICAgICAgICAgIHR5cGU6ICdzdHJpbmcnLFxuICAgICAgICAgICAgZGVzY3JpcHRpb246ICdUaGUgSUQgb2YgdGhlIHdvcmtzcGFjZSB0byBnZXQgd2ViaG9va3MgZnJvbSdcbiAgICAgICAgICB9LFxuICAgICAgICAgIHN0YXR1czoge1xuICAgICAgICAgICAgdHlwZTogJ3N0cmluZycsXG4gICAgICAgICAgICBlbnVtOiBbJ2FjdGl2ZScsICdpbmFjdGl2ZSddLFxuICAgICAgICAgICAgZGVzY3JpcHRpb246ICdGaWx0ZXIgd2ViaG9va3MgYnkgc3RhdHVzJ1xuICAgICAgICAgIH0sXG4gICAgICAgICAgZXZlbnRfdHlwZToge1xuICAgICAgICAgICAgdHlwZTogJ3N0cmluZycsXG4gICAgICAgICAgICBkZXNjcmlwdGlvbjogJ0ZpbHRlciB3ZWJob29rcyBieSBldmVudCB0eXBlJ1xuICAgICAgICAgIH1cbiAgICAgICAgfSxcbiAgICAgICAgcmVxdWlyZWQ6IFsnd29ya3NwYWNlX2lkJ11cbiAgICAgIH1cbiAgICB9LFxuXG4gICAgLy8gR2V0IHdlYmhvb2tcbiAgICB7XG4gICAgICBuYW1lOiAnZ2V0X3dlYmhvb2snLFxuICAgICAgZGVzY3JpcHRpb246ICdHZXQgZGV0YWlsZWQgaW5mb3JtYXRpb24gYWJvdXQgYSBzcGVjaWZpYyB3ZWJob29rIGJ5IGl0cyBJRC4nLFxuICAgICAgaW5wdXRTY2hlbWE6IHtcbiAgICAgICAgdHlwZTogJ29iamVjdCcsXG4gICAgICAgIHByb3BlcnRpZXM6IHtcbiAgICAgICAgICB3ZWJob29rX2lkOiB7XG4gICAgICAgICAgICB0eXBlOiAnc3RyaW5nJyxcbiAgICAgICAgICAgIGRlc2NyaXB0aW9uOiAnVGhlIElEIG9mIHRoZSB3ZWJob29rIHRvIGdldCdcbiAgICAgICAgICB9XG4gICAgICAgIH0sXG4gICAgICAgIHJlcXVpcmVkOiBbJ3dlYmhvb2tfaWQnXVxuICAgICAgfVxuICAgIH0sXG5cbiAgICAvLyBVcGRhdGUgd2ViaG9va1xuICAgIHtcbiAgICAgIG5hbWU6ICd1cGRhdGVfd2ViaG9vaycsXG4gICAgICBkZXNjcmlwdGlvbjogJ1VwZGF0ZSBhbiBleGlzdGluZyB3ZWJob29rXFwncyBjb25maWd1cmF0aW9uIGluY2x1ZGluZyBlbmRwb2ludCwgZXZlbnRzLCBhbmQgc3RhdHVzLicsXG4gICAgICBpbnB1dFNjaGVtYToge1xuICAgICAgICB0eXBlOiAnb2JqZWN0JyxcbiAgICAgICAgcHJvcGVydGllczoge1xuICAgICAgICAgIHdlYmhvb2tfaWQ6IHtcbiAgICAgICAgICAgIHR5cGU6ICdzdHJpbmcnLFxuICAgICAgICAgICAgZGVzY3JpcHRpb246ICdUaGUgSUQgb2YgdGhlIHdlYmhvb2sgdG8gdXBkYXRlJ1xuICAgICAgICAgIH0sXG4gICAgICAgICAgZW5kcG9pbnQ6IHtcbiAgICAgICAgICAgIHR5cGU6ICdzdHJpbmcnLFxuICAgICAgICAgICAgZGVzY3JpcHRpb246ICdUaGUgbmV3IFVSTCBlbmRwb2ludCBmb3Igd2ViaG9vayBub3RpZmljYXRpb25zJ1xuICAgICAgICAgIH0sXG4gICAgICAgICAgZXZlbnRzOiB7XG4gICAgICAgICAgICB0eXBlOiAnYXJyYXknLFxuICAgICAgICAgICAgaXRlbXM6IHtcbiAgICAgICAgICAgICAgdHlwZTogJ3N0cmluZycsXG4gICAgICAgICAgICAgIGVudW06IFtcbiAgICAgICAgICAgICAgICAndGFza0NyZWF0ZWQnLCAndGFza1VwZGF0ZWQnLCAndGFza0RlbGV0ZWQnLCAndGFza1N0YXR1c1VwZGF0ZWQnLFxuICAgICAgICAgICAgICAgICd0YXNrQXNzaWduZWVVcGRhdGVkJywgJ3Rhc2tEdWVEYXRlVXBkYXRlZCcsICd0YXNrQ29tbWVudFBvc3RlZCcsXG4gICAgICAgICAgICAgICAgJ3Rhc2tDb21tZW50VXBkYXRlZCcsICd0YXNrVGltZVRyYWNrZWQnLCAndGFza1RpbWVVcGRhdGVkJyxcbiAgICAgICAgICAgICAgICAnbGlzdENyZWF0ZWQnLCAnbGlzdFVwZGF0ZWQnLCAnbGlzdERlbGV0ZWQnLFxuICAgICAgICAgICAgICAgICdmb2xkZXJDcmVhdGVkJywgJ2ZvbGRlclVwZGF0ZWQnLCAnZm9sZGVyRGVsZXRlZCcsXG4gICAgICAgICAgICAgICAgJ3NwYWNlQ3JlYXRlZCcsICdzcGFjZVVwZGF0ZWQnLCAnc3BhY2VEZWxldGVkJyxcbiAgICAgICAgICAgICAgICAnZ29hbENyZWF0ZWQnLCAnZ29hbFVwZGF0ZWQnLCAnZ29hbERlbGV0ZWQnLCAnZ29hbFRhcmdldFVwZGF0ZWQnXG4gICAgICAgICAgICAgIF1cbiAgICAgICAgICAgIH0sXG4gICAgICAgICAgICBkZXNjcmlwdGlvbjogJ05ldyBhcnJheSBvZiBldmVudHMgdG8gc3Vic2NyaWJlIHRvJ1xuICAgICAgICAgIH0sXG4gICAgICAgICAgaGVhbHRoX2NoZWNrX3VybDoge1xuICAgICAgICAgICAgdHlwZTogJ3N0cmluZycsXG4gICAgICAgICAgICBkZXNjcmlwdGlvbjogJ05ldyBVUkwgZm9yIHdlYmhvb2sgaGVhbHRoIGNoZWNrcydcbiAgICAgICAgICB9LFxuICAgICAgICAgIHNlY3JldDoge1xuICAgICAgICAgICAgdHlwZTogJ3N0cmluZycsXG4gICAgICAgICAgICBkZXNjcmlwdGlvbjogJ05ldyBzZWNyZXQgZm9yIEhNQUMgc2lnbmF0dXJlIHZhbGlkYXRpb24nXG4gICAgICAgICAgfSxcbiAgICAgICAgICBzdGF0dXM6IHtcbiAgICAgICAgICAgIHR5cGU6ICdzdHJpbmcnLFxuICAgICAgICAgICAgZW51bTogWydhY3RpdmUnLCAnaW5hY3RpdmUnXSxcbiAgICAgICAgICAgIGRlc2NyaXB0aW9uOiAnTmV3IHN0YXR1cyBmb3IgdGhlIHdlYmhvb2snXG4gICAgICAgICAgfVxuICAgICAgICB9LFxuICAgICAgICByZXF1aXJlZDogWyd3ZWJob29rX2lkJ11cbiAgICAgIH1cbiAgICB9LFxuXG4gICAgLy8gRGVsZXRlIHdlYmhvb2tcbiAgICB7XG4gICAgICBuYW1lOiAnZGVsZXRlX3dlYmhvb2snLFxuICAgICAgZGVzY3JpcHRpb246ICdEZWxldGUgYSB3ZWJob29rIGZyb20gQ2xpY2tVcC4gVGhpcyB3aWxsIHN0b3AgYWxsIG5vdGlmaWNhdGlvbnMgdG8gdGhlIHdlYmhvb2sgZW5kcG9pbnQuJyxcbiAgICAgIGlucHV0U2NoZW1hOiB7XG4gICAgICAgIHR5cGU6ICdvYmplY3QnLFxuICAgICAgICBwcm9wZXJ0aWVzOiB7XG4gICAgICAgICAgd2ViaG9va19pZDoge1xuICAgICAgICAgICAgdHlwZTogJ3N0cmluZycsXG4gICAgICAgICAgICBkZXNjcmlwdGlvbjogJ1RoZSBJRCBvZiB0aGUgd2ViaG9vayB0byBkZWxldGUnXG4gICAgICAgICAgfVxuICAgICAgICB9LFxuICAgICAgICByZXF1aXJlZDogWyd3ZWJob29rX2lkJ11cbiAgICAgIH1cbiAgICB9LFxuXG4gICAgLy8gR2V0IHdlYmhvb2sgZXZlbnQgaGlzdG9yeVxuICAgIHtcbiAgICAgIG5hbWU6ICdnZXRfd2ViaG9va19ldmVudF9oaXN0b3J5JyxcbiAgICAgIGRlc2NyaXB0aW9uOiAnR2V0IHRoZSBldmVudCBoaXN0b3J5IGZvciBhIHdlYmhvb2sgaW5jbHVkaW5nIGRlbGl2ZXJ5IHN0YXR1cyBhbmQgcmVzcG9uc2UgY29kZXMuJyxcbiAgICAgIGlucHV0U2NoZW1hOiB7XG4gICAgICAgIHR5cGU6ICdvYmplY3QnLFxuICAgICAgICBwcm9wZXJ0aWVzOiB7XG4gICAgICAgICAgd2ViaG9va19pZDoge1xuICAgICAgICAgICAgdHlwZTogJ3N0cmluZycsXG4gICAgICAgICAgICBkZXNjcmlwdGlvbjogJ1RoZSBJRCBvZiB0aGUgd2ViaG9vayB0byBnZXQgZXZlbnQgaGlzdG9yeSBmb3InXG4gICAgICAgICAgfSxcbiAgICAgICAgICBsaW1pdDoge1xuICAgICAgICAgICAgdHlwZTogJ251bWJlcicsXG4gICAgICAgICAgICBkZXNjcmlwdGlvbjogJ01heGltdW0gbnVtYmVyIG9mIGV2ZW50cyB0byByZXR1cm4nXG4gICAgICAgICAgfVxuICAgICAgICB9LFxuICAgICAgICByZXF1aXJlZDogWyd3ZWJob29rX2lkJ11cbiAgICAgIH1cbiAgICB9LFxuXG4gICAgLy8gUGluZyB3ZWJob29rXG4gICAge1xuICAgICAgbmFtZTogJ3Bpbmdfd2ViaG9vaycsXG4gICAgICBkZXNjcmlwdGlvbjogJ1NlbmQgYSB0ZXN0IHBpbmcgdG8gYSB3ZWJob29rIGVuZHBvaW50IHRvIHZlcmlmeSBpdFxcJ3Mgd29ya2luZyBjb3JyZWN0bHkuJyxcbiAgICAgIGlucHV0U2NoZW1hOiB7XG4gICAgICAgIHR5cGU6ICdvYmplY3QnLFxuICAgICAgICBwcm9wZXJ0aWVzOiB7XG4gICAgICAgICAgd2ViaG9va19pZDoge1xuICAgICAgICAgICAgdHlwZTogJ3N0cmluZycsXG4gICAgICAgICAgICBkZXNjcmlwdGlvbjogJ1RoZSBJRCBvZiB0aGUgd2ViaG9vayB0byBwaW5nJ1xuICAgICAgICAgIH1cbiAgICAgICAgfSxcbiAgICAgICAgcmVxdWlyZWQ6IFsnd2ViaG9va19pZCddXG4gICAgICB9XG4gICAgfSxcblxuICAgIC8vIFZhbGlkYXRlIHdlYmhvb2sgc2lnbmF0dXJlXG4gICAge1xuICAgICAgbmFtZTogJ3ZhbGlkYXRlX3dlYmhvb2tfc2lnbmF0dXJlJyxcbiAgICAgIGRlc2NyaXB0aW9uOiAnVmFsaWRhdGUgdGhlIEhNQUMgc2lnbmF0dXJlIG9mIGEgd2ViaG9vayBwYXlsb2FkIHRvIGVuc3VyZSBhdXRoZW50aWNpdHkuJyxcbiAgICAgIGlucHV0U2NoZW1hOiB7XG4gICAgICAgIHR5cGU6ICdvYmplY3QnLFxuICAgICAgICBwcm9wZXJ0aWVzOiB7XG4gICAgICAgICAgcGF5bG9hZDoge1xuICAgICAgICAgICAgdHlwZTogJ3N0cmluZycsXG4gICAgICAgICAgICBkZXNjcmlwdGlvbjogJ1RoZSByYXcgd2ViaG9vayBwYXlsb2FkIGFzIGEgc3RyaW5nJ1xuICAgICAgICAgIH0sXG4gICAgICAgICAgc2lnbmF0dXJlOiB7XG4gICAgICAgICAgICB0eXBlOiAnc3RyaW5nJyxcbiAgICAgICAgICAgIGRlc2NyaXB0aW9uOiAnVGhlIHNpZ25hdHVyZSBoZWFkZXIgZnJvbSB0aGUgd2ViaG9vayByZXF1ZXN0J1xuICAgICAgICAgIH0sXG4gICAgICAgICAgc2VjcmV0OiB7XG4gICAgICAgICAgICB0eXBlOiAnc3RyaW5nJyxcbiAgICAgICAgICAgIGRlc2NyaXB0aW9uOiAnVGhlIHdlYmhvb2sgc2VjcmV0IHVzZWQgZm9yIHNpZ25hdHVyZSBnZW5lcmF0aW9uJ1xuICAgICAgICAgIH1cbiAgICAgICAgfSxcbiAgICAgICAgcmVxdWlyZWQ6IFsncGF5bG9hZCcsICdzaWduYXR1cmUnLCAnc2VjcmV0J11cbiAgICAgIH1cbiAgICB9LFxuXG4gICAgLy8gUHJvY2VzcyB3ZWJob29rXG4gICAge1xuICAgICAgbmFtZTogJ3Byb2Nlc3Nfd2ViaG9vaycsXG4gICAgICBkZXNjcmlwdGlvbjogJ1Byb2Nlc3MgYW4gaW5jb21pbmcgd2ViaG9vayBwYXlsb2FkIGFuZCBleHRyYWN0IHN0cnVjdHVyZWQgaW5mb3JtYXRpb24gYWJvdXQgdGhlIGV2ZW50LicsXG4gICAgICBpbnB1dFNjaGVtYToge1xuICAgICAgICB0eXBlOiAnb2JqZWN0JyxcbiAgICAgICAgcHJvcGVydGllczoge1xuICAgICAgICAgIHBheWxvYWQ6IHtcbiAgICAgICAgICAgIHR5cGU6ICdvYmplY3QnLFxuICAgICAgICAgICAgZGVzY3JpcHRpb246ICdUaGUgd2ViaG9vayBwYXlsb2FkIG9iamVjdCdcbiAgICAgICAgICB9LFxuICAgICAgICAgIHZhbGlkYXRlX3NpZ25hdHVyZToge1xuICAgICAgICAgICAgdHlwZTogJ2Jvb2xlYW4nLFxuICAgICAgICAgICAgZGVzY3JpcHRpb246ICdXaGV0aGVyIHRvIHZhbGlkYXRlIHRoZSB3ZWJob29rIHNpZ25hdHVyZScsXG4gICAgICAgICAgICBkZWZhdWx0OiB0cnVlXG4gICAgICAgICAgfSxcbiAgICAgICAgICBzaWduYXR1cmU6IHtcbiAgICAgICAgICAgIHR5cGU6ICdzdHJpbmcnLFxuICAgICAgICAgICAgZGVzY3JpcHRpb246ICdUaGUgc2lnbmF0dXJlIGhlYWRlciBmb3IgdmFsaWRhdGlvbidcbiAgICAgICAgICB9LFxuICAgICAgICAgIHNlY3JldDoge1xuICAgICAgICAgICAgdHlwZTogJ3N0cmluZycsXG4gICAgICAgICAgICBkZXNjcmlwdGlvbjogJ1RoZSB3ZWJob29rIHNlY3JldCBmb3Igc2lnbmF0dXJlIHZhbGlkYXRpb24nXG4gICAgICAgICAgfVxuICAgICAgICB9LFxuICAgICAgICByZXF1aXJlZDogWydwYXlsb2FkJ11cbiAgICAgIH1cbiAgICB9LFxuXG4gICAgLy8gR2V0IHdlYmhvb2sgc3RhdGlzdGljc1xuICAgIHtcbiAgICAgIG5hbWU6ICdnZXRfd2ViaG9va19zdGF0cycsXG4gICAgICBkZXNjcmlwdGlvbjogJ0dldCBzdGF0aXN0aWNzIGFib3V0IHdlYmhvb2sgcGVyZm9ybWFuY2UgaW5jbHVkaW5nIHN1Y2Nlc3MgcmF0ZSBhbmQgcmVzcG9uc2UgdGltZXMuJyxcbiAgICAgIGlucHV0U2NoZW1hOiB7XG4gICAgICAgIHR5cGU6ICdvYmplY3QnLFxuICAgICAgICBwcm9wZXJ0aWVzOiB7XG4gICAgICAgICAgd2ViaG9va19pZDoge1xuICAgICAgICAgICAgdHlwZTogJ3N0cmluZycsXG4gICAgICAgICAgICBkZXNjcmlwdGlvbjogJ1RoZSBJRCBvZiB0aGUgd2ViaG9vayB0byBnZXQgc3RhdGlzdGljcyBmb3InXG4gICAgICAgICAgfSxcbiAgICAgICAgICBkYXlzOiB7XG4gICAgICAgICAgICB0eXBlOiAnbnVtYmVyJyxcbiAgICAgICAgICAgIGRlc2NyaXB0aW9uOiAnTnVtYmVyIG9mIGRheXMgdG8gaW5jbHVkZSBpbiBzdGF0aXN0aWNzIChkZWZhdWx0OiAzMCknXG4gICAgICAgICAgfVxuICAgICAgICB9LFxuICAgICAgICByZXF1aXJlZDogWyd3ZWJob29rX2lkJ11cbiAgICAgIH1cbiAgICB9LFxuXG4gICAgLy8gUmV0cnkgd2ViaG9vayBldmVudHNcbiAgICB7XG4gICAgICBuYW1lOiAncmV0cnlfd2ViaG9va19ldmVudHMnLFxuICAgICAgZGVzY3JpcHRpb246ICdSZXRyeSBmYWlsZWQgd2ViaG9vayBldmVudHMgZm9yIGEgc3BlY2lmaWMgd2ViaG9vay4nLFxuICAgICAgaW5wdXRTY2hlbWE6IHtcbiAgICAgICAgdHlwZTogJ29iamVjdCcsXG4gICAgICAgIHByb3BlcnRpZXM6IHtcbiAgICAgICAgICB3ZWJob29rX2lkOiB7XG4gICAgICAgICAgICB0eXBlOiAnc3RyaW5nJyxcbiAgICAgICAgICAgIGRlc2NyaXB0aW9uOiAnVGhlIElEIG9mIHRoZSB3ZWJob29rIHRvIHJldHJ5IGV2ZW50cyBmb3InXG4gICAgICAgICAgfSxcbiAgICAgICAgICBldmVudF9pZHM6IHtcbiAgICAgICAgICAgIHR5cGU6ICdhcnJheScsXG4gICAgICAgICAgICBpdGVtczoge1xuICAgICAgICAgICAgICB0eXBlOiAnc3RyaW5nJ1xuICAgICAgICAgICAgfSxcbiAgICAgICAgICAgIGRlc2NyaXB0aW9uOiAnT3B0aW9uYWwgYXJyYXkgb2Ygc3BlY2lmaWMgZXZlbnQgSURzIHRvIHJldHJ5LiBJZiBub3QgcHJvdmlkZWQsIGFsbCBmYWlsZWQgZXZlbnRzIHdpbGwgYmUgcmV0cmllZC4nXG4gICAgICAgICAgfVxuICAgICAgICB9LFxuICAgICAgICByZXF1aXJlZDogWyd3ZWJob29rX2lkJ11cbiAgICAgIH1cbiAgICB9XG4gIF07XG59XG5cbmV4cG9ydCBhc3luYyBmdW5jdGlvbiBoYW5kbGVXZWJob29rVG9vbChcbiAgbmFtZTogc3RyaW5nLFxuICBhcmdzOiBhbnksXG4gIGNsaWVudDogV2ViaG9va3NFbmhhbmNlZENsaWVudFxuKTogUHJvbWlzZTxhbnk+IHtcbiAgdHJ5IHtcbiAgICBzd2l0Y2ggKG5hbWUpIHtcbiAgICAgIGNhc2UgJ2NyZWF0ZV93ZWJob29rJzoge1xuICAgICAgICBjb25zdCByZXF1ZXN0ID0gQ3JlYXRlV2ViaG9va1NjaGVtYS5wYXJzZShhcmdzKTtcbiAgICAgICAgcmV0dXJuIGF3YWl0IGNsaWVudC5jcmVhdGVXZWJob29rKHJlcXVlc3QpO1xuICAgICAgfVxuXG4gICAgICBjYXNlICdnZXRfd2ViaG9va3MnOiB7XG4gICAgICAgIGNvbnN0IGZpbHRlciA9IFdlYmhvb2tGaWx0ZXJTY2hlbWEucGFyc2UoYXJncyk7XG4gICAgICAgIHJldHVybiBhd2FpdCBjbGllbnQuZ2V0V2ViaG9va3MoZmlsdGVyKTtcbiAgICAgIH1cblxuICAgICAgY2FzZSAnZ2V0X3dlYmhvb2snOiB7XG4gICAgICAgIGNvbnN0IHsgd2ViaG9va19pZCB9ID0gYXJncztcbiAgICAgICAgcmV0dXJuIGF3YWl0IGNsaWVudC5nZXRXZWJob29rKHdlYmhvb2tfaWQpO1xuICAgICAgfVxuXG4gICAgICBjYXNlICd1cGRhdGVfd2ViaG9vayc6IHtcbiAgICAgICAgY29uc3QgcmVxdWVzdCA9IFVwZGF0ZVdlYmhvb2tTY2hlbWEucGFyc2UoYXJncyk7XG4gICAgICAgIHJldHVybiBhd2FpdCBjbGllbnQudXBkYXRlV2ViaG9vayhyZXF1ZXN0KTtcbiAgICAgIH1cblxuICAgICAgY2FzZSAnZGVsZXRlX3dlYmhvb2snOiB7XG4gICAgICAgIGNvbnN0IHsgd2ViaG9va19pZCB9ID0gYXJncztcbiAgICAgICAgcmV0dXJuIGF3YWl0IGNsaWVudC5kZWxldGVXZWJob29rKHdlYmhvb2tfaWQpO1xuICAgICAgfVxuXG4gICAgICBjYXNlICdnZXRfd2ViaG9va19ldmVudF9oaXN0b3J5Jzoge1xuICAgICAgICBjb25zdCB7IHdlYmhvb2tfaWQsIGxpbWl0IH0gPSBhcmdzO1xuICAgICAgICByZXR1cm4gYXdhaXQgY2xpZW50LmdldFdlYmhvb2tFdmVudEhpc3Rvcnkod2ViaG9va19pZCwgbGltaXQpO1xuICAgICAgfVxuXG4gICAgICBjYXNlICdwaW5nX3dlYmhvb2snOiB7XG4gICAgICAgIGNvbnN0IHsgd2ViaG9va19pZCB9ID0gYXJncztcbiAgICAgICAgcmV0dXJuIGF3YWl0IGNsaWVudC5waW5nV2ViaG9vayh3ZWJob29rX2lkKTtcbiAgICAgIH1cblxuICAgICAgY2FzZSAndmFsaWRhdGVfd2ViaG9va19zaWduYXR1cmUnOiB7XG4gICAgICAgIGNvbnN0IHJlcXVlc3QgPSBWYWxpZGF0ZVdlYmhvb2tTaWduYXR1cmVTY2hlbWEucGFyc2UoYXJncyk7XG4gICAgICAgIGNvbnN0IGlzVmFsaWQgPSBjbGllbnQudmFsaWRhdGVXZWJob29rU2lnbmF0dXJlKHJlcXVlc3QpO1xuICAgICAgICByZXR1cm4geyB2YWxpZDogaXNWYWxpZCB9O1xuICAgICAgfVxuXG4gICAgICBjYXNlICdwcm9jZXNzX3dlYmhvb2snOiB7XG4gICAgICAgIC8vIFBhcnNlIHRoZSBwYXlsb2FkIGlmIGl0J3MgYSBzdHJpbmdcbiAgICAgICAgbGV0IHBheWxvYWQgPSBhcmdzLnBheWxvYWQ7XG4gICAgICAgIGlmICh0eXBlb2YgcGF5bG9hZCA9PT0gJ3N0cmluZycpIHtcbiAgICAgICAgICBwYXlsb2FkID0gSlNPTi5wYXJzZShwYXlsb2FkKTtcbiAgICAgICAgfVxuICAgICAgICBcbiAgICAgICAgY29uc3QgcGFyc2VkUGF5bG9hZCA9IFdlYmhvb2tQYXlsb2FkU2NoZW1hLnBhcnNlKHBheWxvYWQpO1xuICAgICAgICBjb25zdCByZXF1ZXN0ID0gUHJvY2Vzc1dlYmhvb2tTY2hlbWEucGFyc2Uoe1xuICAgICAgICAgIC4uLmFyZ3MsXG4gICAgICAgICAgcGF5bG9hZDogcGFyc2VkUGF5bG9hZFxuICAgICAgICB9KTtcbiAgICAgICAgcmV0dXJuIGF3YWl0IGNsaWVudC5wcm9jZXNzV2ViaG9vayhyZXF1ZXN0KTtcbiAgICAgIH1cblxuICAgICAgY2FzZSAnZ2V0X3dlYmhvb2tfc3RhdHMnOiB7XG4gICAgICAgIGNvbnN0IHsgd2ViaG9va19pZCwgZGF5cyB9ID0gYXJncztcbiAgICAgICAgcmV0dXJuIGF3YWl0IGNsaWVudC5nZXRXZWJob29rU3RhdHMod2ViaG9va19pZCwgZGF5cyk7XG4gICAgICB9XG5cbiAgICAgIGNhc2UgJ3JldHJ5X3dlYmhvb2tfZXZlbnRzJzoge1xuICAgICAgICBjb25zdCB7IHdlYmhvb2tfaWQsIGV2ZW50X2lkcyB9ID0gYXJncztcbiAgICAgICAgcmV0dXJuIGF3YWl0IGNsaWVudC5yZXRyeVdlYmhvb2tFdmVudHMod2ViaG9va19pZCwgZXZlbnRfaWRzKTtcbiAgICAgIH1cblxuICAgICAgZGVmYXVsdDpcbiAgICAgICAgdGhyb3cgbmV3IEVycm9yKGBVbmtub3duIHdlYmhvb2sgdG9vbDogJHtuYW1lfWApO1xuICAgIH1cbiAgfSBjYXRjaCAoZXJyb3IpIHtcbiAgICBpZiAoZXJyb3IgaW5zdGFuY2VvZiBFcnJvcikge1xuICAgICAgdGhyb3cgbmV3IEVycm9yKGBXZWJob29rIHRvb2wgZXJyb3I6ICR7ZXJyb3IubWVzc2FnZX1gKTtcbiAgICB9XG4gICAgdGhyb3cgZXJyb3I7XG4gIH1cbn1cbiJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQUVBLFNBQ0VBLG1CQUFtQixFQUNuQkMsbUJBQW1CLEVBQ25CQyxtQkFBbUIsRUFDbkJDLDhCQUE4QixFQUM5QkMsb0JBQW9CLEVBQ3BCQyxvQkFBb0IsUUFDZiwrQkFBK0I7QUFFdEMsT0FBTSxTQUFVQyxrQkFB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

@@ -1,0 +1,672 @@
+5b53cdb2098b1d160ae3756c0f90d612
+/* istanbul ignore next */
+function cov_nfwah54ej() {
+  var path = "/Users/peterkrzyzek/Development/clickup-mcp-server/src/clickup-client/lists.ts";
+  var hash = "37fb5a896dc38c0aa8da00d77807fd09d70b2af4";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "/Users/peterkrzyzek/Development/clickup-mcp-server/src/clickup-client/lists.ts",
+    statementMap: {
+      "0": {
+        start: {
+          line: 3,
+          column: 8
+        },
+        end: {
+          line: 3,
+          column: 29
+        }
+      },
+      "1": {
+        start: {
+          line: 12,
+          column: 8
+        },
+        end: {
+          line: 12,
+          column: 65
+        }
+      },
+      "2": {
+        start: {
+          line: 21,
+          column: 8
+        },
+        end: {
+          line: 21,
+          column: 67
+        }
+      },
+      "3": {
+        start: {
+          line: 30,
+          column: 8
+        },
+        end: {
+          line: 30,
+          column: 68
+        }
+      },
+      "4": {
+        start: {
+          line: 39,
+          column: 8
+        },
+        end: {
+          line: 39,
+          column: 66
+        }
+      },
+      "5": {
+        start: {
+          line: 47,
+          column: 8
+        },
+        end: {
+          line: 47,
+          column: 50
+        }
+      },
+      "6": {
+        start: {
+          line: 56,
+          column: 8
+        },
+        end: {
+          line: 56,
+          column: 58
+        }
+      },
+      "7": {
+        start: {
+          line: 64,
+          column: 8
+        },
+        end: {
+          line: 64,
+          column: 53
+        }
+      },
+      "8": {
+        start: {
+          line: 73,
+          column: 8
+        },
+        end: {
+          line: 73,
+          column: 66
+        }
+      },
+      "9": {
+        start: {
+          line: 82,
+          column: 8
+        },
+        end: {
+          line: 82,
+          column: 68
+        }
+      },
+      "10": {
+        start: {
+          line: 92,
+          column: 8
+        },
+        end: {
+          line: 92,
+          column: 91
+        }
+      },
+      "11": {
+        start: {
+          line: 102,
+          column: 8
+        },
+        end: {
+          line: 102,
+          column: 89
+        }
+      },
+      "12": {
+        start: {
+          line: 105,
+          column: 33
+        },
+        end: {
+          line: 107,
+          column: 1
+        }
+      },
+      "13": {
+        start: {
+          line: 106,
+          column: 4
+        },
+        end: {
+          line: 106,
+          column: 35
+        }
+      }
+    },
+    fnMap: {
+      "0": {
+        name: "(anonymous_0)",
+        decl: {
+          start: {
+            line: 2,
+            column: 4
+          },
+          end: {
+            line: 2,
+            column: 5
+          }
+        },
+        loc: {
+          start: {
+            line: 2,
+            column: 24
+          },
+          end: {
+            line: 4,
+            column: 5
+          }
+        },
+        line: 2
+      },
+      "1": {
+        name: "(anonymous_1)",
+        decl: {
+          start: {
+            line: 11,
+            column: 4
+          },
+          end: {
+            line: 11,
+            column: 5
+          }
+        },
+        loc: {
+          start: {
+            line: 11,
+            column: 45
+          },
+          end: {
+            line: 13,
+            column: 5
+          }
+        },
+        line: 11
+      },
+      "2": {
+        name: "(anonymous_2)",
+        decl: {
+          start: {
+            line: 20,
+            column: 4
+          },
+          end: {
+            line: 20,
+            column: 5
+          }
+        },
+        loc: {
+          start: {
+            line: 20,
+            column: 47
+          },
+          end: {
+            line: 22,
+            column: 5
+          }
+        },
+        line: 20
+      },
+      "3": {
+        name: "(anonymous_3)",
+        decl: {
+          start: {
+            line: 29,
+            column: 4
+          },
+          end: {
+            line: 29,
+            column: 5
+          }
+        },
+        loc: {
+          start: {
+            line: 29,
+            column: 47
+          },
+          end: {
+            line: 31,
+            column: 5
+          }
+        },
+        line: 29
+      },
+      "4": {
+        name: "(anonymous_4)",
+        decl: {
+          start: {
+            line: 38,
+            column: 4
+          },
+          end: {
+            line: 38,
+            column: 5
+          }
+        },
+        loc: {
+          start: {
+            line: 38,
+            column: 48
+          },
+          end: {
+            line: 40,
+            column: 5
+          }
+        },
+        line: 38
+      },
+      "5": {
+        name: "(anonymous_5)",
+        decl: {
+          start: {
+            line: 46,
+            column: 4
+          },
+          end: {
+            line: 46,
+            column: 5
+          }
+        },
+        loc: {
+          start: {
+            line: 46,
+            column: 26
+          },
+          end: {
+            line: 48,
+            column: 5
+          }
+        },
+        line: 46
+      },
+      "6": {
+        name: "(anonymous_6)",
+        decl: {
+          start: {
+            line: 55,
+            column: 4
+          },
+          end: {
+            line: 55,
+            column: 5
+          }
+        },
+        loc: {
+          start: {
+            line: 55,
+            column: 37
+          },
+          end: {
+            line: 57,
+            column: 5
+          }
+        },
+        line: 55
+      },
+      "7": {
+        name: "(anonymous_7)",
+        decl: {
+          start: {
+            line: 63,
+            column: 4
+          },
+          end: {
+            line: 63,
+            column: 5
+          }
+        },
+        loc: {
+          start: {
+            line: 63,
+            column: 29
+          },
+          end: {
+            line: 65,
+            column: 5
+          }
+        },
+        line: 63
+      },
+      "8": {
+        name: "(anonymous_8)",
+        decl: {
+          start: {
+            line: 72,
+            column: 4
+          },
+          end: {
+            line: 72,
+            column: 5
+          }
+        },
+        loc: {
+          start: {
+            line: 72,
+            column: 40
+          },
+          end: {
+            line: 74,
+            column: 5
+          }
+        },
+        line: 72
+      },
+      "9": {
+        name: "(anonymous_9)",
+        decl: {
+          start: {
+            line: 81,
+            column: 4
+          },
+          end: {
+            line: 81,
+            column: 5
+          }
+        },
+        loc: {
+          start: {
+            line: 81,
+            column: 45
+          },
+          end: {
+            line: 83,
+            column: 5
+          }
+        },
+        line: 81
+      },
+      "10": {
+        name: "(anonymous_10)",
+        decl: {
+          start: {
+            line: 91,
+            column: 4
+          },
+          end: {
+            line: 91,
+            column: 5
+          }
+        },
+        loc: {
+          start: {
+            line: 91,
+            column: 71
+          },
+          end: {
+            line: 93,
+            column: 5
+          }
+        },
+        line: 91
+      },
+      "11": {
+        name: "(anonymous_11)",
+        decl: {
+          start: {
+            line: 101,
+            column: 4
+          },
+          end: {
+            line: 101,
+            column: 5
+          }
+        },
+        loc: {
+          start: {
+            line: 101,
+            column: 69
+          },
+          end: {
+            line: 103,
+            column: 5
+          }
+        },
+        line: 101
+      },
+      "12": {
+        name: "(anonymous_12)",
+        decl: {
+          start: {
+            line: 105,
+            column: 33
+          },
+          end: {
+            line: 105,
+            column: 34
+          }
+        },
+        loc: {
+          start: {
+            line: 105,
+            column: 45
+          },
+          end: {
+            line: 107,
+            column: 1
+          }
+        },
+        line: 105
+      }
+    },
+    branchMap: {},
+    s: {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "10": 0,
+      "11": 0,
+      "12": 0,
+      "13": 0
+    },
+    f: {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "10": 0,
+      "11": 0,
+      "12": 0
+    },
+    b: {},
+    inputSourceMap: {
+      file: "/Users/peterkrzyzek/Development/clickup-mcp-server/src/clickup-client/lists.ts",
+      mappings: "AAsBA,MAAM,OAAO,WAAW;IAGtB,YAAY,MAAqB;QAC/B,IAAI,CAAC,MAAM,GAAG,MAAM,CAAC;IACvB,CAAC;IAED;;;;;OAKG;IACH,KAAK,CAAC,iBAAiB,CAAC,OAAe,EAAE,MAAuB;QAC9D,OAAO,IAAI,CAAC,MAAM,CAAC,GAAG,CAAC,UAAU,OAAO,OAAO,EAAE,MAAM,CAAC,CAAC;IAC3D,CAAC;IAED;;;;;OAKG;IACH,KAAK,CAAC,kBAAkB,CAAC,QAAgB,EAAE,MAAuB;QAChE,OAAO,IAAI,CAAC,MAAM,CAAC,GAAG,CAAC,WAAW,QAAQ,OAAO,EAAE,MAAM,CAAC,CAAC;IAC7D,CAAC;IAED;;;;;OAKG;IACH,KAAK,CAAC,kBAAkB,CAAC,QAAgB,EAAE,MAAwB;QACjE,OAAO,IAAI,CAAC,MAAM,CAAC,IAAI,CAAC,WAAW,QAAQ,OAAO,EAAE,MAAM,CAAC,CAAC;IAC9D,CAAC;IAED;;;;;OAKG;IACH,KAAK,CAAC,oBAAoB,CAAC,OAAe,EAAE,MAAwB;QAClE,OAAO,IAAI,CAAC,MAAM,CAAC,IAAI,CAAC,UAAU,OAAO,OAAO,EAAE,MAAM,CAAC,CAAC;IAC5D,CAAC;IAED;;;;OAIG;IACH,KAAK,CAAC,OAAO,CAAC,MAAc;QAC1B,OAAO,IAAI,CAAC,MAAM,CAAC,GAAG,CAAC,SAAS,MAAM,EAAE,CAAC,CAAC;IAC5C,CAAC;IAED;;;;;OAKG;IACH,KAAK,CAAC,UAAU,CAAC,MAAc,EAAE,MAAwB;QACvD,OAAO,IAAI,CAAC,MAAM,CAAC,GAAG,CAAC,SAAS,MAAM,EAAE,EAAE,MAAM,CAAC,CAAC;IACpD,CAAC;IAED;;;;OAIG;IACH,KAAK,CAAC,UAAU,CAAC,MAAc;QAC7B,OAAO,IAAI,CAAC,MAAM,CAAC,MAAM,CAAC,SAAS,MAAM,EAAE,CAAC,CAAC;IAC/C,CAAC;IAED;;;;;OAKG;IACH,KAAK,CAAC,aAAa,CAAC,MAAc,EAAE,MAAc;QAChD,OAAO,IAAI,CAAC,MAAM,CAAC,IAAI,CAAC,SAAS,MAAM,SAAS,MAAM,EAAE,CAAC,CAAC;IAC5D,CAAC;IAED;;;;;OAKG;IACH,KAAK,CAAC,kBAAkB,CAAC,MAAc,EAAE,MAAc;QACrD,OAAO,IAAI,CAAC,MAAM,CAAC,MAAM,CAAC,SAAS,MAAM,SAAS,MAAM,EAAE,CAAC,CAAC;IAC9D,CAAC;IAED;;;;;;OAMG;IACH,KAAK,CAAC,8BAA8B,CAAC,QAAgB,EAAE,UAAkB,EAAE,MAAwB;QACjG,OAAO,IAAI,CAAC,MAAM,CAAC,IAAI,CAAC,WAAW,QAAQ,kBAAkB,UAAU,EAAE,EAAE,MAAM,CAAC,CAAC;IACrF,CAAC;IAED;;;;;;OAMG;IACH,KAAK,CAAC,6BAA6B,CAAC,OAAe,EAAE,UAAkB,EAAE,MAAwB;QAC/F,OAAO,IAAI,CAAC,MAAM,CAAC,IAAI,CAAC,UAAU,OAAO,kBAAkB,UAAU,EAAE,EAAE,MAAM,CAAC,CAAC;IACnF,CAAC;CACF;AAED,MAAM,CAAC,MAAM,iBAAiB,GAAG,CAAC,MAAqB,EAAe,EAAE;IACtE,OAAO,IAAI,WAAW,CAAC,MAAM,CAAC,CAAC;AACjC,CAAC,CAAC",
+      names: [],
+      sources: ["/Users/peterkrzyzek/Development/clickup-mcp-server/src/clickup-client/lists.ts"],
+      sourcesContent: ["import { ClickUpClient } from './index.js';\n\nexport interface List {\n  id: string;\n  name: string;\n  // ...other list properties...\n}\n\nexport interface GetListsParams {\n  // ...parameters for getting lists...\n}\n\nexport interface CreateListParams {\n  name: string;\n  // ...other parameters for creating a list...\n}\n\nexport interface UpdateListParams {\n  name?: string;\n  // ...other parameters for updating a list...\n}\n\nexport class ListsClient {\n  private client: ClickUpClient;\n\n  constructor(client: ClickUpClient) {\n    this.client = client;\n  }\n\n  /**\n   * Get lists from a specific space\n   * @param spaceId The ID of the space to get lists from\n   * @param params Optional parameters for filtering lists\n   * @returns A list of lists\n   */\n  async getListsFromSpace(spaceId: string, params?: GetListsParams): Promise<{ lists: List[] }> {\n    return this.client.get(`/space/${spaceId}/list`, params);\n  }\n\n  /**\n   * Get lists from a specific folder\n   * @param folderId The ID of the folder to get lists from\n   * @param params Optional parameters for filtering lists\n   * @returns A list of lists\n   */\n  async getListsFromFolder(folderId: string, params?: GetListsParams): Promise<{ lists: List[] }> {\n    return this.client.get(`/folder/${folderId}/list`, params);\n  }\n\n  /**\n   * Create a new list in a folder\n   * @param folderId The ID of the folder to create the list in\n   * @param params The list parameters\n   * @returns The created list\n   */\n  async createListInFolder(folderId: string, params: CreateListParams): Promise<List> {\n    return this.client.post(`/folder/${folderId}/list`, params);\n  }\n\n  /**\n   * Create a new folderless list in a space\n   * @param spaceId The ID of the space to create the list in\n   * @param params The list parameters\n   * @returns The created list\n   */\n  async createFolderlessList(spaceId: string, params: CreateListParams): Promise<List> {\n    return this.client.post(`/space/${spaceId}/list`, params);\n  }\n\n  /**\n   * Get a specific list by ID\n   * @param listId The ID of the list to get\n   * @returns The list details\n   */\n  async getList(listId: string): Promise<List> {\n    return this.client.get(`/list/${listId}`);\n  }\n\n  /**\n   * Update an existing list\n   * @param listId The ID of the list to update\n   * @param params The list parameters to update\n   * @returns The updated list\n   */\n  async updateList(listId: string, params: UpdateListParams): Promise<List> {\n    return this.client.put(`/list/${listId}`, params);\n  }\n\n  /**\n   * Delete a list\n   * @param listId The ID of the list to delete\n   * @returns Success message\n   */\n  async deleteList(listId: string): Promise<{ success: boolean }> {\n    return this.client.delete(`/list/${listId}`);\n  }\n\n  /**\n   * Add a task to a list\n   * @param listId The ID of the list to add the task to\n   * @param taskId The ID of the task to add\n   * @returns Success message\n   */\n  async addTaskToList(listId: string, taskId: string): Promise<{ success: boolean }> {\n    return this.client.post(`/list/${listId}/task/${taskId}`);\n  }\n\n  /**\n   * Remove a task from a list\n   * @param listId The ID of the list to remove the task from\n   * @param taskId The ID of the task to remove\n   * @returns Success message\n   */\n  async removeTaskFromList(listId: string, taskId: string): Promise<{ success: boolean }> {\n    return this.client.delete(`/list/${listId}/task/${taskId}`);\n  }\n\n  /**\n   * Create a new list from a template in a folder\n   * @param folderId The ID of the folder to create the list in\n   * @param templateId The ID of the template to use\n   * @param params The list parameters\n   * @returns The created list\n   */\n  async createListFromTemplateInFolder(folderId: string, templateId: string, params: CreateListParams): Promise<List> {\n    return this.client.post(`/folder/${folderId}/list/template/${templateId}`, params);\n  }\n\n  /**\n   * Create a new list from a template in a space\n   * @param spaceId The ID of the space to create the list in\n   * @param templateId The ID of the template to use\n   * @param params The list parameters\n   * @returns The created list\n   */\n  async createListFromTemplateInSpace(spaceId: string, templateId: string, params: CreateListParams): Promise<List> {\n    return this.client.post(`/space/${spaceId}/list/template/${templateId}`, params);\n  }\n}\n\nexport const createListsClient = (client: ClickUpClient): ListsClient => {\n  return new ListsClient(client);\n};"],
+      version: 3
+    },
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "37fb5a896dc38c0aa8da00d77807fd09d70b2af4"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    // @ts-ignore
+    cov_nfwah54ej = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_nfwah54ej();
+export class ListsClient {
+  constructor(client) {
+    /* istanbul ignore next */
+    cov_nfwah54ej().f[0]++;
+    cov_nfwah54ej().s[0]++;
+    this.client = client;
+  }
+  /**
+   * Get lists from a specific space
+   * @param spaceId The ID of the space to get lists from
+   * @param params Optional parameters for filtering lists
+   * @returns A list of lists
+   */
+  async getListsFromSpace(spaceId, params) {
+    /* istanbul ignore next */
+    cov_nfwah54ej().f[1]++;
+    cov_nfwah54ej().s[1]++;
+    return this.client.get(`/space/${spaceId}/list`, params);
+  }
+  /**
+   * Get lists from a specific folder
+   * @param folderId The ID of the folder to get lists from
+   * @param params Optional parameters for filtering lists
+   * @returns A list of lists
+   */
+  async getListsFromFolder(folderId, params) {
+    /* istanbul ignore next */
+    cov_nfwah54ej().f[2]++;
+    cov_nfwah54ej().s[2]++;
+    return this.client.get(`/folder/${folderId}/list`, params);
+  }
+  /**
+   * Create a new list in a folder
+   * @param folderId The ID of the folder to create the list in
+   * @param params The list parameters
+   * @returns The created list
+   */
+  async createListInFolder(folderId, params) {
+    /* istanbul ignore next */
+    cov_nfwah54ej().f[3]++;
+    cov_nfwah54ej().s[3]++;
+    return this.client.post(`/folder/${folderId}/list`, params);
+  }
+  /**
+   * Create a new folderless list in a space
+   * @param spaceId The ID of the space to create the list in
+   * @param params The list parameters
+   * @returns The created list
+   */
+  async createFolderlessList(spaceId, params) {
+    /* istanbul ignore next */
+    cov_nfwah54ej().f[4]++;
+    cov_nfwah54ej().s[4]++;
+    return this.client.post(`/space/${spaceId}/list`, params);
+  }
+  /**
+   * Get a specific list by ID
+   * @param listId The ID of the list to get
+   * @returns The list details
+   */
+  async getList(listId) {
+    /* istanbul ignore next */
+    cov_nfwah54ej().f[5]++;
+    cov_nfwah54ej().s[5]++;
+    return this.client.get(`/list/${listId}`);
+  }
+  /**
+   * Update an existing list
+   * @param listId The ID of the list to update
+   * @param params The list parameters to update
+   * @returns The updated list
+   */
+  async updateList(listId, params) {
+    /* istanbul ignore next */
+    cov_nfwah54ej().f[6]++;
+    cov_nfwah54ej().s[6]++;
+    return this.client.put(`/list/${listId}`, params);
+  }
+  /**
+   * Delete a list
+   * @param listId The ID of the list to delete
+   * @returns Success message
+   */
+  async deleteList(listId) {
+    /* istanbul ignore next */
+    cov_nfwah54ej().f[7]++;
+    cov_nfwah54ej().s[7]++;
+    return this.client.delete(`/list/${listId}`);
+  }
+  /**
+   * Add a task to a list
+   * @param listId The ID of the list to add the task to
+   * @param taskId The ID of the task to add
+   * @returns Success message
+   */
+  async addTaskToList(listId, taskId) {
+    /* istanbul ignore next */
+    cov_nfwah54ej().f[8]++;
+    cov_nfwah54ej().s[8]++;
+    return this.client.post(`/list/${listId}/task/${taskId}`);
+  }
+  /**
+   * Remove a task from a list
+   * @param listId The ID of the list to remove the task from
+   * @param taskId The ID of the task to remove
+   * @returns Success message
+   */
+  async removeTaskFromList(listId, taskId) {
+    /* istanbul ignore next */
+    cov_nfwah54ej().f[9]++;
+    cov_nfwah54ej().s[9]++;
+    return this.client.delete(`/list/${listId}/task/${taskId}`);
+  }
+  /**
+   * Create a new list from a template in a folder
+   * @param folderId The ID of the folder to create the list in
+   * @param templateId The ID of the template to use
+   * @param params The list parameters
+   * @returns The created list
+   */
+  async createListFromTemplateInFolder(folderId, templateId, params) {
+    /* istanbul ignore next */
+    cov_nfwah54ej().f[10]++;
+    cov_nfwah54ej().s[10]++;
+    return this.client.post(`/folder/${folderId}/list/template/${templateId}`, params);
+  }
+  /**
+   * Create a new list from a template in a space
+   * @param spaceId The ID of the space to create the list in
+   * @param templateId The ID of the template to use
+   * @param params The list parameters
+   * @returns The created list
+   */
+  async createListFromTemplateInSpace(spaceId, templateId, params) {
+    /* istanbul ignore next */
+    cov_nfwah54ej().f[11]++;
+    cov_nfwah54ej().s[11]++;
+    return this.client.post(`/space/${spaceId}/list/template/${templateId}`, params);
+  }
+}
+/* istanbul ignore next */
+cov_nfwah54ej().s[12]++;
+export const createListsClient = client => {
+  /* istanbul ignore next */
+  cov_nfwah54ej().f[12]++;
+  cov_nfwah54ej().s[13]++;
+  return new ListsClient(client);
+};
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJMaXN0c0NsaWVudCIsImNvbnN0cnVjdG9yIiwiY2xpZW50IiwiY292X25md2FoNTRlaiIsImYiLCJzIiwiZ2V0TGlzdHNGcm9tU3BhY2UiLCJzcGFjZUlkIiwicGFyYW1zIiwiZ2V0IiwiZ2V0TGlzdHNGcm9tRm9sZGVyIiwiZm9sZGVySWQiLCJjcmVhdGVMaXN0SW5Gb2xkZXIiLCJwb3N0IiwiY3JlYXRlRm9sZGVybGVzc0xpc3QiLCJnZXRMaXN0IiwibGlzdElkIiwidXBkYXRlTGlzdCIsInB1dCIsImRlbGV0ZUxpc3QiLCJkZWxldGUiLCJhZGRUYXNrVG9MaXN0IiwidGFza0lkIiwicmVtb3ZlVGFza0Zyb21MaXN0IiwiY3JlYXRlTGlzdEZyb21UZW1wbGF0ZUluRm9sZGVyIiwidGVtcGxhdGVJZCIsImNyZWF0ZUxpc3RGcm9tVGVtcGxhdGVJblNwYWNlIiwiY3JlYXRlTGlzdHNDbGllbnQiXSwic291cmNlcyI6WyIvVXNlcnMvcGV0ZXJrcnp5emVrL0RldmVsb3BtZW50L2NsaWNrdXAtbWNwLXNlcnZlci9zcmMvY2xpY2t1cC1jbGllbnQvbGlzdHMudHMiXSwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgQ2xpY2tVcENsaWVudCB9IGZyb20gJy4vaW5kZXguanMnO1xuXG5leHBvcnQgaW50ZXJmYWNlIExpc3Qge1xuICBpZDogc3RyaW5nO1xuICBuYW1lOiBzdHJpbmc7XG4gIC8vIC4uLm90aGVyIGxpc3QgcHJvcGVydGllcy4uLlxufVxuXG5leHBvcnQgaW50ZXJmYWNlIEdldExpc3RzUGFyYW1zIHtcbiAgLy8gLi4ucGFyYW1ldGVycyBmb3IgZ2V0dGluZyBsaXN0cy4uLlxufVxuXG5leHBvcnQgaW50ZXJmYWNlIENyZWF0ZUxpc3RQYXJhbXMge1xuICBuYW1lOiBzdHJpbmc7XG4gIC8vIC4uLm90aGVyIHBhcmFtZXRlcnMgZm9yIGNyZWF0aW5nIGEgbGlzdC4uLlxufVxuXG5leHBvcnQgaW50ZXJmYWNlIFVwZGF0ZUxpc3RQYXJhbXMge1xuICBuYW1lPzogc3RyaW5nO1xuICAvLyAuLi5vdGhlciBwYXJhbWV0ZXJzIGZvciB1cGRhdGluZyBhIGxpc3QuLi5cbn1cblxuZXhwb3J0IGNsYXNzIExpc3RzQ2xpZW50IHtcbiAgcHJpdmF0ZSBjbGllbnQ6IENsaWNrVXBDbGllbnQ7XG5cbiAgY29uc3RydWN0b3IoY2xpZW50OiBDbGlja1VwQ2xpZW50KSB7XG4gICAgdGhpcy5jbGllbnQgPSBjbGllbnQ7XG4gIH1cblxuICAvKipcbiAgICogR2V0IGxpc3RzIGZyb20gYSBzcGVjaWZpYyBzcGFjZVxuICAgKiBAcGFyYW0gc3BhY2VJZCBUaGUgSUQgb2YgdGhlIHNwYWNlIHRvIGdldCBsaXN0cyBmcm9tXG4gICAqIEBwYXJhbSBwYXJhbXMgT3B0aW9uYWwgcGFyYW1ldGVycyBmb3IgZmlsdGVyaW5nIGxpc3RzXG4gICAqIEByZXR1cm5zIEEgbGlzdCBvZiBsaXN0c1xuICAgKi9cbiAgYXN5bmMgZ2V0TGlzdHNGcm9tU3BhY2Uoc3BhY2VJZDogc3RyaW5nLCBwYXJhbXM/OiBHZXRMaXN0c1BhcmFtcyk6IFByb21pc2U8eyBsaXN0czogTGlzdFtdIH0+IHtcbiAgICByZXR1cm4gdGhpcy5jbGllbnQuZ2V0KGAvc3BhY2UvJHtzcGFjZUlkfS9saXN0YCwgcGFyYW1zKTtcbiAgfVxuXG4gIC8qKlxuICAgKiBHZXQgbGlzdHMgZnJvbSBhIHNwZWNpZmljIGZvbGRlclxuICAgKiBAcGFyYW0gZm9sZGVySWQgVGhlIElEIG9mIHRoZSBmb2xkZXIgdG8gZ2V0IGxpc3RzIGZyb21cbiAgICogQHBhcmFtIHBhcmFtcyBPcHRpb25hbCBwYXJhbWV0ZXJzIGZvciBmaWx0ZXJpbmcgbGlzdHNcbiAgICogQHJldHVybnMgQSBsaXN0IG9mIGxpc3RzXG4gICAqL1xuICBhc3luYyBnZXRMaXN0c0Zyb21Gb2xkZXIoZm9sZGVySWQ6IHN0cmluZywgcGFyYW1zPzogR2V0TGlzdHNQYXJhbXMpOiBQcm9taXNlPHsgbGlzdHM6IExpc3RbXSB9PiB7XG4gICAgcmV0dXJuIHRoaXMuY2xpZW50LmdldChgL2ZvbGRlci8ke2ZvbGRlcklkfS9saXN0YCwgcGFyYW1zKTtcbiAgfVxuXG4gIC8qKlxuICAgKiBDcmVhdGUgYSBuZXcgbGlzdCBpbiBhIGZvbGRlclxuICAgKiBAcGFyYW0gZm9sZGVySWQgVGhlIElEIG9mIHRoZSBmb2xkZXIgdG8gY3JlYXRlIHRoZSBsaXN0IGluXG4gICAqIEBwYXJhbSBwYXJhbXMgVGhlIGxpc3QgcGFyYW1ldGVyc1xuICAgKiBAcmV0dXJucyBUaGUgY3JlYXRlZCBsaXN0XG4gICAqL1xuICBhc3luYyBjcmVhdGVMaXN0SW5Gb2xkZXIoZm9sZGVySWQ6IHN0cmluZywgcGFyYW1zOiBDcmVhdGVMaXN0UGFyYW1zKTogUHJvbWlzZTxMaXN0PiB7XG4gICAgcmV0dXJuIHRoaXMuY2xpZW50LnBvc3QoYC9mb2xkZXIvJHtmb2xkZXJJZH0vbGlzdGAsIHBhcmFtcyk7XG4gIH1cblxuICAvKipcbiAgICogQ3JlYXRlIGEgbmV3IGZvbGRlcmxlc3MgbGlzdCBpbiBhIHNwYWNlXG4gICAqIEBwYXJhbSBzcGFjZUlkIFRoZSBJRCBvZiB0aGUgc3BhY2UgdG8gY3JlYXRlIHRoZSBsaXN0IGluXG4gICAqIEBwYXJhbSBwYXJhbXMgVGhlIGxpc3QgcGFyYW1ldGVyc1xuICAgKiBAcmV0dXJucyBUaGUgY3JlYXRlZCBsaXN0XG4gICAqL1xuICBhc3luYyBjcmVhdGVGb2xkZXJsZXNzTGlzdChzcGFjZUlkOiBzdHJpbmcsIHBhcmFtczogQ3JlYXRlTGlzdFBhcmFtcyk6IFByb21pc2U8TGlzdD4ge1xuICAgIHJldHVybiB0aGlzLmNsaWVudC5wb3N0KGAvc3BhY2UvJHtzcGFjZUlkfS9saXN0YCwgcGFyYW1zKTtcbiAgfVxuXG4gIC8qKlxuICAgKiBHZXQgYSBzcGVjaWZpYyBsaXN0IGJ5IElEXG4gICAqIEBwYXJhbSBsaXN0SWQgVGhlIElEIG9mIHRoZSBsaXN0IHRvIGdldFxuICAgKiBAcmV0dXJucyBUaGUgbGlzdCBkZXRhaWxzXG4gICAqL1xuICBhc3luYyBnZXRMaXN0KGxpc3RJZDogc3RyaW5nKTogUHJvbWlzZTxMaXN0PiB7XG4gICAgcmV0dXJuIHRoaXMuY2xpZW50LmdldChgL2xpc3QvJHtsaXN0SWR9YCk7XG4gIH1cblxuICAvKipcbiAgICogVXBkYXRlIGFuIGV4aXN0aW5nIGxpc3RcbiAgICogQHBhcmFtIGxpc3RJZCBUaGUgSUQgb2YgdGhlIGxpc3QgdG8gdXBkYXRlXG4gICAqIEBwYXJhbSBwYXJhbXMgVGhlIGxpc3QgcGFyYW1ldGVycyB0byB1cGRhdGVcbiAgICogQHJldHVybnMgVGhlIHVwZGF0ZWQgbGlzdFxuICAgKi9cbiAgYXN5bmMgdXBkYXRlTGlzdChsaXN0SWQ6IHN0cmluZywgcGFyYW1zOiBVcGRhdGVMaXN0UGFyYW1zKTogUHJvbWlzZTxMaXN0PiB7XG4gICAgcmV0dXJuIHRoaXMuY2xpZW50LnB1dChgL2xpc3QvJHtsaXN0SWR9YCwgcGFyYW1zKTtcbiAgfVxuXG4gIC8qKlxuICAgKiBEZWxldGUgYSBsaXN0XG4gICAqIEBwYXJhbSBsaXN0SWQgVGhlIElEIG9mIHRoZSBsaXN0IHRvIGRlbGV0ZVxuICAgKiBAcmV0dXJucyBTdWNjZXNzIG1lc3NhZ2VcbiAgICovXG4gIGFzeW5jIGRlbGV0ZUxpc3QobGlzdElkOiBzdHJpbmcpOiBQcm9taXNlPHsgc3VjY2VzczogYm9vbGVhbiB9PiB7XG4gICAgcmV0dXJuIHRoaXMuY2xpZW50LmRlbGV0ZShgL2xpc3QvJHtsaXN0SWR9YCk7XG4gIH1cblxuICAvKipcbiAgICogQWRkIGEgdGFzayB0byBhIGxpc3RcbiAgICogQHBhcmFtIGxpc3RJZCBUaGUgSUQgb2YgdGhlIGxpc3QgdG8gYWRkIHRoZSB0YXNrIHRvXG4gICAqIEBwYXJhbSB0YXNrSWQgVGhlIElEIG9mIHRoZSB0YXNrIHRvIGFkZFxuICAgKiBAcmV0dXJucyBTdWNjZXNzIG1lc3NhZ2VcbiAgICovXG4gIGFzeW5jIGFkZFRhc2tUb0xpc3QobGlzdElkOiBzdHJpbmcsIHRhc2tJZDogc3RyaW5nKTogUHJvbWlzZTx7IHN1Y2Nlc3M6IGJvb2xlYW4gfT4ge1xuICAgIHJldHVybiB0aGlzLmNsaWVudC5wb3N0KGAvbGlzdC8ke2xpc3RJZH0vdGFzay8ke3Rhc2tJZH1gKTtcbiAgfVxuXG4gIC8qKlxuICAgKiBSZW1vdmUgYSB0YXNrIGZyb20gYSBsaXN0XG4gICAqIEBwYXJhbSBsaXN0SWQgVGhlIElEIG9mIHRoZSBsaXN0IHRvIHJlbW92ZSB0aGUgdGFzayBmcm9tXG4gICAqIEBwYXJhbSB0YXNrSWQgVGhlIElEIG9mIHRoZSB0YXNrIHRvIHJlbW92ZVxuICAgKiBAcmV0dXJucyBTdWNjZXNzIG1lc3NhZ2VcbiAgICovXG4gIGFzeW5jIHJlbW92ZVRhc2tGcm9tTGlzdChsaXN0SWQ6IHN0cmluZywgdGFza0lkOiBzdHJpbmcpOiBQcm9taXNlPHsgc3VjY2VzczogYm9vbGVhbiB9PiB7XG4gICAgcmV0dXJuIHRoaXMuY2xpZW50LmRlbGV0ZShgL2xpc3QvJHtsaXN0SWR9L3Rhc2svJHt0YXNrSWR9YCk7XG4gIH1cblxuICAvKipcbiAgICogQ3JlYXRlIGEgbmV3IGxpc3QgZnJvbSBhIHRlbXBsYXRlIGluIGEgZm9sZGVyXG4gICAqIEBwYXJhbSBmb2xkZXJJZCBUaGUgSUQgb2YgdGhlIGZvbGRlciB0byBjcmVhdGUgdGhlIGxpc3QgaW5cbiAgICogQHBhcmFtIHRlbXBsYXRlSWQgVGhlIElEIG9mIHRoZSB0ZW1wbGF0ZSB0byB1c2VcbiAgICogQHBhcmFtIHBhcmFtcyBUaGUgbGlzdCBwYXJhbWV0ZXJzXG4gICAqIEByZXR1cm5zIFRoZSBjcmVhdGVkIGxpc3RcbiAgICovXG4gIGFzeW5jIGNyZWF0ZUxpc3RGcm9tVGVtcGxhdGVJbkZvbGRlcihmb2xkZXJJZDogc3RyaW5nLCB0ZW1wbGF0ZUlkOiBzdHJpbmcsIHBhcmFtczogQ3JlYXRlTGlzdFBhcmFtcyk6IFByb21pc2U8TGlzdD4ge1xuICAgIHJldHVybiB0aGlzLmNsaWVudC5wb3N0KGAvZm9sZGVyLyR7Zm9sZGVySWR9L2xpc3QvdGVtcGxhdGUvJHt0ZW1wbGF0ZUlkfWAsIHBhcmFtcyk7XG4gIH1cblxuICAvKipcbiAgICogQ3JlYXRlIGEgbmV3IGxpc3QgZnJvbSBhIHRlbXBsYXRlIGluIGEgc3BhY2VcbiAgICogQHBhcmFtIHNwYWNlSWQgVGhlIElEIG9mIHRoZSBzcGFjZSB0byBjcmVhdGUgdGhlIGxpc3QgaW5cbiAgICogQHBhcmFtIHRlbXBsYXRlSWQgVGhlIElEIG9mIHRoZSB0ZW1wbGF0ZSB0byB1c2VcbiAgICogQHBhcmFtIHBhcmFtcyBUaGUgbGlzdCBwYXJhbWV0ZXJzXG4gICAqIEByZXR1cm5zIFRoZSBjcmVhdGVkIGxpc3RcbiAgICovXG4gIGFzeW5jIGNyZWF0ZUxpc3RGcm9tVGVtcGxhdGVJblNwYWNlKHNwYWNlSWQ6IHN0cmluZywgdGVtcGxhdGVJZDogc3RyaW5nLCBwYXJhbXM6IENyZWF0ZUxpc3RQYXJhbXMpOiBQcm9taXNlPExpc3Q+IHtcbiAgICByZXR1cm4gdGhpcy5jbGllbnQucG9zdChgL3NwYWNlLyR7c3BhY2VJZH0vbGlzdC90ZW1wbGF0ZS8ke3RlbXBsYXRlSWR9YCwgcGFyYW1zKTtcbiAgfVxufVxuXG5leHBvcnQgY29uc3QgY3JlYXRlTGlzdHNDbGllbnQgPSAoY2xpZW50OiBDbGlja1VwQ2xpZW50KTogTGlzdHNDbGllbnQgPT4ge1xuICByZXR1cm4gbmV3IExpc3RzQ2xpZW50KGNsaWVudCk7XG59OyJdLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7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

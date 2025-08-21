@@ -1,10 +1,11 @@
 import { ClickUpClient } from './index.js';
-import { prepareContentForClickUp, processClickUpResponse } from '../utils/markdown.js';
+import { processClickUpResponse } from '../utils/markdown.js';
+import { prepareCommentForClickUp, clickUpCommentToMarkdown, ClickUpCommentBlock } from '../utils/clickup-comment-formatter.js';
 
 export interface Comment {
   id: string;
-  comment: string[];
-  comment_text: string;
+  comment: ClickUpCommentBlock[]; // ClickUp's structured comment format
+  comment_text: string; // Plain text representation
   comment_markdown?: string; // Markdown version for display
   user: {
     id: number;
@@ -51,7 +52,7 @@ export interface GetTaskCommentsParams {
 }
 
 export interface CreateTaskCommentParams {
-  comment_text: string;
+  comment_text?: string; // Make optional since we'll be using comment array
   assignee?: number;
   notify_all?: boolean;
 }
@@ -62,7 +63,7 @@ export interface GetChatViewCommentsParams {
 }
 
 export interface CreateChatViewCommentParams {
-  comment_text: string;
+  comment_text?: string; // Make optional since we'll be using comment array
   notify_all?: boolean;
 }
 
@@ -72,13 +73,13 @@ export interface GetListCommentsParams {
 }
 
 export interface CreateListCommentParams {
-  comment_text: string;
+  comment_text?: string; // Make optional since we'll be using comment array
   assignee?: number;
   notify_all?: boolean;
 }
 
 export interface UpdateCommentParams {
-  comment_text: string;
+  comment_text?: string; // Make optional since we'll be using comment array
   assignee?: number;
   resolved?: boolean;
 }
@@ -89,7 +90,7 @@ export interface GetThreadedCommentsParams {
 }
 
 export interface CreateThreadedCommentParams {
-  comment_text: string;
+  comment_text?: string; // Make optional since we'll be using comment array
   notify_all?: boolean;
 }
 
@@ -111,7 +112,20 @@ export class CommentsClient {
     
     // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
-      result.comments = result.comments.map((comment: any) => processClickUpResponse(comment));
+      result.comments = result.comments.map((comment: any) => {
+        const processed = processClickUpResponse(comment);
+        
+        // Convert ClickUp comment format to markdown for display
+        if (processed.comment && Array.isArray(processed.comment)) {
+          try {
+            processed.comment_markdown = clickUpCommentToMarkdown({ comment: processed.comment });
+          } catch (error) {
+            console.warn('Failed to convert ClickUp comment to markdown:', error);
+          }
+        }
+        
+        return processed;
+      });
     }
     
     return result;
@@ -124,16 +138,38 @@ export class CommentsClient {
    * @returns The created comment with processed content
    */
   async createTaskComment(taskId: string, params: CreateTaskCommentParams): Promise<Comment> {
-    // Process comment text for markdown support
-    const processedParams = { ...params };
+    // Process comment text for ClickUp's structured format
+    const processedParams: any = { ...params };
     if (params.comment_text) {
-      const contentData = prepareContentForClickUp(params.comment_text);
-      // For comments, ClickUp expects comment_text field with HTML
-      processedParams.comment_text = contentData.description;
+      const commentData = prepareCommentForClickUp(params.comment_text);
+      
+      // Use ClickUp's structured comment format
+      if (processedParams.comment_text) {
+        delete processedParams.comment_text;
+      }
+      processedParams.comment = commentData.comment;
+      
+      // Keep comment_text as fallback if needed
+      if (commentData.comment_text) {
+        processedParams.comment_text = commentData.comment_text;
+      }
     }
     
     const result = await this.client.post(`/task/${taskId}/comment`, processedParams);
-    return processClickUpResponse(result);
+    
+    // Process the response
+    const processed = processClickUpResponse(result);
+    
+    // Convert ClickUp comment format to markdown for display
+    if (processed.comment && Array.isArray(processed.comment)) {
+      try {
+        processed.comment_markdown = clickUpCommentToMarkdown({ comment: processed.comment });
+      } catch (error) {
+        console.warn('Failed to convert ClickUp comment to markdown:', error);
+      }
+    }
+    
+    return processed;
   }
 
   /**
@@ -147,7 +183,20 @@ export class CommentsClient {
     
     // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
-      result.comments = result.comments.map((comment: any) => processClickUpResponse(comment));
+      result.comments = result.comments.map((comment: any) => {
+        const processed = processClickUpResponse(comment);
+        
+        // Convert ClickUp comment format to markdown for display
+        if (processed.comment && Array.isArray(processed.comment)) {
+          try {
+            processed.comment_markdown = clickUpCommentToMarkdown({ comment: processed.comment });
+          } catch (error) {
+            console.warn('Failed to convert ClickUp comment to markdown:', error);
+          }
+        }
+        
+        return processed;
+      });
     }
     
     return result;
@@ -160,15 +209,38 @@ export class CommentsClient {
    * @returns The created comment with processed content
    */
   async createChatViewComment(viewId: string, params: CreateChatViewCommentParams): Promise<Comment> {
-    // Process comment text for markdown support
-    const processedParams = { ...params };
+    // Process comment text for ClickUp's structured format
+    const processedParams: any = { ...params };
     if (params.comment_text) {
-      const contentData = prepareContentForClickUp(params.comment_text);
-      processedParams.comment_text = contentData.description;
+      const commentData = prepareCommentForClickUp(params.comment_text);
+      
+      // Use ClickUp's structured comment format
+      if (processedParams.comment_text) {
+        delete processedParams.comment_text;
+      }
+      processedParams.comment = commentData.comment;
+      
+      // Keep comment_text as fallback if needed
+      if (commentData.comment_text) {
+        processedParams.comment_text = commentData.comment_text;
+      }
     }
     
     const result = await this.client.post(`/view/${viewId}/comment`, processedParams);
-    return processClickUpResponse(result);
+    
+    // Process the response
+    const processed = processClickUpResponse(result);
+    
+    // Convert ClickUp comment format to markdown for display
+    if (processed.comment && Array.isArray(processed.comment)) {
+      try {
+        processed.comment_markdown = clickUpCommentToMarkdown({ comment: processed.comment });
+      } catch (error) {
+        console.warn('Failed to convert ClickUp comment to markdown:', error);
+      }
+    }
+    
+    return processed;
   }
 
   /**
@@ -182,7 +254,20 @@ export class CommentsClient {
     
     // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
-      result.comments = result.comments.map((comment: any) => processClickUpResponse(comment));
+      result.comments = result.comments.map((comment: any) => {
+        const processed = processClickUpResponse(comment);
+        
+        // Convert ClickUp comment format to markdown for display
+        if (processed.comment && Array.isArray(processed.comment)) {
+          try {
+            processed.comment_markdown = clickUpCommentToMarkdown({ comment: processed.comment });
+          } catch (error) {
+            console.warn('Failed to convert ClickUp comment to markdown:', error);
+          }
+        }
+        
+        return processed;
+      });
     }
     
     return result;
@@ -195,15 +280,38 @@ export class CommentsClient {
    * @returns The created comment with processed content
    */
   async createListComment(listId: string, params: CreateListCommentParams): Promise<Comment> {
-    // Process comment text for markdown support
-    const processedParams = { ...params };
+    // Process comment text for ClickUp's structured format
+    const processedParams: any = { ...params };
     if (params.comment_text) {
-      const contentData = prepareContentForClickUp(params.comment_text);
-      processedParams.comment_text = contentData.description;
+      const commentData = prepareCommentForClickUp(params.comment_text);
+      
+      // Use ClickUp's structured comment format
+      if (processedParams.comment_text) {
+        delete processedParams.comment_text;
+      }
+      processedParams.comment = commentData.comment;
+      
+      // Keep comment_text as fallback if needed
+      if (commentData.comment_text) {
+        processedParams.comment_text = commentData.comment_text;
+      }
     }
     
     const result = await this.client.post(`/list/${listId}/comment`, processedParams);
-    return processClickUpResponse(result);
+    
+    // Process the response
+    const processed = processClickUpResponse(result);
+    
+    // Convert ClickUp comment format to markdown for display
+    if (processed.comment && Array.isArray(processed.comment)) {
+      try {
+        processed.comment_markdown = clickUpCommentToMarkdown({ comment: processed.comment });
+      } catch (error) {
+        console.warn('Failed to convert ClickUp comment to markdown:', error);
+      }
+    }
+    
+    return processed;
   }
 
   /**
@@ -213,15 +321,38 @@ export class CommentsClient {
    * @returns The updated comment with processed content
    */
   async updateComment(commentId: string, params: UpdateCommentParams): Promise<Comment> {
-    // Process comment text for markdown support
-    const processedParams = { ...params };
+    // Process comment text for ClickUp's structured format
+    const processedParams: any = { ...params };
     if (params.comment_text) {
-      const contentData = prepareContentForClickUp(params.comment_text);
-      processedParams.comment_text = contentData.description;
+      const commentData = prepareCommentForClickUp(params.comment_text);
+      
+      // Use ClickUp's structured comment format
+      if (processedParams.comment_text) {
+        delete processedParams.comment_text;
+      }
+      processedParams.comment = commentData.comment;
+      
+      // Keep comment_text as fallback if needed
+      if (commentData.comment_text) {
+        processedParams.comment_text = commentData.comment_text;
+      }
     }
     
     const result = await this.client.put(`/comment/${commentId}`, processedParams);
-    return processClickUpResponse(result);
+    
+    // Process the response
+    const processed = processClickUpResponse(result);
+    
+    // Convert ClickUp comment format to markdown for display
+    if (processed.comment && Array.isArray(processed.comment)) {
+      try {
+        processed.comment_markdown = clickUpCommentToMarkdown({ comment: processed.comment });
+      } catch (error) {
+        console.warn('Failed to convert ClickUp comment to markdown:', error);
+      }
+    }
+    
+    return processed;
   }
 
   /**
@@ -244,7 +375,20 @@ export class CommentsClient {
     
     // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
-      result.comments = result.comments.map((comment: any) => processClickUpResponse(comment));
+      result.comments = result.comments.map((comment: any) => {
+        const processed = processClickUpResponse(comment);
+        
+        // Convert ClickUp comment format to markdown for display
+        if (processed.comment && Array.isArray(processed.comment)) {
+          try {
+            processed.comment_markdown = clickUpCommentToMarkdown({ comment: processed.comment });
+          } catch (error) {
+            console.warn('Failed to convert ClickUp comment to markdown:', error);
+          }
+        }
+        
+        return processed;
+      });
     }
     
     return result;
@@ -257,15 +401,38 @@ export class CommentsClient {
    * @returns The created threaded comment with processed content
    */
   async createThreadedComment(commentId: string, params: CreateThreadedCommentParams): Promise<Comment> {
-    // Process comment text for markdown support
-    const processedParams = { ...params };
+    // Process comment text for ClickUp's structured format
+    const processedParams: any = { ...params };
     if (params.comment_text) {
-      const contentData = prepareContentForClickUp(params.comment_text);
-      processedParams.comment_text = contentData.description;
+      const commentData = prepareCommentForClickUp(params.comment_text);
+      
+      // Use ClickUp's structured comment format
+      if (processedParams.comment_text) {
+        delete processedParams.comment_text;
+      }
+      processedParams.comment = commentData.comment;
+      
+      // Keep comment_text as fallback if needed
+      if (commentData.comment_text) {
+        processedParams.comment_text = commentData.comment_text;
+      }
     }
     
     const result = await this.client.post(`/comment/${commentId}/reply`, processedParams);
-    return processClickUpResponse(result);
+    
+    // Process the response
+    const processed = processClickUpResponse(result);
+    
+    // Convert ClickUp comment format to markdown for display
+    if (processed.comment && Array.isArray(processed.comment)) {
+      try {
+        processed.comment_markdown = clickUpCommentToMarkdown({ comment: processed.comment });
+      } catch (error) {
+        console.warn('Failed to convert ClickUp comment to markdown:', error);
+      }
+    }
+    
+    return processed;
   }
 }
 

@@ -55,6 +55,7 @@ export interface Task {
 export interface CreateTaskParams {
   name: string;
   description?: string;
+  markdown_content?: string; // Add support for markdown_content field
   assignees?: number[];
   tags?: string[];
   status?: string;
@@ -77,6 +78,7 @@ export interface CreateTaskParams {
 export interface UpdateTaskParams {
   name?: string;
   description?: string;
+  markdown_content?: string; // Add support for markdown_content field
   assignees?: number[];
   status?: string;
   priority?: number;
@@ -160,9 +162,21 @@ export class TasksClient {
   async createTask(listId: string, params: CreateTaskParams): Promise<Task> {
     // Process description for markdown support
     const processedParams = { ...params };
+    
+    // Handle description field - check if it contains markdown
     if (params.description) {
       const contentData = prepareContentForClickUp(params.description);
-      processedParams.description = contentData.description;
+      
+      // Remove the original description field
+      delete processedParams.description;
+      
+      // Add the appropriate field(s) based on content type
+      if (contentData.markdown_content) {
+        processedParams.markdown_content = contentData.markdown_content;
+      } else if (contentData.description) {
+        processedParams.description = contentData.description;
+      }
+      
       // Note: ClickUp API doesn't accept text_content on create, it generates it
     }
     
@@ -179,9 +193,21 @@ export class TasksClient {
   async updateTask(taskId: string, params: UpdateTaskParams): Promise<Task> {
     // Process description for markdown support
     const processedParams = { ...params };
+    
+    // Handle description field - check if it contains markdown
     if (params.description) {
       const contentData = prepareContentForClickUp(params.description);
-      processedParams.description = contentData.description;
+      
+      // Remove the original description field
+      delete processedParams.description;
+      
+      // Add the appropriate field(s) based on content type
+      if (contentData.markdown_content) {
+        processedParams.markdown_content = contentData.markdown_content;
+      } else if (contentData.description) {
+        processedParams.description = contentData.description;
+      }
+      
       // Note: ClickUp API doesn't accept text_content on update, it generates it
     }
     

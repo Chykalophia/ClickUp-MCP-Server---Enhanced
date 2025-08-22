@@ -191,40 +191,40 @@ export function formatContent(
 
 /**
  * Prepare content for ClickUp API submission
- * Converts markdown to HTML and provides both formats
- * @param content The content to prepare (markdown or plain text)
- * @returns Object with both HTML and plain text versions
+ * Uses markdown_content field for markdown, description for HTML/plain text
+ * @param content The content to prepare (markdown, HTML, or plain text)
+ * @returns Object with appropriate field for ClickUp API
  */
 export function prepareContentForClickUp(content: string): {
-  description: string; // HTML version for rich text
+  description?: string; // For HTML or plain text content
+  markdown_content?: string; // For markdown content
   text_content?: string; // Plain text version for compatibility
 } {
   if (!content || typeof content !== 'string') {
     return { description: '' };
   }
   
-  // If content looks like markdown, convert to HTML
+  // If content looks like markdown, use markdown_content field
   if (isMarkdown(content)) {
-    const html = markdownToHtml(content);
     const plainText = markdownToPlainText(content);
     
     return {
-      description: html,
+      markdown_content: content, // Send raw markdown to ClickUp
       text_content: plainText
     };
   }
   
-  // If content is already HTML, use as-is
+  // If content is HTML, use description field
   if (isHtml(content)) {
     const plainText = htmlToMarkdown(content);
     
     return {
-      description: content,
+      description: content, // Send HTML as-is
       text_content: markdownToPlainText(plainText)
     };
   }
   
-  // Plain text content
+  // Plain text content - use description field
   return {
     description: content,
     text_content: content

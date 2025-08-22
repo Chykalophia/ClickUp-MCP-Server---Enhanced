@@ -113,6 +113,7 @@ export function setupTaskTools(server: McpServer): void {
       list_id: z.string().describe('The ID of the list to create the task in'),
       name: z.string().describe('The name of the task'),
       description: z.string().optional().describe('The description of the task (supports GitHub Flavored Markdown including headers, bold, italic, code blocks, links, lists, etc.)'),
+      markdown_content: z.string().optional().describe('Raw markdown content for the task description (alternative to description field)'),
       assignees: z.array(z.number()).optional().describe('The IDs of the users to assign to the task'),
       tags: z.array(z.string()).optional().describe('The tags to add to the task'),
       status: z.string().optional().describe('The status of the task'),
@@ -127,6 +128,12 @@ export function setupTaskTools(server: McpServer): void {
     },
     async ({ list_id, ...taskParams }) => {
       try {
+        // If both description and markdown_content are provided, prefer markdown_content
+        if (taskParams.markdown_content && taskParams.description) {
+          console.warn('Both description and markdown_content provided. Using markdown_content.');
+          delete taskParams.description;
+        }
+        
         const result = await tasksClient.createTask(list_id, taskParams as CreateTaskParams);
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
@@ -148,6 +155,7 @@ export function setupTaskTools(server: McpServer): void {
       task_id: z.string().describe('The ID of the task to update'),
       name: z.string().optional().describe('The new name of the task'),
       description: z.string().optional().describe('The new description of the task (supports GitHub Flavored Markdown including headers, bold, italic, code blocks, links, lists, etc.)'),
+      markdown_content: z.string().optional().describe('Raw markdown content for the task description (alternative to description field)'),
       assignees: z.array(z.number()).optional().describe('The IDs of the users to assign to the task'),
       status: z.string().optional().describe('The new status of the task'),
       priority: z.number().optional().describe('The new priority of the task (1-4)'),
@@ -160,6 +168,12 @@ export function setupTaskTools(server: McpServer): void {
     },
     async ({ task_id, ...taskParams }) => {
       try {
+        // If both description and markdown_content are provided, prefer markdown_content
+        if (taskParams.markdown_content && taskParams.description) {
+          console.warn('Both description and markdown_content provided. Using markdown_content.');
+          delete taskParams.description;
+        }
+        
         const result = await tasksClient.updateTask(task_id, taskParams as UpdateTaskParams);
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]

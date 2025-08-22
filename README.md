@@ -231,39 +231,9 @@ npm run build
 
 Add to the MCP settings file:
 
-### 🚀 Quick Setup Configurations
+### 🚀 Quick Setup Configuration
 
-#### Enhanced Version (Recommended) ⭐
-```json
-{
-  "mcpServers": {
-    "clickup": {
-      "command": "npx",
-      "args": ["-y", "clickup-mcp-server-enhanced"],
-      "env": {
-        "CLICKUP_API_TOKEN": "YOUR_API_TOKEN_HERE"
-      }
-    }
-  }
-}
-```
-
-#### AI-Powered Version 🧠
-```json
-{
-  "mcpServers": {
-    "clickup": {
-      "command": "npx",
-      "args": ["-y", "clickup-mcp-server-ai"],
-      "env": {
-        "CLICKUP_API_TOKEN": "YOUR_API_TOKEN_HERE"
-      }
-    }
-  }
-}
-```
-
-#### Published Package (Alternative)
+#### NPM Package (Recommended) ⭐
 ```json
 {
   "mcpServers": {

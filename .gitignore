@@ -9,6 +9,12 @@ build/
 dist/
 *.tsbuildinfo
 
+# Test artifacts
+coverage/
+.jest-cache/
+test-results/
+*.lcov
+
 # Environment variables and configuration
 .env
 .env.local

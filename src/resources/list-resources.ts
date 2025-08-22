@@ -26,9 +26,9 @@ export function setupListResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
+              text: JSON.stringify(result, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[ListResources] Error fetching space lists:', error);
@@ -56,9 +56,9 @@ export function setupListResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(list, null, 2),
-            },
-          ],
+              text: JSON.stringify(list, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[ListResources] Error fetching list:', error);
@@ -86,9 +86,9 @@ export function setupListResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(list, null, 2),
-            },
-          ],
+              text: JSON.stringify(list, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[ListResources] Error fetching example list:', error);
@@ -115,9 +115,9 @@ export function setupListResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
+              text: JSON.stringify(result, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[ListResources] Error fetching example space lists:', error);

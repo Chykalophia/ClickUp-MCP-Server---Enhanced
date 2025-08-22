@@ -3,12 +3,12 @@ import { z } from 'zod';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createEnhancedGoalsClient } from '../clickup-client/goals-enhanced.js';
 import { 
-  TeamIdSchema, 
-  GoalIdSchema, 
-  TargetIdSchema,
-  CreateGoalSchema,
-  UpdateGoalSchema,
-  GoalColorSchema
+// TeamIdSchema, 
+// GoalIdSchema, 
+// TargetIdSchema,
+// CreateGoalSchema,
+// UpdateGoalSchema,
+// GoalColorSchema
 } from '../schemas/goals-schemas.js';
 
 // Create clients

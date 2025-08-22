@@ -5,13 +5,15 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/clickup-mcp-server"><img src="https://img.shields.io/npm/v/clickup-mcp-server.svg" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/@chykalophia/clickup-mcp-server"><img src="https://img.shields.io/npm/v/@chykalophia/clickup-mcp-server.svg" alt="npm version"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
   <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen" alt="Node.js Version"></a>
   <a href="https://github.com/modelcontextprotocol/typescript-sdk"><img src="https://img.shields.io/badge/MCP%20SDK-1.6.1-orange" alt="MCP SDK"></a>
 </p>
 
 A comprehensive Model Context Protocol (MCP) server providing AI assistants with complete ClickUp API access. Features **170+ tools**, **AI-powered efficiency**, **production-grade security**, and **full GitHub Flavored Markdown support**.
+
+> **📦 Quick Install**: `npx @chykalophia/clickup-mcp-server` - No build required!
 
 ## 📋 Attribution
 
@@ -173,12 +175,49 @@ interface User {
 }
 ```
 
-## Installation
+## 🚀 Easy Installation
+
+### Option 1: One-Click Installer (Recommended)
+
+Download and run the automated installer:
 
 ```bash
-git clone https://github.com/nsxdavid/clickup-mcp-server.git
-cd clickup-mcp-server
+curl -O https://raw.githubusercontent.com/Chykalophia/ClickUp-MCP-Server---Enhanced/main/clickup-installer.js
+node clickup-installer.js
+```
+
+Or via NPX:
+```bash
+npx clickup-mcp-installer
+```
+
+### Option 2: Web Configurator
+
+Visit the web-based configurator for visual setup:
+[ClickUp MCP Configurator](https://chykalophia.github.io/ClickUp-MCP-Server---Enhanced/configurator.html)
+
+1. Select your preferred version
+2. Enter your ClickUp API token  
+3. Download the generated config file
+4. Place it in your Claude Desktop config directory
+
+### Option 3: NPM Package (Manual Setup)
+
+Use the published npm package - no build required:
+
+```
+@chykalophia/clickup-mcp-server
+```
+
+### Option 4: Build from Source
+
+For development or customization:
+
+```bash
+git clone https://github.com/Chykalophia/ClickUp-MCP-Server---Enhanced.git
+cd ClickUp-MCP-Server---Enhanced
 npm install
+npm run build
 ```
 
 ## Get ClickUp API Token
@@ -192,7 +231,58 @@ npm install
 
 Add to the MCP settings file:
 
-### Standard Version
+### 🚀 Quick Setup Configurations
+
+#### Enhanced Version (Recommended) ⭐
+```json
+{
+  "mcpServers": {
+    "clickup": {
+      "command": "npx",
+      "args": ["-y", "clickup-mcp-server-enhanced"],
+      "env": {
+        "CLICKUP_API_TOKEN": "YOUR_API_TOKEN_HERE"
+      }
+    }
+  }
+}
+```
+
+#### AI-Powered Version 🧠
+```json
+{
+  "mcpServers": {
+    "clickup": {
+      "command": "npx",
+      "args": ["-y", "clickup-mcp-server-ai"],
+      "env": {
+        "CLICKUP_API_TOKEN": "YOUR_API_TOKEN_HERE"
+      }
+    }
+  }
+}
+```
+
+#### Published Package (Alternative)
+```json
+{
+  "mcpServers": {
+    "clickup": {
+      "command": "npx",
+      "args": ["-y", "@chykalophia/clickup-mcp-server"],
+      "env": {
+        "CLICKUP_API_TOKEN": "YOUR_API_TOKEN_HERE"
+      }
+    }
+  }
+}
+```
+
+### 🔧 Build from Source (Advanced Users)
+
+If you prefer to build from source:
+
+#### Standard Version
 ```json
 {
   "mcpServers": {
@@ -209,7 +299,7 @@ Add to the MCP settings file:
 }
 ```
 
-### Enhanced Efficiency Version ⭐ NEW!
+#### Enhanced Efficiency Version ⭐
 ```json
 {
   "mcpServers": {
@@ -226,34 +316,11 @@ Add to the MCP settings file:
 }
 ```
 
-* Make sure to correct the path
-* Make sure to supply your API token
+### 📝 Configuration Notes
 
-## Alternate Installation (npx)
-
-For users who prefer not to clone the repository, the package can be run directly using npx:
-
-```json
-{
-  "mcpServers": {
-    "clickup": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "clickup-mcp-server"
-      ],
-      "env": {
-        "CLICKUP_API_TOKEN": "YOUR_API_TOKEN_HERE"
-      },
-      "disabled": false,
-      "autoApprove": []
-    }
-  }
-}
-```
-
-* Replace `YOUR_API_TOKEN_HERE` with your API token
-* No installation or cloning is required with this method
+* **Replace `YOUR_API_TOKEN_HERE`** with your actual ClickUp API token
+* **NPM method** requires no installation or cloning - the package is downloaded automatically
+* **Build from source** requires cloning this repository and running `npm run build`
 
 ## Configuration File Locations
 
@@ -332,8 +399,8 @@ Run examples with: `node examples/basic-usage.js`
 
 ```bash
 # Clone and install
-git clone https://github.com/nsxdavid/clickup-mcp-server.git
-cd clickup-mcp-server
+git clone https://github.com/Chykalophia/ClickUp-MCP-Server---Enhanced.git
+cd ClickUp-MCP-Server---Enhanced
 npm install
 
 # Environment configuration
@@ -414,9 +481,9 @@ npm run test:coverage
    ```
 
 ### Post-release Verification
-- Check npm package: https://www.npmjs.com/package/clickup-mcp-server
-- Verify GitHub release: https://github.com/nsxdavid/clickup-mcp-server/releases
-- Test installation: `npm install clickup-mcp-server@latest`
+- Check npm package: https://www.npmjs.com/package/@chykalophia/clickup-mcp-server
+- Verify GitHub release: https://github.com/Chykalophia/ClickUp-MCP-Server---Enhanced/releases
+- Test installation: `npm install @chykalophia/clickup-mcp-server@latest`
 
 ## 🔧 Technical Architecture
 

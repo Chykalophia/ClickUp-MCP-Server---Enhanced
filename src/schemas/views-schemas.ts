@@ -237,30 +237,30 @@ export const createDefaultTableSettings = (fields: string[]): TableViewSettings 
 // Filter validation helpers
 export const validateFilterValue = (operator: FilterOperator, value: any): boolean => {
   switch (operator) {
-    case 'between':
-    case 'not_between':
-      return Array.isArray(value) && value.length === 2;
-    case 'in':
-    case 'not_in':
-      return Array.isArray(value);
-    case 'is_empty':
-    case 'is_not_empty':
-    case 'is_set':
-    case 'is_not_set':
-      return value === undefined;
-    default:
-      return value !== undefined;
+  case 'between':
+  case 'not_between':
+    return Array.isArray(value) && value.length === 2;
+  case 'in':
+  case 'not_in':
+    return Array.isArray(value);
+  case 'is_empty':
+  case 'is_not_empty':
+  case 'is_set':
+  case 'is_not_set':
+    return value === undefined;
+  default:
+    return value !== undefined;
   }
 };
 
 export const getRequiredFilterFields = (viewType: ViewType): string[] => {
   switch (viewType) {
-    case 'calendar':
-      return ['date_field'];
-    case 'gantt':
-    case 'timeline':
-      return ['start_date_field', 'due_date_field'];
-    default:
-      return [];
+  case 'calendar':
+    return ['date_field'];
+  case 'gantt':
+  case 'timeline':
+    return ['start_date_field', 'due_date_field'];
+  default:
+    return [];
   }
 };

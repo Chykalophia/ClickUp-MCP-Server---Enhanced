@@ -274,7 +274,9 @@ export const validateFileUpload = (request: UploadAttachmentRequest): {
   // Validate file_url format if provided
   if (request.file_url) {
     try {
-      new URL(request.file_url);
+      const url = new URL(request.file_url);
+      // URL is valid if we can create it
+      if (!url) throw new Error('Invalid URL');
     } catch {
       errors.push('Invalid file_url format');
     }

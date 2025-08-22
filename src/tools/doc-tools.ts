@@ -2,12 +2,12 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createDocsClient } from '../clickup-client/docs.js';
-import { createAuthClient } from '../clickup-client/auth.js';
+import { /* createAuthClient */ } from '../clickup-client/auth.js';
 
 // Create clients
 const clickUpClient = createClickUpClient();
 const docsClient = createDocsClient(clickUpClient);
-const authClient = createAuthClient(clickUpClient);
+// const authClient = createAuthClient(clickUpClient);
 
 export function setupDocTools(server: McpServer): void {
   // Register get_doc_content tool
@@ -28,7 +28,7 @@ export function setupDocTools(server: McpServer): void {
         if (Array.isArray(pages)) {
           for (const page of pages) {
             if (page.content) {
-              combinedContent += page.content + '\n\n';
+              combinedContent += `${page.content }\n\n`;
             }
           }
         }

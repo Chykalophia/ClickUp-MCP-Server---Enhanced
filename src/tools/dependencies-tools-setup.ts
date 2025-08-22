@@ -1,6 +1,6 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-import { createClickUpClient } from '../clickup-client/index.js';
+import { /* createClickUpClient */ } from '../clickup-client/index.js';
 import { DependenciesEnhancedClient } from '../clickup-client/dependencies-enhanced.js';
 import {
   CreateDependencySchema,
@@ -14,7 +14,7 @@ import {
 } from '../schemas/dependencies-schemas.js';
 
 // Create clients
-const clickUpClient = createClickUpClient();
+// const clickUpClient = createClickUpClient();
 const dependenciesClient = new DependenciesEnhancedClient(process.env.CLICKUP_API_TOKEN!);
 
 export function setupDependenciesTools(server: McpServer): void {

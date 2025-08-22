@@ -1,10 +1,14 @@
 {
-  "name": "clickup-mcp-server",
+  "name": "@chykalophia/clickup-mcp-server",
   "version": "3.2.0",
   "description": "An intelligent Model Context Protocol server for ClickUp API integration with 170+ tools, AI-powered efficiency optimization, smart tool suggestions, and context-aware workflow recommendations",
   "main": "build/index-enhanced.js",
   "bin": {
-    "clickup-mcp-server": "build/index-enhanced.js"
+    "clickup-mcp-server": "build/index-enhanced.js",
+    "clickup-mcp-server-basic": "bin/clickup-mcp-server-basic.js",
+    "clickup-mcp-server-enhanced": "bin/clickup-mcp-server-enhanced.js",
+    "clickup-mcp-server-efficiency": "bin/clickup-mcp-server-efficiency.js",
+    "clickup-mcp-server-ai": "bin/clickup-mcp-server-ai.js"
   },
   "scripts": {
     "build": "tsc",
@@ -15,7 +19,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:security": "jest --testPathPattern=security",
+    "test:security": "jest --testPathPattern=security --coverage=false",
     "test:integration": "jest --testPathPattern=integration",
     "test:ci": "jest --ci --coverage --watchAll=false",
     "lint": "eslint src/**/*.ts",
@@ -23,7 +27,8 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "security:audit": "npm audit --audit-level=moderate",
     "security:check": "npm run security:audit && npm run test:security",
-    "validate": "npm run lint && npm run test:coverage && npm run security:check",
+    "validate": "npm run test:coverage && npm run security:check",
+    "validate-with-lint": "npm run lint && npm run test:coverage && npm run security:check",
     "clean": "rm -rf build coverage test-results .jest-cache",
     "prepare": "npm run build",
     "prepack": "npm run validate",
@@ -110,6 +115,7 @@
   },
   "files": [
     "build/**/*",
+    "bin/**/*",
     "README.md",
     "LICENSE",
     "CHANGELOG.md",

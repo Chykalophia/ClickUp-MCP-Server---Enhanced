@@ -1,6 +1,4 @@
-import type { AggregatedResult } from '@jest/test-result';
-
-export default function resultsProcessor(results: AggregatedResult): AggregatedResult {
+module.exports = function resultsProcessor(results) {
   // Log test summary
   console.log('\n📊 Test Results Summary:');
   console.log(`Total Tests: ${results.numTotalTests}`);
@@ -68,4 +66,4 @@ export default function resultsProcessor(results: AggregatedResult): AggregatedR
   console.log('\n');
   
   return results;
-}
+};

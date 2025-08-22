@@ -270,7 +270,7 @@ export class EnhancedTimeTrackingClient {
       const byTask: Record<string, any> = {};
 
       for (const entry of timeEntries) {
-        const duration = parseInt(entry.duration);
+        const duration = parseInt(entry.duration, 10);
         totalDuration += duration;
 
         if (entry.billable) {
@@ -348,9 +348,9 @@ export class EnhancedTimeTrackingClient {
       return includeSeconds 
         ? `${minutes}m ${seconds}s`
         : `${minutes}m`;
-    } else {
-      return includeSeconds ? `${seconds}s` : '0m';
-    }
+    } 
+    return includeSeconds ? `${seconds}s` : '0m';
+    
   }
 
   /**
@@ -358,16 +358,16 @@ export class EnhancedTimeTrackingClient {
    */
   convertDuration(milliseconds: number, format: 'milliseconds' | 'seconds' | 'minutes' | 'hours'): number {
     switch (format) {
-      case 'milliseconds':
-        return milliseconds;
-      case 'seconds':
-        return Math.floor(milliseconds / 1000);
-      case 'minutes':
-        return Math.floor(milliseconds / (1000 * 60));
-      case 'hours':
-        return Math.floor(milliseconds / (1000 * 60 * 60));
-      default:
-        return milliseconds;
+    case 'milliseconds':
+      return milliseconds;
+    case 'seconds':
+      return Math.floor(milliseconds / 1000);
+    case 'minutes':
+      return Math.floor(milliseconds / (1000 * 60));
+    case 'hours':
+      return Math.floor(milliseconds / (1000 * 60 * 60));
+    default:
+      return milliseconds;
     }
   }
 
@@ -396,20 +396,20 @@ export class EnhancedTimeTrackingClient {
       const message = error.response?.data?.message || error.message;
       
       switch (status) {
-        case 400:
-          return new Error(`${context}: Invalid request - ${message}`);
-        case 401:
-          return new Error(`${context}: Authentication failed - check API token`);
-        case 403:
-          return new Error(`${context}: Permission denied - insufficient access rights`);
-        case 404:
-          return new Error(`${context}: Resource not found - ${message}`);
-        case 429:
-          return new Error(`${context}: Rate limit exceeded - please retry later`);
-        case 500:
-          return new Error(`${context}: Server error - please try again`);
-        default:
-          return new Error(`${context}: ${message}`);
+      case 400:
+        return new Error(`${context}: Invalid request - ${message}`);
+      case 401:
+        return new Error(`${context}: Authentication failed - check API token`);
+      case 403:
+        return new Error(`${context}: Permission denied - insufficient access rights`);
+      case 404:
+        return new Error(`${context}: Resource not found - ${message}`);
+      case 429:
+        return new Error(`${context}: Rate limit exceeded - please retry later`);
+      case 500:
+        return new Error(`${context}: Server error - please try again`);
+      default:
+        return new Error(`${context}: ${message}`);
       }
     }
     

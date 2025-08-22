@@ -257,7 +257,7 @@ export class EnhancedGoalsClient {
     try {
       const goals = await this.getGoals(teamId, true);
       
-      let totalGoals = goals.length;
+      const totalGoals = goals.length;
       let completedGoals = 0;
       let inProgressGoals = 0;
       let overdueGoals = 0;
@@ -339,15 +339,15 @@ export class EnhancedGoalsClient {
    */
   isTargetCompleted(currentValue: number, targetValue: number, type: string): boolean {
     switch (type) {
-      case 'boolean':
-        return currentValue >= 1;
-      case 'number':
-      case 'currency':
-      case 'task':
-      case 'list':
-        return currentValue >= targetValue;
-      default:
-        return false;
+    case 'boolean':
+      return currentValue >= 1;
+    case 'number':
+    case 'currency':
+    case 'task':
+    case 'list':
+      return currentValue >= targetValue;
+    default:
+      return false;
     }
   }
 
@@ -424,20 +424,20 @@ export class EnhancedGoalsClient {
       const message = error.response?.data?.message || error.message;
       
       switch (status) {
-        case 400:
-          return new Error(`${context}: Invalid request - ${message}`);
-        case 401:
-          return new Error(`${context}: Authentication failed - check API token`);
-        case 403:
-          return new Error(`${context}: Permission denied - insufficient access rights`);
-        case 404:
-          return new Error(`${context}: Resource not found - ${message}`);
-        case 429:
-          return new Error(`${context}: Rate limit exceeded - please retry later`);
-        case 500:
-          return new Error(`${context}: Server error - please try again`);
-        default:
-          return new Error(`${context}: ${message}`);
+      case 400:
+        return new Error(`${context}: Invalid request - ${message}`);
+      case 401:
+        return new Error(`${context}: Authentication failed - check API token`);
+      case 403:
+        return new Error(`${context}: Permission denied - insufficient access rights`);
+      case 404:
+        return new Error(`${context}: Resource not found - ${message}`);
+      case 429:
+        return new Error(`${context}: Rate limit exceeded - please retry later`);
+      case 500:
+        return new Error(`${context}: Server error - please try again`);
+      default:
+        return new Error(`${context}: ${message}`);
       }
     }
     

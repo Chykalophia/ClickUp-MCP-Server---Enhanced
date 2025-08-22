@@ -1,7 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { createClickUpClient } from '../clickup-client/index.js';
-import { createChecklistsClient, CreateChecklistParams, UpdateChecklistParams, CreateChecklistItemParams, UpdateChecklistItemParams } from '../clickup-client/checklists.js';
+import { createChecklistsClient, CreateChecklistParams, /* UpdateChecklistParams, */ CreateChecklistItemParams, UpdateChecklistItemParams } from '../clickup-client/checklists.js';
 
 // Create clients
 const clickUpClient = createClickUpClient();

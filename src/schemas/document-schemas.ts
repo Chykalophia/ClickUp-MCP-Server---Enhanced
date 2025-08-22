@@ -16,10 +16,10 @@ export const CreateDocSchema = z.object({
   template_id: z.string().optional()
 }).refine(data => 
   data.workspace_id || data.space_id || data.folder_id,
-  { 
-    message: "Must specify workspace_id, space_id, or folder_id",
-    path: ['workspace_id']
-  }
+{ 
+  message: 'Must specify workspace_id, space_id, or folder_id',
+  path: ['workspace_id']
+}
 );
 
 // Document update schema
@@ -29,10 +29,10 @@ export const UpdateDocSchema = z.object({
   public: z.boolean().optional()
 }).refine(data => 
   data.name !== undefined || data.content !== undefined || data.public !== undefined,
-  { 
-    message: "Must specify at least one field to update",
-    path: ['name']
-  }
+{ 
+  message: 'Must specify at least one field to update',
+  path: ['name']
+}
 );
 
 // Page creation schema
@@ -53,10 +53,10 @@ export const UpdatePageSchema = z.object({
 }).refine(data => 
   data.name !== undefined || data.content !== undefined || 
   data.content_format !== undefined || data.position !== undefined,
-  { 
-    message: "Must specify at least one field to update",
-    path: ['name']
-  }
+{ 
+  message: 'Must specify at least one field to update',
+  path: ['name']
+}
 );
 
 // Sharing configuration schema
@@ -68,10 +68,10 @@ export const SharingConfigSchema = z.object({
   guest_sharing: z.boolean().optional()
 }).refine(data => 
   Object.keys(data).length > 0,
-  { 
-    message: "Must specify at least one sharing setting to update",
-    path: ['public']
-  }
+{ 
+  message: 'Must specify at least one sharing setting to update',
+  path: ['public']
+}
 );
 
 // Template creation schema
@@ -83,10 +83,10 @@ export const CreateFromTemplateSchema = z.object({
   template_variables: z.record(z.any()).optional()
 }).refine(data => 
   data.workspace_id || data.space_id || data.folder_id,
-  { 
-    message: "Must specify workspace_id, space_id, or folder_id",
-    path: ['workspace_id']
-  }
+{ 
+  message: 'Must specify workspace_id, space_id, or folder_id',
+  path: ['workspace_id']
+}
 );
 
 // Get docs parameters schema

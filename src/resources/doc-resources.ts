@@ -29,7 +29,7 @@ export function setupDocResources(server: McpServer): void {
         if (Array.isArray(pages)) {
           for (const page of pages) {
             if (page.content) {
-              combinedContent += page.content + '\n\n';
+              combinedContent += `${page.content }\n\n`;
             }
           }
         }
@@ -39,9 +39,9 @@ export function setupDocResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: combinedContent || 'No content found in this doc.',
-            },
-          ],
+              text: combinedContent || 'No content found in this doc.'
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[DocResources] Error fetching doc:', error);
@@ -72,7 +72,7 @@ export function setupDocResources(server: McpServer): void {
         if (Array.isArray(pages)) {
           for (const page of pages) {
             if (page.content) {
-              combinedContent += page.content + '\n\n';
+              combinedContent += `${page.content }\n\n`;
             }
           }
         }
@@ -82,9 +82,9 @@ export function setupDocResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: combinedContent || 'No content found in this doc.',
-            },
-          ],
+              text: combinedContent || 'No content found in this doc.'
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[DocResources] Error fetching example doc:', error);

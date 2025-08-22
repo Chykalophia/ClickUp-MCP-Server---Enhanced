@@ -271,7 +271,7 @@ export function parseMarkdownToClickUpComment(markdown: string): ClickUpCommentF
 
     // Handle headers
     if (line.startsWith('#')) {
-      const level = line.match(/^#+/)?.[0].length || 1;
+      // const level = line.match(/^#+/)?.[0].length || 1;
       const headerText = line.replace(/^#+\s*/, '');
       blocks.push({
         text: headerText,
@@ -401,12 +401,12 @@ export function cleanDuplicateCommentText(commentText: string): string {
   // First, try to find if there's a clear markdown pattern at the end
   // ClickUp typically appends content that starts with markdown headers or formatting
   const markdownPatterns = [
-    /🎉 \*\*.*?\*\*/,  // Emoji + bold pattern
-    /🔧 \*\*.*?\*\*/,  // Emoji + bold pattern
-    /🎯 \*\*.*?\*\*/,  // Emoji + bold pattern
-    /### .*?\*\*/,     // Header + bold pattern
-    /## .*?\*\*/,      // Header + bold pattern
-    /# .*?\*\*/        // Header + bold pattern
+    /🎉 \*\*.*?\*\*/, // Emoji + bold pattern
+    /🔧 \*\*.*?\*\*/, // Emoji + bold pattern
+    /🎯 \*\*.*?\*\*/, // Emoji + bold pattern
+    /### .*?\*\*/, // Header + bold pattern
+    /## .*?\*\*/, // Header + bold pattern
+    /# .*?\*\*/ // Header + bold pattern
   ];
   
   for (const pattern of markdownPatterns) {
@@ -530,7 +530,7 @@ export function ensureCodeBlockSeparation(blocks: ClickUpCommentBlock[]): ClickU
         // Add newline to the previous block's text
         const updatedPreviousBlock = {
           ...previousBlock,
-          text: previousText + '\n',
+          text: `${previousText }\n`,
           attributes: previousBlock.attributes || {}
         };
         
@@ -566,19 +566,19 @@ export function prepareCommentForClickUp(content: string): {
   }
 
   // Check if content contains markdown formatting
-  const hasMarkdown = /[*_`~#\[\]()>-]/.test(content) || content.includes('```');
+  const hasMarkdown = /[*_`~#[\]()>-]/.test(content) || content.includes('```');
   
   if (hasMarkdown) {
     const formatted = parseMarkdownToClickUpComment(content);
     return {
       comment: ensureCodeBlockSeparation(formatted.comment)
     };
-  } else {
-    // Simple plain text
-    return {
-      comment: [{ text: content, attributes: {} }]
-    };
-  }
+  } 
+  // Simple plain text
+  return {
+    comment: [{ text: content, attributes: {} }]
+  };
+  
 }
 
 /**

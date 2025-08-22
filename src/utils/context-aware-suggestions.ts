@@ -3,7 +3,7 @@
  * Analyzes user requests and provides intelligent tool recommendations
  */
 
-import { TOOL_METADATA, ToolSuggestion } from './tool-efficiency.js';
+import { /* TOOL_METADATA, */ ToolSuggestion } from './tool-efficiency.js';
 
 export interface RequestContext {
   entities: {
@@ -102,7 +102,7 @@ export function analyzeRequestContext(request: string): RequestContext {
  */
 export function getSmartSuggestions(request: string): SmartSuggestion {
   const context = analyzeRequestContext(request);
-  const lowerRequest = request.toLowerCase();
+  // const lowerRequest = request.toLowerCase();
   
   let suggestion: SmartSuggestion = {
     primary_tools: [],
@@ -126,7 +126,7 @@ export function getSmartSuggestions(request: string): SmartSuggestion {
             'No workspace navigation needed',
             'Supports rich markdown formatting'
           ],
-          workflow_hint: 'create_chat_view_comment(view_id="' + context.entities.view_id + '", comment_text="your message")',
+          workflow_hint: `create_chat_view_comment(view_id="${ context.entities.view_id }", comment_text="your message")`,
           confidence: 0.95,
           reasoning: [
             'User has chat view ID - direct posting possible',
@@ -173,7 +173,7 @@ create_chat_view_comment(
             '📖 Direct chat reading - most efficient',
             'No navigation overhead'
           ],
-          workflow_hint: 'get_chat_view_comments(view_id="' + context.entities.view_id + '")',
+          workflow_hint: `get_chat_view_comments(view_id="${ context.entities.view_id }")`,
           confidence: 0.95,
           reasoning: ['Direct access with known view ID'],
           context_analysis: context
@@ -220,7 +220,7 @@ create_chat_view_comment(
             '🎯 Direct task access - most efficient',
             'Complete task information in one call'
           ],
-          workflow_hint: 'get_task_details(task_id="' + context.entities.task_id + '")',
+          workflow_hint: `get_task_details(task_id="${ context.entities.task_id }")`,
           confidence: 0.95,
           reasoning: ['Task ID available - direct access possible'],
           context_analysis: context
@@ -302,7 +302,7 @@ create_chat_view_comment(
         '🤔 Request needs clarification',
         'Use suggest_tools_for_task for specific guidance'
       ],
-      workflow_hint: 'suggest_tools_for_task(request="' + request + '")',
+      workflow_hint: `suggest_tools_for_task(request="${ request }")`,
       confidence: 0.50,
       reasoning: ['Unclear request - need more specific tool suggestion'],
       context_analysis: context

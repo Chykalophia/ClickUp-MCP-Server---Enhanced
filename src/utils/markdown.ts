@@ -9,7 +9,7 @@ import TurndownService from 'turndown';
 // Configure marked for ClickUp-compatible HTML output
 marked.setOptions({
   gfm: true, // GitHub Flavored Markdown
-  breaks: true, // Convert line breaks to <br>
+  breaks: true // Convert line breaks to <br>
 });
 
 // Configure Turndown for ClickUp HTML to markdown conversion
@@ -20,7 +20,7 @@ const turndownService = new TurndownService({
   emDelimiter: '*', // Use * for emphasis
   strongDelimiter: '**', // Use ** for strong
   linkStyle: 'inlined', // Use [text](url) for links
-  linkReferenceStyle: 'full', // Use full reference links
+  linkReferenceStyle: 'full' // Use full reference links
 });
 
 // Add custom rules for ClickUp-specific elements
@@ -130,7 +130,7 @@ export function isMarkdown(content: string): boolean {
     /^\s*\d+\.\s+/m, // Ordered lists
     /^\s*>\s+/m, // Blockquotes
     /~~.*?~~/, // Strikethrough
-    /==[^=]+==/, // Highlight
+    /==[^=]+==/ // Highlight
   ];
   
   return markdownPatterns.some(pattern => pattern.test(content));
@@ -169,23 +169,23 @@ export function formatContent(
   const isCurrentlyMarkdown = !isCurrentlyHtml && isMarkdown(content);
   
   switch (targetFormat) {
-    case 'html':
-      if (isCurrentlyHtml) return content;
-      if (isCurrentlyMarkdown) return markdownToHtml(content);
-      return content; // Plain text, return as-is
+  case 'html':
+    if (isCurrentlyHtml) return content;
+    if (isCurrentlyMarkdown) return markdownToHtml(content);
+    return content; // Plain text, return as-is
       
-    case 'markdown':
-      if (isCurrentlyMarkdown) return content;
-      if (isCurrentlyHtml) return htmlToMarkdown(content);
-      return content; // Plain text, return as-is
+  case 'markdown':
+    if (isCurrentlyMarkdown) return content;
+    if (isCurrentlyHtml) return htmlToMarkdown(content);
+    return content; // Plain text, return as-is
       
-    case 'plain':
-      if (isCurrentlyMarkdown) return markdownToPlainText(content);
-      if (isCurrentlyHtml) return htmlToMarkdown(content).replace(/[*_`#\[\]()]/g, '');
-      return content; // Already plain text
+  case 'plain':
+    if (isCurrentlyMarkdown) return markdownToPlainText(content);
+    if (isCurrentlyHtml) return htmlToMarkdown(content).replace(/[*_`#[\]()]/g, '');
+    return content; // Already plain text
       
-    default:
-      return content;
+  default:
+    return content;
   }
 }
 

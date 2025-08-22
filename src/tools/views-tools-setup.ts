@@ -1,6 +1,6 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-import { createClickUpClient } from '../clickup-client/index.js';
+import { /* createClickUpClient */ } from '../clickup-client/index.js';
 import { ViewsEnhancedClient } from '../clickup-client/views-enhanced.js';
 import {
   CreateViewSchema,
@@ -13,7 +13,7 @@ import {
   ViewSharingSchema,
   ViewTypeSchema,
   ViewAccessSchema,
-  FilterOperatorSchema,
+  // FilterOperatorSchema,
   ViewFilterSchema,
   ViewGroupingSchema,
   ViewSortingSchema,
@@ -24,7 +24,7 @@ import {
 } from '../schemas/views-schemas.js';
 
 // Create clients
-const clickUpClient = createClickUpClient();
+// const clickUpClient = createClickUpClient();
 const viewsClient = new ViewsEnhancedClient(process.env.CLICKUP_API_TOKEN!);
 
 export function setupViewsTools(server: McpServer): void {

@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "clickup": {
+      "command": "npx",
+      "args": ["-y", "clickup-mcp-server-enhanced"],
+      "env": {
+        "CLICKUP_API_TOKEN": "YOUR_API_TOKEN_HERE"
+      }
+    }
+  }
+}

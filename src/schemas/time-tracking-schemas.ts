@@ -193,16 +193,16 @@ export const RunningTimerResponseSchema = z.object({
  */
 export function convertDuration(milliseconds: number, format: 'milliseconds' | 'seconds' | 'minutes' | 'hours'): number {
   switch (format) {
-    case 'milliseconds':
-      return milliseconds;
-    case 'seconds':
-      return Math.floor(milliseconds / 1000);
-    case 'minutes':
-      return Math.floor(milliseconds / (1000 * 60));
-    case 'hours':
-      return Math.floor(milliseconds / (1000 * 60 * 60));
-    default:
-      return milliseconds;
+  case 'milliseconds':
+    return milliseconds;
+  case 'seconds':
+    return Math.floor(milliseconds / 1000);
+  case 'minutes':
+    return Math.floor(milliseconds / (1000 * 60));
+  case 'hours':
+    return Math.floor(milliseconds / (1000 * 60 * 60));
+  default:
+    return milliseconds;
   }
 }
 
@@ -222,9 +222,9 @@ export function formatDuration(milliseconds: number, includeSeconds: boolean = t
     return includeSeconds 
       ? `${minutes}m ${seconds}s`
       : `${minutes}m`;
-  } else {
-    return includeSeconds ? `${seconds}s` : '0m';
-  }
+  } 
+  return includeSeconds ? `${seconds}s` : '0m';
+  
 }
 
 /**

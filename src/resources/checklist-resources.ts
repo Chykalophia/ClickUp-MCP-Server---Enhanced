@@ -1,12 +1,12 @@
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createTasksClient } from '../clickup-client/tasks.js';
-import { createChecklistsClient, Checklist } from '../clickup-client/checklists.js';
+import { /* createChecklistsClient, */ Checklist } from '../clickup-client/checklists.js';
 
 // Create clients
 const clickUpClient = createClickUpClient();
 const tasksClient = createTasksClient(clickUpClient);
-const checklistsClient = createChecklistsClient(clickUpClient);
+// const checklistsClient = createChecklistsClient(clickUpClient);
 
 export function setupChecklistResources(server: McpServer): void {
   // Register task checklists resource
@@ -39,12 +39,12 @@ export function setupChecklistResources(server: McpServer): void {
               uri: uri.toString(),
               mimeType: 'application/json',
               text: JSON.stringify({
-                task_id: task_id,
+                task_id,
                 task_name: task.name,
-                checklists: checklists
-              }, null, 2),
-            },
-          ],
+                checklists
+              }, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[ChecklistResources] Error fetching checklists:', error);
@@ -70,7 +70,7 @@ export function setupChecklistResources(server: McpServer): void {
         
         // Placeholder for response format
         const checklistItems = {
-          checklist_id: checklist_id,
+          checklist_id,
           items: []
         };
         
@@ -79,9 +79,9 @@ export function setupChecklistResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(checklistItems, null, 2),
-            },
-          ],
+              text: JSON.stringify(checklistItems, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[ChecklistResources] Error fetching checklist items:', error);
@@ -113,12 +113,12 @@ export function setupChecklistResources(server: McpServer): void {
               uri: uri.toString(),
               mimeType: 'application/json',
               text: JSON.stringify({
-                task_id: task_id,
+                task_id,
                 task_name: task.name,
-                checklists: checklists
-              }, null, 2),
-            },
-          ],
+                checklists
+              }, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[ChecklistResources] Error fetching example checklists:', error);

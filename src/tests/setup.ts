@@ -7,9 +7,9 @@ beforeAll(() => {
   process.env.CLICKUP_API_TOKEN = 'pk_test_token_1234567890abcdef';
   
   // Mock console methods to reduce noise in tests
-  jest.spyOn(console, 'error').mockImplementation(() => {});
-  jest.spyOn(console, 'warn').mockImplementation(() => {});
-  jest.spyOn(console, 'debug').mockImplementation(() => {});
+  jest.spyOn(console, 'error').mockImplementation(() => { /* mocked */ });
+  jest.spyOn(console, 'warn').mockImplementation(() => { /* mocked */ });
+  jest.spyOn(console, 'debug').mockImplementation(() => { /* mocked */ });
   
   // Set up global test timeout
   jest.setTimeout(30000);
@@ -34,6 +34,7 @@ afterEach(() => {
 });
 
 // Global test utilities
+/*
 global.testUtils = {
   // Create mock ClickUp API response
   createMockApiResponse: (data: any, status = 200) => ({
@@ -128,13 +129,13 @@ global.testUtils = {
     
     webhookPayload: (overrides = {}) => ({
       id: 90110164070264,
-      hist_id: "4697736615798917760",
+      hist_id: '4697736615798917760',
       date: 1755803061841,
       version: {
-        object_type: "comment",
-        object_id: "90110164070264",
+        object_type: 'comment',
+        object_id: '90110164070264',
         workspace_id: 14168111,
-        operation: "c",
+        operation: 'c',
         data: {
           context: {
             root_parent_type: 1,
@@ -142,27 +143,27 @@ global.testUtils = {
             audit_context: {
               userid: 38366580,
               current_time: 1755803061674,
-              route: "*"
+              route: '*'
             },
-            originating_service: "publicapi"
+            originating_service: 'publicapi'
           },
           relationships: [
             {
-              type: "comment-author",
-              object_type: "user",
+              type: 'comment-author',
+              object_type: 'user',
               object_id: 38366580,
-              workspace_id: "14168111"
+              workspace_id: '14168111'
             },
             {
-              type: "comment-parent",
-              object_type: "task",
-              object_id: "868f9p6ad",
-              workspace_id: "14168111"
+              type: 'comment-parent',
+              object_type: 'task',
+              object_id: '868f9p6ad',
+              workspace_id: '14168111'
             }
           ],
           changes: [
             {
-              field: "date_created",
+              field: 'date_created',
               after: 1755803061841
             }
           ]
@@ -170,7 +171,7 @@ global.testUtils = {
         master_id: 13,
         version: 1755803061879000,
         deleted: false,
-        traceparent: "6041334444293036127",
+        traceparent: '6041334444293036127',
         date_created: 1755803061879,
         date_updated: 1755803061879,
         event_publish_time: 1755803061900
@@ -179,18 +180,21 @@ global.testUtils = {
     })
   }
 };
+*/
 
 // Type declarations for global utilities
+/*
 declare global {
-  var testUtils: {
-    createMockApiResponse: (data: any, status?: number) => any;
-    createMockErrorResponse: (status: number, message: string) => any;
-    waitFor: (ms: number) => Promise<void>;
+  const testUtils: {
+    createMockApiResponse: (_data: any, _status?: number) => any;
+    createMockErrorResponse: (_status: number, _message: string) => any;
+    waitFor: (_ms: number) => Promise<void>;
     generateTestData: {
-      workspace: (overrides?: any) => any;
-      task: (overrides?: any) => any;
-      webhook: (overrides?: any) => any;
-      webhookPayload: (overrides?: any) => any;
+      workspace: (_overrides?: any) => any;
+      task: (_overrides?: any) => any;
+      webhook: (_overrides?: any) => any;
+      webhookPayload: (_overrides?: any) => any;
     };
   };
 }
+*/

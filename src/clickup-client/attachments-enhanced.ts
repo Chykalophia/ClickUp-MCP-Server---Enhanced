@@ -336,16 +336,16 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
 
   private getParentEndpoint(parentType: string, parentId: string): string {
     switch (parentType) {
-      case 'task':
-        return `/task/${parentId}`;
-      case 'comment':
-        return `/comment/${parentId}`;
-      case 'doc':
-        return `/doc/${parentId}`;
-      case 'chat':
-        return `/chat/${parentId}`;
-      default:
-        throw new Error(`Invalid parent type: ${parentType}`);
+    case 'task':
+      return `/task/${parentId}`;
+    case 'comment':
+      return `/comment/${parentId}`;
+    case 'doc':
+      return `/doc/${parentId}`;
+    case 'chat':
+      return `/chat/${parentId}`;
+    default:
+      throw new Error(`Invalid parent type: ${parentType}`);
     }
   }
 }

@@ -26,9 +26,9 @@ export function setupFolderResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(foldersResponse, null, 2),
-            },
-          ],
+              text: JSON.stringify(foldersResponse, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[FolderResources] Error fetching space folders:', error);
@@ -56,7 +56,7 @@ export function setupFolderResources(server: McpServer): void {
         // Create a folder object with the ID and a message
         const folder = {
           id: folder_id,
-          message: "Folder details endpoint not available in ClickUp API"
+          message: 'Folder details endpoint not available in ClickUp API'
         };
         
         return {
@@ -64,9 +64,9 @@ export function setupFolderResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(folder, null, 2),
-            },
-          ],
+              text: JSON.stringify(folder, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[FolderResources] Error fetching folder:', error);
@@ -94,9 +94,9 @@ export function setupFolderResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(lists, null, 2),
-            },
-          ],
+              text: JSON.stringify(lists, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[FolderResources] Error fetching folder lists:', error);
@@ -124,9 +124,9 @@ export function setupFolderResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(foldersResponse, null, 2),
-            },
-          ],
+              text: JSON.stringify(foldersResponse, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[FolderResources] Error fetching example space folders:', error);
@@ -149,7 +149,7 @@ export function setupFolderResources(server: McpServer): void {
         // Create a folder object with the ID and a message
         const folder = {
           id: folder_id,
-          message: "Folder details endpoint not available in ClickUp API"
+          message: 'Folder details endpoint not available in ClickUp API'
         };
         
         return {
@@ -157,9 +157,9 @@ export function setupFolderResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(folder, null, 2),
-            },
-          ],
+              text: JSON.stringify(folder, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[FolderResources] Error fetching example folder:', error);
@@ -186,9 +186,9 @@ export function setupFolderResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(lists, null, 2),
-            },
-          ],
+              text: JSON.stringify(lists, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[FolderResources] Error fetching example folder lists:', error);

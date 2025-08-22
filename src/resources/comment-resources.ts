@@ -26,9 +26,9 @@ export function setupCommentResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(comments, null, 2),
-            },
-          ],
+              text: JSON.stringify(comments, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[CommentResources] Error fetching task comments:', error);
@@ -56,9 +56,9 @@ export function setupCommentResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(comments, null, 2),
-            },
-          ],
+              text: JSON.stringify(comments, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[CommentResources] Error fetching chat view comments:', error);
@@ -86,9 +86,9 @@ export function setupCommentResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(comments, null, 2),
-            },
-          ],
+              text: JSON.stringify(comments, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[CommentResources] Error fetching list comments:', error);
@@ -116,9 +116,9 @@ export function setupCommentResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(comments, null, 2),
-            },
-          ],
+              text: JSON.stringify(comments, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[CommentResources] Error fetching threaded comments:', error);
@@ -146,9 +146,9 @@ export function setupCommentResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(comments, null, 2),
-            },
-          ],
+              text: JSON.stringify(comments, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[CommentResources] Error fetching example task comments:', error);
@@ -175,9 +175,9 @@ export function setupCommentResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(comments, null, 2),
-            },
-          ],
+              text: JSON.stringify(comments, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[CommentResources] Error fetching example list comments:', error);

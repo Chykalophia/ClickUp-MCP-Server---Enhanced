@@ -1,6 +1,6 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-import { createClickUpClient } from '../clickup-client/index.js';
+import { /* createClickUpClient */ } from '../clickup-client/index.js';
 import { AttachmentsEnhancedClient } from '../clickup-client/attachments-enhanced.js';
 import {
   UploadAttachmentSchema,
@@ -14,7 +14,7 @@ import {
 } from '../schemas/attachments-schemas.js';
 
 // Create clients
-const clickUpClient = createClickUpClient();
+// const clickUpClient = createClickUpClient();
 const attachmentsClient = new AttachmentsEnhancedClient(process.env.CLICKUP_API_TOKEN!);
 
 export function setupAttachmentsTools(server: McpServer): void {

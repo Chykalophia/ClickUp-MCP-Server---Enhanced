@@ -141,8 +141,8 @@ export interface ProgressField extends BaseCustomField {
   type_config: {
     default?: number;
     start?: number; // default: 0
-    end?: number;   // default: 100
-    unit?: string;  // %, points, etc.
+    end?: number; // default: 100
+    unit?: string; // %, points, etc.
   };
 }
 
@@ -580,53 +580,54 @@ export class EnhancedCustomFieldsClient {
    */
   validateFieldValue(field: CustomField, value: any): boolean {
     switch (field.type) {
-      case 'text':
-      case 'textarea':
-        return typeof value === 'string';
+    case 'text':
+    case 'textarea':
+      return typeof value === 'string';
       
-      case 'number':
-      case 'currency':
-        return typeof value === 'number' && !isNaN(value);
+    case 'number':
+    case 'currency':
+      return typeof value === 'number' && !isNaN(value);
       
-      case 'date':
-        return typeof value === 'number' && value > 0;
+    case 'date':
+      return typeof value === 'number' && value > 0;
       
-      case 'checkbox':
-        return typeof value === 'boolean';
+    case 'checkbox':
+      return typeof value === 'boolean';
       
-      case 'url':
-        return typeof value === 'string' && this.isValidURL(value);
+    case 'url':
+      return typeof value === 'string' && this.isValidURL(value);
       
-      case 'email':
-        return typeof value === 'string' && this.isValidEmail(value);
+    case 'email':
+      return typeof value === 'string' && this.isValidEmail(value);
       
-      case 'phone':
-        return typeof value === 'string' && value.length > 0;
+    case 'phone':
+      return typeof value === 'string' && value.length > 0;
       
-      case 'drop_down':
-        return field.type_config.options?.some((opt: DropdownOption) => opt.id === value);
+    case 'drop_down':
+      return field.type_config.options?.some((opt: DropdownOption) => opt.id === value);
       
-      case 'labels':
-        return Array.isArray(value) && value.every(v => 
-          field.type_config.options?.some((opt: DropdownOption) => opt.id === v)
-        );
+    case 'labels':
+      return Array.isArray(value) && value.every(v => 
+        field.type_config.options?.some((opt: DropdownOption) => opt.id === v)
+      );
       
-      case 'rating':
-        return typeof value === 'number' && 
+    case 'rating':
+      return typeof value === 'number' && 
                value >= 0 && value <= (field.type_config.count || 5);
       
-      case 'progress':
-        const { start = 0, end = 100 } = field.type_config;
-        return typeof value === 'number' && value >= start && value <= end;
+    case 'progress': {
+      const { start = 0, end = 100 } = field.type_config;
+      return typeof value === 'number' && value >= start && value <= end;
+    }
       
-      case 'task_relationship':
-        if (field.type_config.multiple) {
-          return Array.isArray(value) && value.every(v => typeof v === 'string');
-        }
-        return typeof value === 'string';
+    case 'task_relationship':
+      if (field.type_config.multiple) {
+        return Array.isArray(value) && value.every(v => typeof v === 'string');
+      }
+      return typeof value === 'string';
       
-      default:
-        return true;
+    default:
+      return true;
     }
   }
 
@@ -635,69 +636,69 @@ export class EnhancedCustomFieldsClient {
    */
   getFieldTypeTemplate(type: CustomFieldType): Record<string, any> {
     switch (type) {
-      case 'text':
-      case 'textarea':
-        return {
-          default: '',
-          placeholder: ''
-        };
+    case 'text':
+    case 'textarea':
+      return {
+        default: '',
+        placeholder: ''
+      };
       
-      case 'number':
-        return {
-          default: 0,
-          precision: 0
-        };
+    case 'number':
+      return {
+        default: 0,
+        precision: 0
+      };
       
-      case 'currency':
-        return {
-          default: 0,
-          precision: 2,
-          currency_type: 'USD'
-        };
+    case 'currency':
+      return {
+        default: 0,
+        precision: 2,
+        currency_type: 'USD'
+      };
       
-      case 'date':
-        return {
-          include_time: false
-        };
+    case 'date':
+      return {
+        include_time: false
+      };
       
-      case 'drop_down':
-      case 'labels':
-        return {
-          options: []
-        };
+    case 'drop_down':
+    case 'labels':
+      return {
+        options: []
+      };
       
-      case 'checkbox':
-        return {
-          default: false
-        };
+    case 'checkbox':
+      return {
+        default: false
+      };
       
-      case 'url':
-      case 'email':
-      case 'phone':
-        return {
-          placeholder: ''
-        };
+    case 'url':
+    case 'email':
+    case 'phone':
+      return {
+        placeholder: ''
+      };
       
-      case 'rating':
-        return {
-          count: 5,
-          default: 0
-        };
+    case 'rating':
+      return {
+        count: 5,
+        default: 0
+      };
       
-      case 'progress':
-        return {
-          start: 0,
-          end: 100,
-          unit: '%'
-        };
+    case 'progress':
+      return {
+        start: 0,
+        end: 100,
+        unit: '%'
+      };
       
-      case 'task_relationship':
-        return {
-          multiple: false
-        };
+    case 'task_relationship':
+      return {
+        multiple: false
+      };
       
-      default:
-        return {};
+    default:
+      return {};
     }
   }
 
@@ -707,8 +708,8 @@ export class EnhancedCustomFieldsClient {
 
   private isValidURL(string: string): boolean {
     try {
-      new URL(string);
-      return true;
+      const url = new URL(string);
+      return !!url;
     } catch (_) {
       return false;
     }
@@ -725,20 +726,20 @@ export class EnhancedCustomFieldsClient {
       const message = error.response?.data?.message || error.message;
       
       switch (status) {
-        case 400:
-          return new Error(`${context}: Invalid request - ${message}`);
-        case 401:
-          return new Error(`${context}: Authentication failed - check API token`);
-        case 403:
-          return new Error(`${context}: Permission denied - insufficient access rights`);
-        case 404:
-          return new Error(`${context}: Resource not found - ${message}`);
-        case 429:
-          return new Error(`${context}: Rate limit exceeded - please retry later`);
-        case 500:
-          return new Error(`${context}: Server error - please try again`);
-        default:
-          return new Error(`${context}: ${message}`);
+      case 400:
+        return new Error(`${context}: Invalid request - ${message}`);
+      case 401:
+        return new Error(`${context}: Authentication failed - check API token`);
+      case 403:
+        return new Error(`${context}: Permission denied - insufficient access rights`);
+      case 404:
+        return new Error(`${context}: Resource not found - ${message}`);
+      case 429:
+        return new Error(`${context}: Rate limit exceeded - please retry later`);
+      case 500:
+        return new Error(`${context}: Server error - please try again`);
+      default:
+        return new Error(`${context}: ${message}`);
       }
     }
     

@@ -1,6 +1,6 @@
 import { ClickUpClient } from './index.js';
-import { processClickUpResponse } from '../utils/markdown.js';
-import { prepareCommentForClickUp, clickUpCommentToMarkdown, ClickUpCommentBlock, cleanClickUpCommentResponse } from '../utils/clickup-comment-formatter.js';
+// import { processClickUpResponse } from '../utils/markdown.js';
+import { prepareCommentForClickUp, clickUpCommentToMarkdown, ClickUpCommentBlock /* cleanClickUpCommentResponse */ } from '../utils/clickup-comment-formatter.js';
 
 export interface Comment {
   id: string;
@@ -122,6 +122,7 @@ function processCommentResponse(comment: any): Comment {
  * Prepare comment parameters for ClickUp API using structured comment format
  * This uses ClickUp's structured comment array format for proper markdown rendering
  */
+/*
 function prepareCommentParams(params: any): any {
   if (params.comment_text) {
     // Use the structured comment format instead of plain comment_text
@@ -137,6 +138,7 @@ function prepareCommentParams(params: any): any {
   
   return params;
 }
+*/
 
 export class CommentsEnhancedClient {
   private client: ClickUpClient;

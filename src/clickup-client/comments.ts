@@ -144,7 +144,7 @@ export class CommentsClient {
           (!lastBlock.attributes || Object.keys(lastBlock.attributes).length === 0)) {
         
         // If the last block contains markdown syntax, it's likely the duplicate
-        const hasMarkdownSyntax = /[*_`#\[\]()>-]/.test(lastBlock.text) || 
+        const hasMarkdownSyntax = /[*_`#[\]()>-]/.test(lastBlock.text) || 
                                   lastBlock.text.includes('```') ||
                                   lastBlock.text.includes('**') ||
                                   lastBlock.text.includes('##');

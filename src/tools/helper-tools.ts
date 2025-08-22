@@ -1,7 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { createClickUpClient } from '../clickup-client/index.js';
-import { suggestToolsForTask, getChatChannelDiscoveryStrategy, getEfficiencyRating, TOOL_METADATA } from '../utils/tool-efficiency.js';
+import { suggestToolsForTask, /* getChatChannelDiscoveryStrategy, */ getEfficiencyRating, TOOL_METADATA } from '../utils/tool-efficiency.js';
 
 const client = createClickUpClient();
 
@@ -122,8 +122,8 @@ ${args.context?.known_ids ? `\n### 🔑 Available IDs\n${Object.entries(args.con
             text: `## 💬 Found ${allChatChannels.length} Chat Channels
 
 ${allChatChannels.length === 0 ? '❌ No chat channels found matching your criteria.' : 
-  allChatChannels.map(channel => 
-    `### 📢 ${channel.name}
+    allChatChannels.map(channel => 
+      `### 📢 ${channel.name}
 - **ID**: \`${channel.id}\`
 - **Type**: ${channel.type}
 - **Workspace**: ${channel.workspace_name} (\`${channel.workspace_id}\`)
@@ -131,7 +131,7 @@ ${allChatChannels.length === 0 ? '❌ No chat channels found matching your crite
 - **Visibility**: ${channel.visibility}
 
 *Use this ID with \`create_chat_view_comment\` to post messages.*`
-  ).join('\n\n')}
+    ).join('\n\n')}
 
 ### 🚀 Next Steps
 To post a message to any of these channels, use:
@@ -204,13 +204,13 @@ create_chat_view_comment(view_id="CHANNEL_ID", comment_text="Your message")
             text: `## 🔍 Found ${matchingViews.length} Views matching "${args.view_name}"
 
 ${matchingViews.map(view => 
-  `### 📋 ${view.name}
+    `### 📋 ${view.name}
 - **ID**: \`${view.id}\`
 - **Type**: ${view.type}
 - **Workspace**: ${view.workspace_name}
 - **Space**: ${view.space_name}
 - **Visibility**: ${view.visibility || 'unknown'}`
-).join('\n\n')}`
+  ).join('\n\n')}`
           }]
         };
       } catch (error) {
@@ -335,23 +335,23 @@ ${matchingViews.map(view =>
 
 ### 💬 Chat Channels
 ${overview.chat_channels.length === 0 ? '❌ No chat channels found' : 
-  overview.chat_channels.map((chat: any) => 
-    `- **${chat.name}** (\`${chat.id}\`) in ${chat.space_name}`
-  ).join('\n')}
+    overview.chat_channels.map((chat: any) => 
+      `- **${chat.name}** (\`${chat.id}\`) in ${chat.space_name}`
+    ).join('\n')}
 
 ### 🏗️ Spaces Structure
 ${overview.spaces.map((space: any) => 
-  `#### 📁 ${space.name} ${space.private ? '🔒' : '🌐'}
+    `#### 📁 ${space.name} ${space.private ? '🔒' : '🌐'}
 - **ID**: \`${space.id}\`
 - **Folders**: ${space.folders.length}
 - **Lists**: ${space.lists.length}
 ${args.include_views ? `- **Views**: ${space.views.length}` : ''}`
-).join('\n\n')}
+  ).join('\n\n')}
 
 ### 🚀 Quick Actions
 ${overview.chat_channels.length > 0 ? 
-  `**Post to chat**: Use \`create_chat_view_comment\` with any of the chat channel IDs above.` : 
-  '**No chat channels available for posting.**'}`
+    '**Post to chat**: Use `create_chat_view_comment` with any of the chat channel IDs above.' : 
+    '**No chat channels available for posting.**'}`
           }]
         };
       } catch (error) {
@@ -401,12 +401,12 @@ ${overview.chat_channels.length > 0 ?
 
 ### 📋 Planned Tools Analysis
 ${toolAnalysis.map(analysis => 
-  `#### ${analysis.tool}
+    `#### ${analysis.tool}
 - **Efficiency**: ${analysis.efficiency}
 - **Category**: ${analysis.category}
 - **Performance Impact**: ${analysis.performance_impact}
 - **Hint**: ${analysis.hint}`
-).join('\n\n')}
+  ).join('\n\n')}
 
 ### 📊 Overall Efficiency Rating: ${efficiency.rating.toUpperCase()}
 

@@ -9,7 +9,7 @@ import {
   WebhookPayloadSchema
 } from '../schemas/webhook-schemas.js';
 
-export function createWebhookTools(client: WebhooksEnhancedClient): Tool[] {
+export function createWebhookTools(_client: WebhooksEnhancedClient): Tool[] {
   return [
     // Create webhook
     {
@@ -302,74 +302,74 @@ export async function handleWebhookTool(
 ): Promise<any> {
   try {
     switch (name) {
-      case 'create_webhook': {
-        const request = CreateWebhookSchema.parse(args);
-        return await client.createWebhook(request);
-      }
+    case 'create_webhook': {
+      const request = CreateWebhookSchema.parse(args);
+      return await client.createWebhook(request);
+    }
 
-      case 'get_webhooks': {
-        const filter = WebhookFilterSchema.parse(args);
-        return await client.getWebhooks(filter);
-      }
+    case 'get_webhooks': {
+      const filter = WebhookFilterSchema.parse(args);
+      return await client.getWebhooks(filter);
+    }
 
-      case 'get_webhook': {
-        const { webhook_id } = args;
-        return await client.getWebhook(webhook_id);
-      }
+    case 'get_webhook': {
+      const { webhook_id } = args;
+      return await client.getWebhook(webhook_id);
+    }
 
-      case 'update_webhook': {
-        const request = UpdateWebhookSchema.parse(args);
-        return await client.updateWebhook(request);
-      }
+    case 'update_webhook': {
+      const request = UpdateWebhookSchema.parse(args);
+      return await client.updateWebhook(request);
+    }
 
-      case 'delete_webhook': {
-        const { webhook_id } = args;
-        return await client.deleteWebhook(webhook_id);
-      }
+    case 'delete_webhook': {
+      const { webhook_id } = args;
+      return await client.deleteWebhook(webhook_id);
+    }
 
-      case 'get_webhook_event_history': {
-        const { webhook_id, limit } = args;
-        return await client.getWebhookEventHistory(webhook_id, limit);
-      }
+    case 'get_webhook_event_history': {
+      const { webhook_id, limit } = args;
+      return await client.getWebhookEventHistory(webhook_id, limit);
+    }
 
-      case 'ping_webhook': {
-        const { webhook_id } = args;
-        return await client.pingWebhook(webhook_id);
-      }
+    case 'ping_webhook': {
+      const { webhook_id } = args;
+      return await client.pingWebhook(webhook_id);
+    }
 
-      case 'validate_webhook_signature': {
-        const request = ValidateWebhookSignatureSchema.parse(args);
-        const isValid = client.validateWebhookSignature(request);
-        return { valid: isValid };
-      }
+    case 'validate_webhook_signature': {
+      const request = ValidateWebhookSignatureSchema.parse(args);
+      const isValid = client.validateWebhookSignature(request);
+      return { valid: isValid };
+    }
 
-      case 'process_webhook': {
-        // Parse the payload if it's a string
-        let payload = args.payload;
-        if (typeof payload === 'string') {
-          payload = JSON.parse(payload);
-        }
+    case 'process_webhook': {
+      // Parse the payload if it's a string
+      let payload = args.payload;
+      if (typeof payload === 'string') {
+        payload = JSON.parse(payload);
+      }
         
-        const parsedPayload = WebhookPayloadSchema.parse(payload);
-        const request = ProcessWebhookSchema.parse({
-          ...args,
-          payload: parsedPayload
-        });
-        return await client.processWebhook(request);
-      }
+      const parsedPayload = WebhookPayloadSchema.parse(payload);
+      const request = ProcessWebhookSchema.parse({
+        ...args,
+        payload: parsedPayload
+      });
+      return await client.processWebhook(request);
+    }
 
-      case 'get_webhook_stats': {
-        const { webhook_id, days } = args;
-        return await client.getWebhookStats(webhook_id, days);
-      }
+    case 'get_webhook_stats': {
+      const { webhook_id, days } = args;
+      return await client.getWebhookStats(webhook_id, days);
+    }
 
-      case 'retry_webhook_events': {
-        const { webhook_id, event_ids } = args;
-        return await client.retryWebhookEvents(webhook_id, event_ids);
-      }
+    case 'retry_webhook_events': {
+      const { webhook_id, event_ids } = args;
+      return await client.retryWebhookEvents(webhook_id, event_ids);
+    }
 
-      default:
-        throw new Error(`Unknown webhook tool: ${name}`);
+    default:
+      throw new Error(`Unknown webhook tool: ${name}`);
     }
   } catch (error) {
     if (error instanceof Error) {

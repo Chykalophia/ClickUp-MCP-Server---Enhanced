@@ -368,8 +368,7 @@ Visit [ClickUp](https://clickup.com) for more info.`;
         comment: [{
           text: 'Hello world',
           attributes: {}
-        }],
-        comment_text: 'Hello world'
+        }]
       });
     });
 
@@ -380,7 +379,13 @@ Visit [ClickUp](https://clickup.com) for more info.`;
         text: 'Bold',
         attributes: { bold: true }
       });
-      expect(result.comment_text).toBe('**Bold** text');
+      expect(result.comment).toEqual([{
+        text: 'Bold',
+        attributes: { bold: true }
+      }, {
+        text: ' text',
+        attributes: {}
+      }]);
     });
 
     it('should handle empty input', () => {

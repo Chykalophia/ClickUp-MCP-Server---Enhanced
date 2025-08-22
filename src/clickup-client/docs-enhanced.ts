@@ -476,22 +476,22 @@ export class EnhancedDocsClient {
       const message = error.response?.data?.message || error.message;
       
       switch (status) {
-        case 400:
-          return new Error(`${context}: Invalid request - ${message}`);
-        case 401:
-          return new Error(`${context}: Authentication failed - check API token`);
-        case 403:
-          return new Error(`${context}: Permission denied - insufficient access rights`);
-        case 404:
-          return new Error(`${context}: Resource not found - ${message}`);
-        case 413:
-          return new Error(`${context}: Content too large - reduce document size`);
-        case 429:
-          return new Error(`${context}: Rate limit exceeded - please retry later`);
-        case 500:
-          return new Error(`${context}: Server error - please try again`);
-        default:
-          return new Error(`${context}: ${message}`);
+      case 400:
+        return new Error(`${context}: Invalid request - ${message}`);
+      case 401:
+        return new Error(`${context}: Authentication failed - check API token`);
+      case 403:
+        return new Error(`${context}: Permission denied - insufficient access rights`);
+      case 404:
+        return new Error(`${context}: Resource not found - ${message}`);
+      case 413:
+        return new Error(`${context}: Content too large - reduce document size`);
+      case 429:
+        return new Error(`${context}: Rate limit exceeded - please retry later`);
+      case 500:
+        return new Error(`${context}: Server error - please try again`);
+      default:
+        return new Error(`${context}: ${message}`);
       }
     }
     

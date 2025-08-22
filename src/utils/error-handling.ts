@@ -5,6 +5,7 @@ import { z } from 'zod';
  */
 
 // Error types
+/* eslint-disable @typescript-eslint/no-unused-vars */
 export enum ErrorType {
   VALIDATION = 'VALIDATION',
   AUTHENTICATION = 'AUTHENTICATION',
@@ -26,6 +27,7 @@ export enum ErrorSeverity {
   HIGH = 'HIGH',
   CRITICAL = 'CRITICAL'
 }
+/* eslint-enable @typescript-eslint/no-unused-vars */
 
 // Structured error interface
 export interface StructuredError {
@@ -165,41 +167,41 @@ export const handleClickUpApiError = (error: any, context?: {
     let retryAfter: number | undefined;
     
     switch (status) {
-      case 400:
-        errorType = ErrorType.VALIDATION;
-        severity = ErrorSeverity.LOW;
-        break;
-      case 401:
-        errorType = ErrorType.AUTHENTICATION;
-        severity = ErrorSeverity.HIGH;
-        break;
-      case 403:
-        errorType = ErrorType.AUTHORIZATION;
-        severity = ErrorSeverity.HIGH;
-        break;
-      case 404:
-        errorType = ErrorType.NOT_FOUND;
-        severity = ErrorSeverity.LOW;
-        break;
-      case 429:
-        errorType = ErrorType.RATE_LIMIT;
-        severity = ErrorSeverity.MEDIUM;
-        retryable = true;
-        retryAfter = parseInt(error.response.headers['retry-after']) || 60;
-        break;
-      case 500:
-      case 502:
-      case 503:
-      case 504:
-        errorType = ErrorType.API_ERROR;
-        severity = ErrorSeverity.HIGH;
-        retryable = true;
-        retryAfter = 30;
-        break;
-      default:
-        errorType = ErrorType.API_ERROR;
-        severity = ErrorSeverity.MEDIUM;
-        retryable = status >= 500;
+    case 400:
+      errorType = ErrorType.VALIDATION;
+      severity = ErrorSeverity.LOW;
+      break;
+    case 401:
+      errorType = ErrorType.AUTHENTICATION;
+      severity = ErrorSeverity.HIGH;
+      break;
+    case 403:
+      errorType = ErrorType.AUTHORIZATION;
+      severity = ErrorSeverity.HIGH;
+      break;
+    case 404:
+      errorType = ErrorType.NOT_FOUND;
+      severity = ErrorSeverity.LOW;
+      break;
+    case 429:
+      errorType = ErrorType.RATE_LIMIT;
+      severity = ErrorSeverity.MEDIUM;
+      retryable = true;
+      retryAfter = parseInt(error.response.headers['retry-after'], 10) || 60;
+      break;
+    case 500:
+    case 502:
+    case 503:
+    case 504:
+      errorType = ErrorType.API_ERROR;
+      severity = ErrorSeverity.HIGH;
+      retryable = true;
+      retryAfter = 30;
+      break;
+    default:
+      errorType = ErrorType.API_ERROR;
+      severity = ErrorSeverity.MEDIUM;
+      retryable = status >= 500;
     }
     
     return createStructuredError(
@@ -429,8 +431,8 @@ export class RetryManager {
  */
 export const logError = (error: StructuredError): void => {
   const logLevel = error.severity === ErrorSeverity.CRITICAL ? 'error' :
-                   error.severity === ErrorSeverity.HIGH ? 'error' :
-                   error.severity === ErrorSeverity.MEDIUM ? 'warn' : 'info';
+    error.severity === ErrorSeverity.HIGH ? 'error' :
+      error.severity === ErrorSeverity.MEDIUM ? 'warn' : 'info';
   
   const logData = {
     timestamp: error.timestamp,
@@ -460,7 +462,7 @@ export const logError = (error: StructuredError): void => {
 export const wrapMcpTool = <T extends any[], R>(
   toolName: string,
   schema: z.ZodSchema,
-  handler: (...args: T) => Promise<R>
+  handler: (..._args: T) => Promise<R>
 ) => {
   return async (args: any): Promise<any> => {
     const requestId = generateRequestId();

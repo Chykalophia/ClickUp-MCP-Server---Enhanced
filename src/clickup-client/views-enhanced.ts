@@ -10,8 +10,8 @@ import type {
   ViewSharingRequest,
   ViewFilter,
   ViewGrouping,
-  ViewSorting,
-  ViewSettings
+  ViewSorting
+  // ViewSettings
 } from '../schemas/views-schemas.js';
 
 export interface ViewResponse {
@@ -266,7 +266,7 @@ export class ViewsEnhancedClient extends ClickUpClient {
    */
   async duplicateView(viewId: string, name: string): Promise<ViewResponse> {
     const payload = {
-      name: name
+      name
     };
 
     const response = await this.post<{ view: ViewResponse }>(`/view/${viewId}/duplicate`, payload);
@@ -277,14 +277,14 @@ export class ViewsEnhancedClient extends ClickUpClient {
 
   private getParentEndpoint(parentType: string, parentId: string): string {
     switch (parentType) {
-      case 'space':
-        return `/space/${parentId}`;
-      case 'folder':
-        return `/folder/${parentId}`;
-      case 'list':
-        return `/list/${parentId}`;
-      default:
-        throw new Error(`Invalid parent type: ${parentType}`);
+    case 'space':
+      return `/space/${parentId}`;
+    case 'folder':
+      return `/folder/${parentId}`;
+    case 'list':
+      return `/list/${parentId}`;
+    default:
+      throw new Error(`Invalid parent type: ${parentType}`);
     }
   }
 

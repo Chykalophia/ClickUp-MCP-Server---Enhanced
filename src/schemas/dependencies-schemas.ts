@@ -2,9 +2,9 @@ import { z } from 'zod';
 
 // Dependency types
 export const DependencyTypeSchema = z.enum([
-  'blocking',      // Task A blocks Task B (A must finish before B can start)
-  'waiting_on',    // Task A is waiting on Task B (A cannot start until B finishes)
-  'linked'         // Tasks are linked but not blocking
+  'blocking', // Task A blocks Task B (A must finish before B can start)
+  'waiting_on', // Task A is waiting on Task B (A cannot start until B finishes)
+  'linked' // Tasks are linked but not blocking
 ]);
 
 // Dependency status
@@ -186,27 +186,27 @@ export interface DependencyConflictResponse {
 // Utility functions
 export const getDependencyDirection = (type: DependencyType): 'forward' | 'backward' => {
   switch (type) {
-    case 'blocking':
-      return 'forward';
-    case 'waiting_on':
-      return 'backward';
-    case 'linked':
-      return 'forward';
-    default:
-      return 'forward';
+  case 'blocking':
+    return 'forward';
+  case 'waiting_on':
+    return 'backward';
+  case 'linked':
+    return 'forward';
+  default:
+    return 'forward';
   }
 };
 
 export const getOppositeDependencyType = (type: DependencyType): DependencyType => {
   switch (type) {
-    case 'blocking':
-      return 'waiting_on';
-    case 'waiting_on':
-      return 'blocking';
-    case 'linked':
-      return 'linked';
-    default:
-      return type;
+  case 'blocking':
+    return 'waiting_on';
+  case 'waiting_on':
+    return 'blocking';
+  case 'linked':
+    return 'linked';
+  default:
+    return type;
   }
 };
 

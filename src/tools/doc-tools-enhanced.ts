@@ -2,13 +2,13 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createEnhancedDocsClient } from '../clickup-client/docs-enhanced.js';
-import { createAuthClient } from '../clickup-client/auth.js';
-import { DocumentToolSchemas } from '../schemas/document-schemas.js';
+import { /* createAuthClient */ } from '../clickup-client/auth.js';
+import { /* DocumentToolSchemas */ } from '../schemas/document-schemas.js';
 
 // Create clients
 const clickUpClient = createClickUpClient();
 const enhancedDocsClient = createEnhancedDocsClient(clickUpClient);
-const authClient = createAuthClient(clickUpClient);
+// const authClient = createAuthClient(clickUpClient);
 
 export function setupEnhancedDocTools(server: McpServer): void {
   

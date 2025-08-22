@@ -3,13 +3,13 @@ import { z } from 'zod';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { 
   CommentsEnhancedClient, 
-  CreateTaskCommentParams, 
+  // CreateTaskCommentParams, 
   CreateChatViewCommentParams,
   CreateListCommentParams,
   UpdateCommentParams,
   CreateThreadedCommentParams
 } from '../clickup-client/comments-enhanced.js';
-import { applyMarkdownStyling, createMarkdownPreview } from '../utils/markdown-styling.js';
+import { /* applyMarkdownStyling, */ createMarkdownPreview } from '../utils/markdown-styling.js';
 import { processCommentBlocks } from '../utils/clickup-comment-formatter.js';
 
 // Create clients

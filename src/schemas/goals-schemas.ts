@@ -233,15 +233,15 @@ export function calculateTargetProgress(startValue: number, currentValue: number
  */
 export function isTargetCompleted(currentValue: number, targetValue: number, type: string): boolean {
   switch (type) {
-    case 'boolean':
-      return currentValue >= 1;
-    case 'number':
-    case 'currency':
-    case 'task':
-    case 'list':
-      return currentValue >= targetValue;
-    default:
-      return false;
+  case 'boolean':
+    return currentValue >= 1;
+  case 'number':
+  case 'currency':
+  case 'task':
+  case 'list':
+    return currentValue >= targetValue;
+  default:
+    return false;
   }
 }
 

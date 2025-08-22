@@ -96,24 +96,24 @@ function processHeaders(content: string, options: MarkdownStyleOptions): string 
     let styled = text;
     
     switch (level) {
-      case 1:
-        styled = colorize(text.toUpperCase(), COLORS.bright + COLORS.red, options);
-        break;
-      case 2:
-        styled = colorize(text, COLORS.bright + COLORS.blue, options);
-        break;
-      case 3:
-        styled = colorize(text, COLORS.bright + COLORS.green, options);
-        break;
-      case 4:
-        styled = colorize(text, COLORS.bright + COLORS.yellow, options);
-        break;
-      case 5:
-        styled = colorize(text, COLORS.bright + COLORS.magenta, options);
-        break;
-      case 6:
-        styled = colorize(text, COLORS.bright + COLORS.cyan, options);
-        break;
+    case 1:
+      styled = colorize(text.toUpperCase(), COLORS.bright + COLORS.red, options);
+      break;
+    case 2:
+      styled = colorize(text, COLORS.bright + COLORS.blue, options);
+      break;
+    case 3:
+      styled = colorize(text, COLORS.bright + COLORS.green, options);
+      break;
+    case 4:
+      styled = colorize(text, COLORS.bright + COLORS.yellow, options);
+      break;
+    case 5:
+      styled = colorize(text, COLORS.bright + COLORS.magenta, options);
+      break;
+    case 6:
+      styled = colorize(text, COLORS.bright + COLORS.cyan, options);
+      break;
     }
     
     const result = addEmoji(styled, emoji, options);
@@ -167,7 +167,7 @@ function processCode(content: string, options: MarkdownStyleOptions): string {
  * Process lists
  */
 function processLists(content: string, options: MarkdownStyleOptions): string {
-  const indent = ' '.repeat(options.indentSize || 2);
+  // const indent = ' '.repeat(options.indentSize || 2);
   
   // Unordered lists
   content = content.replace(/^(\s*)[-*+]\s+(.+)$/gm, (match, spaces, text) => {
@@ -238,7 +238,7 @@ function processHorizontalRules(content: string, options: MarkdownStyleOptions):
 /**
  * Add visual separators and spacing
  */
-function addVisualEnhancements(content: string, options: MarkdownStyleOptions): string {
+function addVisualEnhancements(content: string, _options: MarkdownStyleOptions): string {
   // Add spacing around sections
   content = content.replace(/\n(#{1,6})/g, '\n\n$1');
   content = content.replace(/(#{1,6}[^\n]+)\n/g, '$1\n\n');
@@ -321,40 +321,45 @@ export function extractStyledSections(
   const sections: string[] = [];
   
   switch (sectionType) {
-    case 'headers':
-      const headerMatches = markdown.match(/^#{1,6}\s+.+$/gm);
-      if (headerMatches) {
-        sections.push(...headerMatches.map(h => processHeaders(h, opts)));
-      }
-      break;
+  case 'headers': {
+    const headerMatches = markdown.match(/^#{1,6}\s+.+$/gm);
+    if (headerMatches) {
+      sections.push(...headerMatches.map(h => processHeaders(h, opts)));
+    }
+    break;
+  }
       
-    case 'code':
-      const codeMatches = markdown.match(/```[\s\S]*?```|`[^`]+`/g);
-      if (codeMatches) {
-        sections.push(...codeMatches.map(c => processCode(c, opts)));
-      }
-      break;
+  case 'code': {
+    const codeMatches = markdown.match(/```[\s\S]*?```|`[^`]+`/g);
+    if (codeMatches) {
+      sections.push(...codeMatches.map(c => processCode(c, opts)));
+    }
+    break;
+  }
       
-    case 'lists':
-      const listMatches = markdown.match(/^(\s*)[-*+]\s+.+$|^(\s*)\d+\.\s+.+$/gm);
-      if (listMatches) {
-        sections.push(...listMatches.map(l => processLists(l, opts)));
-      }
-      break;
+  case 'lists': {
+    const listMatches = markdown.match(/^(\s*)[-*+]\s+.+$|^(\s*)\d+\.\s+.+$/gm);
+    if (listMatches) {
+      sections.push(...listMatches.map(l => processLists(l, opts)));
+    }
+    break;
+  }
       
-    case 'quotes':
-      const quoteMatches = markdown.match(/^>\s+.+$/gm);
-      if (quoteMatches) {
-        sections.push(...quoteMatches.map(q => processBlockquotes(q, opts)));
-      }
-      break;
+  case 'quotes': {
+    const quoteMatches = markdown.match(/^>\s+.+$/gm);
+    if (quoteMatches) {
+      sections.push(...quoteMatches.map(q => processBlockquotes(q, opts)));
+    }
+    break;
+  }
       
-    case 'links':
-      const linkMatches = markdown.match(/\[([^\]]+)\]\(([^)]+)\)|!\[([^\]]*)\]\(([^)]+)\)/g);
-      if (linkMatches) {
-        sections.push(...linkMatches.map(l => processLinks(l, opts)));
-      }
-      break;
+  case 'links': {
+    const linkMatches = markdown.match(/\[([^\]]+)\]\(([^)]+)\)|!\[([^\]]*)\]\(([^)]+)\)/g);
+    if (linkMatches) {
+      sections.push(...linkMatches.map(l => processLinks(l, opts)));
+    }
+    break;
+  }
   }
   
   return sections;

@@ -230,23 +230,23 @@ export class SecureClickUpClient {
           let data: T;
           
           switch (request.method) {
-            case 'GET':
-              data = await this.get<T>(request.endpoint, request.params);
-              break;
-            case 'POST':
-              data = await this.post<T>(request.endpoint, request.data);
-              break;
-            case 'PUT':
-              data = await this.put<T>(request.endpoint, request.data);
-              break;
-            case 'DELETE':
-              data = await this.delete<T>(request.endpoint);
-              break;
-            case 'PATCH':
-              data = await this.patch<T>(request.endpoint, request.data);
-              break;
-            default:
-              throw new Error(`Unsupported method: ${request.method}`);
+          case 'GET':
+            data = await this.get<T>(request.endpoint, request.params);
+            break;
+          case 'POST':
+            data = await this.post<T>(request.endpoint, request.data);
+            break;
+          case 'PUT':
+            data = await this.put<T>(request.endpoint, request.data);
+            break;
+          case 'DELETE':
+            data = await this.delete<T>(request.endpoint);
+            break;
+          case 'PATCH':
+            data = await this.patch<T>(request.endpoint, request.data);
+            break;
+          default:
+            throw new Error(`Unsupported method: ${request.method}`);
           }
           
           return { success: true, data };
@@ -305,7 +305,7 @@ export class SecureClickUpClient {
     rateLimitEnabled: boolean;
     userAgent: string;
     baseUrl: string;
-  } {
+    } {
     return {
       totalRequests: 0, // Would need to implement request counting
       rateLimitEnabled: this.enableRateLimit,

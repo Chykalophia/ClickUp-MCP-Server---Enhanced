@@ -3,12 +3,12 @@ import { z } from 'zod';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createEnhancedTimeTrackingClient } from '../clickup-client/time-tracking-enhanced.js';
 import { 
-  TeamIdSchema, 
-  TimerIdSchema, 
-  CreateTimeEntrySchema,
-  UpdateTimeEntrySchema,
-  GetTimeEntriesSchema,
-  TimeEntryTagSchema
+// TeamIdSchema, 
+// TimerIdSchema, 
+// CreateTimeEntrySchema,
+// UpdateTimeEntrySchema,
+// GetTimeEntriesSchema,
+// TimeEntryTagSchema
 } from '../schemas/time-tracking-schemas.js';
 
 // Create clients

@@ -26,9 +26,9 @@ export function setupSpaceResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(spaces, null, 2),
-            },
-          ],
+              text: JSON.stringify(spaces, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[SpaceResources] Error fetching workspace spaces:', error);
@@ -56,9 +56,9 @@ export function setupSpaceResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(space, null, 2),
-            },
-          ],
+              text: JSON.stringify(space, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[SpaceResources] Error fetching space:', error);
@@ -86,9 +86,9 @@ export function setupSpaceResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(spaces, null, 2),
-            },
-          ],
+              text: JSON.stringify(spaces, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[SpaceResources] Error fetching example workspace spaces:', error);
@@ -115,9 +115,9 @@ export function setupSpaceResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(space, null, 2),
-            },
-          ],
+              text: JSON.stringify(space, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[SpaceResources] Error fetching example space:', error);

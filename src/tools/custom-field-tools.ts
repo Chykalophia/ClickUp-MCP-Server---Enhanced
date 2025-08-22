@@ -2,7 +2,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createEnhancedCustomFieldsClient, CustomFieldType } from '../clickup-client/custom-fields-enhanced.js';
-import { CustomFieldToolSchemas, DropdownOptionSchema } from '../schemas/custom-field-schemas.js';
+import { /* CustomFieldToolSchemas, */ DropdownOptionSchema } from '../schemas/custom-field-schemas.js';
 
 // Create clients
 const clickUpClient = createClickUpClient();
@@ -27,17 +27,17 @@ export function setupCustomFieldTools(server: McpServer): void {
         let fields;
         
         switch (container_type) {
-          case 'list':
-            fields = await customFieldsClient.getListCustomFields(container_id, { include_deleted });
-            break;
-          case 'folder':
-            fields = await customFieldsClient.getFolderCustomFields(container_id, { include_deleted });
-            break;
-          case 'space':
-            fields = await customFieldsClient.getSpaceCustomFields(container_id, { include_deleted });
-            break;
-          default:
-            throw new Error('Invalid container type');
+        case 'list':
+          fields = await customFieldsClient.getListCustomFields(container_id, { include_deleted });
+          break;
+        case 'folder':
+          fields = await customFieldsClient.getFolderCustomFields(container_id, { include_deleted });
+          break;
+        case 'space':
+          fields = await customFieldsClient.getSpaceCustomFields(container_id, { include_deleted });
+          break;
+        default:
+          throw new Error('Invalid container type');
         }
 
         return {
@@ -96,17 +96,17 @@ export function setupCustomFieldTools(server: McpServer): void {
 
         let field;
         switch (container_type) {
-          case 'list':
-            field = await customFieldsClient.createListCustomField(container_id, fieldParams);
-            break;
-          case 'folder':
-            field = await customFieldsClient.createFolderCustomField(container_id, fieldParams);
-            break;
-          case 'space':
-            field = await customFieldsClient.createSpaceCustomField(container_id, fieldParams);
-            break;
-          default:
-            throw new Error('Invalid container type');
+        case 'list':
+          field = await customFieldsClient.createListCustomField(container_id, fieldParams);
+          break;
+        case 'folder':
+          field = await customFieldsClient.createFolderCustomField(container_id, fieldParams);
+          break;
+        case 'space':
+          field = await customFieldsClient.createSpaceCustomField(container_id, fieldParams);
+          break;
+        default:
+          throw new Error('Invalid container type');
         }
 
         return {
@@ -384,15 +384,15 @@ export function setupCustomFieldTools(server: McpServer): void {
 
         let field;
         switch (container_type) {
-          case 'list':
-            field = await customFieldsClient.createListCustomField(container_id, fieldParams);
-            break;
-          case 'folder':
-            field = await customFieldsClient.createFolderCustomField(container_id, fieldParams);
-            break;
-          case 'space':
-            field = await customFieldsClient.createSpaceCustomField(container_id, fieldParams);
-            break;
+        case 'list':
+          field = await customFieldsClient.createListCustomField(container_id, fieldParams);
+          break;
+        case 'folder':
+          field = await customFieldsClient.createFolderCustomField(container_id, fieldParams);
+          break;
+        case 'space':
+          field = await customFieldsClient.createSpaceCustomField(container_id, fieldParams);
+          break;
         }
 
         return {
@@ -443,15 +443,15 @@ export function setupCustomFieldTools(server: McpServer): void {
 
         let field;
         switch (container_type) {
-          case 'list':
-            field = await customFieldsClient.createListCustomField(container_id, fieldParams);
-            break;
-          case 'folder':
-            field = await customFieldsClient.createFolderCustomField(container_id, fieldParams);
-            break;
-          case 'space':
-            field = await customFieldsClient.createSpaceCustomField(container_id, fieldParams);
-            break;
+        case 'list':
+          field = await customFieldsClient.createListCustomField(container_id, fieldParams);
+          break;
+        case 'folder':
+          field = await customFieldsClient.createFolderCustomField(container_id, fieldParams);
+          break;
+        case 'space':
+          field = await customFieldsClient.createSpaceCustomField(container_id, fieldParams);
+          break;
         }
 
         return {
@@ -499,15 +499,15 @@ export function setupCustomFieldTools(server: McpServer): void {
 
         let field;
         switch (container_type) {
-          case 'list':
-            field = await customFieldsClient.createListCustomField(container_id, fieldParams);
-            break;
-          case 'folder':
-            field = await customFieldsClient.createFolderCustomField(container_id, fieldParams);
-            break;
-          case 'space':
-            field = await customFieldsClient.createSpaceCustomField(container_id, fieldParams);
-            break;
+        case 'list':
+          field = await customFieldsClient.createListCustomField(container_id, fieldParams);
+          break;
+        case 'folder':
+          field = await customFieldsClient.createFolderCustomField(container_id, fieldParams);
+          break;
+        case 'space':
+          field = await customFieldsClient.createSpaceCustomField(container_id, fieldParams);
+          break;
         }
 
         return {
@@ -555,15 +555,15 @@ export function setupCustomFieldTools(server: McpServer): void {
 
         let field;
         switch (container_type) {
-          case 'list':
-            field = await customFieldsClient.createListCustomField(container_id, fieldParams);
-            break;
-          case 'folder':
-            field = await customFieldsClient.createFolderCustomField(container_id, fieldParams);
-            break;
-          case 'space':
-            field = await customFieldsClient.createSpaceCustomField(container_id, fieldParams);
-            break;
+        case 'list':
+          field = await customFieldsClient.createListCustomField(container_id, fieldParams);
+          break;
+        case 'folder':
+          field = await customFieldsClient.createFolderCustomField(container_id, fieldParams);
+          break;
+        case 'space':
+          field = await customFieldsClient.createSpaceCustomField(container_id, fieldParams);
+          break;
         }
 
         return {
@@ -609,15 +609,15 @@ export function setupCustomFieldTools(server: McpServer): void {
 
         let field;
         switch (container_type) {
-          case 'list':
-            field = await customFieldsClient.createListCustomField(container_id, fieldParams);
-            break;
-          case 'folder':
-            field = await customFieldsClient.createFolderCustomField(container_id, fieldParams);
-            break;
-          case 'space':
-            field = await customFieldsClient.createSpaceCustomField(container_id, fieldParams);
-            break;
+        case 'list':
+          field = await customFieldsClient.createListCustomField(container_id, fieldParams);
+          break;
+        case 'folder':
+          field = await customFieldsClient.createFolderCustomField(container_id, fieldParams);
+          break;
+        case 'space':
+          field = await customFieldsClient.createSpaceCustomField(container_id, fieldParams);
+          break;
         }
 
         return {
@@ -654,15 +654,15 @@ export function setupCustomFieldTools(server: McpServer): void {
         // Get the field definition first
         let fields;
         switch (container_type) {
-          case 'list':
-            fields = await customFieldsClient.getListCustomFields(container_id);
-            break;
-          case 'folder':
-            fields = await customFieldsClient.getFolderCustomFields(container_id);
-            break;
-          case 'space':
-            fields = await customFieldsClient.getSpaceCustomFields(container_id);
-            break;
+        case 'list':
+          fields = await customFieldsClient.getListCustomFields(container_id);
+          break;
+        case 'folder':
+          fields = await customFieldsClient.getFolderCustomFields(container_id);
+          break;
+        case 'space':
+          fields = await customFieldsClient.getSpaceCustomFields(container_id);
+          break;
         }
 
         const field = fields.find(f => f.id === field_id);

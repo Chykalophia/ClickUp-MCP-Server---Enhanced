@@ -9,8 +9,8 @@ import type {
   DependencyResponse,
   DependencyListResponse,
   DependencyGraphResponse,
-  DependencyConflictResponse,
-  DependencyGraphNode
+  DependencyConflictResponse
+  // DependencyGraphNode
 } from '../schemas/dependencies-schemas.js';
 
 export class DependenciesEnhancedClient extends ClickUpClient {

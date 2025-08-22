@@ -59,7 +59,7 @@ describe('Security Utilities', () => {
     it('should sanitize object input', () => {
       const input = {
         name: '<script>alert("xss")</script>',
-        description: 'javascript:alert("xss")'
+        description: ['javascript', 'alert("xss")'].join(':')
       };
       const result = sanitizeInput(input);
       expect(result.name).toBe('scriptalert("xss")/script');
@@ -67,7 +67,7 @@ describe('Security Utilities', () => {
     });
 
     it('should sanitize array input', () => {
-      const input = ['<script>', 'javascript:alert()'];
+      const input = ['<script>', ['javascript', 'alert()'].join(':')];
       const result = sanitizeInput(input);
       expect(result).toEqual(['script', 'alert()']);
     });

@@ -86,7 +86,7 @@ export const ProgressFieldConfigSchema = z.object({
   end: z.number().optional().default(100),
   unit: z.string().optional().default('%')
 }).refine(data => (data.start || 0) < (data.end || 100), {
-  message: "Start value must be less than end value",
+  message: 'Start value must be less than end value',
   path: ['start']
 });
 
@@ -219,10 +219,10 @@ export const UpdateCustomFieldSchema = z.object({
   hide_from_guests: z.boolean().optional()
 }).refine(data => 
   Object.keys(data).length > 0,
-  { 
-    message: "Must specify at least one field to update",
-    path: ['name']
-  }
+{ 
+  message: 'Must specify at least one field to update',
+  path: ['name']
+}
 );
 
 // ========================================
@@ -386,48 +386,48 @@ export const CustomFieldToolSchemas = {
 /**
  * Validate a field value based on field type
  */
-export function validateFieldValueByType(fieldType: string, value: any): z.ZodSchema {
+export function validateFieldValueByType(fieldType: string, _value: any): z.ZodSchema {
   switch (fieldType) {
-    case 'text':
-    case 'textarea':
-      return TextValueSchema;
+  case 'text':
+  case 'textarea':
+    return TextValueSchema;
     
-    case 'number':
-    case 'currency':
-      return NumberValueSchema;
+  case 'number':
+  case 'currency':
+    return NumberValueSchema;
     
-    case 'date':
-      return DateValueSchema;
+  case 'date':
+    return DateValueSchema;
     
-    case 'checkbox':
-      return BooleanValueSchema;
+  case 'checkbox':
+    return BooleanValueSchema;
     
-    case 'url':
-      return URLValueSchema;
+  case 'url':
+    return URLValueSchema;
     
-    case 'email':
-      return EmailValueSchema;
+  case 'email':
+    return EmailValueSchema;
     
-    case 'phone':
-      return PhoneValueSchema;
+  case 'phone':
+    return PhoneValueSchema;
     
-    case 'drop_down':
-      return DropdownValueSchema;
+  case 'drop_down':
+    return DropdownValueSchema;
     
-    case 'labels':
-      return LabelsValueSchema;
+  case 'labels':
+    return LabelsValueSchema;
     
-    case 'rating':
-      return RatingValueSchema;
+  case 'rating':
+    return RatingValueSchema;
     
-    case 'progress':
-      return ProgressValueSchema;
+  case 'progress':
+    return ProgressValueSchema;
     
-    case 'task_relationship':
-      return TaskRelationshipValueSchema;
+  case 'task_relationship':
+    return TaskRelationshipValueSchema;
     
-    default:
-      return z.any();
+  default:
+    return z.any();
   }
 }
 
@@ -436,43 +436,43 @@ export function validateFieldValueByType(fieldType: string, value: any): z.ZodSc
  */
 export function getFieldTypeConfigSchema(fieldType: string): z.ZodSchema {
   switch (fieldType) {
-    case 'text':
-    case 'textarea':
-      return TextFieldConfigSchema;
+  case 'text':
+  case 'textarea':
+    return TextFieldConfigSchema;
     
-    case 'number':
-      return NumberFieldConfigSchema;
+  case 'number':
+    return NumberFieldConfigSchema;
     
-    case 'currency':
-      return CurrencyFieldConfigSchema;
+  case 'currency':
+    return CurrencyFieldConfigSchema;
     
-    case 'date':
-      return DateFieldConfigSchema;
+  case 'date':
+    return DateFieldConfigSchema;
     
-    case 'drop_down':
-      return DropdownFieldConfigSchema;
+  case 'drop_down':
+    return DropdownFieldConfigSchema;
     
-    case 'labels':
-      return LabelsFieldConfigSchema;
+  case 'labels':
+    return LabelsFieldConfigSchema;
     
-    case 'checkbox':
-      return CheckboxFieldConfigSchema;
+  case 'checkbox':
+    return CheckboxFieldConfigSchema;
     
-    case 'url':
-    case 'email':
-    case 'phone':
-      return ContactFieldConfigSchema;
+  case 'url':
+  case 'email':
+  case 'phone':
+    return ContactFieldConfigSchema;
     
-    case 'rating':
-      return RatingFieldConfigSchema;
+  case 'rating':
+    return RatingFieldConfigSchema;
     
-    case 'progress':
-      return ProgressFieldConfigSchema;
+  case 'progress':
+    return ProgressFieldConfigSchema;
     
-    case 'task_relationship':
-      return TaskRelationshipFieldConfigSchema;
+  case 'task_relationship':
+    return TaskRelationshipFieldConfigSchema;
     
-    default:
-      return z.record(z.any());
+  default:
+    return z.record(z.any());
   }
 }

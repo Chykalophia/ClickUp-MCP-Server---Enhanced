@@ -62,6 +62,11 @@ export class ClickUpClient {
     return response.data;
   }
 
+  async patch<T = any>(endpoint: string, data?: any): Promise<T> {
+    const response = await this.axiosInstance.patch(endpoint, data);
+    return response.data;
+  }
+
   async delete<T = any>(endpoint: string): Promise<T> {
     const response = await this.axiosInstance.delete(endpoint);
     return response.data;

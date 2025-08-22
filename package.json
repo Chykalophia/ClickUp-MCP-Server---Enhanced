@@ -1,7 +1,7 @@
 {
   "name": "clickup-mcp-server",
-  "version": "3.0.0",
-  "description": "A comprehensive Model Context Protocol server for ClickUp API integration with 98 tools covering all major features including webhooks, views, dependencies, and attachments",
+  "version": "3.1.0",
+  "description": "A comprehensive Model Context Protocol server for ClickUp API integration with 120+ tools covering all major features including webhooks, views, dependencies, attachments, and complete Chat (Experimental) API support",
   "main": "build/index.js",
   "bin": {
     "clickup-mcp-server": "build/index.js"
@@ -53,7 +53,12 @@
     "dependencies",
     "attachments",
     "views",
-    "comprehensive"
+    "comprehensive",
+    "chat",
+    "experimental",
+    "messaging",
+    "channels",
+    "reactions"
   ],
   "author": "David Whatley (https://davidwhatley.com)",
   "contributors": [

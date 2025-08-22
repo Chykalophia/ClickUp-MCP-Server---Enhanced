@@ -13,6 +13,7 @@ import { setupAttachmentsTools } from './tools/attachments-tools-setup.js';
 import { setupCustomFieldTools } from './tools/custom-field-tools.js';
 import { setupTimeTrackingTools } from './tools/time-tracking-tools.js';
 import { setupGoalsTools } from './tools/goals-tools.js';
+import { setupChatTools } from './tools/chat-tools.js';
 import { setupTaskResources } from './resources/task-resources.js';
 import { setupDocResources } from './resources/doc-resources.js';
 import { setupChecklistResources } from './resources/checklist-resources.js';
@@ -60,6 +61,7 @@ class ClickUpServer {
     setupCustomFieldTools(this.server);
     setupTimeTrackingTools(this.server);
     setupGoalsTools(this.server);
+    setupChatTools(this.server);
   }
 
   private setupResources() {

@@ -271,6 +271,26 @@ The server exposes ClickUp data through URI-addressable resources:
 - `clickup://comment/{comment_id}/reply`: Threaded comments for a specific comment
 - `clickup://checklist/{checklist_id}/items`: Items in a specific checklist
 
+## Development Guidelines
+
+### Code Organization
+- **Modular Structure**: Clear separation of concerns
+- **Consistent Patterns**: Standardized implementation across all tools
+- **Strong Typing**: TypeScript strict mode with comprehensive validation
+- **Error Management**: Consistent handling with clear messages
+
+### Documentation Requirements
+- **Tool Descriptions**: Clear purpose and usage context for every tool
+- **Resource Documentation**: Complete data structure and relationship explanations
+- **Parameter Explanations**: Detailed descriptions for all parameters
+- **Error Scenarios**: Documentation of error cases and recovery
+
+### Testing Standards
+- **MCP Test Client**: Verify all tools and resources are properly documented
+- **Security Testing**: 85+ test cases covering all attack vectors
+- **Integration Testing**: End-to-end validation of all workflows
+- **Error Handling**: Comprehensive error scenario testing
+
 ## Key Requirements
 - ✓ Uses MCP SDK (@modelcontextprotocol/sdk v1.6.1)
 - ✓ Comprehensive logging throughout all API clients
@@ -278,3 +298,69 @@ The server exposes ClickUp data through URI-addressable resources:
 - ✓ Error handling in all API interactions
 - ✓ No testing skipped before completion
 - ✓ Available as npm package: `clickup-mcp-server`
+
+## Technical Architecture
+
+### Core Dependencies
+- **TypeScript 5.x**: Strong typing and modern ECMAScript features
+- **Zod**: Schema validation and runtime type checking
+- **Axios**: HTTP client for API requests
+- **Express**: HTTP server for SSE support
+- **dotenv**: Environment variable management
+
+### System Patterns
+
+#### API Client Layer
+```
+Base Client → Auth Client
+           → Tasks Client
+           → Lists Client
+           → Spaces Client
+           → Folders Client
+           → Docs Client
+           → Comments Client
+           → Checklists Client
+```
+
+#### Error Handling Pattern
+```typescript
+try {
+  const result = await apiCall();
+  return {
+    content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+  };
+} catch (error: any) {
+  console.error('[Error] API call failed:', error);
+  return {
+    content: [{ type: 'text', text: `Error: ${error.message}` }],
+    isError: true
+  };
+}
+```
+
+#### Tool Implementation Pattern
+```typescript
+server.tool(
+  'tool_name',
+  { description: 'Clear tool purpose and usage context' },
+  {
+    param: z.string().describe('Parameter description')
+  },
+  async (params) => {
+    // Implementation with error handling
+  }
+);
+```
+
+### Security Requirements
+- **Input Validation**: XSS and injection prevention
+- **API Token Security**: Secure storage and validation
+- **Rate Limiting**: 1000 API, 100 webhook, 10 upload/min
+- **HMAC Validation**: Timing-safe webhook signature verification
+- **File Security**: Path traversal prevention, size limits
+
+### Performance Considerations
+- **Response Time**: API call optimization and caching
+- **Memory Usage**: Resource cleanup and management
+- **Concurrency**: Request handling and connection limits
+- **Bulk Operations**: Multiple items in single requests

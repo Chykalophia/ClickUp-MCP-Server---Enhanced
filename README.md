@@ -309,6 +309,24 @@ For users who prefer not to clone the repository, the package can be run directl
 
 ## Development
 
+### Environment Requirements
+- **Node.js**: Version 18.x or higher
+- **Package Manager**: npm or yarn
+- **IDE**: VSCode recommended with TypeScript support
+
+### Setup
+
+```bash
+# Clone and install
+git clone https://github.com/nsxdavid/clickup-mcp-server.git
+cd clickup-mcp-server
+npm install
+
+# Environment configuration
+cp .env.example .env
+# Edit .env with your CLICKUP_API_TOKEN
+```
+
 ### Building
 
 ```bash
@@ -330,6 +348,61 @@ npm test -- --testPathPattern=markdown
 # Run all tests with coverage
 npm run test:coverage
 ```
+
+## Release Procedure
+
+### Pre-release Checklist
+1. Ensure all changes are committed and pushed
+2. Verify all tests pass: `npm test`
+3. Check build process works: `npm run build`
+4. Update CHANGELOG.md with new version details
+
+### Version Update Process
+
+1. **Update package.json version** following semantic versioning:
+   - MAJOR: Incompatible API changes
+   - MINOR: New functionality (backward compatible)
+   - PATCH: Bug fixes (backward compatible)
+
+2. **Update CHANGELOG.md**:
+   ```markdown
+   ## [1.12.0] - 2025-04-14
+   ### Added
+   - New feature descriptions
+   ### Changed
+   - Modified functionality
+   ### Fixed
+   - Bug fixes
+   ```
+
+### Release Steps
+
+1. **Build and Test**:
+   ```bash
+   npm run build
+   npm test
+   ```
+
+2. **Create Git Tag**:
+   ```bash
+   git tag -a v1.12.0 -m "Release v1.12.0: Brief description"
+   git push --tags
+   ```
+
+3. **Publish to NPM**:
+   ```bash
+   npm publish --access public
+   ```
+
+4. **Create GitHub Release**:
+   ```bash
+   gh release create v1.12.0 --title "v1.12.0" --notes "Release notes from CHANGELOG.md"
+   ```
+
+### Post-release Verification
+- Check npm package: https://www.npmjs.com/package/clickup-mcp-server
+- Verify GitHub release: https://github.com/nsxdavid/clickup-mcp-server/releases
+- Test installation: `npm install clickup-mcp-server@latest`
 
 ## 🔧 Technical Architecture
 

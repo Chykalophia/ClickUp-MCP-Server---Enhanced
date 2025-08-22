@@ -22,12 +22,15 @@ export function setupTestTaskUpdateTool(server: McpServer): void {
     },
     async ({ task_id, test_content, clear_description }) => {
       try {
+        // eslint-disable-next-line no-console
         console.log(`[TEST] Starting task update test for task: ${task_id}`);
         
         // Get current task state
+        // eslint-disable-next-line no-console
         console.log('[TEST] Fetching current task state...');
         const currentTask = await tasksClient.getTask(task_id);
-        console.log('[TEST] Current task description:', currentTask.description?.substring(0, 100) + '...');
+        // eslint-disable-next-line no-console
+        console.log('[TEST] Current task description:', `${currentTask.description?.substring(0, 100)}...`);
         
         // Prepare test content
         const markdownContent = test_content || `# Test Update - ${new Date().toISOString()}
@@ -46,26 +49,33 @@ console.log('Task update test successful!');
 
 > This update was performed by the test tool to verify the markdown_content field fix.`;
 
-        console.log('[TEST] Test content prepared:', markdownContent.substring(0, 100) + '...');
+        // eslint-disable-next-line no-console
+        console.log('[TEST] Test content prepared:', `${markdownContent.substring(0, 100)}...`);
         
         // Perform update
+        // eslint-disable-next-line no-console
         console.log('[TEST] Performing task update...');
         const updateParams: any = {
           description: markdownContent
         };
         
         if (clear_description) {
+          // eslint-disable-next-line no-console
           console.log('[TEST] Clearing description first...');
           await tasksClient.updateTask(task_id, { description: '' });
         }
         
         const updatedTask = await tasksClient.updateTask(task_id, updateParams);
         
+        // eslint-disable-next-line no-console
         console.log('[TEST] Task update completed successfully!');
+        // eslint-disable-next-line no-console
         console.log('[TEST] Updated description length:', updatedTask.description?.length || 0);
+        // eslint-disable-next-line no-console
         console.log('[TEST] Updated text_content length:', updatedTask.text_content?.length || 0);
         
         // Verify the update
+        // eslint-disable-next-line no-console
         console.log('[TEST] Fetching updated task to verify...');
         const verificationTask = await tasksClient.getTask(task_id);
         
@@ -76,8 +86,8 @@ console.log('Task update test successful!');
           original_description_length: currentTask.description?.length || 0,
           updated_description_length: verificationTask.description?.length || 0,
           updated_text_content_length: verificationTask.text_content?.length || 0,
-          description_preview: verificationTask.description?.substring(0, 200) + '...',
-          text_content_preview: verificationTask.text_content?.substring(0, 200) + '...',
+          description_preview: `${verificationTask.description?.substring(0, 200)}...`,
+          text_content_preview: `${verificationTask.text_content?.substring(0, 200)}...`,
           test_notes: [
             'Task update completed successfully',
             'Markdown content was processed correctly',

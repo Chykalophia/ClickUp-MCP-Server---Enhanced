@@ -11,7 +11,7 @@ This is only relevenat if this tool exists on the system.  If it does not, disre
     "clickup": {
       "command": "node",
       "args": [
-        "D:/dev/mcp/clickup-server/build/index.js"
+        "D:/dev/mcp/clickup-server/build/index-enhanced.js"
       ],
       "env": {
         "CLICKUP_API_TOKEN": "your_token_here"

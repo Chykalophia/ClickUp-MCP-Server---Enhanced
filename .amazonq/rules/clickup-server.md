@@ -81,7 +81,7 @@
        "mcpServers": {
          "clickup": {
            "command": "node",
-           "args": ["path/to/clickup-mcp-server/build/index.js"],
+           "args": ["path/to/clickup-mcp-server/build/index-enhanced.js"],
            "env": {
              "CLICKUP_API_TOKEN": "your_api_token_here"
            },

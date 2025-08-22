@@ -1,4 +1,4 @@
-# ClickUp MCP Server - Installation Instructions
+# ClickUp MCP Server - Enhanced - Installation Instructions
 
 ## Prerequisites
 
@@ -32,7 +32,7 @@ Add to the MCP settings file:
   "mcpServers": {
     "clickup": {
       "command": "node",
-      "args": ["/path/to/clickup-mcp-server/build/index.js"],
+      "args": ["/path/to/clickup-mcp-server/build/index-enhanced.js"],
       "env": {
         "CLICKUP_API_TOKEN": "YOUR_API_TOKEN_HERE"
       },

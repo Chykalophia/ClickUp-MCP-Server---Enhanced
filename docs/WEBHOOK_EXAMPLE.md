@@ -1,6 +1,6 @@
 # Real Webhook Processing Example
 
-This example demonstrates how to process the actual webhook payload you provided using the ClickUp MCP Server webhook tools.
+This example demonstrates how to process the actual webhook payload you provided using the ClickUp MCP Server - Enhanced webhook tools.
 
 ## Your Webhook Payload
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The ClickUp MCP Server now provides comprehensive support for ClickUp's native comment formatting structure as documented in the [ClickUp API Comment Formatting Guide](https://developer.clickup.com/docs/comment-formatting). This implementation goes beyond simple markdown conversion to properly handle ClickUp's structured comment format with text blocks and attributes.
+The ClickUp MCP Server - Enhanced now provides comprehensive support for ClickUp's native comment formatting structure as documented in the [ClickUp API Comment Formatting Guide](https://developer.clickup.com/docs/comment-formatting). This implementation goes beyond simple markdown conversion to properly handle ClickUp's structured comment format with text blocks and attributes.
 
 ## 🎯 ClickUp's Comment Format Structure
 

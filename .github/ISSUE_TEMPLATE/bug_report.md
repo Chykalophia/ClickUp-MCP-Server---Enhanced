@@ -24,7 +24,7 @@ If applicable, add logs or error messages to help explain your problem.
 ## Environment
  - OS: [e.g. Windows, macOS, Linux]
  - Node.js version: [e.g. 18.19.0]
- - ClickUp MCP Server version: [e.g. 1.5.0]
+ - ClickUp MCP Server - Enhanced version: [e.g. 1.5.0]
  - MCP Client: [e.g. Claude Desktop, Claude VSCode Extension]
 
 ## Additional context

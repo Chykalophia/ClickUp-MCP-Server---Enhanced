@@ -13,7 +13,7 @@ Use this section to tell people about which versions of your project are current
 
 ## Reporting a Vulnerability
 
-We take the security of the ClickUp MCP Server seriously. If you believe you've found a security vulnerability, please follow these steps:
+We take the security of the ClickUp MCP Server - Enhanced seriously. If you believe you've found a security vulnerability, please follow these steps:
 
 1. **Do not disclose the vulnerability publicly**
 2. **Use GitHub's private vulnerability reporting feature**
@@ -36,7 +36,7 @@ We take the security of the ClickUp MCP Server seriously. If you believe you've 
 
 ## Security Best Practices for Users
 
-When using the ClickUp MCP Server:
+When using the ClickUp MCP Server - Enhanced:
 
 1. **Keep your API tokens secure**
    - Do not hardcode tokens in your application
@@ -47,9 +47,9 @@ When using the ClickUp MCP Server:
    - Only grant the minimum permissions necessary for your use case
 
 3. **Keep dependencies updated**
-   - Regularly update the ClickUp MCP Server and its dependencies
+   - Regularly update the ClickUp MCP Server - Enhanced and its dependencies
 
 4. **Monitor for suspicious activity**
    - Watch for unexpected API calls or unusual patterns
 
-Thank you for helping keep the ClickUp MCP Server and its users safe!
+Thank you for helping keep the ClickUp MCP Server - Enhanced and its users safe!

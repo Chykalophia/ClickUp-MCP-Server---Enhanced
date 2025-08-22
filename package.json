@@ -2,14 +2,14 @@
   "name": "clickup-mcp-server",
   "version": "3.2.0",
   "description": "An intelligent Model Context Protocol server for ClickUp API integration with 170+ tools, AI-powered efficiency optimization, smart tool suggestions, and context-aware workflow recommendations",
-  "main": "build/index.js",
+  "main": "build/index-enhanced.js",
   "bin": {
-    "clickup-mcp-server": "build/index.js"
+    "clickup-mcp-server": "build/index-enhanced.js"
   },
   "scripts": {
     "build": "tsc",
     "dev": "ts-node --esm src/index.ts",
-    "start": "node build/index.js",
+    "start": "node build/index-enhanced.js",
     "start:enhanced": "node build/index-enhanced.js",
     "start:efficiency": "node build/index-enhanced-efficiency.js",
     "test": "jest",
@@ -70,7 +70,7 @@
   ],
   "author": "David Whatley (https://davidwhatley.com)",
   "contributors": [
-    "ClickUp MCP Server Contributors"
+    "ClickUp MCP Server - Enhanced Contributors"
   ],
   "license": "MIT",
   "bugs": {

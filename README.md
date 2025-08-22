@@ -1,7 +1,7 @@
-# ClickUp MCP Server
+# ClickUp MCP Server - Enhanced
 
 <p align="center">
-  <img src="assets/images/clickupserverlogo.png" width="256" alt="ClickUp MCP Server Logo" />
+  <img src="assets/images/clickupserverlogo.png" width="256" alt="ClickUp MCP Server - Enhanced Logo" />
 </p>
 
 <p align="center">
@@ -12,6 +12,10 @@
 </p>
 
 A comprehensive Model Context Protocol (MCP) server providing AI assistants with complete ClickUp API access. Features **170+ tools**, **AI-powered efficiency**, **production-grade security**, and **full GitHub Flavored Markdown support**.
+
+## 📋 Attribution
+
+This Enhanced version is based on the original ClickUp MCP Server codebase by [David Whatley](https://davidwhatley.com) at [nsxdavid/clickup-mcp-server](https://github.com/nsxdavid/clickup-mcp-server).
 
 ## 🚀 Key Features
 
@@ -194,7 +198,7 @@ Add to the MCP settings file:
   "mcpServers": {
     "clickup": {
       "command": "node",
-      "args": ["/path/to/clickup-mcp-server/build/index.js"],
+      "args": ["/path/to/clickup-mcp-server/build/index-enhanced.js"],
       "env": {
         "CLICKUP_API_TOKEN": "YOUR_API_TOKEN_HERE"
       },
@@ -257,6 +261,16 @@ For users who prefer not to clone the repository, the package can be run directl
 - Claude Desktop Apps:
   - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
   - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+
+## Examples
+
+See the [`examples/`](examples/) folder for:
+- Basic MCP client usage
+- Tool integration patterns  
+- Authentication setup
+- Advanced workflows
+
+Run examples with: `node examples/basic-usage.js`
 
 ## 🔒 Security Features
 

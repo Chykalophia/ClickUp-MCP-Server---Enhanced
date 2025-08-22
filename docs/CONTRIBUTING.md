@@ -1,6 +1,6 @@
-# Contributing to ClickUp MCP Server
+# Contributing to ClickUp MCP Server - Enhanced
 
-Thank you for your interest in contributing to the ClickUp MCP Server! This document provides guidelines and instructions for contributing to this project.
+Thank you for your interest in contributing to the ClickUp MCP Server - Enhanced! This document provides guidelines and instructions for contributing to this project.
 
 ## Table of Contents
 
@@ -142,4 +142,4 @@ Feature requests are welcome. Please provide:
 3. Any relevant examples or use cases
 4. If possible, a description of how you envision the implementation
 
-Thank you for contributing to the ClickUp MCP Server!
+Thank you for contributing to the ClickUp MCP Server - Enhanced!

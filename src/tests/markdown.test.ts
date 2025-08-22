@@ -150,7 +150,8 @@ describe('Markdown Utilities', () => {
       
       expect(typeof result).toBe('object');
       expect(result.description).toBeDefined();
-      expect(result.description.length).toBeGreaterThan(0);
+      expect(result.description).toBeTruthy();
+      expect(result.description!.length).toBeGreaterThan(0);
     });
 
     it('should handle empty content', () => {

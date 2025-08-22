@@ -1,3 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="0" failures="0" errors="0" time="0.422">
+<testsuites name="jest tests" tests="34" failures="0" errors="0" time="7.429">
+  <testsuite name="Security Utilities" errors="0" failures="0" skipped="0" timestamp="2025-08-22T13:55:23" time="2.53" tests="34">
+    <testcase classname="Security Utilities › validateApiToken" name="should validate correct API token" time="0.002">
+    </testcase>
+    <testcase classname="Security Utilities › validateApiToken" name="should reject empty token" time="0.001">
+    </testcase>
+    <testcase classname="Security Utilities › validateApiToken" name="should reject non-string token" time="0">
+    </testcase>
+    <testcase classname="Security Utilities › validateApiToken" name="should reject too short token" time="0">
+    </testcase>
+    <testcase classname="Security Utilities › validateApiToken" name="should reject token with invalid characters" time="0">
+    </testcase>
+    <testcase classname="Security Utilities › sanitizeInput" name="should sanitize string input" time="0.001">
+    </testcase>
+    <testcase classname="Security Utilities › sanitizeInput" name="should sanitize object input" time="0">
+    </testcase>
+    <testcase classname="Security Utilities › sanitizeInput" name="should sanitize array input" time="0">
+    </testcase>
+    <testcase classname="Security Utilities › sanitizeInput" name="should handle non-string input" time="0">
+    </testcase>
+    <testcase classname="Security Utilities › validateWebhookSignature" name="should validate correct signature" time="0.001">
+    </testcase>
+    <testcase classname="Security Utilities › validateWebhookSignature" name="should validate signature with sha256 prefix" time="0">
+    </testcase>
+    <testcase classname="Security Utilities › validateWebhookSignature" name="should reject invalid signature" time="0">
+    </testcase>
+    <testcase classname="Security Utilities › validateWebhookSignature" name="should reject missing parameters" time="0">
+    </testcase>
+    <testcase classname="Security Utilities › validateFileUpload" name="should validate safe file" time="0">
+    </testcase>
+    <testcase classname="Security Utilities › validateFileUpload" name="should reject dangerous file extension" time="0.001">
+    </testcase>
+    <testcase classname="Security Utilities › validateFileUpload" name="should reject path traversal attempts" time="0">
+    </testcase>
+    <testcase classname="Security Utilities › validateFileUpload" name="should reject oversized files" time="0">
+    </testcase>
+    <testcase classname="Security Utilities › validateFileUpload" name="should reject disallowed mimetype" time="0">
+    </testcase>
+    <testcase classname="Security Utilities › validateUrl" name="should validate HTTPS URL" time="0">
+    </testcase>
+    <testcase classname="Security Utilities › validateUrl" name="should validate HTTP URL" time="0">
+    </testcase>
+    <testcase classname="Security Utilities › validateUrl" name="should reject non-HTTP protocols" time="0">
+    </testcase>
+    <testcase classname="Security Utilities › validateUrl" name="should reject localhost URLs" time="0">
+    </testcase>
+    <testcase classname="Security Utilities › validateUrl" name="should reject private IP addresses" time="0.001">
+    </testcase>
+    <testcase classname="Security Utilities › validateUrl" name="should reject invalid URL format" time="0">
+    </testcase>
+    <testcase classname="Security Utilities › generateSecureToken" name="should generate token of correct length" time="0">
+    </testcase>
+    <testcase classname="Security Utilities › generateSecureToken" name="should generate different tokens" time="0">
+    </testcase>
+    <testcase classname="Security Utilities › generateSecureToken" name="should generate hex string" time="0">
+    </testcase>
+    <testcase classname="Security Utilities › validateEnvironment" name="should validate with required environment variables" time="0">
+    </testcase>
+    <testcase classname="Security Utilities › validateEnvironment" name="should reject missing API token" time="0">
+    </testcase>
+    <testcase classname="Security Utilities › validateEnvironment" name="should reject invalid API token" time="0.001">
+    </testcase>
+    <testcase classname="Security Utilities › rateLimiter" name="should allow requests under limit" time="0">
+    </testcase>
+    <testcase classname="Security Utilities › rateLimiter" name="should reject requests over limit" time="0">
+    </testcase>
+    <testcase classname="Security Utilities › rateLimiter" name="should reset limits after window" time="0.152">
+    </testcase>
+    <testcase classname="Security Utilities › rateLimiter" name="should handle different keys separately" time="0">
+    </testcase>
+  </testsuite>
 </testsuites>

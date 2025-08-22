@@ -1,0 +1,639 @@
+535a17e961fa84321d6a7856c38ad534
+#!/usr/bin/env node
+/* istanbul ignore next */
+function cov_7q1m89gnu() {
+  var path = "/Users/peterkrzyzek/Development/clickup-mcp-server/src/index-enhanced.ts";
+  var hash = "b024156f165bc0f364ecb1208262c5f7eb627cd9";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "/Users/peterkrzyzek/Development/clickup-mcp-server/src/index-enhanced.ts",
+    statementMap: {
+      "0": {
+        start: {
+          line: 27,
+          column: 8
+        },
+        end: {
+          line: 30,
+          column: 11
+        }
+      },
+      "1": {
+        start: {
+          line: 32,
+          column: 8
+        },
+        end: {
+          line: 35,
+          column: 11
+        }
+      },
+      "2": {
+        start: {
+          line: 33,
+          column: 12
+        },
+        end: {
+          line: 33,
+          column: 38
+        }
+      },
+      "3": {
+        start: {
+          line: 34,
+          column: 12
+        },
+        end: {
+          line: 34,
+          column: 28
+        }
+      },
+      "4": {
+        start: {
+          line: 37,
+          column: 8
+        },
+        end: {
+          line: 37,
+          column: 26
+        }
+      },
+      "5": {
+        start: {
+          line: 38,
+          column: 8
+        },
+        end: {
+          line: 38,
+          column: 30
+        }
+      },
+      "6": {
+        start: {
+          line: 42,
+          column: 8
+        },
+        end: {
+          line: 42,
+          column: 36
+        }
+      },
+      "7": {
+        start: {
+          line: 43,
+          column: 8
+        },
+        end: {
+          line: 43,
+          column: 43
+        }
+      },
+      "8": {
+        start: {
+          line: 44,
+          column: 8
+        },
+        end: {
+          line: 44,
+          column: 43
+        }
+      },
+      "9": {
+        start: {
+          line: 45,
+          column: 8
+        },
+        end: {
+          line: 45,
+          column: 44
+        }
+      },
+      "10": {
+        start: {
+          line: 46,
+          column: 8
+        },
+        end: {
+          line: 46,
+          column: 37
+        }
+      },
+      "11": {
+        start: {
+          line: 47,
+          column: 8
+        },
+        end: {
+          line: 47,
+          column: 39
+        }
+      },
+      "12": {
+        start: {
+          line: 48,
+          column: 8
+        },
+        end: {
+          line: 48,
+          column: 37
+        }
+      },
+      "13": {
+        start: {
+          line: 49,
+          column: 8
+        },
+        end: {
+          line: 49,
+          column: 44
+        }
+      },
+      "14": {
+        start: {
+          line: 50,
+          column: 8
+        },
+        end: {
+          line: 50,
+          column: 43
+        }
+      },
+      "15": {
+        start: {
+          line: 51,
+          column: 8
+        },
+        end: {
+          line: 51,
+          column: 37
+        }
+      },
+      "16": {
+        start: {
+          line: 52,
+          column: 8
+        },
+        end: {
+          line: 52,
+          column: 41
+        }
+      },
+      "17": {
+        start: {
+          line: 53,
+          column: 8
+        },
+        end: {
+          line: 53,
+          column: 39
+        }
+      },
+      "18": {
+        start: {
+          line: 57,
+          column: 8
+        },
+        end: {
+          line: 57,
+          column: 40
+        }
+      },
+      "19": {
+        start: {
+          line: 58,
+          column: 8
+        },
+        end: {
+          line: 58,
+          column: 39
+        }
+      },
+      "20": {
+        start: {
+          line: 59,
+          column: 8
+        },
+        end: {
+          line: 59,
+          column: 45
+        }
+      },
+      "21": {
+        start: {
+          line: 60,
+          column: 8
+        },
+        end: {
+          line: 60,
+          column: 43
+        }
+      },
+      "22": {
+        start: {
+          line: 61,
+          column: 8
+        },
+        end: {
+          line: 61,
+          column: 41
+        }
+      },
+      "23": {
+        start: {
+          line: 62,
+          column: 8
+        },
+        end: {
+          line: 62,
+          column: 42
+        }
+      },
+      "24": {
+        start: {
+          line: 63,
+          column: 8
+        },
+        end: {
+          line: 63,
+          column: 40
+        }
+      },
+      "25": {
+        start: {
+          line: 66,
+          column: 26
+        },
+        end: {
+          line: 66,
+          column: 52
+        }
+      },
+      "26": {
+        start: {
+          line: 67,
+          column: 8
+        },
+        end: {
+          line: 67,
+          column: 45
+        }
+      },
+      "27": {
+        start: {
+          line: 68,
+          column: 8
+        },
+        end: {
+          line: 68,
+          column: 209
+        }
+      },
+      "28": {
+        start: {
+          line: 72,
+          column: 15
+        },
+        end: {
+          line: 72,
+          column: 34
+        }
+      },
+      "29": {
+        start: {
+          line: 73,
+          column: 0
+        },
+        end: {
+          line: 73,
+          column: 34
+        }
+      }
+    },
+    fnMap: {
+      "0": {
+        name: "(anonymous_0)",
+        decl: {
+          start: {
+            line: 26,
+            column: 4
+          },
+          end: {
+            line: 26,
+            column: 5
+          }
+        },
+        loc: {
+          start: {
+            line: 26,
+            column: 18
+          },
+          end: {
+            line: 39,
+            column: 5
+          }
+        },
+        line: 26
+      },
+      "1": {
+        name: "(anonymous_1)",
+        decl: {
+          start: {
+            line: 32,
+            column: 29
+          },
+          end: {
+            line: 32,
+            column: 30
+          }
+        },
+        loc: {
+          start: {
+            line: 32,
+            column: 41
+          },
+          end: {
+            line: 35,
+            column: 9
+          }
+        },
+        line: 32
+      },
+      "2": {
+        name: "(anonymous_2)",
+        decl: {
+          start: {
+            line: 40,
+            column: 4
+          },
+          end: {
+            line: 40,
+            column: 5
+          }
+        },
+        loc: {
+          start: {
+            line: 40,
+            column: 17
+          },
+          end: {
+            line: 54,
+            column: 5
+          }
+        },
+        line: 40
+      },
+      "3": {
+        name: "(anonymous_3)",
+        decl: {
+          start: {
+            line: 55,
+            column: 4
+          },
+          end: {
+            line: 55,
+            column: 5
+          }
+        },
+        loc: {
+          start: {
+            line: 55,
+            column: 21
+          },
+          end: {
+            line: 64,
+            column: 5
+          }
+        },
+        line: 55
+      },
+      "4": {
+        name: "(anonymous_4)",
+        decl: {
+          start: {
+            line: 65,
+            column: 4
+          },
+          end: {
+            line: 65,
+            column: 5
+          }
+        },
+        loc: {
+          start: {
+            line: 65,
+            column: 16
+          },
+          end: {
+            line: 69,
+            column: 5
+          }
+        },
+        line: 65
+      }
+    },
+    branchMap: {},
+    s: {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "10": 0,
+      "11": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "15": 0,
+      "16": 0,
+      "17": 0,
+      "18": 0,
+      "19": 0,
+      "20": 0,
+      "21": 0,
+      "22": 0,
+      "23": 0,
+      "24": 0,
+      "25": 0,
+      "26": 0,
+      "27": 0,
+      "28": 0,
+      "29": 0
+    },
+    f: {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0
+    },
+    b: {},
+    inputSourceMap: {
+      file: "/Users/peterkrzyzek/Development/clickup-mcp-server/src/index-enhanced.ts",
+      mappings: "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",
+      names: [],
+      sources: ["/Users/peterkrzyzek/Development/clickup-mcp-server/src/index-enhanced.ts"],
+      sourcesContent: ["#!/usr/bin/env node\nimport { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';\nimport { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';\nimport { setupTaskTools } from './tools/task-tools.js';\nimport { setupEnhancedDocTools } from './tools/doc-tools-enhanced.js';\nimport { setupCustomFieldTools } from './tools/custom-field-tools.js';\nimport { setupTimeTrackingTools } from './tools/time-tracking-tools.js';\nimport { setupGoalsTools } from './tools/goals-tools.js';\nimport { setupWebhookTools } from './tools/webhook-tools-setup.js';\nimport { setupViewsTools } from './tools/views-tools-setup.js';\nimport { setupDependenciesTools } from './tools/dependencies-tools-setup.js';\nimport { setupAttachmentsTools } from './tools/attachments-tools-setup.js';\nimport { setupSpaceTools } from './tools/space-tools.js';\nimport { setupChecklistTools } from './tools/checklist-tools.js';\nimport { setupCommentTools } from './tools/comment-tools.js';\nimport { setupTaskResources } from './resources/task-resources.js';\nimport { setupDocResources } from './resources/doc-resources.js';\nimport { setupChecklistResources } from './resources/checklist-resources.js';\nimport { setupCommentResources } from './resources/comment-resources.js';\nimport { setupSpaceResources } from './resources/space-resources.js';\nimport { setupFolderResources } from './resources/folder-resources.js';\nimport { setupListResources } from './resources/list-resources.js';\n\n// Environment variables are passed to the server through the MCP settings file\n// See mcp-settings-example.json for an example\n\nclass ClickUpServer {\n  private server: McpServer;\n\n  constructor() {\n    this.server = new McpServer({\n      name: 'clickup-mcp-server',\n      version: '3.0.0', // Updated version for comprehensive ClickUp API coverage\n    });\n    \n    // Handle process termination\n    process.on('SIGINT', async () => {\n      await this.server.close();\n      process.exit(0);\n    });\n\n    // Set up tools and resources\n    this.setupTools();\n    this.setupResources();\n  }\n\n  private setupTools() {\n    // Set up all tools\n    setupTaskTools(this.server);\n    setupEnhancedDocTools(this.server); // Using enhanced document tools\n    setupCustomFieldTools(this.server); // Custom fields management\n    setupTimeTrackingTools(this.server); // Time tracking and timer management\n    setupGoalsTools(this.server); // Goals and targets management\n    setupWebhookTools(this.server); // Webhook management and processing\n    setupViewsTools(this.server); // Views management and configuration\n    setupDependenciesTools(this.server); // Task dependencies and relationships\n    setupAttachmentsTools(this.server); // File attachments and media management\n    setupSpaceTools(this.server);\n    setupChecklistTools(this.server);\n    setupCommentTools(this.server);\n  }\n\n  private setupResources() {\n    // Set up all resources\n    setupTaskResources(this.server);\n    setupDocResources(this.server);\n    setupChecklistResources(this.server);\n    setupCommentResources(this.server);\n    setupSpaceResources(this.server);\n    setupFolderResources(this.server);\n    setupListResources(this.server);\n  }\n\n  async run() {\n    const transport = new StdioServerTransport();\n    await this.server.connect(transport);\n    console.error('ClickUp MCP server running on stdio with comprehensive API coverage: enhanced documents, custom fields, time tracking, goals, webhooks, views, dependencies, and attachments management');\n  }\n}\n\n// Create and run the server\nconst server = new ClickUpServer();\nserver.run().catch(console.error);\n"],
+      version: 3
+    },
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "b024156f165bc0f364ecb1208262c5f7eb627cd9"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    // @ts-ignore
+    cov_7q1m89gnu = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_7q1m89gnu();
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { setupTaskTools } from './tools/task-tools.js';
+import { setupEnhancedDocTools } from './tools/doc-tools-enhanced.js';
+import { setupCustomFieldTools } from './tools/custom-field-tools.js';
+import { setupTimeTrackingTools } from './tools/time-tracking-tools.js';
+import { setupGoalsTools } from './tools/goals-tools.js';
+import { setupWebhookTools } from './tools/webhook-tools-setup.js';
+import { setupViewsTools } from './tools/views-tools-setup.js';
+import { setupDependenciesTools } from './tools/dependencies-tools-setup.js';
+import { setupAttachmentsTools } from './tools/attachments-tools-setup.js';
+import { setupSpaceTools } from './tools/space-tools.js';
+import { setupChecklistTools } from './tools/checklist-tools.js';
+import { setupCommentTools } from './tools/comment-tools.js';
+import { setupTaskResources } from './resources/task-resources.js';
+import { setupDocResources } from './resources/doc-resources.js';
+import { setupChecklistResources } from './resources/checklist-resources.js';
+import { setupCommentResources } from './resources/comment-resources.js';
+import { setupSpaceResources } from './resources/space-resources.js';
+import { setupFolderResources } from './resources/folder-resources.js';
+import { setupListResources } from './resources/list-resources.js';
+// Environment variables are passed to the server through the MCP settings file
+// See mcp-settings-example.json for an example
+class ClickUpServer {
+  constructor() {
+    /* istanbul ignore next */
+    cov_7q1m89gnu().f[0]++;
+    cov_7q1m89gnu().s[0]++;
+    this.server = new McpServer({
+      name: 'clickup-mcp-server',
+      version: '3.0.0' // Updated version for comprehensive ClickUp API coverage
+    });
+    // Handle process termination
+    /* istanbul ignore next */
+    cov_7q1m89gnu().s[1]++;
+    process.on('SIGINT', async () => {
+      /* istanbul ignore next */
+      cov_7q1m89gnu().f[1]++;
+      cov_7q1m89gnu().s[2]++;
+      await this.server.close();
+      /* istanbul ignore next */
+      cov_7q1m89gnu().s[3]++;
+      process.exit(0);
+    });
+    // Set up tools and resources
+    /* istanbul ignore next */
+    cov_7q1m89gnu().s[4]++;
+    this.setupTools();
+    /* istanbul ignore next */
+    cov_7q1m89gnu().s[5]++;
+    this.setupResources();
+  }
+  setupTools() {
+    /* istanbul ignore next */
+    cov_7q1m89gnu().f[2]++;
+    cov_7q1m89gnu().s[6]++;
+    // Set up all tools
+    setupTaskTools(this.server);
+    /* istanbul ignore next */
+    cov_7q1m89gnu().s[7]++;
+    setupEnhancedDocTools(this.server); // Using enhanced document tools
+    /* istanbul ignore next */
+    cov_7q1m89gnu().s[8]++;
+    setupCustomFieldTools(this.server); // Custom fields management
+    /* istanbul ignore next */
+    cov_7q1m89gnu().s[9]++;
+    setupTimeTrackingTools(this.server); // Time tracking and timer management
+    /* istanbul ignore next */
+    cov_7q1m89gnu().s[10]++;
+    setupGoalsTools(this.server); // Goals and targets management
+    /* istanbul ignore next */
+    cov_7q1m89gnu().s[11]++;
+    setupWebhookTools(this.server); // Webhook management and processing
+    /* istanbul ignore next */
+    cov_7q1m89gnu().s[12]++;
+    setupViewsTools(this.server); // Views management and configuration
+    /* istanbul ignore next */
+    cov_7q1m89gnu().s[13]++;
+    setupDependenciesTools(this.server); // Task dependencies and relationships
+    /* istanbul ignore next */
+    cov_7q1m89gnu().s[14]++;
+    setupAttachmentsTools(this.server); // File attachments and media management
+    /* istanbul ignore next */
+    cov_7q1m89gnu().s[15]++;
+    setupSpaceTools(this.server);
+    /* istanbul ignore next */
+    cov_7q1m89gnu().s[16]++;
+    setupChecklistTools(this.server);
+    /* istanbul ignore next */
+    cov_7q1m89gnu().s[17]++;
+    setupCommentTools(this.server);
+  }
+  setupResources() {
+    /* istanbul ignore next */
+    cov_7q1m89gnu().f[3]++;
+    cov_7q1m89gnu().s[18]++;
+    // Set up all resources
+    setupTaskResources(this.server);
+    /* istanbul ignore next */
+    cov_7q1m89gnu().s[19]++;
+    setupDocResources(this.server);
+    /* istanbul ignore next */
+    cov_7q1m89gnu().s[20]++;
+    setupChecklistResources(this.server);
+    /* istanbul ignore next */
+    cov_7q1m89gnu().s[21]++;
+    setupCommentResources(this.server);
+    /* istanbul ignore next */
+    cov_7q1m89gnu().s[22]++;
+    setupSpaceResources(this.server);
+    /* istanbul ignore next */
+    cov_7q1m89gnu().s[23]++;
+    setupFolderResources(this.server);
+    /* istanbul ignore next */
+    cov_7q1m89gnu().s[24]++;
+    setupListResources(this.server);
+  }
+  async run() {
+    /* istanbul ignore next */
+    cov_7q1m89gnu().f[4]++;
+    const transport =
+    /* istanbul ignore next */
+    (cov_7q1m89gnu().s[25]++, new StdioServerTransport());
+    /* istanbul ignore next */
+    cov_7q1m89gnu().s[26]++;
+    await this.server.connect(transport);
+    /* istanbul ignore next */
+    cov_7q1m89gnu().s[27]++;
+    console.error('ClickUp MCP server running on stdio with comprehensive API coverage: enhanced documents, custom fields, time tracking, goals, webhooks, views, dependencies, and attachments management');
+  }
+}
+// Create and run the server
+const server =
+/* istanbul ignore next */
+(cov_7q1m89gnu().s[28]++, new ClickUpServer());
+/* istanbul ignore next */
+cov_7q1m89gnu().s[29]++;
+server.run().catch(console.error);
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJjb3ZfN3ExbTg5Z251IiwiYWN0dWFsQ292ZXJhZ2UiLCJNY3BTZXJ2ZXIiLCJTdGRpb1NlcnZlclRyYW5zcG9ydCIsInNldHVwVGFza1Rvb2xzIiwic2V0dXBFbmhhbmNlZERvY1Rvb2xzIiwic2V0dXBDdXN0b21GaWVsZFRvb2xzIiwic2V0dXBUaW1lVHJhY2tpbmdUb29scyIsInNldHVwR29hbHNUb29scyIsInNldHVwV2ViaG9va1Rvb2xzIiwic2V0dXBWaWV3c1Rvb2xzIiwic2V0dXBEZXBlbmRlbmNpZXNUb29scyIsInNldHVwQXR0YWNobWVudHNUb29scyIsInNldHVwU3BhY2VUb29scyIsInNldHVwQ2hlY2tsaXN0VG9vbHMiLCJzZXR1cENvbW1lbnRUb29scyIsInNldHVwVGFza1Jlc291cmNlcyIsInNldHVwRG9jUmVzb3VyY2VzIiwic2V0dXBDaGVja2xpc3RSZXNvdXJjZXMiLCJzZXR1cENvbW1lbnRSZXNvdXJjZXMiLCJzZXR1cFNwYWNlUmVzb3VyY2VzIiwic2V0dXBGb2xkZXJSZXNvdXJjZXMiLCJzZXR1cExpc3RSZXNvdXJjZXMiLCJDbGlja1VwU2VydmVyIiwiY29uc3RydWN0b3IiLCJmIiwicyIsInNlcnZlciIsIm5hbWUiLCJ2ZXJzaW9uIiwicHJvY2VzcyIsIm9uIiwiY2xvc2UiLCJleGl0Iiwic2V0dXBUb29scyIsInNldHVwUmVzb3VyY2VzIiwicnVuIiwidHJhbnNwb3J0IiwiY29ubmVjdCIsImNvbnNvbGUiLCJlcnJvciIsImNhdGNoIl0sInNvdXJjZXMiOlsiL1VzZXJzL3BldGVya3J6eXplay9EZXZlbG9wbWVudC9jbGlja3VwLW1jcC1zZXJ2ZXIvc3JjL2luZGV4LWVuaGFuY2VkLnRzIl0sInNvdXJjZXNDb250ZW50IjpbIiMhL3Vzci9iaW4vZW52IG5vZGVcbmltcG9ydCB7IE1jcFNlcnZlciB9IGZyb20gJ0Btb2RlbGNvbnRleHRwcm90b2NvbC9zZGsvc2VydmVyL21jcC5qcyc7XG5pbXBvcnQgeyBTdGRpb1NlcnZlclRyYW5zcG9ydCB9IGZyb20gJ0Btb2RlbGNvbnRleHRwcm90b2NvbC9zZGsvc2VydmVyL3N0ZGlvLmpzJztcbmltcG9ydCB7IHNldHVwVGFza1Rvb2xzIH0gZnJvbSAnLi90b29scy90YXNrLXRvb2xzLmpzJztcbmltcG9ydCB7IHNldHVwRW5oYW5jZWREb2NUb29scyB9IGZyb20gJy4vdG9vbHMvZG9jLXRvb2xzLWVuaGFuY2VkLmpzJztcbmltcG9ydCB7IHNldHVwQ3VzdG9tRmllbGRUb29scyB9IGZyb20gJy4vdG9vbHMvY3VzdG9tLWZpZWxkLXRvb2xzLmpzJztcbmltcG9ydCB7IHNldHVwVGltZVRyYWNraW5nVG9vbHMgfSBmcm9tICcuL3Rvb2xzL3RpbWUtdHJhY2tpbmctdG9vbHMuanMnO1xuaW1wb3J0IHsgc2V0dXBHb2Fsc1Rvb2xzIH0gZnJvbSAnLi90b29scy9nb2Fscy10b29scy5qcyc7XG5pbXBvcnQgeyBzZXR1cFdlYmhvb2tUb29scyB9IGZyb20gJy4vdG9vbHMvd2ViaG9vay10b29scy1zZXR1cC5qcyc7XG5pbXBvcnQgeyBzZXR1cFZpZXdzVG9vbHMgfSBmcm9tICcuL3Rvb2xzL3ZpZXdzLXRvb2xzLXNldHVwLmpzJztcbmltcG9ydCB7IHNldHVwRGVwZW5kZW5jaWVzVG9vbHMgfSBmcm9tICcuL3Rvb2xzL2RlcGVuZGVuY2llcy10b29scy1zZXR1cC5qcyc7XG5pbXBvcnQgeyBzZXR1cEF0dGFjaG1lbnRzVG9vbHMgfSBmcm9tICcuL3Rvb2xzL2F0dGFjaG1lbnRzLXRvb2xzLXNldHVwLmpzJztcbmltcG9ydCB7IHNldHVwU3BhY2VUb29scyB9IGZyb20gJy4vdG9vbHMvc3BhY2UtdG9vbHMuanMnO1xuaW1wb3J0IHsgc2V0dXBDaGVja2xpc3RUb29scyB9IGZyb20gJy4vdG9vbHMvY2hlY2tsaXN0LXRvb2xzLmpzJztcbmltcG9ydCB7IHNldHVwQ29tbWVudFRvb2xzIH0gZnJvbSAnLi90b29scy9jb21tZW50LXRvb2xzLmpzJztcbmltcG9ydCB7IHNldHVwVGFza1Jlc291cmNlcyB9IGZyb20gJy4vcmVzb3VyY2VzL3Rhc2stcmVzb3VyY2VzLmpzJztcbmltcG9ydCB7IHNldHVwRG9jUmVzb3VyY2VzIH0gZnJvbSAnLi9yZXNvdXJjZXMvZG9jLXJlc291cmNlcy5qcyc7XG5pbXBvcnQgeyBzZXR1cENoZWNrbGlzdFJlc291cmNlcyB9IGZyb20gJy4vcmVzb3VyY2VzL2NoZWNrbGlzdC1yZXNvdXJjZXMuanMnO1xuaW1wb3J0IHsgc2V0dXBDb21tZW50UmVzb3VyY2VzIH0gZnJvbSAnLi9yZXNvdXJjZXMvY29tbWVudC1yZXNvdXJjZXMuanMnO1xuaW1wb3J0IHsgc2V0dXBTcGFjZVJlc291cmNlcyB9IGZyb20gJy4vcmVzb3VyY2VzL3NwYWNlLXJlc291cmNlcy5qcyc7XG5pbXBvcnQgeyBzZXR1cEZvbGRlclJlc291cmNlcyB9IGZyb20gJy4vcmVzb3VyY2VzL2ZvbGRlci1yZXNvdXJjZXMuanMnO1xuaW1wb3J0IHsgc2V0dXBMaXN0UmVzb3VyY2VzIH0gZnJvbSAnLi9yZXNvdXJjZXMvbGlzdC1yZXNvdXJjZXMuanMnO1xuXG4vLyBFbnZpcm9ubWVudCB2YXJpYWJsZXMgYXJlIHBhc3NlZCB0byB0aGUgc2VydmVyIHRocm91Z2ggdGhlIE1DUCBzZXR0aW5ncyBmaWxlXG4vLyBTZWUgbWNwLXNldHRpbmdzLWV4YW1wbGUuanNvbiBmb3IgYW4gZXhhbXBsZVxuXG5jbGFzcyBDbGlja1VwU2VydmVyIHtcbiAgcHJpdmF0ZSBzZXJ2ZXI6IE1jcFNlcnZlcjtcblxuICBjb25zdHJ1Y3RvcigpIHtcbiAgICB0aGlzLnNlcnZlciA9IG5ldyBNY3BTZXJ2ZXIoe1xuICAgICAgbmFtZTogJ2NsaWNrdXAtbWNwLXNlcnZlcicsXG4gICAgICB2ZXJzaW9uOiAnMy4wLjAnLCAvLyBVcGRhdGVkIHZlcnNpb24gZm9yIGNvbXByZWhlbnNpdmUgQ2xpY2tVcCBBUEkgY292ZXJhZ2VcbiAgICB9KTtcbiAgICBcbiAgICAvLyBIYW5kbGUgcHJvY2VzcyB0ZXJtaW5hdGlvblxuICAgIHByb2Nlc3Mub24oJ1NJR0lOVCcsIGFzeW5jICgpID0+IHtcbiAgICAgIGF3YWl0IHRoaXMuc2VydmVyLmNsb3NlKCk7XG4gICAgICBwcm9jZXNzLmV4aXQoMCk7XG4gICAgfSk7XG5cbiAgICAvLyBTZXQgdXAgdG9vbHMgYW5kIHJlc291cmNlc1xuICAgIHRoaXMuc2V0dXBUb29scygpO1xuICAgIHRoaXMuc2V0dXBSZXNvdXJjZXMoKTtcbiAgfVxuXG4gIHByaXZhdGUgc2V0dXBUb29scygpIHtcbiAgICAvLyBTZXQgdXAgYWxsIHRvb2xzXG4gICAgc2V0dXBUYXNrVG9vbHModGhpcy5zZXJ2ZXIpO1xuICAgIHNldHVwRW5oYW5jZWREb2NUb29scyh0aGlzLnNlcnZlcik7IC8vIFVzaW5nIGVuaGFuY2VkIGRvY3VtZW50IHRvb2xzXG4gICAgc2V0dXBDdXN0b21GaWVsZFRvb2xzKHRoaXMuc2VydmVyKTsgLy8gQ3VzdG9tIGZpZWxkcyBtYW5hZ2VtZW50XG4gICAgc2V0dXBUaW1lVHJhY2tpbmdUb29scyh0aGlzLnNlcnZlcik7IC8vIFRpbWUgdHJhY2tpbmcgYW5kIHRpbWVyIG1hbmFnZW1lbnRcbiAgICBzZXR1cEdvYWxzVG9vbHModGhpcy5zZXJ2ZXIpOyAvLyBHb2FscyBhbmQgdGFyZ2V0cyBtYW5hZ2VtZW50XG4gICAgc2V0dXBXZWJob29rVG9vbHModGhpcy5zZXJ2ZXIpOyAvLyBXZWJob29rIG1hbmFnZW1lbnQgYW5kIHByb2Nlc3NpbmdcbiAgICBzZXR1cFZpZXdzVG9vbHModGhpcy5zZXJ2ZXIpOyAvLyBWaWV3cyBtYW5hZ2VtZW50IGFuZCBjb25maWd1cmF0aW9uXG4gICAgc2V0dXBEZXBlbmRlbmNpZXNUb29scyh0aGlzLnNlcnZlcik7IC8vIFRhc2sgZGVwZW5kZW5jaWVzIGFuZCByZWxhdGlvbnNoaXBzXG4gICAgc2V0dXBBdHRhY2htZW50c1Rvb2xzKHRoaXMuc2VydmVyKTsgLy8gRmlsZSBhdHRhY2htZW50cyBhbmQgbWVkaWEgbWFuYWdlbWVudFxuICAgIHNldHVwU3BhY2VUb29scyh0aGlzLnNlcnZlcik7XG4gICAgc2V0dXBDaGVja2xpc3RUb29scyh0aGlzLnNlcnZlcik7XG4gICAgc2V0dXBDb21tZW50VG9vbHModGhpcy5zZXJ2ZXIpO1xuICB9XG5cbiAgcHJpdmF0ZSBzZXR1cFJlc291cmNlcygpIHtcbiAgICAvLyBTZXQgdXAgYWxsIHJlc291cmNlc1xuICAgIHNldHVwVGFza1Jlc291cmNlcyh0aGlzLnNlcnZlcik7XG4gICAgc2V0dXBEb2NSZXNvdXJjZXModGhpcy5zZXJ2ZXIpO1xuICAgIHNldHVwQ2hlY2tsaXN0UmVzb3VyY2VzKHRoaXMuc2VydmVyKTtcbiAgICBzZXR1cENvbW1lbnRSZXNvdXJjZXModGhpcy5zZXJ2ZXIpO1xuICAgIHNldHVwU3BhY2VSZXNvdXJjZXModGhpcy5zZXJ2ZXIpO1xuICAgIHNldHVwRm9sZGVyUmVzb3VyY2VzKHRoaXMuc2VydmVyKTtcbiAgICBzZXR1cExpc3RSZXNvdXJjZXModGhpcy5zZXJ2ZXIpO1xuICB9XG5cbiAgYXN5bmMgcnVuKCkge1xuICAgIGNvbnN0IHRyYW5zcG9ydCA9IG5ldyBTdGRpb1NlcnZlclRyYW5zcG9ydCgpO1xuICAgIGF3YWl0IHRoaXMuc2VydmVyLmNvbm5lY3QodHJhbnNwb3J0KTtcbiAgICBjb25zb2xlLmVycm9yKCdDbGlja1VwIE1DUCBzZXJ2ZXIgcnVubmluZyBvbiBzdGRpbyB3aXRoIGNvbXByZWhlbnNpdmUgQVBJIGNvdmVyYWdlOiBlbmhhbmNlZCBkb2N1bWVudHMsIGN1c3RvbSBmaWVsZHMsIHRpbWUgdHJhY2tpbmcsIGdvYWxzLCB3ZWJob29rcywgdmlld3MsIGRlcGVuZGVuY2llcywgYW5kIGF0dGFjaG1lbnRzIG1hbmFnZW1lbnQnKTtcbiAgfVxufVxuXG4vLyBDcmVhdGUgYW5kIHJ1biB0aGUgc2VydmVyXG5jb25zdCBzZXJ2ZXIgPSBuZXcgQ2xpY2tVcFNlcnZlcigpO1xuc2VydmVyLnJ1bigpLmNhdGNoKGNvbnNvbGUuZXJyb3IpO1xuIl0sIm1hcHBpbmdzIjoiOzs7Ozs7Ozs7Ozs7Ozs7Ozs7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

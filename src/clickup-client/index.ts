@@ -19,8 +19,9 @@ export class ClickUpClient {
     this.axiosInstance = axios.create({
       baseURL: config.baseUrl || API_BASE_URL,
       headers: {
-        'Authorization': config.apiToken,
-        'Content-Type': 'application/json'
+        'accept': 'application/json',
+        'content-type': 'application/json',
+        'Authorization': config.apiToken
       }
     });
 

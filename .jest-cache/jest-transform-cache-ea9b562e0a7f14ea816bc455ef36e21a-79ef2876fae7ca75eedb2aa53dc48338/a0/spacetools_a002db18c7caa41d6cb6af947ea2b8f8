@@ -1,0 +1,419 @@
+a14813593ccda9cda842cc6144d1a591
+/* istanbul ignore next */
+function cov_wrvtbnj3y() {
+  var path = "/Users/peterkrzyzek/Development/clickup-mcp-server/src/tools/space-tools.ts";
+  var hash = "91f6134e89eb8b03f61a141f444d9d0817043f74";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "/Users/peterkrzyzek/Development/clickup-mcp-server/src/tools/space-tools.ts",
+    statementMap: {
+      "0": {
+        start: {
+          line: 5,
+          column: 22
+        },
+        end: {
+          line: 5,
+          column: 43
+        }
+      },
+      "1": {
+        start: {
+          line: 6,
+          column: 21
+        },
+        end: {
+          line: 6,
+          column: 54
+        }
+      },
+      "2": {
+        start: {
+          line: 9,
+          column: 4
+        },
+        end: {
+          line: 25,
+          column: 7
+        }
+      },
+      "3": {
+        start: {
+          line: 10,
+          column: 8
+        },
+        end: {
+          line: 24,
+          column: 9
+        }
+      },
+      "4": {
+        start: {
+          line: 11,
+          column: 12
+        },
+        end: {
+          line: 11,
+          column: 90
+        }
+      },
+      "5": {
+        start: {
+          line: 12,
+          column: 27
+        },
+        end: {
+          line: 12,
+          column: 82
+        }
+      },
+      "6": {
+        start: {
+          line: 13,
+          column: 12
+        },
+        end: {
+          line: 13,
+          column: 70
+        }
+      },
+      "7": {
+        start: {
+          line: 14,
+          column: 12
+        },
+        end: {
+          line: 16,
+          column: 14
+        }
+      },
+      "8": {
+        start: {
+          line: 19,
+          column: 12
+        },
+        end: {
+          line: 19,
+          column: 58
+        }
+      },
+      "9": {
+        start: {
+          line: 20,
+          column: 12
+        },
+        end: {
+          line: 23,
+          column: 14
+        }
+      },
+      "10": {
+        start: {
+          line: 27,
+          column: 4
+        },
+        end: {
+          line: 43,
+          column: 7
+        }
+      },
+      "11": {
+        start: {
+          line: 28,
+          column: 8
+        },
+        end: {
+          line: 42,
+          column: 9
+        }
+      },
+      "12": {
+        start: {
+          line: 29,
+          column: 12
+        },
+        end: {
+          line: 29,
+          column: 71
+        }
+      },
+      "13": {
+        start: {
+          line: 30,
+          column: 26
+        },
+        end: {
+          line: 30,
+          column: 63
+        }
+      },
+      "14": {
+        start: {
+          line: 31,
+          column: 12
+        },
+        end: {
+          line: 31,
+          column: 67
+        }
+      },
+      "15": {
+        start: {
+          line: 32,
+          column: 12
+        },
+        end: {
+          line: 34,
+          column: 14
+        }
+      },
+      "16": {
+        start: {
+          line: 37,
+          column: 12
+        },
+        end: {
+          line: 37,
+          column: 57
+        }
+      },
+      "17": {
+        start: {
+          line: 38,
+          column: 12
+        },
+        end: {
+          line: 41,
+          column: 14
+        }
+      }
+    },
+    fnMap: {
+      "0": {
+        name: "setupSpaceTools",
+        decl: {
+          start: {
+            line: 7,
+            column: 16
+          },
+          end: {
+            line: 7,
+            column: 31
+          }
+        },
+        loc: {
+          start: {
+            line: 7,
+            column: 40
+          },
+          end: {
+            line: 44,
+            column: 1
+          }
+        },
+        line: 7
+      },
+      "1": {
+        name: "(anonymous_1)",
+        decl: {
+          start: {
+            line: 9,
+            column: 217
+          },
+          end: {
+            line: 9,
+            column: 218
+          }
+        },
+        loc: {
+          start: {
+            line: 9,
+            column: 245
+          },
+          end: {
+            line: 25,
+            column: 5
+          }
+        },
+        line: 9
+      },
+      "2": {
+        name: "(anonymous_2)",
+        decl: {
+          start: {
+            line: 27,
+            column: 195
+          },
+          end: {
+            line: 27,
+            column: 196
+          }
+        },
+        loc: {
+          start: {
+            line: 27,
+            column: 219
+          },
+          end: {
+            line: 43,
+            column: 5
+          }
+        },
+        line: 27
+      }
+    },
+    branchMap: {},
+    s: {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "10": 0,
+      "11": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "15": 0,
+      "16": 0,
+      "17": 0
+    },
+    f: {
+      "0": 0,
+      "1": 0,
+      "2": 0
+    },
+    b: {},
+    inputSourceMap: {
+      file: "/Users/peterkrzyzek/Development/clickup-mcp-server/src/tools/space-tools.ts",
+      mappings: "AACA,OAAO,EAAE,CAAC,EAAE,MAAM,KAAK,CAAC;AACxB,OAAO,EAAE,mBAAmB,EAAE,MAAM,4BAA4B,CAAC;AACjE,OAAO,EAAE,kBAAkB,EAAE,MAAM,6BAA6B,CAAC;AAEjE,iBAAiB;AACjB,MAAM,aAAa,GAAG,mBAAmB,EAAE,CAAC;AAC5C,MAAM,YAAY,GAAG,kBAAkB,CAAC,aAAa,CAAC,CAAC;AAEvD,MAAM,UAAU,eAAe,CAAC,MAAiB;IAC/C,2BAA2B;IAC3B,MAAM,CAAC,IAAI,CACT,YAAY,EACZ,oGAAoG,EACpG,EAAE,YAAY,EAAE,CAAC,CAAC,MAAM,EAAE,CAAC,QAAQ,CAAC,4CAA4C,CAAC,EAAE,EACnF,KAAK,EAAE,EAAE,YAAY,EAAE,EAAE,EAAE;QACzB,IAAI,CAAC;YACH,OAAO,CAAC,KAAK,CAAC,6CAA6C,YAAY,KAAK,CAAC,CAAC;YAC9E,MAAM,MAAM,GAAG,MAAM,YAAY,CAAC,sBAAsB,CAAC,YAAY,CAAC,CAAC;YACvE,OAAO,CAAC,KAAK,CAAC,oBAAoB,MAAM,CAAC,MAAM,SAAS,CAAC,CAAC;YAE1D,OAAO;gBACL,OAAO,EAAE,CAAC,EAAE,IAAI,EAAE,MAAM,EAAE,IAAI,EAAE,IAAI,CAAC,SAAS,CAAC,MAAM,EAAE,IAAI,EAAE,CAAC,CAAC,EAAE,CAAC;aACnE,CAAC;QACJ,CAAC;QAAC,OAAO,KAAU,EAAE,CAAC;YACpB,OAAO,CAAC,KAAK,CAAC,uBAAuB,EAAE,KAAK,CAAC,CAAC;YAC9C,OAAO;gBACL,OAAO,EAAE,CAAC,EAAE,IAAI,EAAE,MAAM,EAAE,IAAI,EAAE,yBAAyB,KAAK,CAAC,OAAO,EAAE,EAAE,CAAC;gBAC3E,OAAO,EAAE,IAAI;aACd,CAAC;QACJ,CAAC;IACH,CAAC,CACF,CAAC;IAEF,0BAA0B;IAC1B,MAAM,CAAC,IAAI,CACT,WAAW,EACX,mGAAmG,EACnG,EAAE,QAAQ,EAAE,CAAC,CAAC,MAAM,EAAE,CAAC,QAAQ,CAAC,4BAA4B,CAAC,EAAE,EAC/D,KAAK,EAAE,EAAE,QAAQ,EAAE,EAAE,EAAE;QACrB,IAAI,CAAC;YACH,OAAO,CAAC,KAAK,CAAC,8BAA8B,QAAQ,KAAK,CAAC,CAAC;YAC3D,MAAM,KAAK,GAAG,MAAM,YAAY,CAAC,QAAQ,CAAC,QAAQ,CAAC,CAAC;YACpD,OAAO,CAAC,KAAK,CAAC,2BAA2B,KAAK,CAAC,IAAI,EAAE,CAAC,CAAC;YAEvD,OAAO;gBACL,OAAO,EAAE,CAAC,EAAE,IAAI,EAAE,MAAM,EAAE,IAAI,EAAE,IAAI,CAAC,SAAS,CAAC,KAAK,EAAE,IAAI,EAAE,CAAC,CAAC,EAAE,CAAC;aAClE,CAAC;QACJ,CAAC;QAAC,OAAO,KAAU,EAAE,CAAC;YACpB,OAAO,CAAC,KAAK,CAAC,sBAAsB,EAAE,KAAK,CAAC,CAAC;YAC7C,OAAO;gBACL,OAAO,EAAE,CAAC,EAAE,IAAI,EAAE,MAAM,EAAE,IAAI,EAAE,wBAAwB,KAAK,CAAC,OAAO,EAAE,EAAE,CAAC;gBAC1E,OAAO,EAAE,IAAI;aACd,CAAC;QACJ,CAAC;IACH,CAAC,CACF,CAAC;AACJ,CAAC",
+      names: [],
+      sources: ["/Users/peterkrzyzek/Development/clickup-mcp-server/src/tools/space-tools.ts"],
+      sourcesContent: ["import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';\nimport { z } from 'zod';\nimport { createClickUpClient } from '../clickup-client/index.js';\nimport { createSpacesClient } from '../clickup-client/spaces.js';\n\n// Create clients\nconst clickUpClient = createClickUpClient();\nconst spacesClient = createSpacesClient(clickUpClient);\n\nexport function setupSpaceTools(server: McpServer): void {\n  // Register get_spaces tool\n  server.tool(\n    'get_spaces',\n    'Get spaces from a ClickUp workspace. Returns space details including name, settings, and features.',\n    { workspace_id: z.string().describe('The ID of the workspace to get spaces from') },\n    async ({ workspace_id }) => {\n      try {\n        console.error(`[SpaceTools] Getting spaces for workspace ${workspace_id}...`);\n        const spaces = await spacesClient.getSpacesFromWorkspace(workspace_id);\n        console.error(`[SpaceTools] Got ${spaces.length} spaces`);\n        \n        return {\n          content: [{ type: 'text', text: JSON.stringify(spaces, null, 2) }]\n        };\n      } catch (error: any) {\n        console.error('Error getting spaces:', error);\n        return {\n          content: [{ type: 'text', text: `Error getting spaces: ${error.message}` }],\n          isError: true\n        };\n      }\n    }\n  );\n\n  // Register get_space tool\n  server.tool(\n    'get_space',\n    'Get details about a specific ClickUp space. Returns space name, settings, features, and metadata.',\n    { space_id: z.string().describe('The ID of the space to get') },\n    async ({ space_id }) => {\n      try {\n        console.error(`[SpaceTools] Getting space ${space_id}...`);\n        const space = await spacesClient.getSpace(space_id);\n        console.error(`[SpaceTools] Got space: ${space.name}`);\n        \n        return {\n          content: [{ type: 'text', text: JSON.stringify(space, null, 2) }]\n        };\n      } catch (error: any) {\n        console.error('Error getting space:', error);\n        return {\n          content: [{ type: 'text', text: `Error getting space: ${error.message}` }],\n          isError: true\n        };\n      }\n    }\n  );\n}\n"],
+      version: 3
+    },
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "91f6134e89eb8b03f61a141f444d9d0817043f74"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    // @ts-ignore
+    cov_wrvtbnj3y = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_wrvtbnj3y();
+import { z } from 'zod';
+import { createClickUpClient } from '../clickup-client/index.js';
+import { createSpacesClient } from '../clickup-client/spaces.js';
+// Create clients
+const clickUpClient =
+/* istanbul ignore next */
+(cov_wrvtbnj3y().s[0]++, createClickUpClient());
+const spacesClient =
+/* istanbul ignore next */
+(cov_wrvtbnj3y().s[1]++, createSpacesClient(clickUpClient));
+export function setupSpaceTools(server) {
+  /* istanbul ignore next */
+  cov_wrvtbnj3y().f[0]++;
+  cov_wrvtbnj3y().s[2]++;
+  // Register get_spaces tool
+  server.tool('get_spaces', 'Get spaces from a ClickUp workspace. Returns space details including name, settings, and features.', {
+    workspace_id: z.string().describe('The ID of the workspace to get spaces from')
+  }, async ({
+    workspace_id
+  }) => {
+    /* istanbul ignore next */
+    cov_wrvtbnj3y().f[1]++;
+    cov_wrvtbnj3y().s[3]++;
+    try {
+      /* istanbul ignore next */
+      cov_wrvtbnj3y().s[4]++;
+      console.error(`[SpaceTools] Getting spaces for workspace ${workspace_id}...`);
+      const spaces =
+      /* istanbul ignore next */
+      (cov_wrvtbnj3y().s[5]++, await spacesClient.getSpacesFromWorkspace(workspace_id));
+      /* istanbul ignore next */
+      cov_wrvtbnj3y().s[6]++;
+      console.error(`[SpaceTools] Got ${spaces.length} spaces`);
+      /* istanbul ignore next */
+      cov_wrvtbnj3y().s[7]++;
+      return {
+        content: [{
+          type: 'text',
+          text: JSON.stringify(spaces, null, 2)
+        }]
+      };
+    } catch (error) {
+      /* istanbul ignore next */
+      cov_wrvtbnj3y().s[8]++;
+      console.error('Error getting spaces:', error);
+      /* istanbul ignore next */
+      cov_wrvtbnj3y().s[9]++;
+      return {
+        content: [{
+          type: 'text',
+          text: `Error getting spaces: ${error.message}`
+        }],
+        isError: true
+      };
+    }
+  });
+  // Register get_space tool
+  /* istanbul ignore next */
+  cov_wrvtbnj3y().s[10]++;
+  server.tool('get_space', 'Get details about a specific ClickUp space. Returns space name, settings, features, and metadata.', {
+    space_id: z.string().describe('The ID of the space to get')
+  }, async ({
+    space_id
+  }) => {
+    /* istanbul ignore next */
+    cov_wrvtbnj3y().f[2]++;
+    cov_wrvtbnj3y().s[11]++;
+    try {
+      /* istanbul ignore next */
+      cov_wrvtbnj3y().s[12]++;
+      console.error(`[SpaceTools] Getting space ${space_id}...`);
+      const space =
+      /* istanbul ignore next */
+      (cov_wrvtbnj3y().s[13]++, await spacesClient.getSpace(space_id));
+      /* istanbul ignore next */
+      cov_wrvtbnj3y().s[14]++;
+      console.error(`[SpaceTools] Got space: ${space.name}`);
+      /* istanbul ignore next */
+      cov_wrvtbnj3y().s[15]++;
+      return {
+        content: [{
+          type: 'text',
+          text: JSON.stringify(space, null, 2)
+        }]
+      };
+    } catch (error) {
+      /* istanbul ignore next */
+      cov_wrvtbnj3y().s[16]++;
+      console.error('Error getting space:', error);
+      /* istanbul ignore next */
+      cov_wrvtbnj3y().s[17]++;
+      return {
+        content: [{
+          type: 'text',
+          text: `Error getting space: ${error.message}`
+        }],
+        isError: true
+      };
+    }
+  });
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJ6IiwiY3JlYXRlQ2xpY2tVcENsaWVudCIsImNyZWF0ZVNwYWNlc0NsaWVudCIsImNsaWNrVXBDbGllbnQiLCJjb3Zfd3J2dGJuajN5IiwicyIsInNwYWNlc0NsaWVudCIsInNldHVwU3BhY2VUb29scyIsInNlcnZlciIsImYiLCJ0b29sIiwid29ya3NwYWNlX2lkIiwic3RyaW5nIiwiZGVzY3JpYmUiLCJjb25zb2xlIiwiZXJyb3IiLCJzcGFjZXMiLCJnZXRTcGFjZXNGcm9tV29ya3NwYWNlIiwibGVuZ3RoIiwiY29udGVudCIsInR5cGUiLCJ0ZXh0IiwiSlNPTiIsInN0cmluZ2lmeSIsIm1lc3NhZ2UiLCJpc0Vycm9yIiwic3BhY2VfaWQiLCJzcGFjZSIsImdldFNwYWNlIiwibmFtZSJdLCJzb3VyY2VzIjpbIi9Vc2Vycy9wZXRlcmtyenl6ZWsvRGV2ZWxvcG1lbnQvY2xpY2t1cC1tY3Atc2VydmVyL3NyYy90b29scy9zcGFjZS10b29scy50cyJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyBNY3BTZXJ2ZXIgfSBmcm9tICdAbW9kZWxjb250ZXh0cHJvdG9jb2wvc2RrL3NlcnZlci9tY3AuanMnO1xuaW1wb3J0IHsgeiB9IGZyb20gJ3pvZCc7XG5pbXBvcnQgeyBjcmVhdGVDbGlja1VwQ2xpZW50IH0gZnJvbSAnLi4vY2xpY2t1cC1jbGllbnQvaW5kZXguanMnO1xuaW1wb3J0IHsgY3JlYXRlU3BhY2VzQ2xpZW50IH0gZnJvbSAnLi4vY2xpY2t1cC1jbGllbnQvc3BhY2VzLmpzJztcblxuLy8gQ3JlYXRlIGNsaWVudHNcbmNvbnN0IGNsaWNrVXBDbGllbnQgPSBjcmVhdGVDbGlja1VwQ2xpZW50KCk7XG5jb25zdCBzcGFjZXNDbGllbnQgPSBjcmVhdGVTcGFjZXNDbGllbnQoY2xpY2tVcENsaWVudCk7XG5cbmV4cG9ydCBmdW5jdGlvbiBzZXR1cFNwYWNlVG9vbHMoc2VydmVyOiBNY3BTZXJ2ZXIpOiB2b2lkIHtcbiAgLy8gUmVnaXN0ZXIgZ2V0X3NwYWNlcyB0b29sXG4gIHNlcnZlci50b29sKFxuICAgICdnZXRfc3BhY2VzJyxcbiAgICAnR2V0IHNwYWNlcyBmcm9tIGEgQ2xpY2tVcCB3b3Jrc3BhY2UuIFJldHVybnMgc3BhY2UgZGV0YWlscyBpbmNsdWRpbmcgbmFtZSwgc2V0dGluZ3MsIGFuZCBmZWF0dXJlcy4nLFxuICAgIHsgd29ya3NwYWNlX2lkOiB6LnN0cmluZygpLmRlc2NyaWJlKCdUaGUgSUQgb2YgdGhlIHdvcmtzcGFjZSB0byBnZXQgc3BhY2VzIGZyb20nKSB9LFxuICAgIGFzeW5jICh7IHdvcmtzcGFjZV9pZCB9KSA9PiB7XG4gICAgICB0cnkge1xuICAgICAgICBjb25zb2xlLmVycm9yKGBbU3BhY2VUb29sc10gR2V0dGluZyBzcGFjZXMgZm9yIHdvcmtzcGFjZSAke3dvcmtzcGFjZV9pZH0uLi5gKTtcbiAgICAgICAgY29uc3Qgc3BhY2VzID0gYXdhaXQgc3BhY2VzQ2xpZW50LmdldFNwYWNlc0Zyb21Xb3Jrc3BhY2Uod29ya3NwYWNlX2lkKTtcbiAgICAgICAgY29uc29sZS5lcnJvcihgW1NwYWNlVG9vbHNdIEdvdCAke3NwYWNlcy5sZW5ndGh9IHNwYWNlc2ApO1xuICAgICAgICBcbiAgICAgICAgcmV0dXJuIHtcbiAgICAgICAgICBjb250ZW50OiBbeyB0eXBlOiAndGV4dCcsIHRleHQ6IEpTT04uc3RyaW5naWZ5KHNwYWNlcywgbnVsbCwgMikgfV1cbiAgICAgICAgfTtcbiAgICAgIH0gY2F0Y2ggKGVycm9yOiBhbnkpIHtcbiAgICAgICAgY29uc29sZS5lcnJvcignRXJyb3IgZ2V0dGluZyBzcGFjZXM6JywgZXJyb3IpO1xuICAgICAgICByZXR1cm4ge1xuICAgICAgICAgIGNvbnRlbnQ6IFt7IHR5cGU6ICd0ZXh0JywgdGV4dDogYEVycm9yIGdldHRpbmcgc3BhY2VzOiAke2Vycm9yLm1lc3NhZ2V9YCB9XSxcbiAgICAgICAgICBpc0Vycm9yOiB0cnVlXG4gICAgICAgIH07XG4gICAgICB9XG4gICAgfVxuICApO1xuXG4gIC8vIFJlZ2lzdGVyIGdldF9zcGFjZSB0b29sXG4gIHNlcnZlci50b29sKFxuICAgICdnZXRfc3BhY2UnLFxuICAgICdHZXQgZGV0YWlscyBhYm91dCBhIHNwZWNpZmljIENsaWNrVXAgc3BhY2UuIFJldHVybnMgc3BhY2UgbmFtZSwgc2V0dGluZ3MsIGZlYXR1cmVzLCBhbmQgbWV0YWRhdGEuJyxcbiAgICB7IHNwYWNlX2lkOiB6LnN0cmluZygpLmRlc2NyaWJlKCdUaGUgSUQgb2YgdGhlIHNwYWNlIHRvIGdldCcpIH0sXG4gICAgYXN5bmMgKHsgc3BhY2VfaWQgfSkgPT4ge1xuICAgICAgdHJ5IHtcbiAgICAgICAgY29uc29sZS5lcnJvcihgW1NwYWNlVG9vbHNdIEdldHRpbmcgc3BhY2UgJHtzcGFjZV9pZH0uLi5gKTtcbiAgICAgICAgY29uc3Qgc3BhY2UgPSBhd2FpdCBzcGFjZXNDbGllbnQuZ2V0U3BhY2Uoc3BhY2VfaWQpO1xuICAgICAgICBjb25zb2xlLmVycm9yKGBbU3BhY2VUb29sc10gR290IHNwYWNlOiAke3NwYWNlLm5hbWV9YCk7XG4gICAgICAgIFxuICAgICAgICByZXR1cm4ge1xuICAgICAgICAgIGNvbnRlbnQ6IFt7IHR5cGU6ICd0ZXh0JywgdGV4dDogSlNPTi5zdHJpbmdpZnkoc3BhY2UsIG51bGwsIDIpIH1dXG4gICAgICAgIH07XG4gICAgICB9IGNhdGNoIChlcnJvcjogYW55KSB7XG4gICAgICAgIGNvbnNvbGUuZXJyb3IoJ0Vycm9yIGdldHRpbmcgc3BhY2U6JywgZXJyb3IpO1xuICAgICAgICByZXR1cm4ge1xuICAgICAgICAgIGNvbnRlbnQ6IFt7IHR5cGU6ICd0ZXh0JywgdGV4dDogYEVycm9yIGdldHRpbmcgc3BhY2U6ICR7ZXJyb3IubWVzc2FnZX1gIH1dLFxuICAgICAgICAgIGlzRXJyb3I6IHRydWVcbiAgICAgICAgfTtcbiAgICAgIH1cbiAgICB9XG4gICk7XG59XG4iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7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

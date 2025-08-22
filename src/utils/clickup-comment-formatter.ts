@@ -6,7 +6,7 @@
 
 export interface ClickUpCommentBlock {
   text: string;
-  attributes: {
+  attributes?: {
     bold?: boolean;
     italic?: boolean;
     underline?: boolean;
@@ -16,6 +16,9 @@ export interface ClickUpCommentBlock {
     background_color?: string;
     link?: {
       url: string;
+    };
+    'code-block'?: {
+      'code-block': string;
     };
   };
 }
@@ -331,17 +334,235 @@ export function parseMarkdownToClickUpComment(markdown: string): ClickUpCommentF
 }
 
 /**
+ * Convert markdown text to plain text by stripping all markdown formatting
+ * @param markdown The markdown text to convert
+ * @returns Plain text without any markdown formatting
+ */
+export function markdownToPlainText(markdown: string): string {
+  if (!markdown || typeof markdown !== 'string') {
+    return '';
+  }
+
+  let plainText = markdown;
+
+  // Remove headers
+  plainText = plainText.replace(/^#{1,6}\s+/gm, '');
+  
+  // Remove bold and italic
+  plainText = plainText.replace(/\*\*([^*]+)\*\*/g, '$1');
+  plainText = plainText.replace(/\*([^*]+)\*/g, '$1');
+  plainText = plainText.replace(/__([^_]+)__/g, '$1');
+  plainText = plainText.replace(/_([^_]+)_/g, '$1');
+  
+  // Remove strikethrough
+  plainText = plainText.replace(/~~([^~]+)~~/g, '$1');
+  
+  // Remove inline code
+  plainText = plainText.replace(/`([^`]+)`/g, '$1');
+  
+  // Remove code blocks
+  plainText = plainText.replace(/```[\s\S]*?```/g, (match) => {
+    // Extract just the code content, remove the ``` markers
+    const lines = match.split('\n');
+    return lines.slice(1, -1).join('\n');
+  });
+  
+  // Remove links, keep just the text
+  plainText = plainText.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+  
+  // Remove blockquotes
+  plainText = plainText.replace(/^>\s*/gm, '');
+  
+  // Convert list items to simple bullets
+  plainText = plainText.replace(/^[-*+]\s+/gm, '• ');
+  plainText = plainText.replace(/^\d+\.\s+/gm, '• ');
+  
+  // Clean up extra whitespace
+  plainText = plainText.replace(/\n{3,}/g, '\n\n');
+  plainText = plainText.trim();
+  
+  return plainText;
+}
+
+/**
+ * Clean up duplicate content in ClickUp's comment_text field
+ * ClickUp sometimes duplicates content when processing structured comments
+ * @param commentText The comment_text field from ClickUp API response
+ * @returns Cleaned comment text without duplication
+ */
+export function cleanDuplicateCommentText(commentText: string): string {
+  if (!commentText || typeof commentText !== 'string') {
+    return commentText;
+  }
+
+  // ClickUp often appends the original markdown at the end after the processed text
+  // Look for patterns where the same content appears twice
+  
+  // First, try to find if there's a clear markdown pattern at the end
+  // ClickUp typically appends content that starts with markdown headers or formatting
+  const markdownPatterns = [
+    /🎉 \*\*.*?\*\*/,  // Emoji + bold pattern
+    /🔧 \*\*.*?\*\*/,  // Emoji + bold pattern
+    /🎯 \*\*.*?\*\*/,  // Emoji + bold pattern
+    /### .*?\*\*/,     // Header + bold pattern
+    /## .*?\*\*/,      // Header + bold pattern
+    /# .*?\*\*/        // Header + bold pattern
+  ];
+  
+  for (const pattern of markdownPatterns) {
+    const matches = commentText.match(new RegExp(pattern.source, 'g'));
+    if (matches && matches.length >= 2) {
+      // Found duplicate pattern, try to find the split point
+      const firstMatch = commentText.indexOf(matches[0]);
+      const lastMatch = commentText.lastIndexOf(matches[matches.length - 1]);
+      
+      if (firstMatch !== lastMatch) {
+        // There are multiple occurrences, likely a duplication
+        // Keep everything up to the last occurrence of the first match
+        const splitPoint = commentText.indexOf(matches[0], firstMatch + 1);
+        if (splitPoint > 0) {
+          return commentText.substring(0, splitPoint).trim();
+        }
+      }
+    }
+  }
+  
+  // Alternative approach: look for the pattern where content is repeated
+  // Split by common separators and look for duplicates
+  const lines = commentText.split('\n');
+  const totalLines = lines.length;
+  
+  if (totalLines > 6) {
+    // Look for a point where content starts repeating
+    for (let i = Math.floor(totalLines / 3); i < Math.floor(totalLines * 2 / 3); i++) {
+      const beforeSplit = lines.slice(0, i).join('\n');
+      const afterSplit = lines.slice(i).join('\n');
+      
+      // Check if the after split contains similar content to before split
+      if (afterSplit.length > beforeSplit.length * 0.5 && 
+          beforeSplit.length > 50 && 
+          afterSplit.includes(lines[0]) && 
+          afterSplit.includes(lines[1])) {
+        return beforeSplit.trim();
+      }
+    }
+  }
+  
+  // Last resort: check for exact duplicates by splitting in half
+  const length = commentText.length;
+  if (length > 100) {
+    const midPoint = Math.floor(length / 2);
+    const firstHalf = commentText.substring(0, midPoint);
+    const secondHalf = commentText.substring(midPoint);
+    
+    // Check if second half starts with similar content to first half
+    const firstLines = firstHalf.split('\n').slice(0, 3);
+    const secondLines = secondHalf.split('\n').slice(0, 3);
+    
+    let similarity = 0;
+    for (let i = 0; i < Math.min(firstLines.length, secondLines.length); i++) {
+      if (firstLines[i].trim() && secondLines[i].includes(firstLines[i].trim().substring(0, 20))) {
+        similarity++;
+      }
+    }
+    
+    if (similarity >= 2) {
+      return firstHalf.trim();
+    }
+  }
+  
+  return commentText;
+}
+
+/**
+ * Process a comment response from ClickUp to clean up any duplication issues
+ * @param comment The comment object from ClickUp API
+ * @returns Cleaned comment object
+ */
+export function cleanClickUpCommentResponse(comment: any): any {
+  if (!comment || typeof comment !== 'object') {
+    return comment;
+  }
+
+  const cleaned = { ...comment };
+  
+  // Clean up comment_text field if it exists
+  if (cleaned.comment_text && typeof cleaned.comment_text === 'string') {
+    cleaned.comment_text = cleanDuplicateCommentText(cleaned.comment_text);
+  }
+  
+  // Clean up comment_markdown field if it exists
+  if (cleaned.comment_markdown && typeof cleaned.comment_markdown === 'string') {
+    cleaned.comment_markdown = cleanDuplicateCommentText(cleaned.comment_markdown);
+  }
+  
+  return cleaned;
+}
+
+/**
+ * Ensure proper newline separation before code blocks
+ * ClickUp requires a newline before code blocks to prevent them from being merged with previous text
+ * @param blocks Array of comment blocks to process
+ * @returns Processed array with proper newline separation
+ */
+export function ensureCodeBlockSeparation(blocks: ClickUpCommentBlock[]): ClickUpCommentBlock[] {
+  if (!blocks || !Array.isArray(blocks) || blocks.length === 0) {
+    return blocks;
+  }
+
+  const processedBlocks: ClickUpCommentBlock[] = [];
+
+  for (let i = 0; i < blocks.length; i++) {
+    const currentBlock = blocks[i];
+    const previousBlock = i > 0 ? blocks[i - 1] : null;
+
+    // Check if current block is a code block
+    const isCodeBlock = currentBlock.attributes && 
+      (currentBlock.attributes['code-block'] || currentBlock.attributes.code);
+
+    // If this is a code block and there's a previous block
+    if (isCodeBlock && previousBlock) {
+      // Check if the previous block ends with a newline
+      const previousText = previousBlock.text || '';
+      const endsWithNewline = previousText.endsWith('\n');
+
+      if (!endsWithNewline) {
+        // Add newline to the previous block's text
+        const updatedPreviousBlock = {
+          ...previousBlock,
+          text: previousText + '\n',
+          attributes: previousBlock.attributes || {}
+        };
+        
+        // Replace the previous block in our processed array
+        if (processedBlocks.length > 0) {
+          processedBlocks[processedBlocks.length - 1] = updatedPreviousBlock;
+        }
+      }
+    }
+
+    processedBlocks.push({
+      ...currentBlock,
+      attributes: currentBlock.attributes || {}
+    });
+  }
+
+  return processedBlocks;
+}
+
+/**
  * Prepare comment content for ClickUp API submission
  * Supports both simple text and markdown input
  * @param content The content to prepare (markdown or plain text)
- * @returns Object with ClickUp comment format and fallback text
+ * @returns Object with ONLY structured comment format (no comment_text to avoid duplication)
  */
 export function prepareCommentForClickUp(content: string): {
   comment: ClickUpCommentBlock[];
-  comment_text?: string; // Fallback for simple text
 } {
   if (!content || typeof content !== 'string') {
-    return { comment: [{ text: '', attributes: {} }] };
+    return { 
+      comment: [{ text: '', attributes: {} }]
+    };
   }
 
   // Check if content contains markdown formatting
@@ -350,14 +571,32 @@ export function prepareCommentForClickUp(content: string): {
   if (hasMarkdown) {
     const formatted = parseMarkdownToClickUpComment(content);
     return {
-      comment: formatted.comment,
-      comment_text: content // Keep original as fallback
+      comment: ensureCodeBlockSeparation(formatted.comment)
     };
   } else {
     // Simple plain text
     return {
-      comment: [{ text: content, attributes: {} }],
-      comment_text: content
+      comment: [{ text: content, attributes: {} }]
     };
   }
+}
+
+/**
+ * Process structured comment blocks to ensure proper code block separation
+ * This function should be called on any structured comment array before sending to ClickUp
+ * @param blocks Array of comment blocks
+ * @returns Processed array with proper newline separation before code blocks
+ */
+export function processCommentBlocks(blocks: ClickUpCommentBlock[]): ClickUpCommentBlock[] {
+  if (!blocks || !Array.isArray(blocks) || blocks.length === 0) {
+    return blocks;
+  }
+
+  // First, ensure all blocks have attributes (even if empty)
+  const normalizedBlocks = blocks.map(block => ({
+    ...block,
+    attributes: block.attributes || {}
+  }));
+
+  return ensureCodeBlockSeparation(normalizedBlocks);
 }

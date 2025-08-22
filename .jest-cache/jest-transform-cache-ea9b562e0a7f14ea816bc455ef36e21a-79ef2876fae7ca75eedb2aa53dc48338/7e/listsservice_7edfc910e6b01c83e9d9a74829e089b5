@@ -1,0 +1,43 @@
+786d811037eab28829264dedce29eca1
+"use strict";
+
+/* istanbul ignore next */
+function cov_15z8yaiobf() {
+  var path = "/Users/peterkrzyzek/Development/clickup-mcp-server/src/services/lists.service.ts";
+  var hash = "f94ade14a8686caccb5f3ec91f6238188b333f56";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "/Users/peterkrzyzek/Development/clickup-mcp-server/src/services/lists.service.ts",
+    statementMap: {},
+    fnMap: {},
+    branchMap: {},
+    s: {},
+    f: {},
+    b: {},
+    inputSourceMap: {
+      file: "/Users/peterkrzyzek/Development/clickup-mcp-server/src/services/lists.service.ts",
+      mappings: "",
+      names: [],
+      sources: ["/Users/peterkrzyzek/Development/clickup-mcp-server/src/services/lists.service.ts"],
+      sourcesContent: [""],
+      version: 3
+    },
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "f94ade14a8686caccb5f3ec91f6238188b333f56"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    // @ts-ignore
+    cov_15z8yaiobf = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_15z8yaiobf();
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6W10sInNvdXJjZXMiOlsiL1VzZXJzL3BldGVya3J6eXplay9EZXZlbG9wbWVudC9jbGlja3VwLW1jcC1zZXJ2ZXIvc3JjL3NlcnZpY2VzL2xpc3RzLnNlcnZpY2UudHMiXSwic291cmNlc0NvbnRlbnQiOlsiIl0sIm1hcHBpbmdzIjoiIiwiaWdub3JlTGlzdCI6W119

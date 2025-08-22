@@ -1,0 +1,383 @@
+a0cfc26045a606801e302f2a88356ae0
+/* istanbul ignore next */
+function cov_k31zflmxh() {
+  var path = "/Users/peterkrzyzek/Development/clickup-mcp-server/src/clickup-client/folders.ts";
+  var hash = "4769f1e14db6eff868bd24d265138ad5811f3c3f";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "/Users/peterkrzyzek/Development/clickup-mcp-server/src/clickup-client/folders.ts",
+    statementMap: {
+      "0": {
+        start: {
+          line: 3,
+          column: 8
+        },
+        end: {
+          line: 3,
+          column: 29
+        }
+      },
+      "1": {
+        start: {
+          line: 12,
+          column: 8
+        },
+        end: {
+          line: 12,
+          column: 67
+        }
+      },
+      "2": {
+        start: {
+          line: 21,
+          column: 8
+        },
+        end: {
+          line: 21,
+          column: 67
+        }
+      },
+      "3": {
+        start: {
+          line: 30,
+          column: 8
+        },
+        end: {
+          line: 30,
+          column: 68
+        }
+      },
+      "4": {
+        start: {
+          line: 39,
+          column: 8
+        },
+        end: {
+          line: 39,
+          column: 62
+        }
+      },
+      "5": {
+        start: {
+          line: 47,
+          column: 8
+        },
+        end: {
+          line: 47,
+          column: 57
+        }
+      },
+      "6": {
+        start: {
+          line: 50,
+          column: 35
+        },
+        end: {
+          line: 52,
+          column: 1
+        }
+      },
+      "7": {
+        start: {
+          line: 51,
+          column: 4
+        },
+        end: {
+          line: 51,
+          column: 37
+        }
+      }
+    },
+    fnMap: {
+      "0": {
+        name: "(anonymous_0)",
+        decl: {
+          start: {
+            line: 2,
+            column: 4
+          },
+          end: {
+            line: 2,
+            column: 5
+          }
+        },
+        loc: {
+          start: {
+            line: 2,
+            column: 24
+          },
+          end: {
+            line: 4,
+            column: 5
+          }
+        },
+        line: 2
+      },
+      "1": {
+        name: "(anonymous_1)",
+        decl: {
+          start: {
+            line: 11,
+            column: 4
+          },
+          end: {
+            line: 11,
+            column: 5
+          }
+        },
+        loc: {
+          start: {
+            line: 11,
+            column: 47
+          },
+          end: {
+            line: 13,
+            column: 5
+          }
+        },
+        line: 11
+      },
+      "2": {
+        name: "(anonymous_2)",
+        decl: {
+          start: {
+            line: 20,
+            column: 4
+          },
+          end: {
+            line: 20,
+            column: 5
+          }
+        },
+        loc: {
+          start: {
+            line: 20,
+            column: 47
+          },
+          end: {
+            line: 22,
+            column: 5
+          }
+        },
+        line: 20
+      },
+      "3": {
+        name: "(anonymous_3)",
+        decl: {
+          start: {
+            line: 29,
+            column: 4
+          },
+          end: {
+            line: 29,
+            column: 5
+          }
+        },
+        loc: {
+          start: {
+            line: 29,
+            column: 40
+          },
+          end: {
+            line: 31,
+            column: 5
+          }
+        },
+        line: 29
+      },
+      "4": {
+        name: "(anonymous_4)",
+        decl: {
+          start: {
+            line: 38,
+            column: 4
+          },
+          end: {
+            line: 38,
+            column: 5
+          }
+        },
+        loc: {
+          start: {
+            line: 38,
+            column: 41
+          },
+          end: {
+            line: 40,
+            column: 5
+          }
+        },
+        line: 38
+      },
+      "5": {
+        name: "(anonymous_5)",
+        decl: {
+          start: {
+            line: 46,
+            column: 4
+          },
+          end: {
+            line: 46,
+            column: 5
+          }
+        },
+        loc: {
+          start: {
+            line: 46,
+            column: 33
+          },
+          end: {
+            line: 48,
+            column: 5
+          }
+        },
+        line: 46
+      },
+      "6": {
+        name: "(anonymous_6)",
+        decl: {
+          start: {
+            line: 50,
+            column: 35
+          },
+          end: {
+            line: 50,
+            column: 36
+          }
+        },
+        loc: {
+          start: {
+            line: 50,
+            column: 47
+          },
+          end: {
+            line: 52,
+            column: 1
+          }
+        },
+        line: 50
+      }
+    },
+    branchMap: {},
+    s: {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 0
+    },
+    f: {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0,
+      "6": 0
+    },
+    b: {},
+    inputSourceMap: {
+      file: "/Users/peterkrzyzek/Development/clickup-mcp-server/src/clickup-client/folders.ts",
+      mappings: "AAsBA,MAAM,OAAO,aAAa;IAGxB,YAAY,MAAqB;QAC/B,IAAI,CAAC,MAAM,GAAG,MAAM,CAAC;IACvB,CAAC;IAED;;;;;OAKG;IACH,KAAK,CAAC,mBAAmB,CAAC,OAAe,EAAE,MAAyB;QAClE,OAAO,IAAI,CAAC,MAAM,CAAC,GAAG,CAAC,UAAU,OAAO,SAAS,EAAE,MAAM,CAAC,CAAC;IAC7D,CAAC;IAED;;;;;OAKG;IACH,KAAK,CAAC,kBAAkB,CAAC,QAAgB,EAAE,MAAuB;QAChE,OAAO,IAAI,CAAC,MAAM,CAAC,GAAG,CAAC,WAAW,QAAQ,OAAO,EAAE,MAAM,CAAC,CAAC;IAC7D,CAAC;IAED;;;;;OAKG;IACH,KAAK,CAAC,YAAY,CAAC,OAAe,EAAE,MAAwB;QAC1D,OAAO,IAAI,CAAC,MAAM,CAAC,IAAI,CAAC,UAAU,OAAO,SAAS,EAAE,MAAM,CAAC,CAAC;IAC9D,CAAC;IAED;;;;;OAKG;IACH,KAAK,CAAC,YAAY,CAAC,QAAgB,EAAE,MAAwB;QAC3D,OAAO,IAAI,CAAC,MAAM,CAAC,GAAG,CAAC,WAAW,QAAQ,EAAE,EAAE,MAAM,CAAC,CAAC;IACxD,CAAC;IAED;;;;OAIG;IACH,KAAK,CAAC,YAAY,CAAC,QAAgB;QACjC,OAAO,IAAI,CAAC,MAAM,CAAC,MAAM,CAAC,WAAW,QAAQ,EAAE,CAAC,CAAC;IACnD,CAAC;CACF;AAED,MAAM,CAAC,MAAM,mBAAmB,GAAG,CAAC,MAAqB,EAAiB,EAAE;IAC1E,OAAO,IAAI,aAAa,CAAC,MAAM,CAAC,CAAC;AACnC,CAAC,CAAC",
+      names: [],
+      sources: ["/Users/peterkrzyzek/Development/clickup-mcp-server/src/clickup-client/folders.ts"],
+      sourcesContent: ["import { ClickUpClient } from './index.js';\n\nexport interface Folder {\n  id: string;\n  name: string;\n  // ...other folder properties...\n}\n\nexport interface GetFoldersParams {\n  // ...parameters for getting folders...\n}\n\nexport interface List {\n  id: string;\n  name: string;\n  // ...other list properties...\n}\n\nexport interface GetListsParams {\n  // ...parameters for getting lists...\n}\n\nexport class FoldersClient {\n  private client: ClickUpClient;\n\n  constructor(client: ClickUpClient) {\n    this.client = client;\n  }\n\n  /**\n   * Get folders from a specific space\n   * @param spaceId The ID of the space to get folders from\n   * @param params Optional parameters for filtering folders\n   * @returns A list of folders\n   */\n  async getFoldersFromSpace(spaceId: string, params?: GetFoldersParams): Promise<{ folders: Folder[] }> {\n    return this.client.get(`/space/${spaceId}/folder`, params);\n  }\n\n  /**\n   * Get lists from a specific folder\n   * @param folderId The ID of the folder to get lists from\n   * @param params Optional parameters for filtering lists\n   * @returns A list of lists\n   */\n  async getListsFromFolder(folderId: string, params?: GetListsParams): Promise<{ lists: List[] }> {\n    return this.client.get(`/folder/${folderId}/list`, params);\n  }\n\n  /**\n   * Create a new folder in a space\n   * @param spaceId The ID of the space to create the folder in\n   * @param params The folder parameters\n   * @returns The created folder\n   */\n  async createFolder(spaceId: string, params: { name: string }): Promise<Folder> {\n    return this.client.post(`/space/${spaceId}/folder`, params);\n  }\n\n  /**\n   * Update an existing folder\n   * @param folderId The ID of the folder to update\n   * @param params The folder parameters to update\n   * @returns The updated folder\n   */\n  async updateFolder(folderId: string, params: { name: string }): Promise<Folder> {\n    return this.client.put(`/folder/${folderId}`, params);\n  }\n\n  /**\n   * Delete a folder\n   * @param folderId The ID of the folder to delete\n   * @returns Success message\n   */\n  async deleteFolder(folderId: string): Promise<{ success: boolean }> {\n    return this.client.delete(`/folder/${folderId}`);\n  }\n}\n\nexport const createFoldersClient = (client: ClickUpClient): FoldersClient => {\n  return new FoldersClient(client);\n};"],
+      version: 3
+    },
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "4769f1e14db6eff868bd24d265138ad5811f3c3f"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    // @ts-ignore
+    cov_k31zflmxh = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_k31zflmxh();
+export class FoldersClient {
+  constructor(client) {
+    /* istanbul ignore next */
+    cov_k31zflmxh().f[0]++;
+    cov_k31zflmxh().s[0]++;
+    this.client = client;
+  }
+  /**
+   * Get folders from a specific space
+   * @param spaceId The ID of the space to get folders from
+   * @param params Optional parameters for filtering folders
+   * @returns A list of folders
+   */
+  async getFoldersFromSpace(spaceId, params) {
+    /* istanbul ignore next */
+    cov_k31zflmxh().f[1]++;
+    cov_k31zflmxh().s[1]++;
+    return this.client.get(`/space/${spaceId}/folder`, params);
+  }
+  /**
+   * Get lists from a specific folder
+   * @param folderId The ID of the folder to get lists from
+   * @param params Optional parameters for filtering lists
+   * @returns A list of lists
+   */
+  async getListsFromFolder(folderId, params) {
+    /* istanbul ignore next */
+    cov_k31zflmxh().f[2]++;
+    cov_k31zflmxh().s[2]++;
+    return this.client.get(`/folder/${folderId}/list`, params);
+  }
+  /**
+   * Create a new folder in a space
+   * @param spaceId The ID of the space to create the folder in
+   * @param params The folder parameters
+   * @returns The created folder
+   */
+  async createFolder(spaceId, params) {
+    /* istanbul ignore next */
+    cov_k31zflmxh().f[3]++;
+    cov_k31zflmxh().s[3]++;
+    return this.client.post(`/space/${spaceId}/folder`, params);
+  }
+  /**
+   * Update an existing folder
+   * @param folderId The ID of the folder to update
+   * @param params The folder parameters to update
+   * @returns The updated folder
+   */
+  async updateFolder(folderId, params) {
+    /* istanbul ignore next */
+    cov_k31zflmxh().f[4]++;
+    cov_k31zflmxh().s[4]++;
+    return this.client.put(`/folder/${folderId}`, params);
+  }
+  /**
+   * Delete a folder
+   * @param folderId The ID of the folder to delete
+   * @returns Success message
+   */
+  async deleteFolder(folderId) {
+    /* istanbul ignore next */
+    cov_k31zflmxh().f[5]++;
+    cov_k31zflmxh().s[5]++;
+    return this.client.delete(`/folder/${folderId}`);
+  }
+}
+/* istanbul ignore next */
+cov_k31zflmxh().s[6]++;
+export const createFoldersClient = client => {
+  /* istanbul ignore next */
+  cov_k31zflmxh().f[6]++;
+  cov_k31zflmxh().s[7]++;
+  return new FoldersClient(client);
+};
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJGb2xkZXJzQ2xpZW50IiwiY29uc3RydWN0b3IiLCJjbGllbnQiLCJjb3ZfazMxemZsbXhoIiwiZiIsInMiLCJnZXRGb2xkZXJzRnJvbVNwYWNlIiwic3BhY2VJZCIsInBhcmFtcyIsImdldCIsImdldExpc3RzRnJvbUZvbGRlciIsImZvbGRlcklkIiwiY3JlYXRlRm9sZGVyIiwicG9zdCIsInVwZGF0ZUZvbGRlciIsInB1dCIsImRlbGV0ZUZvbGRlciIsImRlbGV0ZSIsImNyZWF0ZUZvbGRlcnNDbGllbnQiXSwic291cmNlcyI6WyIvVXNlcnMvcGV0ZXJrcnp5emVrL0RldmVsb3BtZW50L2NsaWNrdXAtbWNwLXNlcnZlci9zcmMvY2xpY2t1cC1jbGllbnQvZm9sZGVycy50cyJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyBDbGlja1VwQ2xpZW50IH0gZnJvbSAnLi9pbmRleC5qcyc7XG5cbmV4cG9ydCBpbnRlcmZhY2UgRm9sZGVyIHtcbiAgaWQ6IHN0cmluZztcbiAgbmFtZTogc3RyaW5nO1xuICAvLyAuLi5vdGhlciBmb2xkZXIgcHJvcGVydGllcy4uLlxufVxuXG5leHBvcnQgaW50ZXJmYWNlIEdldEZvbGRlcnNQYXJhbXMge1xuICAvLyAuLi5wYXJhbWV0ZXJzIGZvciBnZXR0aW5nIGZvbGRlcnMuLi5cbn1cblxuZXhwb3J0IGludGVyZmFjZSBMaXN0IHtcbiAgaWQ6IHN0cmluZztcbiAgbmFtZTogc3RyaW5nO1xuICAvLyAuLi5vdGhlciBsaXN0IHByb3BlcnRpZXMuLi5cbn1cblxuZXhwb3J0IGludGVyZmFjZSBHZXRMaXN0c1BhcmFtcyB7XG4gIC8vIC4uLnBhcmFtZXRlcnMgZm9yIGdldHRpbmcgbGlzdHMuLi5cbn1cblxuZXhwb3J0IGNsYXNzIEZvbGRlcnNDbGllbnQge1xuICBwcml2YXRlIGNsaWVudDogQ2xpY2tVcENsaWVudDtcblxuICBjb25zdHJ1Y3RvcihjbGllbnQ6IENsaWNrVXBDbGllbnQpIHtcbiAgICB0aGlzLmNsaWVudCA9IGNsaWVudDtcbiAgfVxuXG4gIC8qKlxuICAgKiBHZXQgZm9sZGVycyBmcm9tIGEgc3BlY2lmaWMgc3BhY2VcbiAgICogQHBhcmFtIHNwYWNlSWQgVGhlIElEIG9mIHRoZSBzcGFjZSB0byBnZXQgZm9sZGVycyBmcm9tXG4gICAqIEBwYXJhbSBwYXJhbXMgT3B0aW9uYWwgcGFyYW1ldGVycyBmb3IgZmlsdGVyaW5nIGZvbGRlcnNcbiAgICogQHJldHVybnMgQSBsaXN0IG9mIGZvbGRlcnNcbiAgICovXG4gIGFzeW5jIGdldEZvbGRlcnNGcm9tU3BhY2Uoc3BhY2VJZDogc3RyaW5nLCBwYXJhbXM/OiBHZXRGb2xkZXJzUGFyYW1zKTogUHJvbWlzZTx7IGZvbGRlcnM6IEZvbGRlcltdIH0+IHtcbiAgICByZXR1cm4gdGhpcy5jbGllbnQuZ2V0KGAvc3BhY2UvJHtzcGFjZUlkfS9mb2xkZXJgLCBwYXJhbXMpO1xuICB9XG5cbiAgLyoqXG4gICAqIEdldCBsaXN0cyBmcm9tIGEgc3BlY2lmaWMgZm9sZGVyXG4gICAqIEBwYXJhbSBmb2xkZXJJZCBUaGUgSUQgb2YgdGhlIGZvbGRlciB0byBnZXQgbGlzdHMgZnJvbVxuICAgKiBAcGFyYW0gcGFyYW1zIE9wdGlvbmFsIHBhcmFtZXRlcnMgZm9yIGZpbHRlcmluZyBsaXN0c1xuICAgKiBAcmV0dXJucyBBIGxpc3Qgb2YgbGlzdHNcbiAgICovXG4gIGFzeW5jIGdldExpc3RzRnJvbUZvbGRlcihmb2xkZXJJZDogc3RyaW5nLCBwYXJhbXM/OiBHZXRMaXN0c1BhcmFtcyk6IFByb21pc2U8eyBsaXN0czogTGlzdFtdIH0+IHtcbiAgICByZXR1cm4gdGhpcy5jbGllbnQuZ2V0KGAvZm9sZGVyLyR7Zm9sZGVySWR9L2xpc3RgLCBwYXJhbXMpO1xuICB9XG5cbiAgLyoqXG4gICAqIENyZWF0ZSBhIG5ldyBmb2xkZXIgaW4gYSBzcGFjZVxuICAgKiBAcGFyYW0gc3BhY2VJZCBUaGUgSUQgb2YgdGhlIHNwYWNlIHRvIGNyZWF0ZSB0aGUgZm9sZGVyIGluXG4gICAqIEBwYXJhbSBwYXJhbXMgVGhlIGZvbGRlciBwYXJhbWV0ZXJzXG4gICAqIEByZXR1cm5zIFRoZSBjcmVhdGVkIGZvbGRlclxuICAgKi9cbiAgYXN5bmMgY3JlYXRlRm9sZGVyKHNwYWNlSWQ6IHN0cmluZywgcGFyYW1zOiB7IG5hbWU6IHN0cmluZyB9KTogUHJvbWlzZTxGb2xkZXI+IHtcbiAgICByZXR1cm4gdGhpcy5jbGllbnQucG9zdChgL3NwYWNlLyR7c3BhY2VJZH0vZm9sZGVyYCwgcGFyYW1zKTtcbiAgfVxuXG4gIC8qKlxuICAgKiBVcGRhdGUgYW4gZXhpc3RpbmcgZm9sZGVyXG4gICAqIEBwYXJhbSBmb2xkZXJJZCBUaGUgSUQgb2YgdGhlIGZvbGRlciB0byB1cGRhdGVcbiAgICogQHBhcmFtIHBhcmFtcyBUaGUgZm9sZGVyIHBhcmFtZXRlcnMgdG8gdXBkYXRlXG4gICAqIEByZXR1cm5zIFRoZSB1cGRhdGVkIGZvbGRlclxuICAgKi9cbiAgYXN5bmMgdXBkYXRlRm9sZGVyKGZvbGRlcklkOiBzdHJpbmcsIHBhcmFtczogeyBuYW1lOiBzdHJpbmcgfSk6IFByb21pc2U8Rm9sZGVyPiB7XG4gICAgcmV0dXJuIHRoaXMuY2xpZW50LnB1dChgL2ZvbGRlci8ke2ZvbGRlcklkfWAsIHBhcmFtcyk7XG4gIH1cblxuICAvKipcbiAgICogRGVsZXRlIGEgZm9sZGVyXG4gICAqIEBwYXJhbSBmb2xkZXJJZCBUaGUgSUQgb2YgdGhlIGZvbGRlciB0byBkZWxldGVcbiAgICogQHJldHVybnMgU3VjY2VzcyBtZXNzYWdlXG4gICAqL1xuICBhc3luYyBkZWxldGVGb2xkZXIoZm9sZGVySWQ6IHN0cmluZyk6IFByb21pc2U8eyBzdWNjZXNzOiBib29sZWFuIH0+IHtcbiAgICByZXR1cm4gdGhpcy5jbGllbnQuZGVsZXRlKGAvZm9sZGVyLyR7Zm9sZGVySWR9YCk7XG4gIH1cbn1cblxuZXhwb3J0IGNvbnN0IGNyZWF0ZUZvbGRlcnNDbGllbnQgPSAoY2xpZW50OiBDbGlja1VwQ2xpZW50KTogRm9sZGVyc0NsaWVudCA9PiB7XG4gIHJldHVybiBuZXcgRm9sZGVyc0NsaWVudChjbGllbnQpO1xufTsiXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztBQXNCQSxPQUFNLE1BQU9BLGFBQWE7RUFHeEJDLFlBQVlDLE1BQXFCO0lBQUE7SUFBQUMsYUFBQSxHQUFBQyxDQUFBO0lBQUFELGFBQUEsR0FBQUUsQ0FBQTtJQUMvQixJQUFJLENBQUNILE1BQU0sR0FBR0EsTUFBTTtFQUN0QjtFQUVBOzs7Ozs7RUFNQSxNQUFNSSxtQkFBbUJBLENBQUNDLE9BQWUsRUFBRUMsTUFBeUI7SUFBQTtJQUFBTCxhQUFBLEdBQUFDLENBQUE7SUFBQUQsYUFBQSxHQUFBRSxDQUFBO0lBQ2xFLE9BQU8sSUFBSSxDQUFDSCxNQUFNLENBQUNPLEdBQUcsQ0FBQyxVQUFVRixPQUFPLFNBQVMsRUFBRUMsTUFBTSxDQUFDO0VBQzVEO0VBRUE7Ozs7OztFQU1BLE1BQU1FLGtCQUFrQkEsQ0FBQ0MsUUFBZ0IsRUFBRUgsTUFBdUI7SUFBQTtJQUFBTCxhQUFBLEdBQUFDLENBQUE7SUFBQUQsYUFBQSxHQUFBRSxDQUFBO0lBQ2hFLE9BQU8sSUFBSSxDQUFDSCxNQUFNLENBQUNPLEdBQUcsQ0FBQyxXQUFXRSxRQUFRLE9BQU8sRUFBRUgsTUFBTSxDQUFDO0VBQzVEO0VBRUE7Ozs7OztFQU1BLE1BQU1JLFlBQVlBLENBQUNMLE9BQWUsRUFBRUMsTUFBd0I7SUFBQTtJQUFBTCxhQUFBLEdBQUFDLENBQUE7SUFBQUQsYUFBQSxHQUFBRSxDQUFBO0lBQzFELE9BQU8sSUFBSSxDQUFDSCxNQUFNLENBQUNXLElBQUksQ0FBQyxVQUFVTixPQUFPLFNBQVMsRUFBRUMsTUFBTSxDQUFDO0VBQzdEO0VBRUE7Ozs7OztFQU1BLE1BQU1NLFlBQVlBLENBQUNILFFBQWdCLEVBQUVILE1BQXdCO0lBQUE7SUFBQUwsYUFBQSxHQUFBQyxDQUFBO0lBQUFELGFBQUEsR0FBQUUsQ0FBQTtJQUMzRCxPQUFPLElBQUksQ0FBQ0gsTUFBTSxDQUFDYSxHQUFHLENBQUMsV0FBV0osUUFBUSxFQUFFLEVBQUVILE1BQU0sQ0FBQztFQUN2RDtFQUVBOzs7OztFQUtBLE1BQU1RLFlBQVlBLENBQUNMLFFBQWdCO0lBQUE7SUFBQVIsYUFBQSxHQUFBQyxDQUFBO0lBQUFELGFBQUEsR0FBQUUsQ0FBQTtJQUNqQyxPQUFPLElBQUksQ0FBQ0gsTUFBTSxDQUFDZSxNQUFNLENBQUMsV0FBV04sUUFBUSxFQUFFLENBQUM7RUFDbEQ7O0FBQ0Q7QUFBQVIsYUFBQSxHQUFBRSxDQUFBO0FBRUQsT0FBTyxNQUFNYSxtQkFBbUIsR0FBSWhCLE1BQXFCLElBQW1CO0VBQUE7RUFBQUMsYUFBQSxHQUFBQyxDQUFBO0VBQUFELGFBQUEsR0FBQUUsQ0FBQTtFQUMxRSxPQUFPLElBQUlMLGFBQWEsQ0FBQ0UsTUFBTSxDQUFDO0FBQ2xDLENBQUMiLCJpZ25vcmVMaXN0IjpbXX0=

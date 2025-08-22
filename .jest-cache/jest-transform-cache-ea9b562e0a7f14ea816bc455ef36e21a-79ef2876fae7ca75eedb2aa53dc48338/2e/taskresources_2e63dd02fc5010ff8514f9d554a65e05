@@ -1,0 +1,435 @@
+70307a39825d6dd6c5bb6a20245e11b7
+/* istanbul ignore next */
+function cov_ea10xlsym() {
+  var path = "/Users/peterkrzyzek/Development/clickup-mcp-server/src/resources/task-resources.ts";
+  var hash = "3fc827d1fb526cc36f0fcc3a78f80d4d2504ba45";
+  var global = new Function("return this")();
+  var gcv = "__coverage__";
+  var coverageData = {
+    path: "/Users/peterkrzyzek/Development/clickup-mcp-server/src/resources/task-resources.ts",
+    statementMap: {
+      "0": {
+        start: {
+          line: 5,
+          column: 22
+        },
+        end: {
+          line: 5,
+          column: 43
+        }
+      },
+      "1": {
+        start: {
+          line: 6,
+          column: 20
+        },
+        end: {
+          line: 6,
+          column: 52
+        }
+      },
+      "2": {
+        start: {
+          line: 9,
+          column: 4
+        },
+        end: {
+          line: 31,
+          column: 7
+        }
+      },
+      "3": {
+        start: {
+          line: 12,
+          column: 8
+        },
+        end: {
+          line: 30,
+          column: 9
+        }
+      },
+      "4": {
+        start: {
+          line: 13,
+          column: 28
+        },
+        end: {
+          line: 13,
+          column: 42
+        }
+      },
+      "5": {
+        start: {
+          line: 14,
+          column: 12
+        },
+        end: {
+          line: 14,
+          column: 67
+        }
+      },
+      "6": {
+        start: {
+          line: 15,
+          column: 25
+        },
+        end: {
+          line: 15,
+          column: 59
+        }
+      },
+      "7": {
+        start: {
+          line: 16,
+          column: 12
+        },
+        end: {
+          line: 16,
+          column: 59
+        }
+      },
+      "8": {
+        start: {
+          line: 17,
+          column: 12
+        },
+        end: {
+          line: 25,
+          column: 14
+        }
+      },
+      "9": {
+        start: {
+          line: 28,
+          column: 12
+        },
+        end: {
+          line: 28,
+          column: 73
+        }
+      },
+      "10": {
+        start: {
+          line: 29,
+          column: 12
+        },
+        end: {
+          line: 29,
+          column: 69
+        }
+      },
+      "11": {
+        start: {
+          line: 33,
+          column: 4
+        },
+        end: {
+          line: 55,
+          column: 7
+        }
+      },
+      "12": {
+        start: {
+          line: 36,
+          column: 8
+        },
+        end: {
+          line: 54,
+          column: 9
+        }
+      },
+      "13": {
+        start: {
+          line: 37,
+          column: 28
+        },
+        end: {
+          line: 37,
+          column: 39
+        }
+      },
+      "14": {
+        start: {
+          line: 38,
+          column: 12
+        },
+        end: {
+          line: 38,
+          column: 75
+        }
+      },
+      "15": {
+        start: {
+          line: 39,
+          column: 25
+        },
+        end: {
+          line: 39,
+          column: 59
+        }
+      },
+      "16": {
+        start: {
+          line: 40,
+          column: 12
+        },
+        end: {
+          line: 40,
+          column: 59
+        }
+      },
+      "17": {
+        start: {
+          line: 41,
+          column: 12
+        },
+        end: {
+          line: 49,
+          column: 14
+        }
+      },
+      "18": {
+        start: {
+          line: 52,
+          column: 12
+        },
+        end: {
+          line: 52,
+          column: 81
+        }
+      },
+      "19": {
+        start: {
+          line: 53,
+          column: 12
+        },
+        end: {
+          line: 53,
+          column: 77
+        }
+      }
+    },
+    fnMap: {
+      "0": {
+        name: "setupTaskResources",
+        decl: {
+          start: {
+            line: 7,
+            column: 16
+          },
+          end: {
+            line: 7,
+            column: 34
+          }
+        },
+        loc: {
+          start: {
+            line: 7,
+            column: 43
+          },
+          end: {
+            line: 56,
+            column: 1
+          }
+        },
+        line: 7
+      },
+      "1": {
+        name: "(anonymous_1)",
+        decl: {
+          start: {
+            line: 11,
+            column: 7
+          },
+          end: {
+            line: 11,
+            column: 8
+          }
+        },
+        loc: {
+          start: {
+            line: 11,
+            column: 30
+          },
+          end: {
+            line: 31,
+            column: 5
+          }
+        },
+        line: 11
+      },
+      "2": {
+        name: "(anonymous_2)",
+        decl: {
+          start: {
+            line: 35,
+            column: 7
+          },
+          end: {
+            line: 35,
+            column: 8
+          }
+        },
+        loc: {
+          start: {
+            line: 35,
+            column: 22
+          },
+          end: {
+            line: 55,
+            column: 5
+          }
+        },
+        line: 35
+      }
+    },
+    branchMap: {},
+    s: {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 0,
+      "6": 0,
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "10": 0,
+      "11": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "15": 0,
+      "16": 0,
+      "17": 0,
+      "18": 0,
+      "19": 0
+    },
+    f: {
+      "0": 0,
+      "1": 0,
+      "2": 0
+    },
+    b: {},
+    inputSourceMap: {
+      file: "/Users/peterkrzyzek/Development/clickup-mcp-server/src/resources/task-resources.ts",
+      mappings: "AAAA,OAAO,EAAa,gBAAgB,EAAE,MAAM,yCAAyC,CAAC;AACtF,OAAO,EAAE,mBAAmB,EAAE,MAAM,4BAA4B,CAAC;AACjE,OAAO,EAAE,iBAAiB,EAAE,MAAM,4BAA4B,CAAC;AAE/D,iBAAiB;AACjB,MAAM,aAAa,GAAG,mBAAmB,EAAE,CAAC;AAC5C,MAAM,WAAW,GAAG,iBAAiB,CAAC,aAAa,CAAC,CAAC;AAErD,MAAM,UAAU,kBAAkB,CAAC,MAAiB;IAClD,iCAAiC;IACjC,MAAM,CAAC,QAAQ,CACb,cAAc,EACd,IAAI,gBAAgB,CAAC,0BAA0B,EAAE,EAAE,IAAI,EAAE,SAAS,EAAE,CAAC,EACrE;QACE,WAAW,EAAE,wHAAwH;KACtI,EACD,KAAK,EAAE,GAAG,EAAE,MAAM,EAAE,EAAE;QACpB,IAAI,CAAC;YACH,MAAM,OAAO,GAAG,MAAM,CAAC,OAAiB,CAAC;YACzC,OAAO,CAAC,GAAG,CAAC,gCAAgC,EAAE,OAAO,CAAC,CAAC;YACvD,MAAM,IAAI,GAAG,MAAM,WAAW,CAAC,OAAO,CAAC,OAAO,CAAC,CAAC;YAChD,OAAO,CAAC,GAAG,CAAC,2BAA2B,EAAE,IAAI,CAAC,CAAC;YAE/C,OAAO;gBACL,QAAQ,EAAE;oBACR;wBACE,GAAG,EAAE,GAAG,CAAC,QAAQ,EAAE;wBACnB,QAAQ,EAAE,kBAAkB;wBAC5B,IAAI,EAAE,IAAI,CAAC,SAAS,CAAC,IAAI,EAAE,IAAI,EAAE,CAAC,CAAC;qBACpC;iBACF;aACF,CAAC;QACJ,CAAC;QAAC,OAAO,KAAU,EAAE,CAAC;YACpB,OAAO,CAAC,KAAK,CAAC,sCAAsC,EAAE,KAAK,CAAC,CAAC;YAC7D,MAAM,IAAI,KAAK,CAAC,wBAAwB,KAAK,CAAC,OAAO,EAAE,CAAC,CAAC;QAC3D,CAAC;IACH,CAAC,CACF,CAAC;IAEF,wDAAwD;IACxD,MAAM,CAAC,QAAQ,CACb,cAAc,EACd,0BAA0B,EAC1B;QACE,WAAW,EAAE,iEAAiE;KAC/E,EACD,KAAK,EAAE,GAAG,EAAE,EAAE;QACZ,IAAI,CAAC;YACH,MAAM,OAAO,GAAG,WAAW,CAAC;YAC5B,OAAO,CAAC,GAAG,CAAC,wCAAwC,EAAE,OAAO,CAAC,CAAC;YAC/D,MAAM,IAAI,GAAG,MAAM,WAAW,CAAC,OAAO,CAAC,OAAO,CAAC,CAAC;YAChD,OAAO,CAAC,GAAG,CAAC,2BAA2B,EAAE,IAAI,CAAC,CAAC;YAE/C,OAAO;gBACL,QAAQ,EAAE;oBACR;wBACE,GAAG,EAAE,GAAG,CAAC,QAAQ,EAAE;wBACnB,QAAQ,EAAE,kBAAkB;wBAC5B,IAAI,EAAE,IAAI,CAAC,SAAS,CAAC,IAAI,EAAE,IAAI,EAAE,CAAC,CAAC;qBACpC;iBACF;aACF,CAAC;QACJ,CAAC;QAAC,OAAO,KAAU,EAAE,CAAC;YACpB,OAAO,CAAC,KAAK,CAAC,8CAA8C,EAAE,KAAK,CAAC,CAAC;YACrE,MAAM,IAAI,KAAK,CAAC,gCAAgC,KAAK,CAAC,OAAO,EAAE,CAAC,CAAC;QACnE,CAAC;IACH,CAAC,CACF,CAAC;AACJ,CAAC",
+      names: [],
+      sources: ["/Users/peterkrzyzek/Development/clickup-mcp-server/src/resources/task-resources.ts"],
+      sourcesContent: ["import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';\nimport { createClickUpClient } from '../clickup-client/index.js';\nimport { createTasksClient } from '../clickup-client/tasks.js';\n\n// Create clients\nconst clickUpClient = createClickUpClient();\nconst tasksClient = createTasksClient(clickUpClient);\n\nexport function setupTaskResources(server: McpServer): void {\n  // Register task details resource\n  server.resource(\n    'task-details',\n    new ResourceTemplate('clickup://task/{task_id}', { list: undefined }),\n    {\n      description: 'Get detailed information about a specific ClickUp task, including its name, description, assignees, status, and dates.'\n    },\n    async (uri, params) => {\n      try {\n        const task_id = params.task_id as string;\n        console.log('[TaskResources] Fetching task:', task_id);\n        const task = await tasksClient.getTask(task_id);\n        console.log('[TaskResources] Got task:', task);\n        \n        return {\n          contents: [\n            {\n              uri: uri.toString(),\n              mimeType: 'application/json',\n              text: JSON.stringify(task, null, 2),\n            },\n          ],\n        };\n      } catch (error: any) {\n        console.error('[TaskResources] Error fetching task:', error);\n        throw new Error(`Error fetching task: ${error.message}`);\n      }\n    }\n  );\n\n  // Add some example static resources for discoverability\n  server.resource(\n    'example-task',\n    'clickup://task/86rkjvttt',\n    {\n      description: 'An example task resource demonstrating the task details format.'\n    },\n    async (uri) => {\n      try {\n        const task_id = '86rkjvttt';\n        console.log('[TaskResources] Fetching example task:', task_id);\n        const task = await tasksClient.getTask(task_id);\n        console.log('[TaskResources] Got task:', task);\n        \n        return {\n          contents: [\n            {\n              uri: uri.toString(),\n              mimeType: 'application/json',\n              text: JSON.stringify(task, null, 2),\n            },\n          ],\n        };\n      } catch (error: any) {\n        console.error('[TaskResources] Error fetching example task:', error);\n        throw new Error(`Error fetching example task: ${error.message}`);\n      }\n    }\n  );\n}\n"],
+      version: 3
+    },
+    _coverageSchema: "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    hash: "3fc827d1fb526cc36f0fcc3a78f80d4d2504ba45"
+  };
+  var coverage = global[gcv] || (global[gcv] = {});
+  if (!coverage[path] || coverage[path].hash !== hash) {
+    coverage[path] = coverageData;
+  }
+  var actualCoverage = coverage[path];
+  {
+    // @ts-ignore
+    cov_ea10xlsym = function () {
+      return actualCoverage;
+    };
+  }
+  return actualCoverage;
+}
+cov_ea10xlsym();
+import { ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { createClickUpClient } from '../clickup-client/index.js';
+import { createTasksClient } from '../clickup-client/tasks.js';
+// Create clients
+const clickUpClient =
+/* istanbul ignore next */
+(cov_ea10xlsym().s[0]++, createClickUpClient());
+const tasksClient =
+/* istanbul ignore next */
+(cov_ea10xlsym().s[1]++, createTasksClient(clickUpClient));
+export function setupTaskResources(server) {
+  /* istanbul ignore next */
+  cov_ea10xlsym().f[0]++;
+  cov_ea10xlsym().s[2]++;
+  // Register task details resource
+  server.resource('task-details', new ResourceTemplate('clickup://task/{task_id}', {
+    list: undefined
+  }), {
+    description: 'Get detailed information about a specific ClickUp task, including its name, description, assignees, status, and dates.'
+  }, async (uri, params) => {
+    /* istanbul ignore next */
+    cov_ea10xlsym().f[1]++;
+    cov_ea10xlsym().s[3]++;
+    try {
+      const task_id =
+      /* istanbul ignore next */
+      (cov_ea10xlsym().s[4]++, params.task_id);
+      /* istanbul ignore next */
+      cov_ea10xlsym().s[5]++;
+      console.log('[TaskResources] Fetching task:', task_id);
+      const task =
+      /* istanbul ignore next */
+      (cov_ea10xlsym().s[6]++, await tasksClient.getTask(task_id));
+      /* istanbul ignore next */
+      cov_ea10xlsym().s[7]++;
+      console.log('[TaskResources] Got task:', task);
+      /* istanbul ignore next */
+      cov_ea10xlsym().s[8]++;
+      return {
+        contents: [{
+          uri: uri.toString(),
+          mimeType: 'application/json',
+          text: JSON.stringify(task, null, 2)
+        }]
+      };
+    } catch (error) {
+      /* istanbul ignore next */
+      cov_ea10xlsym().s[9]++;
+      console.error('[TaskResources] Error fetching task:', error);
+      /* istanbul ignore next */
+      cov_ea10xlsym().s[10]++;
+      throw new Error(`Error fetching task: ${error.message}`);
+    }
+  });
+  // Add some example static resources for discoverability
+  /* istanbul ignore next */
+  cov_ea10xlsym().s[11]++;
+  server.resource('example-task', 'clickup://task/86rkjvttt', {
+    description: 'An example task resource demonstrating the task details format.'
+  }, async uri => {
+    /* istanbul ignore next */
+    cov_ea10xlsym().f[2]++;
+    cov_ea10xlsym().s[12]++;
+    try {
+      const task_id =
+      /* istanbul ignore next */
+      (cov_ea10xlsym().s[13]++, '86rkjvttt');
+      /* istanbul ignore next */
+      cov_ea10xlsym().s[14]++;
+      console.log('[TaskResources] Fetching example task:', task_id);
+      const task =
+      /* istanbul ignore next */
+      (cov_ea10xlsym().s[15]++, await tasksClient.getTask(task_id));
+      /* istanbul ignore next */
+      cov_ea10xlsym().s[16]++;
+      console.log('[TaskResources] Got task:', task);
+      /* istanbul ignore next */
+      cov_ea10xlsym().s[17]++;
+      return {
+        contents: [{
+          uri: uri.toString(),
+          mimeType: 'application/json',
+          text: JSON.stringify(task, null, 2)
+        }]
+      };
+    } catch (error) {
+      /* istanbul ignore next */
+      cov_ea10xlsym().s[18]++;
+      console.error('[TaskResources] Error fetching example task:', error);
+      /* istanbul ignore next */
+      cov_ea10xlsym().s[19]++;
+      throw new Error(`Error fetching example task: ${error.message}`);
+    }
+  });
+}
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJuYW1lcyI6WyJjb3ZfZWExMHhsc3ltIiwiYWN0dWFsQ292ZXJhZ2UiLCJSZXNvdXJjZVRlbXBsYXRlIiwiY3JlYXRlQ2xpY2tVcENsaWVudCIsImNyZWF0ZVRhc2tzQ2xpZW50IiwiY2xpY2tVcENsaWVudCIsInMiLCJ0YXNrc0NsaWVudCIsInNldHVwVGFza1Jlc291cmNlcyIsInNlcnZlciIsImYiLCJyZXNvdXJjZSIsImxpc3QiLCJ1bmRlZmluZWQiLCJkZXNjcmlwdGlvbiIsInVyaSIsInBhcmFtcyIsInRhc2tfaWQiLCJjb25zb2xlIiwibG9nIiwidGFzayIsImdldFRhc2siLCJjb250ZW50cyIsInRvU3RyaW5nIiwibWltZVR5cGUiLCJ0ZXh0IiwiSlNPTiIsInN0cmluZ2lmeSIsImVycm9yIiwiRXJyb3IiLCJtZXNzYWdlIl0sInNvdXJjZXMiOlsiL1VzZXJzL3BldGVya3J6eXplay9EZXZlbG9wbWVudC9jbGlja3VwLW1jcC1zZXJ2ZXIvc3JjL3Jlc291cmNlcy90YXNrLXJlc291cmNlcy50cyJdLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyBNY3BTZXJ2ZXIsIFJlc291cmNlVGVtcGxhdGUgfSBmcm9tICdAbW9kZWxjb250ZXh0cHJvdG9jb2wvc2RrL3NlcnZlci9tY3AuanMnO1xuaW1wb3J0IHsgY3JlYXRlQ2xpY2tVcENsaWVudCB9IGZyb20gJy4uL2NsaWNrdXAtY2xpZW50L2luZGV4LmpzJztcbmltcG9ydCB7IGNyZWF0ZVRhc2tzQ2xpZW50IH0gZnJvbSAnLi4vY2xpY2t1cC1jbGllbnQvdGFza3MuanMnO1xuXG4vLyBDcmVhdGUgY2xpZW50c1xuY29uc3QgY2xpY2tVcENsaWVudCA9IGNyZWF0ZUNsaWNrVXBDbGllbnQoKTtcbmNvbnN0IHRhc2tzQ2xpZW50ID0gY3JlYXRlVGFza3NDbGllbnQoY2xpY2tVcENsaWVudCk7XG5cbmV4cG9ydCBmdW5jdGlvbiBzZXR1cFRhc2tSZXNvdXJjZXMoc2VydmVyOiBNY3BTZXJ2ZXIpOiB2b2lkIHtcbiAgLy8gUmVnaXN0ZXIgdGFzayBkZXRhaWxzIHJlc291cmNlXG4gIHNlcnZlci5yZXNvdXJjZShcbiAgICAndGFzay1kZXRhaWxzJyxcbiAgICBuZXcgUmVzb3VyY2VUZW1wbGF0ZSgnY2xpY2t1cDovL3Rhc2sve3Rhc2tfaWR9JywgeyBsaXN0OiB1bmRlZmluZWQgfSksXG4gICAge1xuICAgICAgZGVzY3JpcHRpb246ICdHZXQgZGV0YWlsZWQgaW5mb3JtYXRpb24gYWJvdXQgYSBzcGVjaWZpYyBDbGlja1VwIHRhc2ssIGluY2x1ZGluZyBpdHMgbmFtZSwgZGVzY3JpcHRpb24sIGFzc2lnbmVlcywgc3RhdHVzLCBhbmQgZGF0ZXMuJ1xuICAgIH0sXG4gICAgYXN5bmMgKHVyaSwgcGFyYW1zKSA9PiB7XG4gICAgICB0cnkge1xuICAgICAgICBjb25zdCB0YXNrX2lkID0gcGFyYW1zLnRhc2tfaWQgYXMgc3RyaW5nO1xuICAgICAgICBjb25zb2xlLmxvZygnW1Rhc2tSZXNvdXJjZXNdIEZldGNoaW5nIHRhc2s6JywgdGFza19pZCk7XG4gICAgICAgIGNvbnN0IHRhc2sgPSBhd2FpdCB0YXNrc0NsaWVudC5nZXRUYXNrKHRhc2tfaWQpO1xuICAgICAgICBjb25zb2xlLmxvZygnW1Rhc2tSZXNvdXJjZXNdIEdvdCB0YXNrOicsIHRhc2spO1xuICAgICAgICBcbiAgICAgICAgcmV0dXJuIHtcbiAgICAgICAgICBjb250ZW50czogW1xuICAgICAgICAgICAge1xuICAgICAgICAgICAgICB1cmk6IHVyaS50b1N0cmluZygpLFxuICAgICAgICAgICAgICBtaW1lVHlwZTogJ2FwcGxpY2F0aW9uL2pzb24nLFxuICAgICAgICAgICAgICB0ZXh0OiBKU09OLnN0cmluZ2lmeSh0YXNrLCBudWxsLCAyKSxcbiAgICAgICAgICAgIH0sXG4gICAgICAgICAgXSxcbiAgICAgICAgfTtcbiAgICAgIH0gY2F0Y2ggKGVycm9yOiBhbnkpIHtcbiAgICAgICAgY29uc29sZS5lcnJvcignW1Rhc2tSZXNvdXJjZXNdIEVycm9yIGZldGNoaW5nIHRhc2s6JywgZXJyb3IpO1xuICAgICAgICB0aHJvdyBuZXcgRXJyb3IoYEVycm9yIGZldGNoaW5nIHRhc2s6ICR7ZXJyb3IubWVzc2FnZX1gKTtcbiAgICAgIH1cbiAgICB9XG4gICk7XG5cbiAgLy8gQWRkIHNvbWUgZXhhbXBsZSBzdGF0aWMgcmVzb3VyY2VzIGZvciBkaXNjb3ZlcmFiaWxpdHlcbiAgc2VydmVyLnJlc291cmNlKFxuICAgICdleGFtcGxlLXRhc2snLFxuICAgICdjbGlja3VwOi8vdGFzay84NnJranZ0dHQnLFxuICAgIHtcbiAgICAgIGRlc2NyaXB0aW9uOiAnQW4gZXhhbXBsZSB0YXNrIHJlc291cmNlIGRlbW9uc3RyYXRpbmcgdGhlIHRhc2sgZGV0YWlscyBmb3JtYXQuJ1xuICAgIH0sXG4gICAgYXN5bmMgKHVyaSkgPT4ge1xuICAgICAgdHJ5IHtcbiAgICAgICAgY29uc3QgdGFza19pZCA9ICc4NnJranZ0dHQnO1xuICAgICAgICBjb25zb2xlLmxvZygnW1Rhc2tSZXNvdXJjZXNdIEZldGNoaW5nIGV4YW1wbGUgdGFzazonLCB0YXNrX2lkKTtcbiAgICAgICAgY29uc3QgdGFzayA9IGF3YWl0IHRhc2tzQ2xpZW50LmdldFRhc2sodGFza19pZCk7XG4gICAgICAgIGNvbnNvbGUubG9nKCdbVGFza1Jlc291cmNlc10gR290IHRhc2s6JywgdGFzayk7XG4gICAgICAgIFxuICAgICAgICByZXR1cm4ge1xuICAgICAgICAgIGNvbnRlbnRzOiBbXG4gICAgICAgICAgICB7XG4gICAgICAgICAgICAgIHVyaTogdXJpLnRvU3RyaW5nKCksXG4gICAgICAgICAgICAgIG1pbWVUeXBlOiAnYXBwbGljYXRpb24vanNvbicsXG4gICAgICAgICAgICAgIHRleHQ6IEpTT04uc3RyaW5naWZ5KHRhc2ssIG51bGwsIDIpLFxuICAgICAgICAgICAgfSxcbiAgICAgICAgICBdLFxuICAgICAgICB9O1xuICAgICAgfSBjYXRjaCAoZXJyb3I6IGFueSkge1xuICAgICAgICBjb25zb2xlLmVycm9yKCdbVGFza1Jlc291cmNlc10gRXJyb3IgZmV0Y2hpbmcgZXhhbXBsZSB0YXNrOicsIGVycm9yKTtcbiAgICAgICAgdGhyb3cgbmV3IEVycm9yKGBFcnJvciBmZXRjaGluZyBleGFtcGxlIHRhc2s6ICR7ZXJyb3IubWVzc2FnZX1gKTtcbiAgICAgIH1cbiAgICB9XG4gICk7XG59XG4iXSwibWFwcGluZ3MiOiI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OztJQXFCUTtJQUFBQSxhQUFBLFlBQUFBLENBQUE7TUFBQSxPQUFBQyxjQUFBO0lBQUE7RUFBQTtFQUFBLE9BQUFBLGNBQUE7QUFBQTtBQUFBRCxhQUFBO0FBckJSLFNBQW9CRSxnQkFBZ0IsUUFBUSx5Q0FBeUM7QUFDckYsU0FBU0MsbUJBQW1CLFFBQVEsNEJBQTRCO0FBQ2hFLFNBQVNDLGlCQUFpQixRQUFRLDRCQUE0QjtBQUU5RDtBQUNBLE1BQU1DLGFBQWE7QUFBQTtBQUFBLENBQUFMLGFBQUEsR0FBQU0sQ0FBQSxPQUFHSCxtQkFBbUIsRUFBRTtBQUMzQyxNQUFNSSxXQUFXO0FBQUE7QUFBQSxDQUFBUCxhQUFBLEdBQUFNLENBQUEsT0FBR0YsaUJBQWlCLENBQUNDLGFBQWEsQ0FBQztBQUVwRCxPQUFNLFNBQVVHLGtCQUFrQkEsQ0FBQ0MsTUFBaUI7RUFBQTtFQUFBVCxhQUFBLEdBQUFVLENBQUE7RUFB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

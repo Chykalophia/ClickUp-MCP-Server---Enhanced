@@ -30,7 +30,7 @@ class ClickUpServer {
   constructor() {
     this.server = new McpServer({
       name: 'clickup-mcp-server',
-      version: '3.0.0', // Updated version for comprehensive ClickUp API coverage
+      version: '3.3.0', // Updated version for comprehensive ClickUp API coverage
     });
     
     // Handle process termination

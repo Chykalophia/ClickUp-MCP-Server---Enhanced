@@ -43,7 +43,7 @@ class EfficiencyEnhancedClickUpServer {
   constructor() {
     this.server = new McpServer({
       name: 'clickup-mcp-server-efficiency',
-      version: '3.2.0',
+      version: '3.3.0',
     });
     
     this.client = createClickUpClient();

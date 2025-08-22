@@ -1,6 +1,6 @@
 {
   "name": "@chykalophia/clickup-mcp-server",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "An intelligent Model Context Protocol server for ClickUp API integration with 170+ tools, AI-powered efficiency optimization, smart tool suggestions, and context-aware workflow recommendations",
   "main": "build/index-enhanced.js",
   "bin": {

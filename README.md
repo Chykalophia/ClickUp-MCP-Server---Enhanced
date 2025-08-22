@@ -21,7 +21,7 @@ A comprehensive Model Context Protocol (MCP) server that provides a standardized
 - **Backward Compatible**: Existing plain text content continues to work unchanged
 
 ### 🛠️ **Comprehensive API Coverage**
-- **98 Total Tools** covering 100% of major ClickUp API endpoints
+- **120+ Total Tools** covering 100% of major ClickUp API endpoints
 - **Task Management**: Complete CRUD operations with markdown descriptions
 - **Comment System**: Rich formatted comments with threading support
 - **Advanced Features**: Webhooks, views, dependencies, attachments, time tracking, and goals
@@ -249,7 +249,7 @@ npm run test:coverage
 - **Performance**: <1% overhead with efficient processing
 
 ### API Coverage
-- **98 Total Tools**: Complete coverage of ClickUp API endpoints
+- **120+ Total Tools**: Complete coverage of ClickUp API endpoints
 - **8 Major Categories**: Tasks, comments, docs, webhooks, views, dependencies, attachments, time tracking
 - **Production Ready**: Comprehensive error handling and monitoring
 

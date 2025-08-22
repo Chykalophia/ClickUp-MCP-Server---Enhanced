@@ -22,7 +22,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'get_time_entries',
+    'clickup_get_time_entries',
     'Get time entries for a team with filtering options. Supports filtering by date range, user, task, and project.',
     {
       team_id: z.string().min(1).describe('The ID of the team to get time entries for'),
@@ -69,7 +69,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
   );
 
   server.tool(
-    'create_time_entry',
+    'clickup_create_time_entry',
     'Create a new time entry for time tracking. Can be used for manual time logging or creating timer-based entries.',
     {
       team_id: z.string().min(1).describe('The ID of the team to create the time entry for'),
@@ -116,7 +116,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
   );
 
   server.tool(
-    'update_time_entry',
+    'clickup_update_time_entry',
     'Update an existing time entry. Can modify description, times, billable status, and associated task.',
     {
       team_id: z.string().min(1).describe('The ID of the team'),
@@ -162,7 +162,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
   );
 
   server.tool(
-    'delete_time_entry',
+    'clickup_delete_time_entry',
     'Delete a time entry from ClickUp. This action cannot be undone.',
     {
       team_id: z.string().min(1).describe('The ID of the team'),
@@ -193,7 +193,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'get_running_timers',
+    'clickup_get_running_timers',
     'Get currently running timers for a team. Shows active time tracking sessions.',
     {
       team_id: z.string().min(1).describe('The ID of the team to get running timers for'),
@@ -220,7 +220,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
   );
 
   server.tool(
-    'start_timer',
+    'clickup_start_timer',
     'Start a timer for time tracking. Creates an active time tracking session.',
     {
       team_id: z.string().min(1).describe('The ID of the team'),
@@ -248,7 +248,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
   );
 
   server.tool(
-    'stop_timer',
+    'clickup_stop_timer',
     'Stop a running timer. Ends the active time tracking session and records the duration.',
     {
       team_id: z.string().min(1).describe('The ID of the team'),
@@ -280,7 +280,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'get_time_summary',
+    'clickup_get_time_summary',
     'Get time tracking summary and analytics. Provides aggregated time data with breakdowns by user and task.',
     {
       team_id: z.string().min(1).describe('The ID of the team to get time summary for'),
@@ -337,7 +337,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'create_timer_entry',
+    'clickup_create_timer_entry',
     'Create a new time entry and immediately start the timer. Convenient for starting time tracking in one step.',
     {
       team_id: z.string().min(1).describe('The ID of the team'),
@@ -381,7 +381,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
   );
 
   server.tool(
-    'format_duration',
+    'clickup_format_duration',
     'Format a duration from milliseconds to human-readable format. Useful for displaying time tracking data.',
     {
       milliseconds: z.number().min(0).describe('Duration in milliseconds'),

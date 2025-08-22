@@ -17,7 +17,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'get_doc_content',
+    'clickup_get_doc_content',
     'Get the content of a specific ClickUp doc. Returns combined content from all pages in the doc.',
     {
       workspace_id: z.string().min(1).describe('The ID of the workspace containing the doc'),
@@ -51,7 +51,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
   );
 
   server.tool(
-    'search_docs',
+    'clickup_search_docs',
     'Search for docs in a ClickUp workspace using a query string. Returns matching docs with their metadata.',
     {
       workspace_id: z.string().min(1).describe('The ID of the workspace to search in'),
@@ -75,7 +75,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_docs_from_workspace',
+    'clickup_get_docs_from_workspace',
     'Get all docs from a ClickUp workspace. Supports pagination and filtering for deleted/archived docs.',
     {
       workspace_id: z.string().min(1).describe('The ID of the workspace to get docs from'),
@@ -107,7 +107,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_doc_pages',
+    'clickup_get_doc_pages',
     'Get the pages of a specific ClickUp doc. Returns page content in the requested format (markdown or plain text).',
     {
       workspace_id: z.string().min(1).describe('The ID of the workspace containing the doc'),
@@ -135,7 +135,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'create_doc',
+    'clickup_create_doc',
     'Create a new document in ClickUp. Can be created in a workspace, space, or folder. Supports template-based creation.',
     {
       workspace_id: z.string().optional().describe('The ID of the workspace to create the document in'),
@@ -183,7 +183,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
   );
 
   server.tool(
-    'update_doc',
+    'clickup_update_doc',
     'Update an existing ClickUp document. Can update name, content, and sharing settings.',
     {
       doc_id: z.string().min(1).describe('The ID of the document to update'),
@@ -224,7 +224,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
   );
 
   server.tool(
-    'delete_doc',
+    'clickup_delete_doc',
     'Delete a ClickUp document. This action cannot be undone.',
     {
       doc_id: z.string().min(1).describe('The ID of the document to delete')
@@ -250,7 +250,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_doc',
+    'clickup_get_doc',
     'Get detailed information about a specific ClickUp document including metadata and sharing settings.',
     {
       doc_id: z.string().min(1).describe('The ID of the document to get')
@@ -280,7 +280,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'create_doc_page',
+    'clickup_create_doc_page',
     'Create a new page in a ClickUp document. Supports markdown and HTML content formats.',
     {
       doc_id: z.string().min(1).describe('The ID of the document to create the page in'),
@@ -317,7 +317,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
   );
 
   server.tool(
-    'update_doc_page',
+    'clickup_update_doc_page',
     'Update an existing page in a ClickUp document. Can update name, content, format, and position.',
     {
       doc_id: z.string().min(1).describe('The ID of the document containing the page'),
@@ -361,7 +361,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
   );
 
   server.tool(
-    'delete_doc_page',
+    'clickup_delete_doc_page',
     'Delete a page from a ClickUp document. This action cannot be undone.',
     {
       doc_id: z.string().min(1).describe('The ID of the document containing the page'),
@@ -392,7 +392,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'get_doc_sharing',
+    'clickup_get_doc_sharing',
     'Get the sharing settings for a ClickUp document.',
     {
       doc_id: z.string().min(1).describe('The ID of the document to get sharing settings for')
@@ -418,7 +418,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
   );
 
   server.tool(
-    'update_doc_sharing',
+    'clickup_update_doc_sharing',
     'Update the sharing settings for a ClickUp document.',
     {
       doc_id: z.string().min(1).describe('The ID of the document to update sharing settings for'),
@@ -468,7 +468,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'create_doc_from_template',
+    'clickup_create_doc_from_template',
     'Create a new document from a ClickUp template.',
     {
       template_id: z.string().min(1).describe('The ID of the template to use'),

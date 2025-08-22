@@ -12,7 +12,7 @@ export function setupHelperTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'suggest_tools_for_task',
+    'clickup_suggest_tools_for_task',
     'Get intelligent tool suggestions for a given task or request. Provides the most efficient tool path and alternatives.',
     {
       request: z.string().min(1).describe('Description of what you want to accomplish'),
@@ -65,7 +65,7 @@ ${args.context?.known_ids ? `\n### 🔑 Available IDs\n${Object.entries(args.con
   // ========================================
 
   server.tool(
-    'find_chat_channels',
+    'clickup_find_chat_channels',
     'Efficiently find chat channels across workspaces. More efficient than hierarchical navigation.',
     {
       workspace_id: z.string().optional().describe('Specific workspace ID to search in'),
@@ -156,7 +156,7 @@ create_chat_view_comment(view_id="CHANNEL_ID", comment_text="Your message")
   // ========================================
 
   server.tool(
-    'search_views_by_name',
+    'clickup_search_views_by_name',
     'Search for views by name across spaces. More efficient than browsing all views.',
     {
       workspace_id: z.string().optional().describe('Workspace to search in'),
@@ -229,7 +229,7 @@ ${matchingViews.map(view =>
   // ========================================
 
   server.tool(
-    'get_workspace_overview',
+    'clickup_get_workspace_overview',
     'Get a comprehensive overview of a workspace structure in a single efficient call. Better than multiple navigation calls.',
     {
       workspace_id: z.string().min(1).describe('The workspace ID to get overview for'),
@@ -370,7 +370,7 @@ ${overview.chat_channels.length > 0 ?
   // ========================================
 
   server.tool(
-    'analyze_tool_efficiency',
+    'clickup_analyze_tool_efficiency',
     'Analyze the efficiency of a planned tool sequence and get optimization suggestions.',
     {
       planned_tools: z.array(z.string()).min(1).describe('Array of tool names you plan to use'),

@@ -10,7 +10,7 @@ const checklistsClient = createChecklistsClient(clickUpClient);
 export function setupChecklistTools(server: McpServer): void {
   // Register create_checklist tool
   server.tool(
-    'create_checklist',
+    'clickup_create_checklist',
     'Create a new checklist in a ClickUp task. Returns the created checklist details.',
     {
       task_id: z.string().describe('The ID of the task to create the checklist in'),
@@ -35,7 +35,7 @@ export function setupChecklistTools(server: McpServer): void {
 
   // Register update_checklist tool
   server.tool(
-    'update_checklist',
+    'clickup_update_checklist',
     'Update an existing ClickUp checklist\'s name.',
     {
       checklist_id: z.string().describe('The ID of the checklist to update'),
@@ -60,7 +60,7 @@ export function setupChecklistTools(server: McpServer): void {
 
   // Register delete_checklist tool
   server.tool(
-    'delete_checklist',
+    'clickup_delete_checklist',
     'Delete a checklist from a ClickUp task. Removes the checklist and all its items.',
     {
       checklist_id: z.string().describe('The ID of the checklist to delete')
@@ -84,7 +84,7 @@ export function setupChecklistTools(server: McpServer): void {
 
   // Register create_checklist_item tool
   server.tool(
-    'create_checklist_item',
+    'clickup_create_checklist_item',
     'Create a new item in a ClickUp checklist. Supports optional assignee and resolved status.',
     {
       checklist_id: z.string().describe('The ID of the checklist to create the item in'),
@@ -115,7 +115,7 @@ export function setupChecklistTools(server: McpServer): void {
 
   // Register update_checklist_item tool
   server.tool(
-    'update_checklist_item',
+    'clickup_update_checklist_item',
     'Update an existing ClickUp checklist item\'s properties including name, assignee, and resolved status.',
     {
       checklist_id: z.string().describe('The ID of the checklist containing the item'),
@@ -148,7 +148,7 @@ export function setupChecklistTools(server: McpServer): void {
 
   // Register delete_checklist_item tool
   server.tool(
-    'delete_checklist_item',
+    'clickup_delete_checklist_item',
     'Delete an item from a ClickUp checklist.',
     {
       checklist_id: z.string().describe('The ID of the checklist containing the item'),

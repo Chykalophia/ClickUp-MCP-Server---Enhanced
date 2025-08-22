@@ -24,7 +24,7 @@ export function setupAttachmentsTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'upload_attachment',
+    'clickup_upload_attachment',
     'Upload a new attachment to a task, comment, doc, or chat. Supports direct file upload or URL-based upload.',
     {
       parent_id: z.string().min(1).describe('The ID of the parent (task, comment, doc, or chat)'),
@@ -60,7 +60,7 @@ export function setupAttachmentsTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_attachments',
+    'clickup_get_attachments',
     'Get all attachments for a parent object with filtering and pagination options.',
     {
       parent_id: z.string().min(1).describe('The ID of the parent object'),
@@ -97,7 +97,7 @@ export function setupAttachmentsTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_attachment_info',
+    'clickup_get_attachment_info',
     'Get detailed information about a specific attachment including download and preview capabilities.',
     {
       attachment_id: z.string().min(1).describe('The ID of the attachment to get info for')
@@ -125,7 +125,7 @@ export function setupAttachmentsTools(server: McpServer): void {
   );
 
   server.tool(
-    'update_attachment_metadata',
+    'clickup_update_attachment_metadata',
     'Update attachment metadata including filename, description, and tags.',
     {
       attachment_id: z.string().min(1).describe('The ID of the attachment to update'),
@@ -157,7 +157,7 @@ export function setupAttachmentsTools(server: McpServer): void {
   );
 
   server.tool(
-    'delete_attachment',
+    'clickup_delete_attachment',
     'Delete an attachment from ClickUp. This action cannot be undone.',
     {
       attachment_id: z.string().min(1).describe('The ID of the attachment to delete')
@@ -185,7 +185,7 @@ export function setupAttachmentsTools(server: McpServer): void {
   );
 
   server.tool(
-    'download_attachment',
+    'clickup_download_attachment',
     'Get download information for an attachment including temporary download URL.',
     {
       attachment_id: z.string().min(1).describe('The ID of the attachment to download')
@@ -217,7 +217,7 @@ export function setupAttachmentsTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'search_attachments',
+    'clickup_search_attachments',
     'Search for attachments across a workspace with advanced filtering options.',
     {
       workspace_id: z.string().min(1).describe('The ID of the workspace to search in'),
@@ -268,7 +268,7 @@ export function setupAttachmentsTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_attachment_stats',
+    'clickup_get_attachment_stats',
     'Get comprehensive statistics about attachments in a workspace.',
     {
       workspace_id: z.string().min(1).describe('The ID of the workspace')
@@ -296,7 +296,7 @@ export function setupAttachmentsTools(server: McpServer): void {
   );
 
   server.tool(
-    'update_attachment_sharing',
+    'clickup_update_attachment_sharing',
     'Update sharing settings for an attachment including access level and password protection.',
     {
       attachment_id: z.string().min(1).describe('The ID of the attachment to update sharing for'),
@@ -328,7 +328,7 @@ export function setupAttachmentsTools(server: McpServer): void {
   );
 
   server.tool(
-    'copy_attachment',
+    'clickup_copy_attachment',
     'Copy an attachment to another parent object (task, comment, doc, or chat).',
     {
       attachment_id: z.string().min(1).describe('The ID of the attachment to copy'),
@@ -362,7 +362,7 @@ export function setupAttachmentsTools(server: McpServer): void {
   );
 
   server.tool(
-    'move_attachment',
+    'clickup_move_attachment',
     'Move an attachment to another parent object (task, comment, doc, or chat).',
     {
       attachment_id: z.string().min(1).describe('The ID of the attachment to move'),
@@ -396,7 +396,7 @@ export function setupAttachmentsTools(server: McpServer): void {
   );
 
   server.tool(
-    'generate_attachment_thumbnail',
+    'clickup_generate_attachment_thumbnail',
     'Generate a thumbnail for an image or video attachment with custom dimensions.',
     {
       attachment_id: z.string().min(1).describe('The ID of the attachment to generate thumbnail for'),
@@ -431,7 +431,7 @@ export function setupAttachmentsTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_attachment_versions',
+    'clickup_get_attachment_versions',
     'Get version history for an attachment showing all uploaded versions.',
     {
       attachment_id: z.string().min(1).describe('The ID of the attachment to get versions for')
@@ -459,7 +459,7 @@ export function setupAttachmentsTools(server: McpServer): void {
   );
 
   server.tool(
-    'bulk_attachment_operations',
+    'clickup_bulk_attachment_operations',
     'Perform bulk operations on multiple attachments for efficiency.',
     {
       operation: z.enum(['delete', 'move', 'copy', 'update_tags']).describe('The bulk operation to perform'),

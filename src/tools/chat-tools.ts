@@ -29,7 +29,7 @@ export function setupChatTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'get_chat_channels',
+    'clickup_get_chat_channels',
     'Retrieve all chat channels in a workspace with optional filtering by type and archived status.',
     {
       workspace_id: z.string().min(1).describe('The ID of the workspace to get channels from'),
@@ -60,7 +60,7 @@ export function setupChatTools(server: McpServer): void {
   );
 
   server.tool(
-    'create_chat_channel',
+    'clickup_create_chat_channel',
     'Create a new chat channel in a workspace with specified name, description, and privacy settings.',
     {
       workspace_id: z.string().min(1).describe('The ID of the workspace to create the channel in'),
@@ -94,7 +94,7 @@ export function setupChatTools(server: McpServer): void {
   );
 
   server.tool(
-    'create_chat_channel_on_parent',
+    'clickup_create_chat_channel_on_parent',
     'Create a chat channel on a specific space, folder, or list for contextual discussions.',
     {
       parent_id: z.string().min(1).describe('The ID of the parent (space, folder, or list)'),
@@ -129,7 +129,7 @@ export function setupChatTools(server: McpServer): void {
   );
 
   server.tool(
-    'create_direct_message',
+    'clickup_create_direct_message',
     'Create a direct message channel between specific users for private conversations.',
     {
       workspace_id: z.string().min(1).describe('The ID of the workspace'),
@@ -160,7 +160,7 @@ export function setupChatTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_chat_channel',
+    'clickup_get_chat_channel',
     'Retrieve detailed information about a specific chat channel by its ID.',
     {
       channel_id: z.string().min(1).describe('The ID of the channel to retrieve')
@@ -188,7 +188,7 @@ export function setupChatTools(server: McpServer): void {
   );
 
   server.tool(
-    'update_chat_channel',
+    'clickup_update_chat_channel',
     'Update a chat channel\'s name, description, or privacy settings.',
     {
       channel_id: z.string().min(1).describe('The ID of the channel to update'),
@@ -224,7 +224,7 @@ export function setupChatTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'get_chat_channel_followers',
+    'clickup_get_chat_channel_followers',
     'Retrieve all followers of a chat channel who receive notifications about channel activity.',
     {
       channel_id: z.string().min(1).describe('The ID of the channel to get followers for')
@@ -252,7 +252,7 @@ export function setupChatTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_chat_channel_members',
+    'clickup_get_chat_channel_members',
     'Retrieve all members of a chat channel with their roles and join dates.',
     {
       channel_id: z.string().min(1).describe('The ID of the channel to get members for')
@@ -280,7 +280,7 @@ export function setupChatTools(server: McpServer): void {
   );
 
   server.tool(
-    'add_chat_channel_member',
+    'clickup_add_chat_channel_member',
     'Add a user as a member to a chat channel.',
     {
       channel_id: z.string().min(1).describe('The ID of the channel'),
@@ -310,7 +310,7 @@ export function setupChatTools(server: McpServer): void {
   );
 
   server.tool(
-    'remove_chat_channel_member',
+    'clickup_remove_chat_channel_member',
     'Remove a user from a chat channel membership.',
     {
       channel_id: z.string().min(1).describe('The ID of the channel'),
@@ -344,7 +344,7 @@ export function setupChatTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'get_chat_channel_messages',
+    'clickup_get_chat_channel_messages',
     'Retrieve messages from a chat channel with pagination and filtering options.',
     {
       channel_id: z.string().min(1).describe('The ID of the channel to get messages from'),
@@ -376,7 +376,7 @@ export function setupChatTools(server: McpServer): void {
   );
 
   server.tool(
-    'send_chat_message',
+    'clickup_send_chat_message',
     'Send a message to a chat channel with optional mentions and attachments.',
     {
       channel_id: z.string().min(1).describe('The ID of the channel to send the message to'),
@@ -409,7 +409,7 @@ export function setupChatTools(server: McpServer): void {
   );
 
   server.tool(
-    'update_chat_message',
+    'clickup_update_chat_message',
     'Update the text content and mentions of an existing chat message.',
     {
       channel_id: z.string().min(1).describe('The ID of the channel containing the message'),
@@ -441,7 +441,7 @@ export function setupChatTools(server: McpServer): void {
   );
 
   server.tool(
-    'delete_chat_message',
+    'clickup_delete_chat_message',
     'Delete a message from a chat channel. This action cannot be undone.',
     {
       channel_id: z.string().min(1).describe('The ID of the channel containing the message'),
@@ -474,7 +474,7 @@ export function setupChatTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'get_chat_message_replies',
+    'clickup_get_chat_message_replies',
     'Retrieve all replies to a specific message in a chat channel.',
     {
       channel_id: z.string().min(1).describe('The ID of the channel containing the message'),
@@ -507,7 +507,7 @@ export function setupChatTools(server: McpServer): void {
   );
 
   server.tool(
-    'create_chat_message_reply',
+    'clickup_create_chat_message_reply',
     'Create a reply to a specific message in a chat channel.',
     {
       channel_id: z.string().min(1).describe('The ID of the channel containing the message'),
@@ -544,7 +544,7 @@ export function setupChatTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'get_chat_message_reactions',
+    'clickup_get_chat_message_reactions',
     'Retrieve all reactions on a specific message in a chat channel.',
     {
       channel_id: z.string().min(1).describe('The ID of the channel containing the message'),
@@ -573,7 +573,7 @@ export function setupChatTools(server: McpServer): void {
   );
 
   server.tool(
-    'create_chat_message_reaction',
+    'clickup_create_chat_message_reaction',
     'Add a reaction to a message in a chat channel.',
     {
       channel_id: z.string().min(1).describe('The ID of the channel containing the message'),
@@ -604,7 +604,7 @@ export function setupChatTools(server: McpServer): void {
   );
 
   server.tool(
-    'delete_chat_message_reaction',
+    'clickup_delete_chat_message_reaction',
     'Remove a reaction from a message in a chat channel.',
     {
       channel_id: z.string().min(1).describe('The ID of the channel containing the message'),
@@ -639,7 +639,7 @@ export function setupChatTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'get_chat_message_tagged_users',
+    'clickup_get_chat_message_tagged_users',
     'Retrieve all users tagged/mentioned in a specific message.',
     {
       channel_id: z.string().min(1).describe('The ID of the channel containing the message'),
@@ -668,7 +668,7 @@ export function setupChatTools(server: McpServer): void {
   );
 
   server.tool(
-    'search_chat_channels',
+    'clickup_search_chat_channels',
     'Search for chat channels by name within a workspace.',
     {
       workspace_id: z.string().min(1).describe('The ID of the workspace to search in'),
@@ -697,7 +697,7 @@ export function setupChatTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_chat_channel_stats',
+    'clickup_get_chat_channel_stats',
     'Get statistics for a chat channel including message count, member count, and last activity.',
     {
       channel_id: z.string().min(1).describe('The ID of the channel to get statistics for')
@@ -725,7 +725,7 @@ export function setupChatTools(server: McpServer): void {
   );
 
   server.tool(
-    'mark_chat_channel_as_read',
+    'clickup_mark_chat_channel_as_read',
     'Mark all messages in a chat channel as read for the current user.',
     {
       channel_id: z.string().min(1).describe('The ID of the channel to mark as read')
@@ -753,7 +753,7 @@ export function setupChatTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_chat_channel_unread_count',
+    'clickup_get_chat_channel_unread_count',
     'Get the number of unread messages in a chat channel for the current user.',
     {
       channel_id: z.string().min(1).describe('The ID of the channel to get unread count for')

@@ -24,7 +24,7 @@ export function setupDependenciesTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'create_dependency',
+    'clickup_create_dependency',
     'Create a new dependency relationship between two tasks. Dependencies define task execution order and blocking relationships.',
     {
       task_id: z.string().min(1).describe('The ID of the task that depends on another'),
@@ -56,7 +56,7 @@ export function setupDependenciesTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_task_dependencies',
+    'clickup_get_task_dependencies',
     'Get all dependencies for a specific task with optional filtering by type and status.',
     {
       task_id: z.string().min(1).describe('The ID of the task to get dependencies for'),
@@ -88,7 +88,7 @@ export function setupDependenciesTools(server: McpServer): void {
   );
 
   server.tool(
-    'update_dependency',
+    'clickup_update_dependency',
     'Update an existing dependency\'s type or status.',
     {
       dependency_id: z.string().min(1).describe('The ID of the dependency to update'),
@@ -119,7 +119,7 @@ export function setupDependenciesTools(server: McpServer): void {
   );
 
   server.tool(
-    'delete_dependency',
+    'clickup_delete_dependency',
     'Delete a dependency relationship between tasks.',
     {
       dependency_id: z.string().min(1).describe('The ID of the dependency to delete')
@@ -147,7 +147,7 @@ export function setupDependenciesTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_dependency_graph',
+    'clickup_get_dependency_graph',
     'Get a comprehensive dependency graph for a task showing all related dependencies and relationships.',
     {
       task_id: z.string().min(1).describe('The root task ID for the dependency graph'),
@@ -180,7 +180,7 @@ export function setupDependenciesTools(server: McpServer): void {
   );
 
   server.tool(
-    'check_dependency_conflicts',
+    'clickup_check_dependency_conflicts',
     'Check for potential conflicts in task dependencies including circular dependencies and invalid relationships.',
     {
       task_id: z.string().min(1).describe('The task ID to check for conflicts'),
@@ -217,7 +217,7 @@ export function setupDependenciesTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'get_workspace_dependencies',
+    'clickup_get_workspace_dependencies',
     'Get all dependencies in a workspace with filtering and pagination options.',
     {
       workspace_id: z.string().min(1).describe('The ID of the workspace'),
@@ -254,7 +254,7 @@ export function setupDependenciesTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_dependency_stats',
+    'clickup_get_dependency_stats',
     'Get comprehensive statistics about dependencies in a workspace.',
     {
       workspace_id: z.string().min(1).describe('The ID of the workspace')
@@ -282,7 +282,7 @@ export function setupDependenciesTools(server: McpServer): void {
   );
 
   server.tool(
-    'resolve_dependency_conflicts',
+    'clickup_resolve_dependency_conflicts',
     'Automatically resolve dependency conflicts such as circular dependencies and invalid statuses.',
     {
       task_id: z.string().min(1).describe('The task ID to resolve conflicts for'),
@@ -317,7 +317,7 @@ export function setupDependenciesTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_dependency_timeline_impact',
+    'clickup_get_dependency_timeline_impact',
     'Analyze how dependencies affect task timelines and identify critical path impacts.',
     {
       task_id: z.string().min(1).describe('The task ID to analyze timeline impact for')
@@ -345,7 +345,7 @@ export function setupDependenciesTools(server: McpServer): void {
   );
 
   server.tool(
-    'bulk_dependency_operations',
+    'clickup_bulk_dependency_operations',
     'Perform multiple dependency operations in a single request for efficiency.',
     {
       operation: z.enum(['create', 'delete', 'update']).describe('The bulk operation to perform'),
@@ -375,7 +375,7 @@ export function setupDependenciesTools(server: McpServer): void {
   );
 
   server.tool(
-    'export_dependency_graph',
+    'clickup_export_dependency_graph',
     'Export dependency graph data in various formats for external analysis or backup.',
     {
       task_id: z.string().min(1).describe('The root task ID for the dependency graph to export'),

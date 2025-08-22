@@ -10,7 +10,7 @@ const spacesClient = createSpacesClient(clickUpClient);
 export function setupSpaceTools(server: McpServer): void {
   // Register get_spaces tool
   server.tool(
-    'get_spaces',
+    'clickup_get_spaces',
     'Get spaces from a ClickUp workspace. Returns space details including name, settings, and features.',
     { workspace_id: z.string().describe('The ID of the workspace to get spaces from') },
     async ({ workspace_id }) => {
@@ -34,7 +34,7 @@ export function setupSpaceTools(server: McpServer): void {
 
   // Register get_space tool
   server.tool(
-    'get_space',
+    'clickup_get_space',
     'Get details about a specific ClickUp space. Returns space name, settings, features, and metadata.',
     { space_id: z.string().describe('The ID of the space to get') },
     async ({ space_id }) => {

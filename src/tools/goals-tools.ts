@@ -22,7 +22,7 @@ export function setupGoalsTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'get_goals',
+    'clickup_get_goals',
     'Get goals for a team with optional filtering. Returns goal details including progress, targets, and team members.',
     {
       team_id: z.string().min(1).describe('The ID of the team to get goals for'),
@@ -49,7 +49,7 @@ export function setupGoalsTools(server: McpServer): void {
   );
 
   server.tool(
-    'create_goal',
+    'clickup_create_goal',
     'Create a new goal with targets and deadlines. Supports team collaboration with multiple owners.',
     {
       team_id: z.string().min(1).describe('The ID of the team to create the goal for'),
@@ -98,7 +98,7 @@ export function setupGoalsTools(server: McpServer): void {
   );
 
   server.tool(
-    'update_goal',
+    'clickup_update_goal',
     'Update an existing goal. Can modify name, description, due date, owners, and color.',
     {
       goal_id: z.string().min(1).describe('The ID of the goal to update'),
@@ -147,7 +147,7 @@ export function setupGoalsTools(server: McpServer): void {
   );
 
   server.tool(
-    'delete_goal',
+    'clickup_delete_goal',
     'Delete a goal from ClickUp. This action cannot be undone and will remove all associated targets.',
     {
       goal_id: z.string().min(1).describe('The ID of the goal to delete')
@@ -173,7 +173,7 @@ export function setupGoalsTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_goal',
+    'clickup_get_goal',
     'Get detailed information about a specific goal including all targets and progress data.',
     {
       goal_id: z.string().min(1).describe('The ID of the goal to retrieve')
@@ -215,7 +215,7 @@ export function setupGoalsTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'create_goal_target',
+    'clickup_create_goal_target',
     'Create a target (key result) for a goal. Supports different target types: number, currency, boolean, task, and list.',
     {
       goal_id: z.string().min(1).describe('The ID of the goal to add the target to'),
@@ -258,7 +258,7 @@ export function setupGoalsTools(server: McpServer): void {
   );
 
   server.tool(
-    'update_goal_target',
+    'clickup_update_goal_target',
     'Update an existing goal target. Can modify name, target value, unit, and tracking parameters.',
     {
       goal_id: z.string().min(1).describe('The ID of the goal'),
@@ -298,7 +298,7 @@ export function setupGoalsTools(server: McpServer): void {
   );
 
   server.tool(
-    'delete_goal_target',
+    'clickup_delete_goal_target',
     'Delete a target from a goal. This action cannot be undone.',
     {
       goal_id: z.string().min(1).describe('The ID of the goal'),
@@ -329,7 +329,7 @@ export function setupGoalsTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'get_goal_summary',
+    'clickup_get_goal_summary',
     'Get comprehensive goal analytics and summary for a team. Includes progress statistics, status breakdown, and upcoming deadlines.',
     {
       team_id: z.string().min(1).describe('The ID of the team to get goal summary for')
@@ -359,7 +359,7 @@ export function setupGoalsTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'create_number_goal',
+    'clickup_create_number_goal',
     'Create a number-based goal with a target. Convenient helper for creating numeric goals like task counts or metrics.',
     {
       team_id: z.string().min(1).describe('The ID of the team'),
@@ -410,7 +410,7 @@ export function setupGoalsTools(server: McpServer): void {
   );
 
   server.tool(
-    'create_currency_goal',
+    'clickup_create_currency_goal',
     'Create a currency-based goal with a monetary target. Convenient helper for creating revenue or budget goals.',
     {
       team_id: z.string().min(1).describe('The ID of the team'),
@@ -464,7 +464,7 @@ export function setupGoalsTools(server: McpServer): void {
   );
 
   server.tool(
-    'format_goal_progress',
+    'clickup_format_goal_progress',
     'Format goal progress information for human-readable display. Useful for reporting and dashboards.',
     {
       goal_id: z.string().min(1).describe('The ID of the goal to format')

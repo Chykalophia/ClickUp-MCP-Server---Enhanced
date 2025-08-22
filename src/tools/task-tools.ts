@@ -16,7 +16,7 @@ const authClient = createAuthClient(clickUpClient);
 export function setupTaskTools(server: McpServer): void {
   // Workspace and Auth tools
   server.tool(
-    'get_workspace_seats',
+    'clickup_get_workspace_seats',
     'Get information about seats (user licenses) in a ClickUp workspace. Returns details about seat allocation and availability.',
     { workspace_id: z.string().describe('The ID of the workspace to get seats information for') },
     async ({ workspace_id }) => {
@@ -36,7 +36,7 @@ export function setupTaskTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_workspaces',
+    'clickup_get_workspaces',
     'Get a list of all ClickUp workspaces accessible to the authenticated user. Returns workspace IDs, names, and metadata.',
     {},
     async () => {
@@ -57,7 +57,7 @@ export function setupTaskTools(server: McpServer): void {
 
   // Task tools
   server.tool(
-    'get_tasks',
+    'clickup_get_tasks',
     'Get tasks from a ClickUp list. Returns task details including name, description, assignees, and status.',
     {
       list_id: z.string().describe('The ID of the list to get tasks from'),
@@ -84,7 +84,7 @@ export function setupTaskTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_task_details',
+    'clickup_get_task_details',
     'Get detailed information about a specific ClickUp task. Returns comprehensive task data including description, assignees, status, and dates.',
     {
       task_id: z.string().describe('The ID of the task to get'),
@@ -107,7 +107,7 @@ export function setupTaskTools(server: McpServer): void {
   );
 
   server.tool(
-    'create_task',
+    'clickup_create_task',
     'Create a new task in a ClickUp list with specified properties like name, description, assignees, status, and dates. Supports GitHub Flavored Markdown in description field.',
     {
       list_id: z.string().describe('The ID of the list to create the task in'),
@@ -142,7 +142,7 @@ export function setupTaskTools(server: McpServer): void {
   );
 
   server.tool(
-    'update_task',
+    'clickup_update_task',
     'Update an existing ClickUp task\'s properties including name, description, assignees, status, and dates. Supports GitHub Flavored Markdown in description field.',
     {
       task_id: z.string().describe('The ID of the task to update'),
@@ -176,7 +176,7 @@ export function setupTaskTools(server: McpServer): void {
 
   // List and Folder tools
   server.tool(
-    'get_lists',
+    'clickup_get_lists',
     'Get lists from a ClickUp folder or space. Returns list details including name and content.',
     {
       container_type: z.enum(['folder', 'space']).describe('The type of container to get lists from'),
@@ -207,7 +207,7 @@ export function setupTaskTools(server: McpServer): void {
   );
 
   server.tool(
-    'create_folder',
+    'clickup_create_folder',
     'Create a new folder in a ClickUp space with the specified name.',
     {
       space_id: z.string().describe('The ID of the space to create the folder in'),
@@ -230,7 +230,7 @@ export function setupTaskTools(server: McpServer): void {
   );
 
   server.tool(
-    'update_folder',
+    'clickup_update_folder',
     'Update an existing ClickUp folder\'s name.',
     {
       folder_id: z.string().describe('The ID of the folder to update'),
@@ -253,7 +253,7 @@ export function setupTaskTools(server: McpServer): void {
   );
 
   server.tool(
-    'delete_folder',
+    'clickup_delete_folder',
     'Delete a folder from ClickUp. Removes the folder and its contents.',
     {
       folder_id: z.string().describe('The ID of the folder to delete')
@@ -275,7 +275,7 @@ export function setupTaskTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_folderless_lists',
+    'clickup_get_folderless_lists',
     'Get lists that are not in any folder within a ClickUp space.',
     {
       space_id: z.string().describe('The ID of the space to get folderless lists from')
@@ -297,7 +297,7 @@ export function setupTaskTools(server: McpServer): void {
   );
 
   server.tool(
-    'create_list',
+    'clickup_create_list',
     'Create a new list in a ClickUp folder or space with the specified name.',
     {
       container_type: z.enum(['folder', 'space']).describe('The type of container to create the list in'),
@@ -329,7 +329,7 @@ export function setupTaskTools(server: McpServer): void {
   );
 
   server.tool(
-    'create_folderless_list',
+    'clickup_create_folderless_list',
     'Create a new list directly in a ClickUp space without placing it in a folder.',
     {
       space_id: z.string().describe('The ID of the space to create the folderless list in'),
@@ -352,7 +352,7 @@ export function setupTaskTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_list',
+    'clickup_get_list',
     'Get details about a specific ClickUp list including its name and content.',
     {
       list_id: z.string().describe('The ID of the list to get')
@@ -374,7 +374,7 @@ export function setupTaskTools(server: McpServer): void {
   );
 
   server.tool(
-    'update_list',
+    'clickup_update_list',
     'Update an existing ClickUp list\'s name.',
     {
       list_id: z.string().describe('The ID of the list to update'),
@@ -397,7 +397,7 @@ export function setupTaskTools(server: McpServer): void {
   );
 
   server.tool(
-    'delete_list',
+    'clickup_delete_list',
     'Delete a list from ClickUp. Removes the list and its tasks.',
     {
       list_id: z.string().describe('The ID of the list to delete')
@@ -419,7 +419,7 @@ export function setupTaskTools(server: McpServer): void {
   );
 
   server.tool(
-    'add_task_to_list',
+    'clickup_add_task_to_list',
     'Add an existing task to a ClickUp list.',
     {
       list_id: z.string().describe('The ID of the list to add the task to'),
@@ -442,7 +442,7 @@ export function setupTaskTools(server: McpServer): void {
   );
 
   server.tool(
-    'remove_task_from_list',
+    'clickup_remove_task_from_list',
     'Remove a task from a ClickUp list without deleting the task.',
     {
       list_id: z.string().describe('The ID of the list to remove the task from'),
@@ -465,7 +465,7 @@ export function setupTaskTools(server: McpServer): void {
   );
 
   server.tool(
-    'create_list_from_template_in_folder',
+    'clickup_create_list_from_template_in_folder',
     'Create a new list in a ClickUp folder using an existing template.',
     {
       folder_id: z.string().describe('The ID of the folder to create the list in'),
@@ -489,7 +489,7 @@ export function setupTaskTools(server: McpServer): void {
   );
 
   server.tool(
-    'create_list_from_template_in_space',
+    'clickup_create_list_from_template_in_space',
     'Create a new list in a ClickUp space using an existing template.',
     {
       space_id: z.string().describe('The ID of the space to create the list in'),

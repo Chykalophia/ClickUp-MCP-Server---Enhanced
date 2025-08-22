@@ -34,7 +34,7 @@ export function setupViewsTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'create_view',
+    'clickup_create_view',
     'Create a new view in a ClickUp space, folder, or list. Supports all view types including list, board, calendar, gantt, and more.',
     {
       parent_id: z.string().min(1).describe('The ID of the parent (space, folder, or list)'),
@@ -78,7 +78,7 @@ export function setupViewsTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_views',
+    'clickup_get_views',
     'Get all views for a space, folder, or list with optional filtering by type and access level.',
     {
       parent_id: z.string().min(1).describe('The ID of the parent (space, folder, or list)'),
@@ -110,7 +110,7 @@ export function setupViewsTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_view',
+    'clickup_get_view',
     'Get detailed information about a specific view by its ID.',
     {
       view_id: z.string().min(1).describe('The ID of the view to get')
@@ -138,7 +138,7 @@ export function setupViewsTools(server: McpServer): void {
   );
 
   server.tool(
-    'update_view',
+    'clickup_update_view',
     'Update an existing view\'s properties including name, access, filters, grouping, sorting, and settings.',
     {
       view_id: z.string().min(1).describe('The ID of the view to update'),
@@ -180,7 +180,7 @@ export function setupViewsTools(server: McpServer): void {
   );
 
   server.tool(
-    'delete_view',
+    'clickup_delete_view',
     'Delete a view from ClickUp. This action cannot be undone.',
     {
       view_id: z.string().min(1).describe('The ID of the view to delete')
@@ -208,7 +208,7 @@ export function setupViewsTools(server: McpServer): void {
   );
 
   server.tool(
-    'set_view_filters',
+    'clickup_set_view_filters',
     'Set or update filters for a view. Filters determine which tasks are visible in the view.',
     {
       view_id: z.string().min(1).describe('The ID of the view to update'),
@@ -238,7 +238,7 @@ export function setupViewsTools(server: McpServer): void {
   );
 
   server.tool(
-    'set_view_grouping',
+    'clickup_set_view_grouping',
     'Set or update grouping configuration for a view. Grouping organizes tasks into sections.',
     {
       view_id: z.string().min(1).describe('The ID of the view to update'),
@@ -268,7 +268,7 @@ export function setupViewsTools(server: McpServer): void {
   );
 
   server.tool(
-    'set_view_sorting',
+    'clickup_set_view_sorting',
     'Set or update sorting configuration for a view. Sorting determines the order of tasks.',
     {
       view_id: z.string().min(1).describe('The ID of the view to update'),
@@ -298,7 +298,7 @@ export function setupViewsTools(server: McpServer): void {
   );
 
   server.tool(
-    'update_view_settings',
+    'clickup_update_view_settings',
     'Update view-specific settings such as board columns, calendar date fields, or table configurations.',
     {
       view_id: z.string().min(1).describe('The ID of the view to update'),
@@ -338,7 +338,7 @@ export function setupViewsTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'get_view_tasks',
+    'clickup_get_view_tasks',
     'Get tasks that are visible in a specific view, respecting the view\'s filters and settings.',
     {
       view_id: z.string().min(1).describe('The ID of the view to get tasks from'),
@@ -367,7 +367,7 @@ export function setupViewsTools(server: McpServer): void {
   );
 
   server.tool(
-    'duplicate_view',
+    'clickup_duplicate_view',
     'Create a duplicate of an existing view with a new name.',
     {
       view_id: z.string().min(1).describe('The ID of the view to duplicate'),
@@ -396,7 +396,7 @@ export function setupViewsTools(server: McpServer): void {
   );
 
   server.tool(
-    'update_view_sharing',
+    'clickup_update_view_sharing',
     'Update sharing settings for a view including access level, password protection, and expiration.',
     {
       view_id: z.string().min(1).describe('The ID of the view to update sharing for'),
@@ -428,7 +428,7 @@ export function setupViewsTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_view_fields',
+    'clickup_get_view_fields',
     'Get available fields that can be used for filtering, grouping, and sorting in views for a specific parent.',
     {
       parent_id: z.string().min(1).describe('The ID of the parent (space, folder, or list)'),

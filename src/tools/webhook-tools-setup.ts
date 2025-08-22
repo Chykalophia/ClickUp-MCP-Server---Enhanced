@@ -22,7 +22,7 @@ export function setupWebhookTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'create_webhook',
+    'clickup_create_webhook',
     'Create a new webhook in a ClickUp workspace. Webhooks allow real-time notifications when events occur.',
     {
       workspace_id: z.string().min(1).describe('The ID of the workspace to create the webhook in'),
@@ -63,7 +63,7 @@ export function setupWebhookTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_webhooks',
+    'clickup_get_webhooks',
     'Get all webhooks for a workspace with optional filtering by status or event type.',
     {
       workspace_id: z.string().min(1).describe('The ID of the workspace to get webhooks from'),
@@ -94,7 +94,7 @@ export function setupWebhookTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_webhook',
+    'clickup_get_webhook',
     'Get detailed information about a specific webhook by its ID.',
     {
       webhook_id: z.string().min(1).describe('The ID of the webhook to get')
@@ -122,7 +122,7 @@ export function setupWebhookTools(server: McpServer): void {
   );
 
   server.tool(
-    'update_webhook',
+    'clickup_update_webhook',
     'Update an existing webhook\'s configuration including endpoint, events, and status.',
     {
       webhook_id: z.string().min(1).describe('The ID of the webhook to update'),
@@ -164,7 +164,7 @@ export function setupWebhookTools(server: McpServer): void {
   );
 
   server.tool(
-    'delete_webhook',
+    'clickup_delete_webhook',
     'Delete a webhook from ClickUp. This will stop all notifications to the webhook endpoint.',
     {
       webhook_id: z.string().min(1).describe('The ID of the webhook to delete')
@@ -192,7 +192,7 @@ export function setupWebhookTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_webhook_event_history',
+    'clickup_get_webhook_event_history',
     'Get the event history for a webhook including delivery status and response codes.',
     {
       webhook_id: z.string().min(1).describe('The ID of the webhook to get event history for'),
@@ -221,7 +221,7 @@ export function setupWebhookTools(server: McpServer): void {
   );
 
   server.tool(
-    'ping_webhook',
+    'clickup_ping_webhook',
     'Send a test ping to a webhook endpoint to verify it\'s working correctly.',
     {
       webhook_id: z.string().min(1).describe('The ID of the webhook to ping')
@@ -249,7 +249,7 @@ export function setupWebhookTools(server: McpServer): void {
   );
 
   server.tool(
-    'validate_webhook_signature',
+    'clickup_validate_webhook_signature',
     'Validate the HMAC signature of a webhook payload to ensure authenticity.',
     {
       payload: z.string().describe('The raw webhook payload as a string'),
@@ -281,7 +281,7 @@ export function setupWebhookTools(server: McpServer): void {
   );
 
   server.tool(
-    'process_webhook',
+    'clickup_process_webhook',
     'Process an incoming webhook payload and extract structured information about the event.',
     {
       payload: z.any().describe('The webhook payload object'),
@@ -323,7 +323,7 @@ export function setupWebhookTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_webhook_stats',
+    'clickup_get_webhook_stats',
     'Get statistics about webhook performance including success rate and response times.',
     {
       webhook_id: z.string().min(1).describe('The ID of the webhook to get statistics for'),
@@ -352,7 +352,7 @@ export function setupWebhookTools(server: McpServer): void {
   );
 
   server.tool(
-    'retry_webhook_events',
+    'clickup_retry_webhook_events',
     'Retry failed webhook events for a specific webhook.',
     {
       webhook_id: z.string().min(1).describe('The ID of the webhook to retry events for'),

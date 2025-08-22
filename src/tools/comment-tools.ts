@@ -57,7 +57,7 @@ function formatCommentResponse(result: any, title?: string): any {
 export function setupCommentTools(server: McpServer): void {
   // Register raw API test tool for debugging
   server.tool(
-    'create_task_comment_raw_test',
+    'clickup_create_task_comment_raw_test',
     'RAW API TEST: Create a comment bypassing ALL MCP processing to isolate duplication issue. Returns raw ClickUp API response.',
     {
       task_id: z.string().describe('The ID of the task to comment on'),
@@ -81,7 +81,7 @@ export function setupCommentTools(server: McpServer): void {
 
   // Register get_task_comments tool
   server.tool(
-    'get_task_comments',
+    'clickup_get_task_comments',
     'Get comments for a ClickUp task. Returns comment details including text, author, and timestamps with enhanced markdown styling.',
     {
       task_id: z.string().describe('The ID of the task to get comments for'),
@@ -107,7 +107,7 @@ export function setupCommentTools(server: McpServer): void {
 
   // Register create_task_comment tool
   server.tool(
-    'create_task_comment',
+    'clickup_create_task_comment',
     'Create a new comment on a ClickUp task using structured array format. Supports optional assignee and notification settings.',
     {
       task_id: z.string().describe('The ID of the task to comment on'),
@@ -174,7 +174,7 @@ export function setupCommentTools(server: McpServer): void {
 
   // Register get_chat_view_comments tool
   server.tool(
-    'get_chat_view_comments',
+    'clickup_get_chat_view_comments',
     'Get comments for a ClickUp chat view. Returns comment details with pagination support.',
     {
       view_id: z.string().describe('The ID of the chat view to get comments for'),
@@ -199,7 +199,7 @@ export function setupCommentTools(server: McpServer): void {
 
   // Register create_chat_view_comment tool
   server.tool(
-    'create_chat_view_comment',
+    'clickup_create_chat_view_comment',
     'Create a new comment in a ClickUp chat view. Supports notification settings. Supports GitHub Flavored Markdown in comment text.',
     {
       view_id: z.string().describe('The ID of the chat view to comment on'),
@@ -224,7 +224,7 @@ export function setupCommentTools(server: McpServer): void {
 
   // Register get_list_comments tool
   server.tool(
-    'get_list_comments',
+    'clickup_get_list_comments',
     'Get comments for a ClickUp list. Returns comment details with pagination support.',
     {
       list_id: z.string().describe('The ID of the list to get comments for'),
@@ -249,7 +249,7 @@ export function setupCommentTools(server: McpServer): void {
 
   // Register create_list_comment tool
   server.tool(
-    'create_list_comment',
+    'clickup_create_list_comment',
     'Create a new comment on a ClickUp list. Supports optional assignee and notification settings. Supports GitHub Flavored Markdown in comment text.',
     {
       list_id: z.string().describe('The ID of the list to comment on'),
@@ -275,7 +275,7 @@ export function setupCommentTools(server: McpServer): void {
 
   // Register update_comment tool
   server.tool(
-    'update_comment',
+    'clickup_update_comment',
     'Update an existing ClickUp comment\'s properties including text, assignee, and resolved status. Supports GitHub Flavored Markdown in comment text.',
     {
       comment_id: z.string().describe('The ID of the comment to update'),
@@ -301,7 +301,7 @@ export function setupCommentTools(server: McpServer): void {
 
   // Register delete_comment tool
   server.tool(
-    'delete_comment',
+    'clickup_delete_comment',
     'Delete a comment from ClickUp.',
     {
       comment_id: z.string().describe('The ID of the comment to delete')
@@ -324,7 +324,7 @@ export function setupCommentTools(server: McpServer): void {
 
   // Register get_threaded_comments tool
   server.tool(
-    'get_threaded_comments',
+    'clickup_get_threaded_comments',
     'Get threaded comments (replies) for a parent comment. Returns comment details with pagination support.',
     {
       comment_id: z.string().describe('The ID of the parent comment'),
@@ -349,7 +349,7 @@ export function setupCommentTools(server: McpServer): void {
 
   // Register create_threaded_comment tool
   server.tool(
-    'create_threaded_comment',
+    'clickup_create_threaded_comment',
     'Create a new threaded comment (reply) to a parent comment. Supports notification settings. Supports GitHub Flavored Markdown in comment text.',
     {
       comment_id: z.string().describe('The ID of the parent comment'),

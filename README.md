@@ -46,19 +46,25 @@ This Enhanced version is based on the original ClickUp MCP Server codebase by [D
 - **HMAC Validation**: Secure webhook authentication with timing-safe comparison
 - **File Security**: Path traversal prevention, dangerous file blocking, size limits
 
+### 🏷️ **Namespaced Tool Names**
+- **Conflict Prevention**: All tools prefixed with `clickup_` to avoid conflicts with other MCP servers
+- **Clear Identification**: Easy to distinguish ClickUp tools from other services (e.g., `clickup_get_tasks` vs `taskmaster_get_tasks`)
+- **Backward Compatibility**: Previous tool names are deprecated but documented for migration
+- **Examples**: `clickup_create_task`, `clickup_get_workspaces`, `clickup_update_comment`
+
 ## 📊 Complete Tool Inventory (170+ Tools)
 
 ### 🧠 Efficiency & Intelligence Tools (20+ tools) ⭐
-- **Smart Discovery**: `find_chat_channels`, `search_views_by_name`, `get_workspace_overview`
-- **Workflow Analysis**: `analyze_workflow_efficiency`, `suggest_tools_for_task`
+- **Smart Discovery**: `clickup_find_chat_channels`, `clickup_search_views_by_name`, `clickup_get_workspace_overview`
+- **Workflow Analysis**: `clickup_analyze_tool_efficiency`, `clickup_suggest_tools_for_task`
 - **Enhanced Metadata**: All 153 core tools enhanced with efficiency hints and alternatives
 
 ### Core Workspace Management (47 tools)
-- **Workspaces**: `get_workspaces`, `get_workspace_seats`
-- **Spaces & Lists**: `get_spaces`, `get_lists`, `create_list`, `update_list`, `delete_list`
-- **Tasks**: `get_tasks`, `create_task`, `update_task`, `get_task_details` (with markdown support)
-- **Comments**: `create_task_comment`, `create_list_comment`, `create_chat_view_comment` (with markdown)
-- **Checklists**: `create_checklist`, `update_checklist`, `create_checklist_item`
+- **Workspaces**: `clickup_get_workspaces`, `clickup_get_workspace_seats`
+- **Spaces & Lists**: `clickup_get_spaces`, `clickup_get_lists`, `clickup_create_list`, `clickup_update_list`, `clickup_delete_list`
+- **Tasks**: `clickup_get_tasks`, `clickup_create_task`, `clickup_update_task`, `clickup_get_task_details` (with markdown support)
+- **Comments**: `clickup_create_task_comment`, `clickup_create_list_comment`, `clickup_create_chat_view_comment` (with markdown)
+- **Checklists**: `clickup_create_checklist`, `clickup_update_checklist`, `clickup_create_checklist_item`
 
 ### Advanced Feature Domains
 - **📄 Document Management** (18 tools): Full CRUD, pages, sharing, search with markdown support
@@ -78,17 +84,17 @@ This Enhanced version is based on the original ClickUp MCP Server codebase by [D
 Instead of hierarchical navigation:
 ```typescript
 // ❌ OLD WAY (4+ API calls)
-get_workspaces() → get_spaces() → get_views() → filter for chat
+clickup_get_workspaces() → clickup_get_spaces() → clickup_get_views() → filter for chat
 
 // ✅ NEW WAY (1 API call)
-find_chat_channels({ channel_name: "development" })
+clickup_find_chat_channels({ channel_name: "development" })
 ```
 
 ### Workflow Analysis
 ```typescript
-analyze_workflow_efficiency({
+clickup_analyze_workflow_efficiency({
   goal: "Post message to team chat",
-  planned_tools: ["get_workspaces", "get_spaces", "get_views"],
+  planned_tools: ["clickup_get_workspaces", "clickup_get_spaces", "clickup_get_views"],
   time_constraint: "urgent"
 })
 // Returns: Optimized workflow with 55% efficiency gain
@@ -97,7 +103,7 @@ analyze_workflow_efficiency({
 ### Real-time Webhook Processing
 ```typescript
 // Process ClickUp webhooks with HMAC validation
-process_webhook({
+clickup_process_webhook({
   payload: webhookData,
   validate_signature: true,
   signature: request.headers['x-signature'],
@@ -111,7 +117,7 @@ process_webhook({
 ### Creating a Task with Rich Description
 
 ```typescript
-// Task with markdown description
+// Task with markdown description using clickup_create_task
 {
   "list_id": "123456789",
   "name": "Project Documentation",
@@ -152,7 +158,7 @@ interface User {
 ### Adding a Formatted Comment
 
 ```typescript
-// Comment with markdown formatting
+// Comment with markdown formatting using clickup_create_task_comment
 {
   "task_id": "868f9p3bg",
   "comment_text": `## Status Update ✅

@@ -15,7 +15,7 @@ export function setupCustomFieldTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'get_custom_fields',
+    'clickup_get_custom_fields',
     'Get custom fields for a ClickUp list, folder, or space. Returns all field definitions with their configurations.',
     {
       container_type: z.enum(['list', 'folder', 'space']).describe('The type of container to get custom fields from'),
@@ -61,7 +61,7 @@ export function setupCustomFieldTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'create_custom_field',
+    'clickup_create_custom_field',
     'Create a new custom field in a ClickUp list, folder, or space. Supports all field types with type-specific configurations.',
     {
       container_type: z.enum(['list', 'folder', 'space']).describe('The type of container to create the custom field in'),
@@ -130,7 +130,7 @@ export function setupCustomFieldTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'update_custom_field',
+    'clickup_update_custom_field',
     'Update an existing custom field. Can modify name, configuration, required status, and guest visibility.',
     {
       field_id: z.string().min(1).describe('The ID of the custom field to update'),
@@ -178,7 +178,7 @@ export function setupCustomFieldTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'delete_custom_field',
+    'clickup_delete_custom_field',
     'Delete a custom field from ClickUp. This will remove the field and all its values from tasks. This action cannot be undone.',
     {
       field_id: z.string().min(1).describe('The ID of the custom field to delete')
@@ -208,7 +208,7 @@ export function setupCustomFieldTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'set_custom_field_value',
+    'clickup_set_custom_field_value',
     'Set a custom field value on a ClickUp task. The value format depends on the field type.',
     {
       task_id: z.string().min(1).describe('The ID of the task to set the custom field value on'),
@@ -236,7 +236,7 @@ export function setupCustomFieldTools(server: McpServer): void {
   );
 
   server.tool(
-    'remove_custom_field_value',
+    'clickup_remove_custom_field_value',
     'Remove a custom field value from a ClickUp task. This clears the field value but keeps the field definition.',
     {
       task_id: z.string().min(1).describe('The ID of the task to remove the custom field value from'),
@@ -263,7 +263,7 @@ export function setupCustomFieldTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_custom_field_value',
+    'clickup_get_custom_field_value',
     'Get a custom field value from a ClickUp task. Returns the current value and field information.',
     {
       task_id: z.string().min(1).describe('The ID of the task to get the custom field value from'),
@@ -290,7 +290,7 @@ export function setupCustomFieldTools(server: McpServer): void {
   );
 
   server.tool(
-    'bulk_set_custom_field_values',
+    'clickup_bulk_set_custom_field_values',
     'Set multiple custom field values on a ClickUp task in a single operation. More efficient than setting values individually.',
     {
       task_id: z.string().min(1).describe('The ID of the task to set custom field values on'),
@@ -326,7 +326,7 @@ export function setupCustomFieldTools(server: McpServer): void {
   );
 
   server.tool(
-    'get_task_custom_field_values',
+    'clickup_get_task_custom_field_values',
     'Get all custom field values for a ClickUp task. Returns all field values with their definitions.',
     {
       task_id: z.string().min(1).describe('The ID of the task to get custom field values from')
@@ -356,7 +356,7 @@ export function setupCustomFieldTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'create_text_custom_field',
+    'clickup_create_text_custom_field',
     'Create a text custom field with optional default value and placeholder.',
     {
       container_type: z.enum(['list', 'folder', 'space']).describe('The type of container'),
@@ -412,7 +412,7 @@ export function setupCustomFieldTools(server: McpServer): void {
   );
 
   server.tool(
-    'create_dropdown_custom_field',
+    'clickup_create_dropdown_custom_field',
     'Create a dropdown custom field with specified options.',
     {
       container_type: z.enum(['list', 'folder', 'space']).describe('The type of container'),
@@ -471,7 +471,7 @@ export function setupCustomFieldTools(server: McpServer): void {
   );
 
   server.tool(
-    'create_number_custom_field',
+    'clickup_create_number_custom_field',
     'Create a number custom field with optional precision and default value.',
     {
       container_type: z.enum(['list', 'folder', 'space']).describe('The type of container'),
@@ -527,7 +527,7 @@ export function setupCustomFieldTools(server: McpServer): void {
   );
 
   server.tool(
-    'create_date_custom_field',
+    'clickup_create_date_custom_field',
     'Create a date custom field with optional time inclusion.',
     {
       container_type: z.enum(['list', 'folder', 'space']).describe('The type of container'),
@@ -583,7 +583,7 @@ export function setupCustomFieldTools(server: McpServer): void {
   );
 
   server.tool(
-    'create_checkbox_custom_field',
+    'clickup_create_checkbox_custom_field',
     'Create a checkbox (boolean) custom field with optional default value.',
     {
       container_type: z.enum(['list', 'folder', 'space']).describe('The type of container'),
@@ -641,7 +641,7 @@ export function setupCustomFieldTools(server: McpServer): void {
   // ========================================
 
   server.tool(
-    'validate_custom_field_value',
+    'clickup_validate_custom_field_value',
     'Validate a custom field value against its field type and configuration. Useful for checking values before setting them.',
     {
       field_id: z.string().min(1).describe('The ID of the custom field'),

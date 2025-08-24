@@ -247,6 +247,162 @@ export class TasksClient {
       return [];
     }
   }
+  /**
+   * Create multiple tasks in a list (bulk operation)
+   * @param listId The ID of the list to create tasks in
+   * @param tasks Array of task parameters
+   * @param continueOnError Whether to continue if one task fails
+   * @returns Results of bulk creation operation
+   */
+  async bulkCreateTasks(
+    listId: string, 
+    tasks: CreateTaskParams[], 
+    continueOnError: boolean = false
+  ): Promise<{
+    success_count: number;
+    error_count: number;
+    total_count: number;
+    results: Array<{
+      success: boolean;
+      task_id?: string;
+      error?: string;
+      index: number;
+    }>;
+    execution_time_ms: number;
+  }> {
+    const startTime = Date.now();
+    const results: Array<{
+      success: boolean;
+      task_id?: string;
+      error?: string;
+      index: number;
+    }> = [];
+    
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (let i = 0; i < tasks.length; i++) {
+      try {
+        const task = await this.createTask(listId, tasks[i]);
+        results.push({
+          success: true,
+          task_id: task.id,
+          index: i
+        });
+        successCount++;
+      } catch (error: any) {
+        const errorMessage = error.message || 'Unknown error occurred';
+        results.push({
+          success: false,
+          error: errorMessage,
+          index: i
+        });
+        errorCount++;
+        
+        // If not continuing on error, break the loop
+        if (!continueOnError) {
+          // Add remaining tasks as failed
+          for (let j = i + 1; j < tasks.length; j++) {
+            results.push({
+              success: false,
+              error: 'Skipped due to previous error',
+              index: j
+            });
+            errorCount++;
+          }
+          break;
+        }
+      }
+    }
+
+    const executionTime = Date.now() - startTime;
+
+    return {
+      success_count: successCount,
+      error_count: errorCount,
+      total_count: tasks.length,
+      results,
+      execution_time_ms: executionTime
+    };
+  }
+
+  /**
+   * Update multiple tasks (bulk operation)
+   * @param taskUpdates Array of task updates with task IDs
+   * @param continueOnError Whether to continue if one task fails
+   * @returns Results of bulk update operation
+   */
+  async bulkUpdateTasks(
+    taskUpdates: Array<{ task_id: string } & UpdateTaskParams>,
+    continueOnError: boolean = false
+  ): Promise<{
+    success_count: number;
+    error_count: number;
+    total_count: number;
+    results: Array<{
+      success: boolean;
+      task_id?: string;
+      error?: string;
+      index: number;
+    }>;
+    execution_time_ms: number;
+  }> {
+    const startTime = Date.now();
+    const results: Array<{
+      success: boolean;
+      task_id?: string;
+      error?: string;
+      index: number;
+    }> = [];
+    
+    let successCount = 0;
+    let errorCount = 0;
+
+    for (let i = 0; i < taskUpdates.length; i++) {
+      try {
+        const { task_id, ...updateParams } = taskUpdates[i];
+        const task = await this.updateTask(task_id, updateParams);
+        results.push({
+          success: true,
+          task_id: task.id,
+          index: i
+        });
+        successCount++;
+      } catch (error: any) {
+        const errorMessage = error.message || 'Unknown error occurred';
+        results.push({
+          success: false,
+          error: errorMessage,
+          index: i
+        });
+        errorCount++;
+        
+        // If not continuing on error, break the loop
+        if (!continueOnError) {
+          // Add remaining tasks as failed
+          for (let j = i + 1; j < taskUpdates.length; j++) {
+            results.push({
+              success: false,
+              error: 'Skipped due to previous error',
+              index: j
+            });
+            errorCount++;
+          }
+          break;
+        }
+      }
+    }
+
+    const executionTime = Date.now() - startTime;
+
+    return {
+      success_count: successCount,
+      error_count: errorCount,
+      total_count: taskUpdates.length,
+      results,
+      execution_time_ms: executionTime
+    };
+  }
 }
 
 export const createTasksClient = (client: ClickUpClient): TasksClient => {

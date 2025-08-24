@@ -225,18 +225,32 @@ export function setupEnhancedDocTools(server: McpServer): void {
 
   server.tool(
     'clickup_delete_doc',
-    'Delete a ClickUp document. This action cannot be undone.',
+    '⚠️ DESTRUCTIVE: Delete a ClickUp document. This action cannot be undone and will permanently remove the document and all its content.',
     {
-      doc_id: z.string().min(1).describe('The ID of the document to delete')
+      doc_id: z.string().min(1).describe('The ID of the document to delete'),
+      confirm_deletion: z.boolean().describe('Confirmation that you want to permanently delete this document (must be true)')
     },
-    async ({ doc_id }) => {
+    async ({ doc_id, confirm_deletion }) => {
       try {
+        if (!confirm_deletion) {
+          return {
+            content: [{ 
+              type: 'text', 
+              text: '❌ Document deletion cancelled. You must set confirm_deletion to true to proceed with this destructive operation.' 
+            }],
+            isError: true
+          };
+        }
+
+        // Get document details first for confirmation message
+        const docDetails = await enhancedDocsClient.getDoc(doc_id);
         await enhancedDocsClient.deleteDoc(doc_id);
 
         return {
           content: [{ 
             type: 'text', 
-            text: `Document ${doc_id} deleted successfully.` 
+            text: `✅ Document "${docDetails.name}" (ID: ${doc_id}) has been permanently deleted.\n\n` +
+                  `⚠️ This action cannot be undone. The document and all its content have been removed from ClickUp.`
           }]
         };
       } catch (error: any) {

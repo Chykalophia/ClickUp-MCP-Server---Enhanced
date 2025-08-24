@@ -1,19 +1,88 @@
-# ClickUp MCP Server - Enhanced
+# ClickUp MCP Server Suite
 
 <p align="center">
-  <img src="assets/images/clickupserverlogo.png" width="256" alt="ClickUp MCP Server - Enhanced Logo" />
+  <img src="assets/images/clickupserverlogo.png" width="256" alt="ClickUp MCP Server Suite Logo" />
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@chykalophia/clickup-mcp-server"><img src="https://img.shields.io/npm/v/@chykalophia/clickup-mcp-server.svg" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/@chykalophia/clickup-mcp-server"><img src="https://img.shields.io/npm/v/@chykalophia/clickup-mcp-server.svg" alt="Core Server Version"></a>
+  <a href="https://www.npmjs.com/package/@chykalophia/clickup-intelligence-mcp-server"><img src="https://img.shields.io/npm/v/@chykalophia/clickup-intelligence-mcp-server.svg" alt="Intelligence Server Version"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
   <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen" alt="Node.js Version"></a>
   <a href="https://github.com/modelcontextprotocol/typescript-sdk"><img src="https://img.shields.io/badge/MCP%20SDK-1.6.1-orange" alt="MCP SDK"></a>
 </p>
 
-A comprehensive Model Context Protocol (MCP) server providing AI assistants with complete ClickUp API access. Features **170+ tools**, **AI-powered efficiency**, **production-grade security**, and **full GitHub Flavored Markdown support**.
+A comprehensive Model Context Protocol (MCP) server suite providing AI assistants with complete ClickUp integration. Features **177+ core tools**, **AI-powered project intelligence**, **production-grade security**, and **full GitHub Flavored Markdown support**.
+
+## 📦 Package Suite
+
+### Core Server: `@chykalophia/clickup-mcp-server`
+Complete ClickUp API integration with **177+ tools** covering all major functionality:
+- Tasks, Lists, Spaces, Folders, Workspaces
+- Comments, Attachments, Custom Fields, Views
+- Time Tracking, Goals, Dependencies, Webhooks
+- Chat, Bulk Operations, Real-time Processing
+
+### Intelligence Server: `@chykalophia/clickup-intelligence-mcp-server` ⭐ **NEW**
+AI-powered project management intelligence and workflow optimization:
+- **Project Health Analyzer**: Real-time health scoring and risk assessment
+- **Smart Sprint Planner**: AI-optimized sprint planning with capacity analysis
+- **Task Decomposition Engine**: Intelligent task breakdown and sizing
+- **Resource Optimizer**: Team workload balancing and skill matching
+- **Workflow Intelligence**: Pattern analysis and automation recommendations
+
+### Shared Utilities: `@chykalophia/clickup-mcp-shared`
+Common types, schemas, and utilities shared across packages.
 
 > **📦 Quick Install**: `npx @chykalophia/clickup-mcp-server` - No build required!
+
+## 🚀 Monorepo Architecture
+
+This project uses a monorepo structure with multiple packages:
+
+```
+clickup-mcp-server/
+├── packages/
+│   ├── core/                          # @chykalophia/clickup-mcp-server
+│   │   ├── 177+ core tools            # Complete ClickUp API coverage
+│   │   ├── Production security        # Zero vulnerabilities
+│   │   └── Markdown support           # GitHub Flavored Markdown
+│   ├── intelligence/                  # @chykalophia/clickup-intelligence-mcp-server
+│   │   ├── Project Health Analyzer    # AI-powered health scoring
+│   │   ├── Smart Sprint Planner       # Optimized sprint planning
+│   │   ├── Task Decomposition Engine  # Intelligent task breakdown
+│   │   ├── Resource Optimizer         # Team workload balancing
+│   │   └── Workflow Intelligence      # Pattern analysis & automation
+│   └── shared/                        # @chykalophia/clickup-mcp-shared
+│       ├── Common types & schemas     # Shared utilities
+│       └── Validation helpers         # Cross-package consistency
+└── Root workspace configuration
+```
+
+## 📦 Installation Options
+
+### Option 1: Core Server Only (Recommended for most users)
+```bash
+npm install @chykalophia/clickup-mcp-server
+```
+
+### Option 2: Intelligence Server Only (AI features)
+```bash
+npm install @chykalophia/clickup-intelligence-mcp-server
+```
+
+### Option 3: Full Suite (Core + Intelligence)
+```bash
+npm install @chykalophia/clickup-mcp-server @chykalophia/clickup-intelligence-mcp-server
+```
+
+### Option 4: Development Setup (Monorepo)
+```bash
+git clone https://github.com/nsxdavid/clickup-mcp-server.git
+cd clickup-mcp-server
+npm install
+npm run build
+```
 
 ## 📋 Attribution
 
@@ -34,7 +103,7 @@ This Enhanced version is based on the original ClickUp MCP Server codebase by [D
 - **Backward Compatible**: Existing plain text content continues to work
 
 ### 🛠️ **Comprehensive API Coverage**
-- **170+ Total Tools** covering 100% of major ClickUp API endpoints
+- **177+ Total Tools** covering 100% of major ClickUp API endpoints
 - **9 Feature Domains**: Tasks, comments, docs, webhooks, views, dependencies, attachments, time tracking, goals
 - **Real-time Integration**: Webhook processing with HMAC validation
 - **Advanced Workflows**: Dependencies, custom fields, bulk operations
@@ -52,17 +121,20 @@ This Enhanced version is based on the original ClickUp MCP Server codebase by [D
 - **Backward Compatibility**: Previous tool names are deprecated but documented for migration
 - **Examples**: `clickup_create_task`, `clickup_get_workspaces`, `clickup_update_comment`
 
-## 📊 Complete Tool Inventory (170+ Tools)
+## 📊 Complete Tool Inventory (177+ Tools)
 
 ### 🧠 Efficiency & Intelligence Tools (20+ tools) ⭐
 - **Smart Discovery**: `clickup_find_chat_channels`, `clickup_search_views_by_name`, `clickup_get_workspace_overview`
 - **Workflow Analysis**: `clickup_analyze_tool_efficiency`, `clickup_suggest_tools_for_task`
 - **Enhanced Metadata**: All 153 core tools enhanced with efficiency hints and alternatives
 
-### Core Workspace Management (47 tools)
+### Core Workspace Management (54 tools)
 - **Workspaces**: `clickup_get_workspaces`, `clickup_get_workspace_seats`
-- **Spaces & Lists**: `clickup_get_spaces`, `clickup_get_lists`, `clickup_create_list`, `clickup_update_list`, `clickup_delete_list`
+- **Spaces & Lists**: `clickup_get_spaces`, `clickup_get_lists`, `clickup_create_list`, `clickup_update_list`, `clickup_delete_list` (with safeguards)
 - **Tasks**: `clickup_get_tasks`, `clickup_create_task`, `clickup_update_task`, `clickup_get_task_details` (with markdown support)
+- **Bulk Task Operations**: `clickup_bulk_create_tasks`, `clickup_bulk_update_tasks` (up to 50 tasks per request)
+- **Delete Operations**: `clickup_delete_task`, `clickup_bulk_delete_tasks`, `clickup_delete_subtask` (with confirmation safeguards)
+- **Task Merging**: `clickup_merge_tasks` (merge multiple tasks with content preservation)
 - **Comments**: `clickup_create_task_comment`, `clickup_create_list_comment`, `clickup_create_chat_view_comment` (with markdown)
 - **Checklists**: `clickup_create_checklist`, `clickup_update_checklist`, `clickup_create_checklist_item`
 
@@ -98,6 +170,88 @@ clickup_analyze_workflow_efficiency({
   time_constraint: "urgent"
 })
 // Returns: Optimized workflow with 55% efficiency gain
+```
+
+### Bulk Task Operations
+```typescript
+// Create multiple tasks efficiently
+clickup_bulk_create_tasks({
+  list_id: "123456789",
+  tasks: [
+    {
+      name: "Setup Database Schema",
+      description: "Create initial database tables and relationships",
+      priority: 3,
+      assignees: [12345],
+      tags: ["backend", "database"]
+    },
+    {
+      name: "Design API Endpoints",
+      description: "# API Design\n\n- Authentication endpoints\n- CRUD operations\n- Error handling",
+      priority: 2,
+      assignees: [12345, 67890]
+    },
+    {
+      name: "Write Unit Tests",
+      description: "Comprehensive test coverage for all modules",
+      priority: 1,
+      tags: ["testing", "quality"]
+    }
+  ],
+  continue_on_error: true
+})
+// Returns: Detailed results with success/failure status for each task
+
+// Update multiple tasks at once
+clickup_bulk_update_tasks({
+  tasks: [
+    { task_id: "abc123", status: "in progress", priority: 4 },
+    { task_id: "def456", status: "completed" },
+    { task_id: "ghi789", assignees: [12345, 67890] }
+  ],
+  continue_on_error: false
+})
+// Returns: Bulk update results with execution time and detailed status
+```
+
+### Delete Operations with Safeguards
+```typescript
+// Delete a single task (requires explicit confirmation)
+clickup_delete_task({
+  task_id: "abc123",
+  confirm_deletion: true  // Required safeguard
+})
+// Returns: Confirmation message with task name and warning
+
+// Bulk delete multiple tasks
+clickup_bulk_delete_tasks({
+  task_ids: ["task1", "task2", "task3"],
+  confirm_deletion: true,  // Required safeguard
+  continue_on_error: true
+})
+// Returns: Detailed results with success/failure status for each task
+
+// Delete a list (with enhanced safeguards)
+clickup_delete_list({
+  list_id: "list123",
+  confirm_deletion: true  // Required safeguard - prevents accidental deletion
+})
+// Returns: Confirmation with list name and permanent deletion warning
+```
+
+### Task Merging Operations
+```typescript
+// Merge multiple tasks into one
+clickup_merge_tasks({
+  primary_task_id: "primary123",
+  secondary_task_ids: ["secondary1", "secondary2"],
+  merge_descriptions: true,
+  merge_comments: true,
+  merge_attachments: true,
+  merge_time_tracking: true,
+  confirm_merge: true  // Required safeguard
+})
+// Returns: Merge results with content summary and deletion confirmation
 ```
 
 ### Real-time Webhook Processing

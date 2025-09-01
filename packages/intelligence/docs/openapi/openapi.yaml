@@ -1,0 +1,660 @@
+openapi: 3.0.3
+info:
+  title: ClickUp Intelligence MCP Server API
+  version: 4.1.0
+  description: |
+    AI-powered project management intelligence and workflow optimization tools.
+    
+    This API provides 21 advanced intelligence tools across 6 categories:
+    - **Project Health Analysis** - Real-time health scoring and risk assessment
+    - **Sprint Planning** - AI-optimized sprint planning with capacity analysis  
+    - **Task Management** - Intelligent task breakdown and complexity analysis
+    - **Resource Optimization** - Team workload balancing and skill matching
+    - **Workflow Intelligence** - Pattern analysis and automation recommendations
+    - **Real-Time Processing** - Live data streaming and event processing
+    
+    All tools are designed for production use with comprehensive error handling,
+    rate limiting, and performance optimization.
+  contact:
+    name: ClickUp Intelligence API Support
+    url: https://github.com/Chykalophia/ClickUp-MCP-Server---Enhanced
+    email: peter@chykalophia.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://github.com/Chykalophia/ClickUp-MCP-Server---Enhanced/blob/main/LICENSE
+
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+  - url: https://api.clickup-intelligence.com
+    description: Production server
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /tools/clickup_analyze_project_health:
+    post:
+      tags:
+        - Project Health Analysis
+      summary: Analyze Project Health
+      description: |
+        Comprehensive real-time project health analysis with risk assessment, 
+        velocity trends, and actionable recommendations. Provides executive 
+        dashboard with letter grades (A-F) and specific improvement suggestions.
+      operationId: analyzeProjectHealth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectHealthAnalysisRequest'
+            examples:
+              basic:
+                summary: Basic health analysis
+                value:
+                  workspaceId: "9011839976"
+                  analysisDepth: "standard"
+                  timeframe: "1month"
+              comprehensive:
+                summary: Comprehensive analysis with recommendations
+                value:
+                  workspaceId: "9011839976"
+                  spaceId: "90030229848"
+                  analysisDepth: "comprehensive"
+                  includeRecommendations: true
+                  timeframe: "3months"
+      responses:
+        '200':
+          description: Project health analysis completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+              examples:
+                success:
+                  summary: Successful health analysis
+                  value:
+                    content:
+                      - type: "text"
+                        text: |
+                          # Project Health Analysis Report
+                          
+                          **Overall Health Score**: 85/100 (Grade: B)
+                          **Risk Level**: Medium
+                          **Trend**: Improving (+5% from last month)
+                          
+                          ## Key Metrics
+                          - Task Completion Rate: 78%
+                          - Velocity Trend: +12% increase
+                          - Team Utilization: 82%
+                          - Overdue Tasks: 3 (Low risk)
+                          
+                          ## Recommendations
+                          1. **Optimize Sprint Planning** - Consider reducing sprint scope by 10%
+                          2. **Address Bottlenecks** - Review task assignment for User Story #123
+                          3. **Improve Estimation** - Historical data suggests 15% estimation buffer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tools/clickup_plan_smart_sprint:
+    post:
+      tags:
+        - Sprint Planning
+      summary: Plan Smart Sprint
+      description: |
+        Advanced AI-powered sprint planning with velocity analysis, capacity modeling, 
+        and task optimization. Combines historical data, team capacity, and business 
+        priorities for optimal sprint plans.
+      operationId: planSmartSprint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SmartSprintPlannerRequest'
+      responses:
+        '200':
+          description: Sprint planning completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tools/clickup_analyze_team_velocity:
+    post:
+      tags:
+        - Sprint Planning
+      summary: Analyze Team Velocity
+      description: |
+        Analyzes historical sprint data to predict team velocity with confidence 
+        intervals. Includes seasonal adjustments, team composition impact, and trend analysis.
+      operationId: analyzeTeamVelocity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VelocityAnalysisRequest'
+      responses:
+        '200':
+          description: Velocity analysis completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tools/clickup_model_team_capacity:
+    post:
+      tags:
+        - Sprint Planning
+      summary: Model Team Capacity
+      description: |
+        Advanced team capacity modeling with availability factors, focus factors, 
+        and skill-based adjustments. Provides individual and team capacity analysis.
+      operationId: modelTeamCapacity
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CapacityModelingRequest'
+      responses:
+        '200':
+          description: Capacity modeling completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /tools/clickup_optimize_sprint_tasks:
+    post:
+      tags:
+        - Sprint Planning
+      summary: Optimize Sprint Tasks
+      description: |
+        Multi-objective optimization for task selection using constraint satisfaction 
+        algorithms. Balances business value, capacity, dependencies, and risk factors.
+      operationId: optimizeSprintTasks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SprintOptimizationRequest'
+      responses:
+        '200':
+          description: Sprint optimization completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToolResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimited'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: ClickUp API token for authentication
+
+  schemas:
+    ToolResponse:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContentBlock'
+        isError:
+          type: boolean
+          description: Indicates if the response contains an error
+          default: false
+      example:
+        content:
+          - type: "text"
+            text: "Analysis completed successfully"
+        isError: false
+
+    ContentBlock:
+      type: object
+      required:
+        - type
+        - text
+      properties:
+        type:
+          type: string
+          enum: ["text"]
+          description: Content type (currently only text is supported)
+        text:
+          type: string
+          description: The content text (may include markdown formatting)
+      example:
+        type: "text"
+        text: "# Analysis Results\n\nYour analysis has been completed."
+
+    ProjectHealthAnalysisRequest:
+      type: object
+      required:
+        - workspaceId
+      properties:
+        workspaceId:
+          type: string
+          description: ClickUp workspace ID to analyze
+          example: "9011839976"
+        spaceId:
+          type: string
+          description: Optional specific space ID to analyze
+          example: "90030229848"
+        analysisDepth:
+          type: string
+          enum: ["quick", "standard", "comprehensive"]
+          default: "standard"
+          description: Analysis depth level
+        includeRecommendations:
+          type: boolean
+          default: true
+          description: Include actionable recommendations in the analysis
+        timeframe:
+          type: string
+          enum: ["1week", "2weeks", "1month", "3months"]
+          default: "1month"
+          description: Historical data timeframe for trend analysis
+
+    SmartSprintPlannerRequest:
+      type: object
+      required:
+        - workspaceId
+        - teamId
+        - sprintGoal
+      properties:
+        workspaceId:
+          type: string
+          description: ClickUp workspace ID
+          example: "9011839976"
+        teamId:
+          type: string
+          description: Team identifier for sprint planning
+          example: "team_123"
+        sprintGoal:
+          type: string
+          description: Sprint goal or objective
+          example: "Complete user authentication system"
+        sprintDuration:
+          type: integer
+          minimum: 1
+          maximum: 4
+          default: 2
+          description: Sprint duration in weeks
+        candidateTasks:
+          type: array
+          items:
+            type: string
+          description: Array of task IDs to consider for the sprint
+          example: ["task_1", "task_2", "task_3"]
+        teamCapacity:
+          type: number
+          minimum: 0
+          description: Team capacity in story points or hours
+          example: 80
+        priorityWeights:
+          type: object
+          properties:
+            business_value:
+              type: number
+              minimum: 0
+              maximum: 1
+              default: 0.4
+            technical_debt:
+              type: number
+              minimum: 0
+              maximum: 1
+              default: 0.2
+            risk_mitigation:
+              type: number
+              minimum: 0
+              maximum: 1
+              default: 0.4
+          description: Priority weighting factors (must sum to 1.0)
+
+    VelocityAnalysisRequest:
+      type: object
+      required:
+        - workspaceId
+        - teamId
+      properties:
+        workspaceId:
+          type: string
+          description: ClickUp workspace ID
+          example: "9011839976"
+        teamId:
+          type: string
+          description: Team identifier for velocity analysis
+          example: "team_123"
+        timeframe:
+          type: string
+          enum: ["1month", "3months", "6months", "1year"]
+          default: "3months"
+          description: Analysis timeframe
+        includeSeasonality:
+          type: boolean
+          default: true
+          description: Include seasonal velocity adjustments
+        confidenceLevel:
+          type: number
+          minimum: 0.8
+          maximum: 0.99
+          default: 0.95
+          description: Statistical confidence level
+        includeComposition:
+          type: boolean
+          default: true
+          description: Factor in team composition changes
+        sprintLength:
+          type: integer
+          minimum: 7
+          maximum: 28
+          default: 14
+          description: Sprint length in days for calculations
+
+    CapacityModelingRequest:
+      type: object
+      required:
+        - workspaceId
+        - teamId
+      properties:
+        workspaceId:
+          type: string
+          description: ClickUp workspace ID
+          example: "9011839976"
+        teamId:
+          type: string
+          description: Team identifier for capacity modeling
+          example: "team_123"
+        sprintLength:
+          type: integer
+          minimum: 7
+          maximum: 28
+          default: 14
+          description: Sprint length in days
+        includeAvailability:
+          type: boolean
+          default: true
+          description: Factor in individual availability schedules
+        includeFocusFactor:
+          type: boolean
+          default: true
+          description: Apply focus factor adjustments
+        includeSkillWeighting:
+          type: boolean
+          default: true
+          description: Weight capacity by skill levels
+        bufferPercentage:
+          type: number
+          minimum: 5
+          maximum: 30
+          default: 15
+          description: Capacity buffer percentage
+        timeframe:
+          type: string
+          enum: ["current", "next_sprint", "next_month"]
+          default: "current"
+          description: Analysis timeframe
+
+    SprintOptimizationRequest:
+      type: object
+      required:
+        - workspaceId
+        - sprintId
+        - candidateTasks
+      properties:
+        workspaceId:
+          type: string
+          description: ClickUp workspace ID
+          example: "9011839976"
+        sprintId:
+          type: string
+          description: Sprint identifier for optimization
+          example: "sprint_123"
+        candidateTasks:
+          type: array
+          items:
+            type: string
+          minItems: 1
+          description: Array of task IDs to consider for optimization
+          example: ["task_1", "task_2", "task_3", "task_4"]
+        optimizationGoals:
+          type: array
+          items:
+            type: string
+            enum: ["value", "capacity", "risk", "dependencies"]
+          default: ["value", "capacity"]
+          description: Optimization objectives
+        constraints:
+          type: object
+          properties:
+            maxCapacity:
+              type: number
+              minimum: 0
+              description: Maximum team capacity constraint
+            deadline:
+              type: string
+              format: date
+              description: Sprint deadline constraint
+            requiredTasks:
+              type: array
+              items:
+                type: string
+              description: Tasks that must be included
+          description: Sprint constraints
+        weightings:
+          type: object
+          properties:
+            value:
+              type: number
+              minimum: 0
+              maximum: 1
+            capacity:
+              type: number
+              minimum: 0
+              maximum: 1
+            risk:
+              type: number
+              minimum: 0
+              maximum: 1
+          description: Objective weightings (must sum to 1.0)
+        riskTolerance:
+          type: string
+          enum: ["low", "medium", "high"]
+          default: "medium"
+          description: Risk tolerance level
+        includeBuffer:
+          type: boolean
+          default: true
+          description: Include capacity buffer in optimization
+        maxIterations:
+          type: integer
+          minimum: 100
+          maximum: 5000
+          default: 1000
+          description: Maximum optimization iterations
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Error code identifier
+          example: "INVALID_WORKSPACE"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "The specified workspace ID is invalid or inaccessible"
+        details:
+          type: object
+          description: Additional error details
+          additionalProperties: true
+        timestamp:
+          type: string
+          format: date-time
+          description: Error timestamp
+          example: "2025-09-01T21:25:29.262Z"
+
+  responses:
+    BadRequest:
+      description: Bad request - invalid parameters or malformed request
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ToolResponse'
+              - type: object
+                properties:
+                  isError:
+                    type: boolean
+                    example: true
+                  content:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          example: "text"
+                        text:
+                          type: string
+                          example: "❌ **Error**: Invalid workspace ID format. Please provide a valid ClickUp workspace ID."
+
+    Unauthorized:
+      description: Unauthorized - invalid or missing API key
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ToolResponse'
+              - type: object
+                properties:
+                  isError:
+                    type: boolean
+                    example: true
+                  content:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          example: "text"
+                        text:
+                          type: string
+                          example: "❌ **Authentication Error**: Invalid or missing ClickUp API token. Please check your CLICKUP_API_TOKEN environment variable."
+
+    RateLimited:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ToolResponse'
+              - type: object
+                properties:
+                  isError:
+                    type: boolean
+                    example: true
+                  content:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          example: "text"
+                        text:
+                          type: string
+                          example: "❌ **Rate Limit Exceeded**: Too many requests. Please wait before retrying. Limit: 30 requests per minute."
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ToolResponse'
+              - type: object
+                properties:
+                  isError:
+                    type: boolean
+                    example: true
+                  content:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          example: "text"
+                        text:
+                          type: string
+                          example: "❌ **Internal Error**: An unexpected error occurred. Please try again later or contact support if the issue persists."
+
+tags:
+  - name: Project Health Analysis
+    description: Real-time project health scoring and risk assessment tools
+  - name: Sprint Planning
+    description: AI-optimized sprint planning with capacity analysis and task optimization
+  - name: Task Management
+    description: Intelligent task breakdown and complexity analysis tools
+  - name: Resource Optimization
+    description: Team workload balancing and skill matching tools
+  - name: Workflow Intelligence
+    description: Pattern analysis and automation recommendation tools
+  - name: Real-Time Processing
+    description: Live data streaming and event processing tools
+
+externalDocs:
+  description: Complete API Documentation
+  url: https://github.com/Chykalophia/ClickUp-MCP-Server---Enhanced/tree/main/packages/intelligence/docs/api

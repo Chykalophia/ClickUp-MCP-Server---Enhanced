@@ -437,13 +437,13 @@ export function setupTaskTools(server: McpServer): void {
 
         // Get list details first for confirmation message
         const listDetails = await listsClient.getList(list_id);
-        const result = await listsClient.deleteList(list_id);
+        await listsClient.deleteList(list_id);
         
         return {
           content: [{ 
             type: 'text', 
             text: `✅ List "${listDetails.name}" (ID: ${list_id}) has been permanently deleted.\n\n` +
-                  `⚠️ This action cannot be undone. The list and all its tasks have been removed from ClickUp.`
+                  '⚠️ This action cannot be undone. The list and all its tasks have been removed from ClickUp.'
           }]
         };
       } catch (error: any) {
@@ -537,7 +537,7 @@ export function setupTaskTools(server: McpServer): void {
         return {
           content: [{ 
             type: 'text', 
-            text: `Bulk task creation completed!\n\n` +
+            text: 'Bulk task creation completed!\n\n' +
                   `✅ Successfully created: ${result.success_count} tasks\n` +
                   `❌ Failed: ${result.error_count} tasks\n` +
                   `📊 Total: ${result.total_count} tasks\n` +
@@ -591,7 +591,7 @@ export function setupTaskTools(server: McpServer): void {
         return {
           content: [{ 
             type: 'text', 
-            text: `Bulk task update completed!\n\n` +
+            text: 'Bulk task update completed!\n\n' +
                   `✅ Successfully updated: ${result.success_count} tasks\n` +
                   `❌ Failed: ${result.error_count} tasks\n` +
                   `📊 Total: ${result.total_count} tasks\n` +
@@ -633,13 +633,13 @@ export function setupTaskTools(server: McpServer): void {
 
         // Get task details first for confirmation message
         const taskDetails = await tasksClient.getTask(task_id);
-        const result = await tasksClient.deleteTask(task_id);
+        await tasksClient.deleteTask(task_id);
         
         return {
           content: [{ 
             type: 'text', 
             text: `✅ Task "${taskDetails.name}" (ID: ${task_id}) has been permanently deleted.\n\n` +
-                  `⚠️ This action cannot be undone. The task and all its data have been removed from ClickUp.`
+                  '⚠️ This action cannot be undone. The task and all its data have been removed from ClickUp.'
           }]
         };
       } catch (error: any) {
@@ -734,12 +734,12 @@ export function setupTaskTools(server: McpServer): void {
         return {
           content: [{ 
             type: 'text', 
-            text: `⚠️ Bulk task deletion completed!\n\n` +
+            text: '⚠️ Bulk task deletion completed!\n\n' +
                   `✅ Successfully deleted: ${successCount} tasks\n` +
                   `❌ Failed: ${errorCount} tasks\n` +
                   `📊 Total: ${task_ids.length} tasks\n` +
                   `⏱️ Execution time: ${executionTime}ms\n\n` +
-                  `⚠️ This action cannot be undone. All successfully deleted tasks have been permanently removed.\n\n` +
+                  '⚠️ This action cannot be undone. All successfully deleted tasks have been permanently removed.\n\n' +
                   `Detailed Results:\n${JSON.stringify(results, null, 2)}`
           }]
         };
@@ -777,13 +777,13 @@ export function setupTaskTools(server: McpServer): void {
 
         // Get subtask details first for confirmation message
         const subtaskDetails = await tasksClient.getTask(task_id);
-        const result = await tasksClient.deleteTask(task_id);
+        await tasksClient.deleteTask(task_id);
         
         return {
           content: [{ 
             type: 'text', 
             text: `✅ Subtask "${subtaskDetails.name}" (ID: ${task_id}) has been permanently deleted.\n\n` +
-                  `⚠️ This action cannot be undone. The subtask and all its data have been removed from ClickUp.`
+                  '⚠️ This action cannot be undone. The subtask and all its data have been removed from ClickUp.'
           }]
         };
       } catch (error: any) {
@@ -889,16 +889,16 @@ export function setupTaskTools(server: McpServer): void {
         return {
           content: [{ 
             type: 'text', 
-            text: `✅ Task merge completed!\n\n` +
+            text: '✅ Task merge completed!\n\n' +
                   `Primary Task: "${primaryTask.name}" (${primary_task_id})\n` +
                   `Merged Tasks: ${mergeResults.merged_tasks.join(', ')}\n\n` +
-                  `Merged Content:\n` +
+                  'Merged Content:\n' +
                   `- Descriptions: ${mergeResults.merged_content.descriptions}\n` +
                   `- Comments: ${mergeResults.merged_content.comments} (not yet implemented)\n` +
                   `- Attachments: ${mergeResults.merged_content.attachments} (not yet implemented)\n` +
                   `- Time Entries: ${mergeResults.merged_content.time_entries} (not yet implemented)\n\n` +
                   `Deletion Results:\n${JSON.stringify(deletionResults, null, 2)}\n\n` +
-                  `⚠️ Secondary tasks have been permanently deleted and cannot be recovered.`
+                  '⚠️ Secondary tasks have been permanently deleted and cannot be recovered.'
           }]
         };
       } catch (error: any) {

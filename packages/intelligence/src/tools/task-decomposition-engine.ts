@@ -7,7 +7,7 @@ import {
   EstimationSummary,
   TaskType,
   ComplexityAnalysis
-} from '../services/task-analysis-service.js';
+} from '../services/task-analysis-service';
 
 // Zod schemas for validation
 const TaskSchema = z.object({
@@ -177,7 +177,7 @@ export class TaskDecompositionEngine {
       includeEstimation: true,
       includeDependencies: true,
       templatePreference: 'auto',
-      complexityThreshold: 6,
+      complexityThreshold: 5,
       effortThreshold: 8
     });
 

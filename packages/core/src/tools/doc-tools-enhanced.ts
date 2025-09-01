@@ -250,7 +250,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
           content: [{ 
             type: 'text', 
             text: `✅ Document "${docDetails.name}" (ID: ${doc_id}) has been permanently deleted.\n\n` +
-                  `⚠️ This action cannot be undone. The document and all its content have been removed from ClickUp.`
+                  '⚠️ This action cannot be undone. The document and all its content have been removed from ClickUp.'
           }]
         };
       } catch (error: any) {

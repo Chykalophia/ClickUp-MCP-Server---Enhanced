@@ -564,7 +564,7 @@ export class CapacityModelingService {
     return Math.min(1.0, standardDeviation / (average + 1));
   }
 
-  private generateMetadata(input: CapacityModelingInput, startTime: number) {
+  private generateMetadata(input: CapacityModelingInput, _startTime: number) {
     const assumptions = [
       `Default story points per hour: ${this.DEFAULT_STORY_POINTS_PER_HOUR}`,
       `Experience multipliers applied: Junior (${this.EXPERIENCE_MULTIPLIERS.junior}x), Senior (${this.EXPERIENCE_MULTIPLIERS.senior}x)`,

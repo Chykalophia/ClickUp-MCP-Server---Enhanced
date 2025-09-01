@@ -6,7 +6,7 @@ import {
   MemberWorkloadAnalysis,
   BurnoutRiskLevel,
   RiskLevel,
-  TrendDirection,
+  TrendDirection
 } from '../services/resource-optimization-service.js';
 
 /**
@@ -24,7 +24,7 @@ export class ResourceOptimizationFormatter {
       this.generateMemberAnalysis(analysis.memberAnalysis),
       this.generateBottleneckAnalysis(analysis),
       this.generateRecommendations(analysis.recommendations),
-      this.generateMetadata(analysis),
+      this.generateMetadata(analysis)
     ];
 
     return sections.join('\n\n');
@@ -39,7 +39,7 @@ export class ResourceOptimizationFormatter {
       this.generateAssignmentSummary(plan),
       this.generateAssignmentDetails(plan),
       this.generateAlternativeOptions(plan),
-      this.generateAssignmentMetadata(plan),
+      this.generateAssignmentMetadata(plan)
     ];
 
     return sections.join('\n\n');
@@ -54,7 +54,7 @@ export class ResourceOptimizationFormatter {
       this.generateRiskAssessment(risk),
       this.generateRiskFactors(risk),
       this.generateWarningSignals(risk),
-      this.generatePreventionPlan(risk),
+      this.generatePreventionPlan(risk)
     ];
 
     return sections.join('\n\n');
@@ -69,7 +69,7 @@ export class ResourceOptimizationFormatter {
       this.generateCapacityProjections(forecast),
       this.generateBottleneckPredictions(forecast),
       this.generateResourceNeeds(forecast),
-      this.generateCapacityRecommendations(forecast),
+      this.generateCapacityRecommendations(forecast)
     ];
 
     return sections.join('\n\n');
@@ -82,12 +82,12 @@ export class ResourceOptimizationFormatter {
     const balanceGrade = this.getBalanceGrade(analysis.balanceScore);
 
     return [
-      `# ⚖️ Team Workload Analysis`,
-      ``,
+      '# ⚖️ Team Workload Analysis',
+      '',
       `**Team ID:** ${analysis.teamId}`,
       `**Analysis Date:** ${analysis.analysisDate.toLocaleDateString()}`,
       `**Risk Level:** ${riskEmoji} ${analysis.riskLevel.toUpperCase()}`,
-      `**Balance Score:** ${balanceGrade} (${analysis.balanceScore}/100)`,
+      `**Balance Score:** ${balanceGrade} (${analysis.balanceScore}/100)`
     ].join('\n');
   }
 
@@ -97,10 +97,10 @@ export class ResourceOptimizationFormatter {
     const underutilizedMembers = analysis.memberAnalysis.filter(m => m.utilizationRate < 0.6).length;
 
     return [
-      `## 📊 Executive Summary`,
-      ``,
-      `| Metric | Value | Status |`,
-      `|--------|-------|--------|`,
+      '## 📊 Executive Summary',
+      '',
+      '| Metric | Value | Status |',
+      '|--------|-------|--------|',
       `| **Team Utilization** | ${utilizationPercentage}% | ${this.getUtilizationStatus(analysis.utilizationRate)} |`,
       `| **Total Capacity** | ${analysis.totalCapacity} hours | ${this.getCapacityStatus(analysis.totalCapacity)} |`,
       `| **Utilized Capacity** | ${analysis.utilizedCapacity} hours | - |`,
@@ -109,8 +109,8 @@ export class ResourceOptimizationFormatter {
       `| **Active Bottlenecks** | ${analysis.bottlenecks.length} | ${
         analysis.bottlenecks.length > 0 ? '🚨 Action Required' : '✅ Clear'
       } |`,
-      ``,
-      `**Key Insight:** ${this.generateKeyInsight(analysis)}`,
+      '',
+      `**Key Insight:** ${this.generateKeyInsight(analysis)}`
     ].join('\n');
   }
 
@@ -120,26 +120,26 @@ export class ResourceOptimizationFormatter {
     const utilizationBar = this.generateProgressBar(avgUtilization, 1.2);
 
     return [
-      `## 📈 Team Metrics`,
-      ``,
-      `### Capacity Distribution`,
-      ``,
+      '## 📈 Team Metrics',
+      '',
+      '### Capacity Distribution',
+      '',
       `**Average Utilization:** ${Math.round(avgUtilization * 100)}%`,
       `${utilizationBar}`,
-      ``,
-      `### Utilization Breakdown`,
-      ``,
+      '',
+      '### Utilization Breakdown',
+      '',
       ...analysis.memberAnalysis.map(member => {
         const utilization = Math.round(member.utilizationRate * 100);
         const bar = this.generateProgressBar(member.utilizationRate, 1.2);
         const status = this.getUtilizationEmoji(member.utilizationRate);
         return `**${member.memberName}:** ${utilization}% ${status}\n${bar}`;
-      }),
+      })
     ].join('\n');
   }
 
   private static generateMemberAnalysis(memberAnalysis: MemberWorkloadAnalysis[]): string {
-    const sections = [`## 👥 Individual Analysis`, ``];
+    const sections = ['## 👥 Individual Analysis', ''];
 
     memberAnalysis.forEach((member, index) => {
       const utilization = Math.round(member.utilizationRate * 100);
@@ -147,23 +147,23 @@ export class ResourceOptimizationFormatter {
       const trendEmoji = this.getTrendEmoji(member.workloadTrend.direction);
 
       sections.push(`### ${index + 1}. ${member.memberName} ${burnoutEmoji}`);
-      sections.push(``);
-      sections.push(`| Metric | Value |`);
-      sections.push(`|--------|-------|`);
+      sections.push('');
+      sections.push('| Metric | Value |');
+      sections.push('|--------|-------|');
       sections.push(`| **Capacity** | ${member.capacity} hours/week |`);
       sections.push(`| **Current Workload** | ${member.currentWorkload} hours |`);
       sections.push(`| **Utilization** | ${utilization}% |`);
       sections.push(`| **Burnout Risk** | ${member.burnoutRisk.toUpperCase()} ${burnoutEmoji} |`);
       sections.push(`| **Trend** | ${member.workloadTrend.direction.toUpperCase()} ${trendEmoji} |`);
       sections.push(`| **Sustainability** | ${member.workloadTrend.sustainabilityScore}/100 |`);
-      sections.push(``);
+      sections.push('');
 
       if (member.recommendations.length > 0) {
-        sections.push(`**Recommendations:**`);
+        sections.push('**Recommendations:**');
         member.recommendations.forEach(rec => {
           sections.push(`- ${rec}`);
         });
-        sections.push(``);
+        sections.push('');
       }
     });
 
@@ -173,28 +173,28 @@ export class ResourceOptimizationFormatter {
   private static generateBottleneckAnalysis(analysis: WorkloadAnalysis): string {
     if (analysis.bottlenecks.length === 0) {
       return [
-        `## 🚦 Bottleneck Analysis`,
-        ``,
-        `✅ **No active bottlenecks detected**`,
-        ``,
-        `The team is operating smoothly without significant resource constraints.`,
+        '## 🚦 Bottleneck Analysis',
+        '',
+        '✅ **No active bottlenecks detected**',
+        '',
+        'The team is operating smoothly without significant resource constraints.'
       ].join('\n');
     }
 
-    const sections = [`## 🚨 Bottleneck Analysis`, ``, `${analysis.bottlenecks.length} active bottlenecks identified:`];
+    const sections = ['## 🚨 Bottleneck Analysis', '', `${analysis.bottlenecks.length} active bottlenecks identified:`];
 
     analysis.bottlenecks.forEach((bottleneck, index) => {
       const severityBar = this.generateProgressBar(bottleneck.severity, 10, '🔴', '⚪');
 
-      sections.push(``);
+      sections.push('');
       sections.push(`### ${index + 1}. ${bottleneck.type.replace(/_/g, ' ').toUpperCase()}`);
-      sections.push(``);
+      sections.push('');
       sections.push(`**Severity:** ${bottleneck.severity}/10`);
       sections.push(`${severityBar}`);
       sections.push(`**Affected Members:** ${bottleneck.affectedMembers.length}`);
       sections.push(`**Estimated Impact:** ${bottleneck.estimatedImpact} hours delayed`);
-      sections.push(``);
-      sections.push(`**Suggested Actions:**`);
+      sections.push('');
+      sections.push('**Suggested Actions:**');
       bottleneck.suggestedActions.forEach(action => {
         sections.push(`- ${action}`);
       });
@@ -204,70 +204,70 @@ export class ResourceOptimizationFormatter {
   }
 
   private static generateRecommendations(recommendations: string[]): string {
-    return [`## 💡 Optimization Recommendations`, ``, ...recommendations.map(rec => `${rec}`), ``].join('\n');
+    return ['## 💡 Optimization Recommendations', '', ...recommendations.map(rec => `${rec}`), ''].join('\n');
   }
 
   private static generateMetadata(analysis: WorkloadAnalysis): string {
     return [
-      `## 📋 Analysis Metadata`,
-      ``,
+      '## 📋 Analysis Metadata',
+      '',
       `- **Team Members Analyzed:** ${analysis.memberAnalysis.length}`,
       `- **Analysis Timestamp:** ${analysis.analysisDate.toISOString()}`,
-      `- **Balance Algorithm:** Workload Distribution Optimization v2.1`,
-      `- **Risk Assessment:** Multi-factor Burnout Prediction Model`,
-      ``,
-      `---`,
-      `*Generated by ClickUp Intelligence MCP Server - Resource Optimizer*`,
+      '- **Balance Algorithm:** Workload Distribution Optimization v2.1',
+      '- **Risk Assessment:** Multi-factor Burnout Prediction Model',
+      '',
+      '---',
+      '*Generated by ClickUp Intelligence MCP Server - Resource Optimizer*'
     ].join('\n');
   }
 
   // Assignment plan formatting methods
   private static generateAssignmentHeader(plan: AssignmentPlan): string {
     return [
-      `# 🎯 Task Assignment Plan`,
-      ``,
+      '# 🎯 Task Assignment Plan',
+      '',
       `**Plan ID:** ${plan.planId}`,
       `**Created:** ${plan.createdDate.toLocaleDateString()}`,
       `**Assignments:** ${plan.assignments.length} tasks`,
-      `**Confidence:** ${Math.round(plan.confidence * 100)}%`,
+      `**Confidence:** ${Math.round(plan.confidence * 100)}%`
     ].join('\n');
   }
 
   private static generateAssignmentSummary(plan: AssignmentPlan): string {
     return [
-      `## 📊 Assignment Summary`,
-      ``,
-      `| Metric | Score | Grade |`,
-      `|--------|-------|-------|`,
+      '## 📊 Assignment Summary',
+      '',
+      '| Metric | Score | Grade |',
+      '|--------|-------|-------|',
       `| **Balance Score** | ${plan.balanceScore}/100 | ${this.getGrade(plan.balanceScore)} |`,
       `| **Skill Match** | ${plan.skillMatchScore}/100 | ${this.getGrade(plan.skillMatchScore)} |`,
       `| **Capacity Utilization** | ${plan.capacityUtilization}% | ${this.getUtilizationGrade(
-        plan.capacityUtilization,
+        plan.capacityUtilization
       )} |`,
-      ``,
-      `**Overall Impact:**`,
+      '',
+      '**Overall Impact:**',
       `- Team Balance: ${plan.estimatedImpact.teamBalance}/100`,
       `- Skill Development: ${plan.estimatedImpact.skillDevelopment}/100`,
       `- Delivery Risk: ${plan.estimatedImpact.deliveryRisk}/100`,
-      `- Member Satisfaction: ${plan.estimatedImpact.memberSatisfaction}/100`,
+      `- Member Satisfaction: ${plan.estimatedImpact.memberSatisfaction}/100`
     ].join('\n');
   }
 
   private static generateAssignmentDetails(plan: AssignmentPlan): string {
-    const sections = [`## 📋 Assignment Details`, ``];
+    const sections = ['## 📋 Assignment Details', ''];
 
     plan.assignments.forEach((assignment, index) => {
       sections.push(`### ${index + 1}. ${assignment.taskId} → ${assignment.assigneeName}`);
-      sections.push(``);
+      sections.push('');
       sections.push(`**Skill Match:** ${assignment.skillMatch.overallMatch}/100`);
       sections.push(`**Workload Impact:** +${assignment.workloadImpact.utilizationChange}% utilization`);
       sections.push(`**Confidence:** ${Math.round(assignment.confidence * 100)}%`);
-      sections.push(``);
-      sections.push(`**Reasoning:**`);
+      sections.push('');
+      sections.push('**Reasoning:**');
       assignment.reasoning.forEach(reason => {
         sections.push(`- ${reason}`);
       });
-      sections.push(``);
+      sections.push('');
     });
 
     return sections.join('\n');
@@ -275,16 +275,16 @@ export class ResourceOptimizationFormatter {
 
   private static generateAlternativeOptions(plan: AssignmentPlan): string {
     if (plan.alternativeOptions.length === 0) {
-      return `## 🔄 Alternative Options\n\nNo alternative assignment options generated.`;
+      return '## 🔄 Alternative Options\n\nNo alternative assignment options generated.';
     }
 
-    const sections = [`## 🔄 Alternative Options`, ``, `${plan.alternativeOptions.length} alternative assignment plans available:`];
+    const sections = ['## 🔄 Alternative Options', '', `${plan.alternativeOptions.length} alternative assignment plans available:`];
 
     plan.alternativeOptions.forEach((option, index) => {
-      sections.push(``);
+      sections.push('');
       sections.push(`### Option ${index + 1} (Score: ${option.score}/100)`);
       sections.push(`**Assignments:** ${option.assignments.length}`);
-      sections.push(`**Trade-offs:**`);
+      sections.push('**Trade-offs:**');
       option.tradeoffs.forEach(tradeoff => {
         sections.push(`- ${tradeoff}`);
       });
@@ -295,14 +295,14 @@ export class ResourceOptimizationFormatter {
 
   private static generateAssignmentMetadata(plan: AssignmentPlan): string {
     return [
-      `## 📋 Plan Metadata`,
-      ``,
-      `- **Optimization Algorithm:** Multi-objective Constraint Satisfaction`,
+      '## 📋 Plan Metadata',
+      '',
+      '- **Optimization Algorithm:** Multi-objective Constraint Satisfaction',
       `- **Generated:** ${plan.createdDate.toISOString()}`,
       `- **Confidence Level:** ${Math.round(plan.confidence * 100)}%`,
-      ``,
-      `---`,
-      `*Generated by ClickUp Intelligence MCP Server - Resource Optimizer*`,
+      '',
+      '---',
+      '*Generated by ClickUp Intelligence MCP Server - Resource Optimizer*'
     ].join('\n');
   }
 
@@ -321,7 +321,7 @@ export class ResourceOptimizationFormatter {
       [RiskLevel.LOW]: '🟢',
       [RiskLevel.MEDIUM]: '🟡',
       [RiskLevel.HIGH]: '🟠',
-      [RiskLevel.CRITICAL]: '🔴',
+      [RiskLevel.CRITICAL]: '🔴'
     };
     return emojis[risk] || '⚪';
   }
@@ -331,7 +331,7 @@ export class ResourceOptimizationFormatter {
       [BurnoutRiskLevel.LOW]: '😊',
       [BurnoutRiskLevel.MODERATE]: '😐',
       [BurnoutRiskLevel.HIGH]: '😰',
-      [BurnoutRiskLevel.CRITICAL]: '🚨',
+      [BurnoutRiskLevel.CRITICAL]: '🚨'
     };
     return emojis[risk] || '😐';
   }
@@ -348,7 +348,7 @@ export class ResourceOptimizationFormatter {
       [TrendDirection.INCREASING]: '📈',
       [TrendDirection.DECREASING]: '📉',
       [TrendDirection.STABLE]: '➡️',
-      [TrendDirection.VOLATILE]: '📊',
+      [TrendDirection.VOLATILE]: '📊'
     };
     return emojis[trend] || '➡️';
   }
@@ -433,7 +433,7 @@ export class ResourceOptimizationFormatter {
 
   private static generateCapacityHeader(forecast: CapacityForecast): string {
     return `# 📈 Capacity Forecast\n\n**Team ID:** ${forecast.teamId}\n**Confidence:** ${Math.round(
-      forecast.confidence * 100,
+      forecast.confidence * 100
     )}%`;
   }
 

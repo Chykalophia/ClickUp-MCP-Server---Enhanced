@@ -32,6 +32,25 @@ import { ResourceOptimizer, workloadAnalysisTool, taskAssignmentTool, burnoutAna
 import { ResourceOptimizationService } from './services/resource-optimization-service-impl.js';
 import { ResourceOptimizationFormatter } from './utils/resource-optimization-formatter.js';
 
+// Phase 1.5 - Workflow Intelligence (NEW)
+import { WorkflowIntelligence, workflowPatternAnalysisTool, automationRecommendationTool, integrationOptimizationTool } from './tools/workflow-intelligence.js';
+import { WorkflowIntelligenceService, WorkflowPatternAnalysisInputSchema, AutomationRecommendationInputSchema, IntegrationOptimizationInputSchema } from './services/workflow-intelligence-service.js';
+import { WorkflowIntelligenceFormatter } from './utils/workflow-intelligence-formatter.js';
+
+// Phase 3.1 - Real-Time Data Processing Engine (NEW)
+import { 
+  startRealTimeEngine, 
+  processWebhookEvent, 
+  addProcessingRule, 
+  getRealTimeMetrics, 
+  stopRealTimeEngine, 
+  getCachedTaskData,
+  startRealTimeEngineSchema,
+  processWebhookSchema,
+  addProcessingRuleSchema,
+  getRealTimeMetricsSchema
+} from './tools/real-time-tools.js';
+
 // Shared utilities
 import { formatMarkdownReport, generateExecutiveDashboard } from './utils/report-formatter.js';
 
@@ -52,6 +71,7 @@ class ClickUpIntelligenceServer {
   private taskAnalysisService: TaskAnalysisService;
   private resourceOptimizer: ResourceOptimizer;
   private resourceOptimizationService: ResourceOptimizationService;
+  private workflowIntelligence: WorkflowIntelligence;
 
   constructor() {
     // Initialize MCP server
@@ -77,6 +97,7 @@ class ClickUpIntelligenceServer {
     this.taskAnalysisService = new TaskAnalysisService();
     this.resourceOptimizer = new ResourceOptimizer();
     this.resourceOptimizationService = new ResourceOptimizationService();
+    this.workflowIntelligence = new WorkflowIntelligence();
 
     this.setupToolHandlers();
   }
@@ -192,6 +213,75 @@ class ClickUpIntelligenceServer {
           name: 'clickup_forecast_team_capacity',
           description: '📈 **CAPACITY FORECASTING** - Predictive capacity analysis for future resource planning. Identifies potential bottlenecks, resource needs, and hiring recommendations based on historical trends and growth projections.',
           inputSchema: capacityForecastTool.inputSchema
+        },
+
+        // Phase 1.5 - Workflow Intelligence
+        {
+          name: 'clickup_analyze_workflow_patterns',
+          description: '🔄 **WORKFLOW PATTERN ANALYZER** - Identify recurring workflow patterns, bottlenecks, and optimization opportunities. Analyzes team workflows to discover inefficiencies and automation potential.',
+          inputSchema: WorkflowPatternAnalysisInputSchema
+        },
+
+        {
+          name: 'clickup_recommend_automations',
+          description: '🤖 **AUTOMATION RECOMMENDER** - Generate AI-powered automation recommendations based on workflow analysis. Identifies repetitive tasks and suggests automation solutions with implementation guidance.',
+          inputSchema: AutomationRecommendationInputSchema
+        },
+
+        {
+          name: 'clickup_optimize_integrations',
+          description: '🔗 **INTEGRATION OPTIMIZER** - Recommend optimal third-party integrations and workflow connections. Analyzes current setup and suggests integrations to maximize productivity and reduce manual work.',
+          inputSchema: IntegrationOptimizationInputSchema
+        },
+
+        // Phase 3.1 - Real-Time Data Processing Engine
+        {
+          name: 'clickup_start_realtime_engine',
+          description: '🚀 **REAL-TIME PROCESSING ENGINE** - Start the real-time data processing engine for live ClickUp integration. Enables WebSocket connections, event streaming, and real-time analytics with <2s latency.',
+          inputSchema: startRealTimeEngineSchema
+        },
+        
+        {
+          name: 'clickup_process_webhook',
+          description: '📡 **WEBHOOK PROCESSOR** - Process incoming ClickUp webhook events in real-time. Validates signatures, processes events through stream pipeline, and broadcasts to connected clients.',
+          inputSchema: processWebhookSchema
+        },
+        
+        {
+          name: 'clickup_add_processing_rule',
+          description: '⚙️ **PROCESSING RULE ENGINE** - Add custom processing rules for real-time event handling. Define conditions and actions for automated responses to ClickUp events.',
+          inputSchema: addProcessingRuleSchema
+        },
+        
+        {
+          name: 'clickup_get_realtime_metrics',
+          description: '📊 **REAL-TIME METRICS** - Get comprehensive metrics from the real-time processing engine including latency, throughput, cache hit rates, and SLA compliance.',
+          inputSchema: getRealTimeMetricsSchema
+        },
+        
+        {
+          name: 'clickup_get_cached_task',
+          description: '💾 **CACHED DATA ACCESS** - Retrieve cached task data from the real-time processing engine for instant access without API calls.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              taskId: {
+                type: 'string',
+                description: 'ClickUp task ID to retrieve from cache'
+              }
+            },
+            required: ['taskId']
+          }
+        },
+        
+        {
+          name: 'clickup_stop_realtime_engine',
+          description: '🛑 **STOP REAL-TIME ENGINE** - Gracefully stop the real-time processing engine and return final metrics.',
+          inputSchema: {
+            type: 'object',
+            properties: {},
+            additionalProperties: false
+          }
         }
       ]
     }));
@@ -370,6 +460,71 @@ class ClickUpIntelligenceServer {
               ]
             };
 
+          // Phase 1.5 - Workflow Intelligence
+          case 'clickup_analyze_workflow_patterns':
+            console.log('[Intelligence] Executing workflow pattern analysis...');
+            if (!args) throw new Error('Missing required arguments for workflow pattern analysis');
+            const workflowResult = await this.workflowIntelligence.analyzeWorkflowPatterns(args as any);
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: WorkflowIntelligenceFormatter.generateWorkflowReport(workflowResult)
+                }
+              ]
+            };
+
+          case 'clickup_recommend_automations':
+            console.log('[Intelligence] Executing automation recommendations...');
+            if (!args) throw new Error('Missing required arguments for automation recommendations');
+            const automationResult = await this.workflowIntelligence.recommendAutomations(args as any);
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: WorkflowIntelligenceFormatter.generateAutomationReport(automationResult)
+                }
+              ]
+            };
+
+          case 'clickup_optimize_integrations':
+            console.log('[Intelligence] Executing integration optimization...');
+            if (!args) throw new Error('Missing required arguments for integration optimization');
+            const integrationResult = await this.workflowIntelligence.optimizeIntegrations(args as any);
+            return {
+              content: [
+                {
+                  type: 'text',
+                  text: WorkflowIntelligenceFormatter.generateIntegrationReport(integrationResult)
+                }
+              ]
+            };
+
+          // Phase 3.1 - Real-Time Data Processing Engine
+          case 'clickup_start_realtime_engine':
+            console.log('[Intelligence] Starting real-time processing engine...');
+            return await startRealTimeEngine(args as any);
+
+          case 'clickup_process_webhook':
+            console.log('[Intelligence] Processing webhook event...');
+            return await processWebhookEvent(args as any);
+
+          case 'clickup_add_processing_rule':
+            console.log('[Intelligence] Adding processing rule...');
+            return await addProcessingRule(args as any);
+
+          case 'clickup_get_realtime_metrics':
+            console.log('[Intelligence] Getting real-time metrics...');
+            return await getRealTimeMetrics(args as any);
+
+          case 'clickup_get_cached_task':
+            console.log('[Intelligence] Getting cached task data...');
+            return await getCachedTaskData(args as any);
+
+          case 'clickup_stop_realtime_engine':
+            console.log('[Intelligence] Stopping real-time processing engine...');
+            return await stopRealTimeEngine();
+
           default:
             throw new Error(`Unknown tool: ${name}`);
         }
@@ -399,7 +554,9 @@ class ClickUpIntelligenceServer {
     console.log('[Intelligence] Phase 1.2: Smart Sprint Planner ✅');
     console.log('[Intelligence] Phase 1.3: Task Decomposition Engine ✅');
     console.log('[Intelligence] Phase 1.4: Resource Optimizer ✅');
-    console.log('[Intelligence] Available tools: 12');
+    console.log('[Intelligence] Phase 1.5: Workflow Intelligence ✅');
+    console.log('[Intelligence] Phase 3.1: Real-Time Data Processing Engine ✅');
+    console.log('[Intelligence] Available tools: 21');
   }
 }
 

@@ -81,7 +81,7 @@ console.log('Task update test successful!');
         
         const result = {
           success: true,
-          task_id: task_id,
+          task_id,
           update_timestamp: new Date().toISOString(),
           original_description_length: currentTask.description?.length || 0,
           updated_description_length: verificationTask.description?.length || 0,
@@ -108,7 +108,7 @@ console.log('Task update test successful!');
         
         const errorResult = {
           success: false,
-          task_id: task_id,
+          task_id,
           error_timestamp: new Date().toISOString(),
           error_message: error.message,
           error_details: error.response?.data || 'No additional details',

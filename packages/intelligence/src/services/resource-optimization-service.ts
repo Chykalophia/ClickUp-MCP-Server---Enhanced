@@ -119,6 +119,7 @@ export interface ResourceRecommendations {
 }
 
 // Supporting types and enums
+/* eslint-disable no-unused-vars */
 export enum SkillCategory {
   TECHNICAL = 'technical',
   BUSINESS = 'business',
@@ -146,6 +147,7 @@ export enum RiskLevel {
   HIGH = 'high',
   CRITICAL = 'critical'
 }
+/* eslint-enable no-unused-vars */
 
 export interface Availability {
   hoursPerWeek: number;
@@ -332,6 +334,7 @@ export interface ProcessImprovement {
 }
 
 // Enums for supporting types
+/* eslint-disable no-unused-vars */
 export enum WorkingStyle {
   FOCUSED = 'focused',
   COLLABORATIVE = 'collaborative',
@@ -373,6 +376,7 @@ export enum RecommendationType {
   REBALANCING = 'rebalancing',
   PROCESS_IMPROVEMENT = 'process_improvement'
 }
+/* eslint-enable no-unused-vars */
 
 export interface UnavailablePeriod {
   startDate: Date;

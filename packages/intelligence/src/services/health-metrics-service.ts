@@ -395,7 +395,7 @@ export class HealthMetricsService {
     if (tasks.length === 0) return 0;
     
     const now = new Date();
-    const totalAge = tasks.reduce((sum, task) => {
+    const totalAge = tasks.reduce((sum, _task) => {
       // Mock creation date calculation - in production, use actual date_created
       const createdDate = new Date(now.getTime() - Math.random() * 30 * 24 * 60 * 60 * 1000);
       const ageInDays = Math.floor((now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24));

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * ClickUp Intelligence MCP Server - Main Entry Point
  * 

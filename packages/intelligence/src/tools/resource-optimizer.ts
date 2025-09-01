@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { z } from 'zod';
 import { ResourceOptimizationService } from '../services/resource-optimization-service-impl.js';
 import {

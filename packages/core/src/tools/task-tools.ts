@@ -1,3 +1,4 @@
+/* eslint-disable no-console, max-len */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { createClickUpClient } from '../clickup-client/index.js';
@@ -820,9 +821,9 @@ export function setupTaskTools(server: McpServer): void {
       primary_task_id, 
       secondary_task_ids, 
       merge_descriptions,
-      merge_comments,
-      merge_attachments,
-      merge_time_tracking,
+      merge_comments: _merge_comments,
+      merge_attachments: _merge_attachments,
+      merge_time_tracking: _merge_time_tracking,
       confirm_merge 
     }) => {
       try {

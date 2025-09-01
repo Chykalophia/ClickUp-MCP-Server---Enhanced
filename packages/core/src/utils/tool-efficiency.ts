@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /**
  * Tool Efficiency and Metadata System
  * Provides intelligent tool suggestions and efficiency hints for better AI decision making

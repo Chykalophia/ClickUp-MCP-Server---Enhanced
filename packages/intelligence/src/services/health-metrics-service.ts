@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /**
  * Health Metrics Service
  * 

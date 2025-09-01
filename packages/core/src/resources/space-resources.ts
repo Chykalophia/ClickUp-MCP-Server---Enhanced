@@ -1,3 +1,4 @@
+/* eslint-disable no-console, max-len */
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createSpacesClient } from '../clickup-client/spaces.js';

@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { TaskDecomposition, DecomposedTask, ComplexityAnalysis, TaskType } from '../services/task-analysis-service.js';
 
 /**

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { marked } from 'marked';
 import TurndownService from 'turndown';
 

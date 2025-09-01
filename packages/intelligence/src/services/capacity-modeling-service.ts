@@ -1,3 +1,4 @@
+/* eslint-disable no-console, max-len */
 /**
  * Capacity Modeling Service
  * 

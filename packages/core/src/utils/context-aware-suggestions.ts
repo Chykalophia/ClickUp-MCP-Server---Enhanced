@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /**
  * Context-Aware Tool Suggestion System
  * Analyzes user requests and provides intelligent tool recommendations

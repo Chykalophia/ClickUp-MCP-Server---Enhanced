@@ -1,3 +1,4 @@
+/* eslint-disable no-console, max-len */
 import { ClickUpClient } from './index.js';
 import { processClickUpResponse } from '../utils/markdown.js';
 import { prepareCommentForClickUp, clickUpCommentToMarkdown, ClickUpCommentBlock } from '../utils/clickup-comment-formatter.js';

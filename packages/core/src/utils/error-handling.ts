@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { z } from 'zod';
 
 /**
@@ -5,7 +6,7 @@ import { z } from 'zod';
  */
 
 // Error types
-/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-unused-vars */
 export enum ErrorType {
   VALIDATION = 'VALIDATION',
   AUTHENTICATION = 'AUTHENTICATION',
@@ -27,7 +28,7 @@ export enum ErrorSeverity {
   HIGH = 'HIGH',
   CRITICAL = 'CRITICAL'
 }
-/* eslint-enable @typescript-eslint/no-unused-vars */
+/* eslint-enable no-unused-vars */
 
 // Structured error interface
 export interface StructuredError {

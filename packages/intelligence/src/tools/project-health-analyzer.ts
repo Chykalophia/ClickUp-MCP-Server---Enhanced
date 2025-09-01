@@ -1,3 +1,4 @@
+/* eslint-disable no-console, max-len */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { ProjectHealthAnalyzer } from '../analyzers/project-health-analyzer.js';

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { z } from 'zod';
 import { RealTimeProcessingEngine } from '../services/real-time-processing-engine.js';
 import { ProcessingRule } from '../services/event-stream-processor.js';

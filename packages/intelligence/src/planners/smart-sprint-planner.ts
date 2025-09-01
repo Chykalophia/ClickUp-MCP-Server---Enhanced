@@ -1,3 +1,4 @@
+/* eslint-disable no-console, max-len */
 import { SprintPlanningData, ClickUpTask } from '@chykalophia/clickup-mcp-shared';
 import axios from 'axios';
 

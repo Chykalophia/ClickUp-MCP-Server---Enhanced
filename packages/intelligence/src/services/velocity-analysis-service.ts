@@ -1,3 +1,4 @@
+/* eslint-disable no-console, max-len */
 /**
  * Velocity Analysis Service
  * 

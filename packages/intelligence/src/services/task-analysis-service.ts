@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 export interface Task {
   id: string;
   name: string;

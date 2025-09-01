@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 export default async function globalTeardown() {
   console.log('🧹 Cleaning up global test environment...');
   

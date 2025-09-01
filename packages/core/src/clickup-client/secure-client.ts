@@ -1,3 +1,4 @@
+/* eslint-disable no-console, max-len */
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { validateApiToken, sanitizeInput, rateLimiter, DEFAULT_RATE_LIMITS } from '../utils/security.js';
 import { handleClickUpApiError, RetryManager, generateRequestId } from '../utils/error-handling.js';

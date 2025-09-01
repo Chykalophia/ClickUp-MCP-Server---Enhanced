@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 export default async function globalSetup() {
   console.log('🧪 Setting up global test environment...');
   

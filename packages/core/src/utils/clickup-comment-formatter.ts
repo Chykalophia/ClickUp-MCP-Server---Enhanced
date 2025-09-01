@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /**
  * ClickUp Comment Formatting Utility
  * Handles ClickUp's specific comment format structure with text blocks and attributes

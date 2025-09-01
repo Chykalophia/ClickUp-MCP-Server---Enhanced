@@ -1,3 +1,4 @@
+/* eslint-disable no-console, max-len */
 import crypto from 'crypto';
 import { ClickUpClient } from './index.js';
 import type {

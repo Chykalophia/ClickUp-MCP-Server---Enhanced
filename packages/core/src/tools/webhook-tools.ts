@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { WebhooksEnhancedClient } from '../clickup-client/webhooks-enhanced.js';
 import {

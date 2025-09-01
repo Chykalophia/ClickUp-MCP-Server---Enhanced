@@ -1,3 +1,4 @@
+/* eslint-disable no-console, max-len */
 import { ClickUpClient } from './index.js';
 import axios from 'axios';
 

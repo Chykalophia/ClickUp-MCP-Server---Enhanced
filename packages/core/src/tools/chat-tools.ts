@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { ChatEnhancedClient } from '../clickup-client/chat-enhanced.js';

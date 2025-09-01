@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createCommentsClient } from '../clickup-client/comments.js';

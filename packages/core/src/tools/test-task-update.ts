@@ -18,23 +18,34 @@ export function setupTestTaskUpdateTool(server: McpServer): void {
     'TEST TOOL: Update a task with markdown content to verify the fix works correctly. This tool provides detailed logging of the update process.',
     {
       task_id: z.string().describe('The ID of the task to update (e.g., 868fa998b)'),
-      test_content: z.string().optional().describe('Test markdown content to set (defaults to a test markdown string)'),
-      clear_description: z.boolean().optional().describe('Whether to clear existing description first')
+      test_content: z
+        .string()
+        .optional()
+        .describe('Test markdown content to set (defaults to a test markdown string)'),
+      clear_description: z
+        .boolean()
+        .optional()
+        .describe('Whether to clear existing description first'),
     },
     async ({ task_id, test_content, clear_description }) => {
       try {
         // eslint-disable-next-line no-console
         console.log(`[TEST] Starting task update test for task: ${task_id}`);
-        
+
         // Get current task state
         // eslint-disable-next-line no-console
         console.log('[TEST] Fetching current task state...');
         const currentTask = await tasksClient.getTask(task_id);
         // eslint-disable-next-line no-console
-        console.log('[TEST] Current task description:', `${currentTask.description?.substring(0, 100)}...`);
-        
+        console.log(
+          '[TEST] Current task description:',
+          `${currentTask.description?.substring(0, 100)}...`
+        );
+
         // Prepare test content
-        const markdownContent = test_content || `# Test Update - ${new Date().toISOString()}
+        const markdownContent =
+          test_content ||
+          `# Test Update - ${new Date().toISOString()}
 
 This is a **test update** with markdown formatting:
 
@@ -52,34 +63,34 @@ console.log('Task update test successful!');
 
         // eslint-disable-next-line no-console
         console.log('[TEST] Test content prepared:', `${markdownContent.substring(0, 100)}...`);
-        
+
         // Perform update
         // eslint-disable-next-line no-console
         console.log('[TEST] Performing task update...');
         const updateParams: any = {
-          description: markdownContent
+          description: markdownContent,
         };
-        
+
         if (clear_description) {
           // eslint-disable-next-line no-console
           console.log('[TEST] Clearing description first...');
           await tasksClient.updateTask(task_id, { description: '' });
         }
-        
+
         const updatedTask = await tasksClient.updateTask(task_id, updateParams);
-        
+
         // eslint-disable-next-line no-console
         console.log('[TEST] Task update completed successfully!');
         // eslint-disable-next-line no-console
         console.log('[TEST] Updated description length:', updatedTask.description?.length || 0);
         // eslint-disable-next-line no-console
         console.log('[TEST] Updated text_content length:', updatedTask.text_content?.length || 0);
-        
+
         // Verify the update
         // eslint-disable-next-line no-console
         console.log('[TEST] Fetching updated task to verify...');
         const verificationTask = await tasksClient.getTask(task_id);
-        
+
         const result = {
           success: true,
           task_id,
@@ -93,20 +104,21 @@ console.log('Task update test successful!');
             'Task update completed successfully',
             'Markdown content was processed correctly',
             'Description field contains the processed content',
-            'Text content field contains plain text version'
-          ]
+            'Text content field contains plain text version',
+          ],
         };
-        
+
         return {
-          content: [{ 
-            type: 'text', 
-            text: `✅ TASK UPDATE TEST SUCCESSFUL!\n\n${JSON.stringify(result, null, 2)}` 
-          }]
+          content: [
+            {
+              type: 'text',
+              text: `✅ TASK UPDATE TEST SUCCESSFUL!\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
-        
       } catch (error: any) {
         console.error('[TEST] Task update test failed:', error);
-        
+
         const errorResult = {
           success: false,
           task_id,
@@ -117,16 +129,18 @@ console.log('Task update test successful!');
             'Verify the task ID exists and is accessible',
             'Check that the API token has write permissions',
             'Ensure the task is not in a read-only state',
-            'Verify network connectivity to ClickUp API'
-          ]
+            'Verify network connectivity to ClickUp API',
+          ],
         };
-        
+
         return {
-          content: [{ 
-            type: 'text', 
-            text: `❌ TASK UPDATE TEST FAILED!\n\n${JSON.stringify(errorResult, null, 2)}` 
-          }],
-          isError: true
+          content: [
+            {
+              type: 'text',
+              text: `❌ TASK UPDATE TEST FAILED!\n\n${JSON.stringify(errorResult, null, 2)}`,
+            },
+          ],
+          isError: true,
         };
       }
     }

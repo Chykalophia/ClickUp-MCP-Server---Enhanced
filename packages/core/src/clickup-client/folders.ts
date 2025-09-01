@@ -33,7 +33,10 @@ export class FoldersClient {
    * @param params Optional parameters for filtering folders
    * @returns A list of folders
    */
-  async getFoldersFromSpace(spaceId: string, params?: GetFoldersParams): Promise<{ folders: Folder[] }> {
+  async getFoldersFromSpace(
+    spaceId: string,
+    params?: GetFoldersParams
+  ): Promise<{ folders: Folder[] }> {
     return this.client.get(`/space/${spaceId}/folder`, params);
   }
 

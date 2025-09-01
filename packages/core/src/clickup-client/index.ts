@@ -10,7 +10,7 @@ export interface ClickUpClientConfig {
 
 export class ClickUpClient {
   private axiosInstance: AxiosInstance;
-  
+
   constructor(config: ClickUpClientConfig) {
     if (!config.apiToken) {
       throw new Error('ClickUp API token is required');
@@ -19,10 +19,10 @@ export class ClickUpClient {
     this.axiosInstance = axios.create({
       baseURL: config.baseUrl || API_BASE_URL,
       headers: {
-        'accept': 'application/json',
+        accept: 'application/json',
         'content-type': 'application/json',
-        'Authorization': config.apiToken
-      }
+        Authorization: config.apiToken,
+      },
     });
 
     // Add response interceptor for error handling
@@ -76,10 +76,10 @@ export class ClickUpClient {
 // Create a singleton instance using environment variables
 export const createClickUpClient = (): ClickUpClient => {
   const apiToken = process.env.CLICKUP_API_TOKEN;
-  
+
   if (!apiToken) {
     throw new Error('CLICKUP_API_TOKEN environment variable is required');
   }
-  
+
   return new ClickUpClient({ apiToken });
 };

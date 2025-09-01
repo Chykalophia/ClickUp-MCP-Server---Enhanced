@@ -8,7 +8,7 @@ import {
   validateUrl,
   generateSecureToken,
   validateEnvironment,
-  rateLimiter
+  rateLimiter,
 } from '../utils/security.js';
 
 describe('Security Utilities', () => {
@@ -59,7 +59,7 @@ describe('Security Utilities', () => {
     it('should sanitize object input', () => {
       const input = {
         name: '<script>alert("xss")</script>',
-        description: ['javascript', 'alert("xss")'].join(':')
+        description: ['javascript', 'alert("xss")'].join(':'),
       };
       const result = sanitizeInput(input);
       expect(result.name).toBe('scriptalert("xss")/script');
@@ -82,7 +82,7 @@ describe('Security Utilities', () => {
   describe('validateWebhookSignature', () => {
     const secret = 'test-secret';
     const payload = '{"test": "data"}';
-    
+
     it('should validate correct signature', () => {
       const signature = crypto.createHmac('sha256', secret).update(payload).digest('hex');
       const result = validateWebhookSignature(payload, signature, secret);
@@ -232,7 +232,7 @@ describe('Security Utilities', () => {
   describe('rateLimiter', () => {
     it('should allow requests under limit', () => {
       const config = { windowMs: 60000, maxRequests: 5 };
-      
+
       for (let i = 0; i < 5; i++) {
         expect(rateLimiter.isAllowed('test-key', config)).toBe(true);
       }
@@ -240,7 +240,7 @@ describe('Security Utilities', () => {
 
     it('should reject requests over limit', () => {
       const config = { windowMs: 60000, maxRequests: 2 };
-      
+
       expect(rateLimiter.isAllowed('test-key', config)).toBe(true);
       expect(rateLimiter.isAllowed('test-key', config)).toBe(true);
       expect(rateLimiter.isAllowed('test-key', config)).toBe(false);
@@ -248,19 +248,19 @@ describe('Security Utilities', () => {
 
     it('should reset limits after window', async () => {
       const config = { windowMs: 100, maxRequests: 1 };
-      
+
       expect(rateLimiter.isAllowed('test-key', config)).toBe(true);
       expect(rateLimiter.isAllowed('test-key', config)).toBe(false);
-      
+
       // Wait for window to expire
       await new Promise(resolve => setTimeout(resolve, 150));
-      
+
       expect(rateLimiter.isAllowed('test-key', config)).toBe(true);
     });
 
     it('should handle different keys separately', () => {
       const config = { windowMs: 60000, maxRequests: 1 };
-      
+
       expect(rateLimiter.isAllowed('key1', config)).toBe(true);
       expect(rateLimiter.isAllowed('key2', config)).toBe(true);
       expect(rateLimiter.isAllowed('key1', config)).toBe(false);

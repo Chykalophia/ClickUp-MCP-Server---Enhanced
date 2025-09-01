@@ -5,12 +5,18 @@ beforeAll(() => {
   // Set test environment variables
   process.env.NODE_ENV = 'test';
   process.env.CLICKUP_API_TOKEN = 'pk_test_token_1234567890abcdef';
-  
+
   // Mock console methods to reduce noise in tests
-  jest.spyOn(console, 'error').mockImplementation(() => { /* mocked */ });
-  jest.spyOn(console, 'warn').mockImplementation(() => { /* mocked */ });
-  jest.spyOn(console, 'debug').mockImplementation(() => { /* mocked */ });
-  
+  jest.spyOn(console, 'error').mockImplementation(() => {
+    /* mocked */
+  });
+  jest.spyOn(console, 'warn').mockImplementation(() => {
+    /* mocked */
+  });
+  jest.spyOn(console, 'debug').mockImplementation(() => {
+    /* mocked */
+  });
+
   // Set up global test timeout
   jest.setTimeout(30000);
 });
@@ -18,7 +24,7 @@ beforeAll(() => {
 afterAll(() => {
   // Restore console methods
   jest.restoreAllMocks();
-  
+
   // Clean up environment
   delete process.env.CLICKUP_API_TOKEN;
 });

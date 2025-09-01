@@ -11,7 +11,7 @@ describe('Integration Tests', () => {
   beforeEach(() => {
     server = new McpServer({
       name: 'test-server',
-      version: '1.0.0'
+      version: '1.0.0',
     });
   });
 
@@ -54,12 +54,12 @@ describe('Integration Tests', () => {
     it('should handle missing API token gracefully', () => {
       const originalToken = process.env.CLICKUP_API_TOKEN;
       delete process.env.CLICKUP_API_TOKEN;
-      
+
       // Tools should still register even without token
       expect(() => {
         setupSpaceTools(server);
       }).not.toThrow();
-      
+
       // Restore token
       if (originalToken) {
         process.env.CLICKUP_API_TOKEN = originalToken;
@@ -69,11 +69,11 @@ describe('Integration Tests', () => {
     it('should validate API token format when present', () => {
       const originalToken = process.env.CLICKUP_API_TOKEN;
       process.env.CLICKUP_API_TOKEN = 'test_token_123';
-      
+
       expect(() => {
         setupSpaceTools(server);
       }).not.toThrow();
-      
+
       // Restore original token
       if (originalToken) {
         process.env.CLICKUP_API_TOKEN = originalToken;
@@ -95,7 +95,7 @@ describe('Integration Tests', () => {
     it('should maintain server state', () => {
       setupSpaceTools(server);
       expect(server).toBeDefined();
-      
+
       setupChecklistTools(server);
       expect(server).toBeDefined();
     });

@@ -7,7 +7,7 @@ import type {
   UpdateWebhookRequest,
   WebhookFilter,
   ValidateWebhookSignatureRequest,
-  ProcessWebhookRequest
+  ProcessWebhookRequest,
 } from '../schemas/webhook-schemas.js';
 
 export interface WebhookResponse {
@@ -61,15 +61,12 @@ export class WebhooksEnhancedClient extends ClickUpClient {
    * Create a new webhook
    */
   async createWebhook(request: CreateWebhookRequest): Promise<WebhookResponse> {
-    const response = await this.post<WebhookResponse>(
-      `/team/${request.workspace_id}/webhook`,
-      {
-        endpoint: request.endpoint,
-        events: request.events,
-        health_check_url: request.health_check_url,
-        secret: request.secret
-      }
-    );
+    const response = await this.post<WebhookResponse>(`/team/${request.workspace_id}/webhook`, {
+      endpoint: request.endpoint,
+      events: request.events,
+      health_check_url: request.health_check_url,
+      secret: request.secret,
+    });
     return response;
   }
 
@@ -87,7 +84,7 @@ export class WebhooksEnhancedClient extends ClickUpClient {
 
     const queryString = params.toString();
     const endpoint = `/team/${filter.workspace_id}/webhook${queryString ? `?${queryString}` : ''}`;
-    
+
     const response = await this.get<WebhookListResponse>(endpoint);
     return response;
   }
@@ -105,17 +102,14 @@ export class WebhooksEnhancedClient extends ClickUpClient {
    */
   async updateWebhook(request: UpdateWebhookRequest): Promise<WebhookResponse> {
     const updateData: Record<string, any> = {};
-    
+
     if (request.endpoint) updateData.endpoint = request.endpoint;
     if (request.events) updateData.events = request.events;
     if (request.health_check_url) updateData.health_check_url = request.health_check_url;
     if (request.secret) updateData.secret = request.secret;
     if (request.status) updateData.status = request.status;
 
-    const response = await this.put<WebhookResponse>(
-      `/webhook/${request.webhook_id}`,
-      updateData
-    );
+    const response = await this.put<WebhookResponse>(`/webhook/${request.webhook_id}`, updateData);
     return response;
   }
 
@@ -130,7 +124,10 @@ export class WebhooksEnhancedClient extends ClickUpClient {
   /**
    * Get webhook event history
    */
-  async getWebhookEventHistory(webhookId: string, limit?: number): Promise<WebhookEventHistoryResponse> {
+  async getWebhookEventHistory(
+    webhookId: string,
+    limit?: number
+  ): Promise<WebhookEventHistoryResponse> {
     const params = new URLSearchParams();
     if (limit) {
       params.append('limit', limit.toString());
@@ -138,7 +135,7 @@ export class WebhooksEnhancedClient extends ClickUpClient {
 
     const queryString = params.toString();
     const endpoint = `/webhook/${webhookId}/events${queryString ? `?${queryString}` : ''}`;
-    
+
     const response = await this.get<WebhookEventHistoryResponse>(endpoint);
     return response;
   }
@@ -162,10 +159,10 @@ export class WebhooksEnhancedClient extends ClickUpClient {
         .createHmac('sha256', request.secret)
         .update(request.payload)
         .digest('hex');
-      
+
       // ClickUp sends signature as 'sha256=<hash>'
       const receivedSignature = request.signature.replace('sha256=', '');
-      
+
       return crypto.timingSafeEqual(
         Buffer.from(expectedSignature, 'hex'),
         Buffer.from(receivedSignature, 'hex')
@@ -195,7 +192,7 @@ export class WebhooksEnhancedClient extends ClickUpClient {
       const isValidSignature = this.validateWebhookSignature({
         payload: JSON.stringify(request.payload),
         signature: request.signature,
-        secret: request.secret
+        secret: request.secret,
       });
 
       if (!isValidSignature) {
@@ -208,16 +205,16 @@ export class WebhooksEnhancedClient extends ClickUpClient {
           userId: 0,
           timestamp: new Date(),
           changes: [],
-          relationships: []
+          relationships: [],
         };
       }
     }
 
     const payload = request.payload;
     const operationMap: Record<string, string> = {
-      'c': 'create',
-      'u': 'update',
-      'd': 'delete'
+      c: 'create',
+      u: 'update',
+      d: 'delete',
     };
 
     return {
@@ -229,14 +226,17 @@ export class WebhooksEnhancedClient extends ClickUpClient {
       userId: payload.version.data.context.audit_context.userid,
       timestamp: new Date(payload.date),
       changes: payload.version.data.changes,
-      relationships: payload.version.data.relationships
+      relationships: payload.version.data.relationships,
     };
   }
 
   /**
    * Get webhook statistics
    */
-  async getWebhookStats(webhookId: string, days?: number): Promise<{
+  async getWebhookStats(
+    webhookId: string,
+    days?: number
+  ): Promise<{
     total_events: number;
     successful_events: number;
     failed_events: number;
@@ -250,7 +250,7 @@ export class WebhooksEnhancedClient extends ClickUpClient {
 
     const queryString = params.toString();
     const endpoint = `/webhook/${webhookId}/stats${queryString ? `?${queryString}` : ''}`;
-    
+
     const response = await this.get<{
       total_events: number;
       successful_events: number;
@@ -258,14 +258,17 @@ export class WebhooksEnhancedClient extends ClickUpClient {
       success_rate: number;
       average_response_time: number;
     }>(endpoint);
-    
+
     return response;
   }
 
   /**
    * Retry failed webhook events
    */
-  async retryWebhookEvents(webhookId: string, eventIds?: string[]): Promise<{ success: boolean; retried_count: number }> {
+  async retryWebhookEvents(
+    webhookId: string,
+    eventIds?: string[]
+  ): Promise<{ success: boolean; retried_count: number }> {
     const response = await this.post<{ success: boolean; retried_count: number }>(
       `/webhook/${webhookId}/retry`,
       eventIds ? { event_ids: eventIds } : {}

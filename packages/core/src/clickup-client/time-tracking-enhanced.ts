@@ -98,16 +98,22 @@ export interface TimeSummary {
   billable_duration: number;
   non_billable_duration: number;
   entries_count: number;
-  by_user?: Record<string, {
-    duration: number;
-    billable_duration: number;
-    entries_count: number;
-  }>;
-  by_task?: Record<string, {
-    duration: number;
-    billable_duration: number;
-    entries_count: number;
-  }>;
+  by_user?: Record<
+    string,
+    {
+      duration: number;
+      billable_duration: number;
+      entries_count: number;
+    }
+  >;
+  by_task?: Record<
+    string,
+    {
+      duration: number;
+      billable_duration: number;
+      entries_count: number;
+    }
+  >;
 }
 
 // ========================================
@@ -135,7 +141,7 @@ export class EnhancedTimeTrackingClient {
   async getTimeEntries(teamId: string, params: GetTimeEntriesParams = {}): Promise<TimeEntry[]> {
     try {
       const queryParams = new URLSearchParams();
-      
+
       if (params.start_date) queryParams.append('start_date', params.start_date.toString());
       if (params.end_date) queryParams.append('end_date', params.end_date.toString());
       if (params.assignee) queryParams.append('assignee', params.assignee.toString());
@@ -148,7 +154,7 @@ export class EnhancedTimeTrackingClient {
 
       const endpoint = `/team/${teamId}/time_entries?${queryParams.toString()}`;
       const response = await this.getAxiosInstance().get(endpoint);
-      
+
       return response.data.data || [];
     } catch (error) {
       console.error('Error getting time entries:', error);
@@ -163,7 +169,7 @@ export class EnhancedTimeTrackingClient {
     try {
       const endpoint = `/team/${teamId}/time_entries`;
       const response = await this.getAxiosInstance().post(endpoint, params);
-      
+
       return response.data.data;
     } catch (error) {
       console.error('Error creating time entry:', error);
@@ -174,11 +180,15 @@ export class EnhancedTimeTrackingClient {
   /**
    * Update an existing time entry
    */
-  async updateTimeEntry(teamId: string, timerId: string, params: UpdateTimeEntryParams): Promise<TimeEntry> {
+  async updateTimeEntry(
+    teamId: string,
+    timerId: string,
+    params: UpdateTimeEntryParams
+  ): Promise<TimeEntry> {
     try {
       const endpoint = `/team/${teamId}/time_entries/${timerId}`;
       const response = await this.getAxiosInstance().put(endpoint, params);
-      
+
       return response.data.data;
     } catch (error) {
       console.error('Error updating time entry:', error);
@@ -213,7 +223,7 @@ export class EnhancedTimeTrackingClient {
 
       const endpoint = `/team/${teamId}/time_entries/current?${queryParams.toString()}`;
       const response = await this.getAxiosInstance().get(endpoint);
-      
+
       return response.data.data || [];
     } catch (error) {
       console.error('Error getting running timers:', error);
@@ -228,7 +238,7 @@ export class EnhancedTimeTrackingClient {
     try {
       const endpoint = `/team/${teamId}/time_entries/${timerId}/start`;
       const params = startTime ? { start: startTime } : {};
-      
+
       await this.getAxiosInstance().post(endpoint, params);
     } catch (error) {
       console.error('Error starting timer:', error);
@@ -243,7 +253,7 @@ export class EnhancedTimeTrackingClient {
     try {
       const endpoint = `/team/${teamId}/time_entries/${timerId}/stop`;
       const params = endTime ? { end: endTime } : {};
-      
+
       await this.getAxiosInstance().post(endpoint, params);
     } catch (error) {
       console.error('Error stopping timer:', error);
@@ -262,7 +272,7 @@ export class EnhancedTimeTrackingClient {
     try {
       // Get time entries for the specified parameters
       const timeEntries = await this.getTimeEntries(teamId, params);
-      
+
       // Calculate summary statistics
       let totalDuration = 0;
       let billableDuration = 0;
@@ -287,7 +297,7 @@ export class EnhancedTimeTrackingClient {
             duration: 0,
             billable_duration: 0,
             entries_count: 0,
-            user_info: entry.user
+            user_info: entry.user,
           };
         }
         byUser[userId].duration += duration;
@@ -304,7 +314,7 @@ export class EnhancedTimeTrackingClient {
               duration: 0,
               billable_duration: 0,
               entries_count: 0,
-              task_info: entry.task
+              task_info: entry.task,
             };
           }
           byTask[taskId].duration += duration;
@@ -321,7 +331,7 @@ export class EnhancedTimeTrackingClient {
         non_billable_duration: nonBillableDuration,
         entries_count: timeEntries.length,
         by_user: byUser,
-        by_task: byTask
+        by_task: byTask,
       };
     } catch (error) {
       console.error('Error getting time summary:', error);
@@ -342,33 +352,31 @@ export class EnhancedTimeTrackingClient {
     const seconds = Math.floor((milliseconds % (1000 * 60)) / 1000);
 
     if (hours > 0) {
-      return includeSeconds 
-        ? `${hours}h ${minutes}m ${seconds}s`
-        : `${hours}h ${minutes}m`;
+      return includeSeconds ? `${hours}h ${minutes}m ${seconds}s` : `${hours}h ${minutes}m`;
     } else if (minutes > 0) {
-      return includeSeconds 
-        ? `${minutes}m ${seconds}s`
-        : `${minutes}m`;
-    } 
+      return includeSeconds ? `${minutes}m ${seconds}s` : `${minutes}m`;
+    }
     return includeSeconds ? `${seconds}s` : '0m';
-    
   }
 
   /**
    * Convert duration to different time units
    */
-  convertDuration(milliseconds: number, format: 'milliseconds' | 'seconds' | 'minutes' | 'hours'): number {
+  convertDuration(
+    milliseconds: number,
+    format: 'milliseconds' | 'seconds' | 'minutes' | 'hours'
+  ): number {
     switch (format) {
-    case 'milliseconds':
-      return milliseconds;
-    case 'seconds':
-      return Math.floor(milliseconds / 1000);
-    case 'minutes':
-      return Math.floor(milliseconds / (1000 * 60));
-    case 'hours':
-      return Math.floor(milliseconds / (1000 * 60 * 60));
-    default:
-      return milliseconds;
+      case 'milliseconds':
+        return milliseconds;
+      case 'seconds':
+        return Math.floor(milliseconds / 1000);
+      case 'minutes':
+        return Math.floor(milliseconds / (1000 * 60));
+      case 'hours':
+        return Math.floor(milliseconds / (1000 * 60 * 60));
+      default:
+        return milliseconds;
     }
   }
 
@@ -395,29 +403,31 @@ export class EnhancedTimeTrackingClient {
     if (axios.isAxiosError(error)) {
       const status = error.response?.status;
       const message = error.response?.data?.message || error.message;
-      
+
       switch (status) {
-      case 400:
-        return new Error(`${context}: Invalid request - ${message}`);
-      case 401:
-        return new Error(`${context}: Authentication failed - check API token`);
-      case 403:
-        return new Error(`${context}: Permission denied - insufficient access rights`);
-      case 404:
-        return new Error(`${context}: Resource not found - ${message}`);
-      case 429:
-        return new Error(`${context}: Rate limit exceeded - please retry later`);
-      case 500:
-        return new Error(`${context}: Server error - please try again`);
-      default:
-        return new Error(`${context}: ${message}`);
+        case 400:
+          return new Error(`${context}: Invalid request - ${message}`);
+        case 401:
+          return new Error(`${context}: Authentication failed - check API token`);
+        case 403:
+          return new Error(`${context}: Permission denied - insufficient access rights`);
+        case 404:
+          return new Error(`${context}: Resource not found - ${message}`);
+        case 429:
+          return new Error(`${context}: Rate limit exceeded - please retry later`);
+        case 500:
+          return new Error(`${context}: Server error - please try again`);
+        default:
+          return new Error(`${context}: ${message}`);
       }
     }
-    
+
     return new Error(`${context}: ${error.message || 'Unknown error'}`);
   }
 }
 
-export const createEnhancedTimeTrackingClient = (client: ClickUpClient): EnhancedTimeTrackingClient => {
+export const createEnhancedTimeTrackingClient = (
+  client: ClickUpClient
+): EnhancedTimeTrackingClient => {
   return new EnhancedTimeTrackingClient(client);
 };

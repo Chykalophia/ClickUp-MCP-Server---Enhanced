@@ -132,12 +132,12 @@ export class TasksClient {
    */
   async getTasksFromList(listId: string, params?: GetTasksParams): Promise<{ tasks: Task[] }> {
     const result = await this.client.get(`/list/${listId}/task`, params);
-    
+
     // Process each task's content
     if (result.tasks && Array.isArray(result.tasks)) {
       result.tasks = result.tasks.map((task: any) => processClickUpResponse(task));
     }
-    
+
     return result;
   }
 
@@ -163,24 +163,24 @@ export class TasksClient {
   async createTask(listId: string, params: CreateTaskParams): Promise<Task> {
     // Process description for markdown support
     const processedParams = { ...params };
-    
+
     // Handle description field - check if it contains markdown
     if (params.description) {
       const contentData = prepareContentForClickUp(params.description);
-      
+
       // Remove the original description field
       delete processedParams.description;
-      
+
       // Add the appropriate field(s) based on content type
       if (contentData.markdown_content) {
         processedParams.markdown_content = contentData.markdown_content;
       } else if (contentData.description) {
         processedParams.description = contentData.description;
       }
-      
+
       // Note: ClickUp API doesn't accept text_content on create, it generates it
     }
-    
+
     const result = await this.client.post(`/list/${listId}/task`, processedParams);
     return processClickUpResponse(result);
   }
@@ -194,24 +194,24 @@ export class TasksClient {
   async updateTask(taskId: string, params: UpdateTaskParams): Promise<Task> {
     // Process description for markdown support
     const processedParams = { ...params };
-    
+
     // Handle description field - check if it contains markdown
     if (params.description) {
       const contentData = prepareContentForClickUp(params.description);
-      
+
       // Remove the original description field
       delete processedParams.description;
-      
+
       // Add the appropriate field(s) based on content type
       if (contentData.markdown_content) {
         processedParams.markdown_content = contentData.markdown_content;
       } else if (contentData.description) {
         processedParams.description = contentData.description;
       }
-      
+
       // Note: ClickUp API doesn't accept text_content on update, it generates it
     }
-    
+
     const result = await this.client.put(`/task/${taskId}`, processedParams);
     return processClickUpResponse(result);
   }
@@ -237,10 +237,10 @@ export class TasksClient {
       if (!task.list || !task.list.id) {
         throw new Error('Task does not have a list ID');
       }
-      
+
       // Then, get all tasks from the list with subtasks included
       const result = await this.getTasksFromList(task.list.id, { subtasks: true });
-      
+
       // Filter tasks to find those that have the specified task as parent
       return result.tasks.filter(task => task.parent === taskId);
     } catch (error) {
@@ -256,8 +256,8 @@ export class TasksClient {
    * @returns Results of bulk creation operation
    */
   async bulkCreateTasks(
-    listId: string, 
-    tasks: CreateTaskParams[], 
+    listId: string,
+    tasks: CreateTaskParams[],
     continueOnError: boolean = false
   ): Promise<{
     success_count: number;
@@ -278,7 +278,7 @@ export class TasksClient {
       error?: string;
       index: number;
     }> = [];
-    
+
     let successCount = 0;
     let errorCount = 0;
 
@@ -288,7 +288,7 @@ export class TasksClient {
         results.push({
           success: true,
           task_id: task.id,
-          index: i
+          index: i,
         });
         successCount++;
       } catch (error: any) {
@@ -296,10 +296,10 @@ export class TasksClient {
         results.push({
           success: false,
           error: errorMessage,
-          index: i
+          index: i,
         });
         errorCount++;
-        
+
         // If not continuing on error, break the loop
         if (!continueOnError) {
           // Add remaining tasks as failed
@@ -307,7 +307,7 @@ export class TasksClient {
             results.push({
               success: false,
               error: 'Skipped due to previous error',
-              index: j
+              index: j,
             });
             errorCount++;
           }
@@ -323,7 +323,7 @@ export class TasksClient {
       error_count: errorCount,
       total_count: tasks.length,
       results,
-      execution_time_ms: executionTime
+      execution_time_ms: executionTime,
     };
   }
 
@@ -355,7 +355,7 @@ export class TasksClient {
       error?: string;
       index: number;
     }> = [];
-    
+
     let successCount = 0;
     let errorCount = 0;
 
@@ -366,7 +366,7 @@ export class TasksClient {
         results.push({
           success: true,
           task_id: task.id,
-          index: i
+          index: i,
         });
         successCount++;
       } catch (error: any) {
@@ -374,10 +374,10 @@ export class TasksClient {
         results.push({
           success: false,
           error: errorMessage,
-          index: i
+          index: i,
         });
         errorCount++;
-        
+
         // If not continuing on error, break the loop
         if (!continueOnError) {
           // Add remaining tasks as failed
@@ -385,7 +385,7 @@ export class TasksClient {
             results.push({
               success: false,
               error: 'Skipped due to previous error',
-              index: j
+              index: j,
             });
             errorCount++;
           }
@@ -401,7 +401,7 @@ export class TasksClient {
       error_count: errorCount,
       total_count: taskUpdates.length,
       results,
-      execution_time_ms: executionTime
+      execution_time_ms: executionTime,
     };
   }
 }

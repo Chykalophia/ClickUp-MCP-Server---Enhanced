@@ -45,31 +45,33 @@ export class DocsClient {
    * @param params Optional parameters for filtering docs
    * @returns A list of docs
    */
-  async getDocsFromWorkspace(workspaceId: string, params?: GetDocsParams): Promise<{ docs: Doc[], next_cursor: string }> {
+  async getDocsFromWorkspace(
+    workspaceId: string,
+    params?: GetDocsParams
+  ): Promise<{ docs: Doc[]; next_cursor: string }> {
     // Get the API token directly from the environment variable
     const apiToken = process.env.CLICKUP_API_TOKEN;
-    
+
     try {
       const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs`;
-      
+
       // Use the exact same headers that worked in the successful request
       const headers = {
-        'Authorization': apiToken,
-        'Accept': 'application/json'
+        Authorization: apiToken,
+        Accept: 'application/json',
       };
-      
+
       const response = await axios.get(url, {
         headers,
-        params
+        params,
       });
-      
+
       return response.data;
     } catch (error) {
       console.error('Error getting docs:', error);
       throw error;
     }
   }
-
 
   /**
    * Get the pages of a doc
@@ -78,30 +80,34 @@ export class DocsClient {
    * @param contentFormat The format to return the content in (text/md or text/plain)
    * @returns The pages of the doc
    */
-  async getDocPages(workspaceId: string, docId: string, contentFormat: string = 'text/md'): Promise<any> {
+  async getDocPages(
+    workspaceId: string,
+    docId: string,
+    contentFormat: string = 'text/md'
+  ): Promise<any> {
     // Get the API token directly from the environment variable
     const apiToken = process.env.CLICKUP_API_TOKEN;
-    
+
     try {
       const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/pages`;
-      
+
       // Use the exact same parameters that worked in the successful request
-      const params = { 
+      const params = {
         max_page_depth: -1,
-        content_format: contentFormat
+        content_format: contentFormat,
       };
-      
+
       // Use the exact same headers that worked in the successful request
       const headers = {
-        'Authorization': apiToken,
-        'Accept': 'application/json'
+        Authorization: apiToken,
+        Accept: 'application/json',
       };
-      
+
       const response = await axios.get(url, {
         headers,
-        params
+        params,
       });
-      
+
       return response.data;
     } catch (error) {
       console.error('Error getting doc pages:', error);
@@ -115,41 +121,44 @@ export class DocsClient {
    * @param params The search parameters
    * @returns A list of docs matching the search query
    */
-  async searchDocs(workspaceId: string, params: SearchDocsParams): Promise<{ docs: Doc[], next_cursor: string }> {
+  async searchDocs(
+    workspaceId: string,
+    params: SearchDocsParams
+  ): Promise<{ docs: Doc[]; next_cursor: string }> {
     // Get the API token directly from the environment variable
     const apiToken = process.env.CLICKUP_API_TOKEN;
-    
+
     try {
       // According to the ClickUp API documentation, the endpoint is:
       // GET /api/v2/team/{team_id}/docs/search
       // where team_id is the workspace ID
       const url = `https://api.clickup.com/api/v2/team/${workspaceId}/docs/search`;
-      
+
       // Use the exact same headers that worked in the successful request
       const headers = {
-        'Authorization': apiToken,
-        'Accept': 'application/json'
+        Authorization: apiToken,
+        Accept: 'application/json',
       };
-      
+
       // According to the ClickUp API documentation, this should be a GET request
       // with the parameters as query parameters
       const queryParams: any = {
         doc_name: params.query,
-        cursor: params.cursor
+        cursor: params.cursor,
       };
-      
+
       // If the query is a space ID, use it as a space_id parameter
       if (params.query.startsWith('space:')) {
         const spaceId = params.query.substring(6);
         queryParams.space_id = spaceId;
         delete queryParams.doc_name;
       }
-      
+
       const response = await axios.get(url, {
         headers,
-        params: queryParams
+        params: queryParams,
       });
-      
+
       return response.data;
     } catch (error) {
       console.error('Error searching docs:', error);
@@ -167,7 +176,10 @@ export class DocsClient {
   async createDocInList(listId: string, title: string, content: string): Promise<Doc> {
     // Create a custom axios instance for v3 API
     const axiosInstance = this.client.getAxiosInstance();
-    const response = await axiosInstance.post(`https://api.clickup.com/api/v3/lists/${listId}/docs`, { name: title, content });
+    const response = await axiosInstance.post(
+      `https://api.clickup.com/api/v3/lists/${listId}/docs`,
+      { name: title, content }
+    );
     return response.data;
   }
 
@@ -181,7 +193,10 @@ export class DocsClient {
   async createDocInFolder(folderId: string, title: string, content: string): Promise<Doc> {
     // Create a custom axios instance for v3 API
     const axiosInstance = this.client.getAxiosInstance();
-    const response = await axiosInstance.post(`https://api.clickup.com/api/v3/folders/${folderId}/docs`, { name: title, content });
+    const response = await axiosInstance.post(
+      `https://api.clickup.com/api/v3/folders/${folderId}/docs`,
+      { name: title, content }
+    );
     return response.data;
   }
 
@@ -196,10 +211,13 @@ export class DocsClient {
     const params: any = {};
     if (title !== undefined) params.name = title;
     if (content !== undefined) params.content = content;
-    
+
     // Create a custom axios instance for v3 API
     const axiosInstance = this.client.getAxiosInstance();
-    const response = await axiosInstance.put(`https://api.clickup.com/api/v3/docs/${docId}`, params);
+    const response = await axiosInstance.put(
+      `https://api.clickup.com/api/v3/docs/${docId}`,
+      params
+    );
     return response.data;
   }
 }

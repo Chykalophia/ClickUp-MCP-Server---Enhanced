@@ -9,7 +9,7 @@ import type {
   DependencyResponse,
   DependencyListResponse,
   DependencyGraphResponse,
-  DependencyConflictResponse
+  DependencyConflictResponse,
   // DependencyGraphNode
 } from '../schemas/dependencies-schemas.js';
 
@@ -25,7 +25,7 @@ export class DependenciesEnhancedClient extends ClickUpClient {
     const payload = {
       depends_on: request.depends_on,
       type: request.type,
-      link_id: request.link_id
+      link_id: request.link_id,
     };
 
     const response = await this.post<{ dependency: DependencyResponse }>(
@@ -46,7 +46,7 @@ export class DependenciesEnhancedClient extends ClickUpClient {
 
     const queryString = params.toString();
     const endpoint = `/task/${filter.task_id}/dependency${queryString ? `?${queryString}` : ''}`;
-    
+
     const response = await this.get<DependencyListResponse>(endpoint);
     return response;
   }
@@ -56,7 +56,7 @@ export class DependenciesEnhancedClient extends ClickUpClient {
    */
   async updateDependency(request: UpdateDependencyRequest): Promise<DependencyResponse> {
     const updateData: Record<string, any> = {};
-    
+
     if (request.type) updateData.type = request.type;
     if (request.status) updateData.status = request.status;
 
@@ -87,7 +87,7 @@ export class DependenciesEnhancedClient extends ClickUpClient {
 
     const queryString = params.toString();
     const endpoint = `/task/${options.task_id}/dependency/graph?${queryString}`;
-    
+
     const response = await this.get<DependencyGraphResponse>(endpoint);
     return response;
   }
@@ -95,9 +95,11 @@ export class DependenciesEnhancedClient extends ClickUpClient {
   /**
    * Check for dependency conflicts
    */
-  async checkDependencyConflicts(check: DependencyConflictCheck): Promise<DependencyConflictResponse> {
+  async checkDependencyConflicts(
+    check: DependencyConflictCheck
+  ): Promise<DependencyConflictResponse> {
     const payload = {
-      proposed_dependencies: check.proposed_dependencies || []
+      proposed_dependencies: check.proposed_dependencies || [],
     };
 
     const response = await this.post<DependencyConflictResponse>(
@@ -126,19 +128,22 @@ export class DependenciesEnhancedClient extends ClickUpClient {
         error?: string;
       }>;
     }>('/dependency/bulk', operation);
-    
+
     return response;
   }
 
   /**
    * Get all dependencies in a workspace
    */
-  async getWorkspaceDependencies(workspaceId: string, options?: {
-    status?: string;
-    type?: string;
-    limit?: number;
-    offset?: number;
-  }): Promise<DependencyListResponse> {
+  async getWorkspaceDependencies(
+    workspaceId: string,
+    options?: {
+      status?: string;
+      type?: string;
+      limit?: number;
+      offset?: number;
+    }
+  ): Promise<DependencyListResponse> {
     const params = new URLSearchParams();
     if (options?.status) params.append('status', options.status);
     if (options?.type) params.append('type', options.type);
@@ -147,7 +152,7 @@ export class DependenciesEnhancedClient extends ClickUpClient {
 
     const queryString = params.toString();
     const endpoint = `/team/${workspaceId}/dependency${queryString ? `?${queryString}` : ''}`;
-    
+
     const response = await this.get<DependencyListResponse>(endpoint);
     return response;
   }
@@ -189,18 +194,21 @@ export class DependenciesEnhancedClient extends ClickUpClient {
         blocking_count: number;
       }>;
     }>(`/team/${workspaceId}/dependency/stats`);
-    
+
     return response;
   }
 
   /**
    * Resolve dependency conflicts automatically
    */
-  async resolveDependencyConflicts(taskId: string, resolution: {
-    break_cycles?: boolean;
-    remove_duplicates?: boolean;
-    update_invalid_statuses?: boolean;
-  }): Promise<{
+  async resolveDependencyConflicts(
+    taskId: string,
+    resolution: {
+      break_cycles?: boolean;
+      remove_duplicates?: boolean;
+      update_invalid_statuses?: boolean;
+    }
+  ): Promise<{
     success: boolean;
     resolved_conflicts: number;
     remaining_conflicts: number;
@@ -220,7 +228,7 @@ export class DependenciesEnhancedClient extends ClickUpClient {
         affected_dependencies: string[];
       }>;
     }>(`/task/${taskId}/dependency/resolve`, resolution);
-    
+
     return response;
   }
 
@@ -275,14 +283,17 @@ export class DependenciesEnhancedClient extends ClickUpClient {
         affected_start_date?: string;
       }>;
     }>(`/task/${taskId}/dependency/timeline`);
-    
+
     return response;
   }
 
   /**
    * Export dependency graph
    */
-  async exportDependencyGraph(taskId: string, format: 'json' | 'csv' | 'graphml' = 'json'): Promise<{
+  async exportDependencyGraph(
+    taskId: string,
+    format: 'json' | 'csv' | 'graphml' = 'json'
+  ): Promise<{
     format: string;
     data: string;
     download_url?: string;
@@ -295,22 +306,25 @@ export class DependenciesEnhancedClient extends ClickUpClient {
       data: string;
       download_url?: string;
     }>(`/task/${taskId}/dependency/export?${params.toString()}`);
-    
+
     return response;
   }
 
   /**
    * Import dependency graph
    */
-  async importDependencyGraph(workspaceId: string, data: {
-    format: 'json' | 'csv';
-    data: string;
-    options?: {
-      merge_existing?: boolean;
-      validate_tasks?: boolean;
-      create_missing_tasks?: boolean;
-    };
-  }): Promise<{
+  async importDependencyGraph(
+    workspaceId: string,
+    data: {
+      format: 'json' | 'csv';
+      data: string;
+      options?: {
+        merge_existing?: boolean;
+        validate_tasks?: boolean;
+        create_missing_tasks?: boolean;
+      };
+    }
+  ): Promise<{
     success: boolean;
     imported_dependencies: number;
     skipped_dependencies: number;
@@ -330,7 +344,7 @@ export class DependenciesEnhancedClient extends ClickUpClient {
         data?: any;
       }>;
     }>(`/team/${workspaceId}/dependency/import`, data);
-    
+
     return response;
   }
 }

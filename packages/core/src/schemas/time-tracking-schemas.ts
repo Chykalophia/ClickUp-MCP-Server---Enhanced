@@ -26,7 +26,7 @@ export const TimeEntryTagSchema = z.object({
   name: z.string().min(1, 'Tag name is required'),
   tag_fg: z.string().optional(),
   tag_bg: z.string().optional(),
-  creator: z.number().optional()
+  creator: z.number().optional(),
 });
 
 // Create time entry schema
@@ -38,7 +38,7 @@ export const CreateTimeEntrySchema = z.object({
   end: z.number().positive().optional(),
   task_id: z.string().optional(),
   assignee: UserIdSchema.optional(),
-  tags: z.array(TimeEntryTagSchema).optional()
+  tags: z.array(TimeEntryTagSchema).optional(),
 });
 
 // Update time entry schema
@@ -50,13 +50,13 @@ export const UpdateTimeEntrySchema = z.object({
   end: z.number().positive().optional(),
   billable: z.boolean().optional(),
   task_id: z.string().optional(),
-  tags: z.array(TimeEntryTagSchema).optional()
+  tags: z.array(TimeEntryTagSchema).optional(),
 });
 
 // Delete time entry schema
 export const DeleteTimeEntrySchema = z.object({
   team_id: TeamIdSchema,
-  timer_id: TimerIdSchema
+  timer_id: TimerIdSchema,
 });
 
 // Get time entries schema
@@ -70,7 +70,7 @@ export const GetTimeEntriesSchema = z.object({
   space_id: z.string().optional(),
   folder_id: z.string().optional(),
   list_id: z.string().optional(),
-  task_id: z.string().optional()
+  task_id: z.string().optional(),
 });
 
 // ========================================
@@ -81,20 +81,20 @@ export const GetTimeEntriesSchema = z.object({
 export const StartTimerSchema = z.object({
   team_id: TeamIdSchema,
   timer_id: TimerIdSchema,
-  start: z.number().positive().optional()
+  start: z.number().positive().optional(),
 });
 
 // Stop timer schema
 export const StopTimerSchema = z.object({
   team_id: TeamIdSchema,
   timer_id: TimerIdSchema,
-  end: z.number().positive().optional()
+  end: z.number().positive().optional(),
 });
 
 // Get running timers schema
 export const GetRunningTimersSchema = z.object({
   team_id: TeamIdSchema,
-  assignee: UserIdSchema.optional()
+  assignee: UserIdSchema.optional(),
 });
 
 // ========================================
@@ -111,7 +111,7 @@ export const GetTimeSummarySchema = z.object({
   list_id: z.string().optional(),
   folder_id: z.string().optional(),
   space_id: z.string().optional(),
-  billable_only: z.boolean().optional().default(false)
+  billable_only: z.boolean().optional().default(false),
 });
 
 // ========================================
@@ -124,7 +124,7 @@ export const DurationFormatSchema = z.enum(['milliseconds', 'seconds', 'minutes'
 // Time format validation
 export const TimeFormatSchema = z.object({
   format: DurationFormatSchema.optional().default('milliseconds'),
-  include_seconds: z.boolean().optional().default(true)
+  include_seconds: z.boolean().optional().default(true),
 });
 
 // Billable time filter schema
@@ -137,17 +137,19 @@ export const BillableFilterSchema = z.enum(['all', 'billable', 'non_billable']);
 // Time entry response schema
 export const TimeEntryResponseSchema = z.object({
   id: z.string(),
-  task: z.object({
-    id: z.string(),
-    name: z.string(),
-    status: z.object({
-      status: z.string(),
-      color: z.string(),
-      type: z.string(),
-      orderindex: z.number()
-    }),
-    custom_type: z.string().nullable()
-  }).nullable(),
+  task: z
+    .object({
+      id: z.string(),
+      name: z.string(),
+      status: z.object({
+        status: z.string(),
+        color: z.string(),
+        type: z.string(),
+        orderindex: z.number(),
+      }),
+      custom_type: z.string().nullable(),
+    })
+    .nullable(),
   wid: z.string(),
   user: z.object({
     id: z.number(),
@@ -155,7 +157,7 @@ export const TimeEntryResponseSchema = z.object({
     email: z.string(),
     color: z.string(),
     initials: z.string(),
-    profilePicture: z.string()
+    profilePicture: z.string(),
   }),
   billable: z.boolean(),
   start: z.string(),
@@ -164,25 +166,27 @@ export const TimeEntryResponseSchema = z.object({
   description: z.string(),
   tags: z.array(TimeEntryTagSchema),
   source: z.string(),
-  at: z.string()
+  at: z.string(),
 });
 
 // Running timer response schema
 export const RunningTimerResponseSchema = z.object({
   id: z.string(),
-  task: z.object({
-    id: z.string(),
-    name: z.string()
-  }).nullable(),
+  task: z
+    .object({
+      id: z.string(),
+      name: z.string(),
+    })
+    .nullable(),
   user: z.object({
     id: z.number(),
     username: z.string(),
-    email: z.string()
+    email: z.string(),
   }),
   start: z.string(),
   description: z.string(),
   billable: z.boolean(),
-  tags: z.array(TimeEntryTagSchema)
+  tags: z.array(TimeEntryTagSchema),
 });
 
 // ========================================
@@ -192,18 +196,21 @@ export const RunningTimerResponseSchema = z.object({
 /**
  * Convert duration from milliseconds to specified format
  */
-export function convertDuration(milliseconds: number, format: 'milliseconds' | 'seconds' | 'minutes' | 'hours'): number {
+export function convertDuration(
+  milliseconds: number,
+  format: 'milliseconds' | 'seconds' | 'minutes' | 'hours'
+): number {
   switch (format) {
-  case 'milliseconds':
-    return milliseconds;
-  case 'seconds':
-    return Math.floor(milliseconds / 1000);
-  case 'minutes':
-    return Math.floor(milliseconds / (1000 * 60));
-  case 'hours':
-    return Math.floor(milliseconds / (1000 * 60 * 60));
-  default:
-    return milliseconds;
+    case 'milliseconds':
+      return milliseconds;
+    case 'seconds':
+      return Math.floor(milliseconds / 1000);
+    case 'minutes':
+      return Math.floor(milliseconds / (1000 * 60));
+    case 'hours':
+      return Math.floor(milliseconds / (1000 * 60 * 60));
+    default:
+      return milliseconds;
   }
 }
 
@@ -216,16 +223,11 @@ export function formatDuration(milliseconds: number, includeSeconds: boolean = t
   const seconds = Math.floor((milliseconds % (1000 * 60)) / 1000);
 
   if (hours > 0) {
-    return includeSeconds 
-      ? `${hours}h ${minutes}m ${seconds}s`
-      : `${hours}h ${minutes}m`;
+    return includeSeconds ? `${hours}h ${minutes}m ${seconds}s` : `${hours}h ${minutes}m`;
   } else if (minutes > 0) {
-    return includeSeconds 
-      ? `${minutes}m ${seconds}s`
-      : `${minutes}m`;
-  } 
+    return includeSeconds ? `${minutes}m ${seconds}s` : `${minutes}m`;
+  }
   return includeSeconds ? `${seconds}s` : '0m';
-  
 }
 
 /**
@@ -264,5 +266,5 @@ export const TimeTrackingToolSchemas = {
 
   // Utility schemas
   timeFormat: TimeFormatSchema,
-  billableFilter: BillableFilterSchema
+  billableFilter: BillableFilterSchema,
 };

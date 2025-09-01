@@ -86,7 +86,10 @@ export class ChecklistsClient {
    * @param params The checklist item parameters
    * @returns The created checklist item
    */
-  async createChecklistItem(checklistId: string, params: CreateChecklistItemParams): Promise<ChecklistItem> {
+  async createChecklistItem(
+    checklistId: string,
+    params: CreateChecklistItemParams
+  ): Promise<ChecklistItem> {
     return this.client.post(`/checklist/${checklistId}/checklist_item`, params);
   }
 
@@ -97,7 +100,11 @@ export class ChecklistsClient {
    * @param params The checklist item parameters to update
    * @returns The updated checklist item
    */
-  async updateChecklistItem(checklistId: string, checklistItemId: string, params: UpdateChecklistItemParams): Promise<ChecklistItem> {
+  async updateChecklistItem(
+    checklistId: string,
+    checklistItemId: string,
+    params: UpdateChecklistItemParams
+  ): Promise<ChecklistItem> {
     return this.client.put(`/checklist/${checklistId}/checklist_item/${checklistItemId}`, params);
   }
 
@@ -107,7 +114,10 @@ export class ChecklistsClient {
    * @param checklistItemId The ID of the checklist item to delete
    * @returns Success message
    */
-  async deleteChecklistItem(checklistId: string, checklistItemId: string): Promise<{ success: boolean }> {
+  async deleteChecklistItem(
+    checklistId: string,
+    checklistItemId: string
+  ): Promise<{ success: boolean }> {
     return this.client.delete(`/checklist/${checklistId}/checklist_item/${checklistItemId}`);
   }
 }

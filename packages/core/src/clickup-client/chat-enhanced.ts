@@ -17,7 +17,7 @@ import type {
   ChatChannel,
   ChatMessage,
   ChatReaction,
-  ChatMember
+  ChatMember,
 } from '../schemas/chat-schemas.js';
 
 export interface ChatChannelsResponse {
@@ -88,10 +88,7 @@ export class ChatEnhancedClient {
    */
   async createChannel(request: CreateChannelRequest): Promise<ChatChannel> {
     const { workspace_id, ...channelData } = request;
-    return this.client.post<ChatChannel>(
-      `/team/${workspace_id}/chat/channel`,
-      channelData
-    );
+    return this.client.post<ChatChannel>(`/team/${workspace_id}/chat/channel`, channelData);
   }
 
   /**
@@ -99,10 +96,7 @@ export class ChatEnhancedClient {
    */
   async createChannelOnParent(request: CreateChannelOnParentRequest): Promise<ChatChannel> {
     const { parent_id, parent_type, ...channelData } = request;
-    return this.client.post<ChatChannel>(
-      `/${parent_type}/${parent_id}/chat/channel`,
-      channelData
-    );
+    return this.client.post<ChatChannel>(`/${parent_type}/${parent_id}/chat/channel`, channelData);
   }
 
   /**
@@ -110,10 +104,7 @@ export class ChatEnhancedClient {
    */
   async createDirectMessage(request: CreateDirectMessageRequest): Promise<ChatChannel> {
     const { workspace_id, ...dmData } = request;
-    return this.client.post<ChatChannel>(
-      `/team/${workspace_id}/chat/dm`,
-      dmData
-    );
+    return this.client.post<ChatChannel>(`/team/${workspace_id}/chat/dm`, dmData);
   }
 
   /**
@@ -128,10 +119,7 @@ export class ChatEnhancedClient {
    */
   async updateChannel(request: UpdateChannelRequest): Promise<ChatChannel> {
     const { channel_id, ...updateData } = request;
-    return this.client.patch<ChatChannel>(
-      `/chat/channel/${channel_id}`,
-      updateData
-    );
+    return this.client.patch<ChatChannel>(`/chat/channel/${channel_id}`, updateData);
   }
 
   /**
@@ -184,10 +172,7 @@ export class ChatEnhancedClient {
    */
   async getChannelMessages(filter: GetMessagesFilter): Promise<ChatMessagesResponse> {
     const { channel_id, ...params } = filter;
-    return this.client.get<ChatMessagesResponse>(
-      `/chat/channel/${channel_id}/messages`,
-      params
-    );
+    return this.client.get<ChatMessagesResponse>(`/chat/channel/${channel_id}/messages`, params);
   }
 
   /**
@@ -195,10 +180,7 @@ export class ChatEnhancedClient {
    */
   async sendMessage(request: SendMessageRequest): Promise<ChatMessage> {
     const { channel_id, ...messageData } = request;
-    return this.client.post<ChatMessage>(
-      `/chat/channel/${channel_id}/message`,
-      messageData
-    );
+    return this.client.post<ChatMessage>(`/chat/channel/${channel_id}/message`, messageData);
   }
 
   /**
@@ -300,10 +282,9 @@ export class ChatEnhancedClient {
    * Search channels by name
    */
   async searchChannels(workspaceId: string, query: string): Promise<ChatChannelsResponse> {
-    return this.client.get<ChatChannelsResponse>(
-      `/team/${workspaceId}/chat/channels`,
-      { search: query }
-    );
+    return this.client.get<ChatChannelsResponse>(`/team/${workspaceId}/chat/channels`, {
+      search: query,
+    });
   }
 
   /**

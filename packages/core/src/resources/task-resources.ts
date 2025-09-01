@@ -13,7 +13,8 @@ export function setupTaskResources(server: McpServer): void {
     'task-details',
     new ResourceTemplate('clickup://task/{task_id}', { list: undefined }),
     {
-      description: 'Get detailed information about a specific ClickUp task, including its name, description, assignees, status, and dates.'
+      description:
+        'Get detailed information about a specific ClickUp task, including its name, description, assignees, status, and dates.',
     },
     async (uri, params) => {
       try {
@@ -21,15 +22,15 @@ export function setupTaskResources(server: McpServer): void {
         console.log('[TaskResources] Fetching task:', task_id);
         const task = await tasksClient.getTask(task_id);
         console.log('[TaskResources] Got task:', task);
-        
+
         return {
           contents: [
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(task, null, 2)
-            }
-          ]
+              text: JSON.stringify(task, null, 2),
+            },
+          ],
         };
       } catch (error: any) {
         console.error('[TaskResources] Error fetching task:', error);
@@ -43,23 +44,23 @@ export function setupTaskResources(server: McpServer): void {
     'example-task',
     'clickup://task/86rkjvttt',
     {
-      description: 'An example task resource demonstrating the task details format.'
+      description: 'An example task resource demonstrating the task details format.',
     },
-    async (uri) => {
+    async uri => {
       try {
         const task_id = '86rkjvttt';
         console.log('[TaskResources] Fetching example task:', task_id);
         const task = await tasksClient.getTask(task_id);
         console.log('[TaskResources] Got task:', task);
-        
+
         return {
           contents: [
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(task, null, 2)
-            }
-          ]
+              text: JSON.stringify(task, null, 2),
+            },
+          ],
         };
       } catch (error: any) {
         console.error('[TaskResources] Error fetching example task:', error);

@@ -34,7 +34,7 @@ class ClickUpServer {
       name: 'clickup-mcp-server',
       version: '3.1.0',
     });
-    
+
     // Handle process termination
     process.on('SIGINT', async () => {
       await this.server.close();
@@ -53,7 +53,7 @@ class ClickUpServer {
     setupSpaceTools(this.server);
     setupChecklistTools(this.server);
     setupCommentTools(this.server);
-    
+
     // Advanced features tools
     setupWebhookTools(this.server);
     setupViewsTools(this.server);

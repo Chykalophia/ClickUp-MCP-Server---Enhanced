@@ -10,7 +10,7 @@ import TurndownService from 'turndown';
 // Configure marked for ClickUp-compatible HTML output
 marked.setOptions({
   gfm: true, // GitHub Flavored Markdown
-  breaks: true // Convert line breaks to <br>
+  breaks: true, // Convert line breaks to <br>
 });
 
 // Configure Turndown for ClickUp HTML to markdown conversion
@@ -21,23 +21,23 @@ const turndownService = new TurndownService({
   emDelimiter: '*', // Use * for emphasis
   strongDelimiter: '**', // Use ** for strong
   linkStyle: 'inlined', // Use [text](url) for links
-  linkReferenceStyle: 'full' // Use full reference links
+  linkReferenceStyle: 'full', // Use full reference links
 });
 
 // Add custom rules for ClickUp-specific elements
 turndownService.addRule('strikethrough', {
   filter: ['del', 's'],
-  replacement: (content) => `~~${content}~~`
+  replacement: content => `~~${content}~~`,
 });
 
 turndownService.addRule('underline', {
   filter: 'u',
-  replacement: (content) => `<u>${content}</u>` // Keep underline as HTML since markdown doesn't support it
+  replacement: content => `<u>${content}</u>`, // Keep underline as HTML since markdown doesn't support it
 });
 
 turndownService.addRule('highlight', {
   filter: 'mark',
-  replacement: (content) => `==${content}==` // Use highlight syntax
+  replacement: content => `==${content}==`, // Use highlight syntax
 });
 
 /**
@@ -49,7 +49,7 @@ export function markdownToHtml(markdown: string): string {
   if (!markdown || typeof markdown !== 'string') {
     return '';
   }
-  
+
   try {
     const result = marked.parse(markdown);
     return typeof result === 'string' ? result : '';
@@ -68,7 +68,7 @@ export function htmlToMarkdown(html: string): string {
   if (!html || typeof html !== 'string') {
     return '';
   }
-  
+
   try {
     return turndownService.turndown(html);
   } catch (error) {
@@ -87,12 +87,15 @@ export function markdownToPlainText(markdown: string): string {
   if (!markdown || typeof markdown !== 'string') {
     return '';
   }
-  
+
   try {
     // First convert to HTML, then strip tags
     const htmlResult = marked.parse(markdown);
     const html = typeof htmlResult === 'string' ? htmlResult : '';
-    return html.replace(/<[^>]*>/g, '').replace(/\n\s*\n/g, '\n').trim();
+    return html
+      .replace(/<[^>]*>/g, '')
+      .replace(/\n\s*\n/g, '\n')
+      .trim();
   } catch (error) {
     console.warn('Failed to convert markdown to plain text:', error);
     // Fallback: basic markdown stripping
@@ -117,7 +120,7 @@ export function isMarkdown(content: string): boolean {
   if (!content || typeof content !== 'string') {
     return false;
   }
-  
+
   // Check for common markdown patterns
   const markdownPatterns = [
     /#{1,6}\s+/, // Headers
@@ -131,9 +134,9 @@ export function isMarkdown(content: string): boolean {
     /^\s*\d+\.\s+/m, // Ordered lists
     /^\s*>\s+/m, // Blockquotes
     /~~.*?~~/, // Strikethrough
-    /==[^=]+==/ // Highlight
+    /==[^=]+==/, // Highlight
   ];
-  
+
   return markdownPatterns.some(pattern => pattern.test(content));
 }
 
@@ -146,7 +149,7 @@ export function isHtml(content: string): boolean {
   if (!content || typeof content !== 'string') {
     return false;
   }
-  
+
   // Check for HTML tags
   return /<[^>]+>/g.test(content);
 }
@@ -158,35 +161,35 @@ export function isHtml(content: string): boolean {
  * @returns Formatted content
  */
 export function formatContent(
-  content: string, 
+  content: string,
   targetFormat: 'html' | 'markdown' | 'plain'
 ): string {
   if (!content || typeof content !== 'string') {
     return '';
   }
-  
+
   // Detect current format
   const isCurrentlyHtml = isHtml(content);
   const isCurrentlyMarkdown = !isCurrentlyHtml && isMarkdown(content);
-  
+
   switch (targetFormat) {
-  case 'html':
-    if (isCurrentlyHtml) return content;
-    if (isCurrentlyMarkdown) return markdownToHtml(content);
-    return content; // Plain text, return as-is
-      
-  case 'markdown':
-    if (isCurrentlyMarkdown) return content;
-    if (isCurrentlyHtml) return htmlToMarkdown(content);
-    return content; // Plain text, return as-is
-      
-  case 'plain':
-    if (isCurrentlyMarkdown) return markdownToPlainText(content);
-    if (isCurrentlyHtml) return htmlToMarkdown(content).replace(/[*_`#[\]()]/g, '');
-    return content; // Already plain text
-      
-  default:
-    return content;
+    case 'html':
+      if (isCurrentlyHtml) return content;
+      if (isCurrentlyMarkdown) return markdownToHtml(content);
+      return content; // Plain text, return as-is
+
+    case 'markdown':
+      if (isCurrentlyMarkdown) return content;
+      if (isCurrentlyHtml) return htmlToMarkdown(content);
+      return content; // Plain text, return as-is
+
+    case 'plain':
+      if (isCurrentlyMarkdown) return markdownToPlainText(content);
+      if (isCurrentlyHtml) return htmlToMarkdown(content).replace(/[*_`#[\]()]/g, '');
+      return content; // Already plain text
+
+    default:
+      return content;
   }
 }
 
@@ -204,31 +207,31 @@ export function prepareContentForClickUp(content: string): {
   if (!content || typeof content !== 'string') {
     return { description: '' };
   }
-  
+
   // If content looks like markdown, use markdown_content field
   if (isMarkdown(content)) {
     const plainText = markdownToPlainText(content);
-    
+
     return {
       markdown_content: content, // Send raw markdown to ClickUp
-      text_content: plainText
+      text_content: plainText,
     };
   }
-  
+
   // If content is HTML, use description field
   if (isHtml(content)) {
     const plainText = htmlToMarkdown(content);
-    
+
     return {
       description: content, // Send HTML as-is
-      text_content: markdownToPlainText(plainText)
+      text_content: markdownToPlainText(plainText),
     };
   }
-  
+
   // Plain text content - use description field
   return {
     description: content,
-    text_content: content
+    text_content: content,
   };
 }
 
@@ -242,24 +245,26 @@ export function processClickUpResponse(response: any): any {
   if (!response || typeof response !== 'object') {
     return response;
   }
-  
+
   const processed = { ...response };
-  
+
   // Process description field
   if (processed.description && isHtml(processed.description)) {
     processed.description_markdown = htmlToMarkdown(processed.description);
   }
-  
+
   // Process comment fields
   if (processed.comment_text && processed.comment && Array.isArray(processed.comment)) {
     // ClickUp comments come as rich text blocks, try to convert to markdown
     try {
-      const htmlContent = processed.comment.map((block: any) => {
-        if (typeof block === 'string') return block;
-        if (block.text) return block.text;
-        return '';
-      }).join('');
-      
+      const htmlContent = processed.comment
+        .map((block: any) => {
+          if (typeof block === 'string') return block;
+          if (block.text) return block.text;
+          return '';
+        })
+        .join('');
+
       if (htmlContent && isHtml(htmlContent)) {
         processed.comment_markdown = htmlToMarkdown(htmlContent);
       }
@@ -267,6 +272,6 @@ export function processClickUpResponse(response: any): any {
       console.warn('Failed to process comment blocks:', error);
     }
   }
-  
+
   return processed;
 }

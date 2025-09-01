@@ -8,7 +8,7 @@ jest.mock('../utils/markdown', () => ({
       .replace(/\*(.+?)\*/g, '<em>$1</em>')
       .replace(/`(.+?)`/g, '<code>$1</code>');
   }),
-  
+
   htmlToMarkdown: jest.fn((html: string) => {
     if (!html) return '';
     return html
@@ -17,7 +17,7 @@ jest.mock('../utils/markdown', () => ({
       .replace(/<em>(.+?)<\/em>/g, '*$1*')
       .replace(/<code>(.+?)<\/code>/g, '`$1`');
   }),
-  
+
   markdownToPlainText: jest.fn((markdown: string) => {
     if (!markdown) return '';
     return markdown
@@ -26,34 +26,34 @@ jest.mock('../utils/markdown', () => ({
       .replace(/\*(.+?)\*/g, '$1')
       .replace(/`(.+?)`/g, '$1');
   }),
-  
+
   isMarkdown: jest.fn((content: string) => {
     if (!content) return false;
     return /^#|^\*|^-|\*\*|\*|`/.test(content);
   }),
-  
+
   isHtml: jest.fn((content: string) => {
     if (!content) return false;
     return /<[^>]+>/.test(content);
   }),
-  
+
   formatContent: jest.fn((content: string, targetFormat: 'html' | 'markdown' | 'plain') => {
     if (!content) return '';
-    
+
     switch (targetFormat) {
-    case 'html':
-      return content.includes('<') ? content : `<p>${content}</p>`;
-    case 'plain':
-      return content.replace(/<[^>]+>/g, '').replace(/[#*`]/g, '');
-    case 'markdown':
-    default:
-      return content;
+      case 'html':
+        return content.includes('<') ? content : `<p>${content}</p>`;
+      case 'plain':
+        return content.replace(/<[^>]+>/g, '').replace(/[#*`]/g, '');
+      case 'markdown':
+      default:
+        return content;
     }
   }),
-  
+
   prepareContentForClickUp: jest.fn((content: string) => {
     if (!content) return { description: '' };
-    
+
     const isMarkdownContent = /^#|^\*|^-|\*\*|\*|`/.test(content);
     if (isMarkdownContent) {
       const html = content
@@ -61,19 +61,19 @@ jest.mock('../utils/markdown', () => ({
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
       return {
         description: html,
-        text_content: content.replace(/[#*`]/g, '')
+        text_content: content.replace(/[#*`]/g, ''),
       };
     }
-    
+
     return { description: content };
   }),
-  
+
   processClickUpResponse: jest.fn((content: string) => {
     if (!content) return '';
     return content
       .replace(/<h1>(.+?)<\/h1>/g, '# $1')
       .replace(/<strong>(.+?)<\/strong>/g, '**$1**');
-  })
+  }),
 }));
 
 import {
@@ -84,7 +84,7 @@ import {
   isHtml,
   formatContent,
   prepareContentForClickUp,
-  processClickUpResponse
+  processClickUpResponse,
 } from '../utils/markdown';
 
 describe('Markdown Utilities', () => {
@@ -113,7 +113,7 @@ describe('Markdown Utilities', () => {
     it('should convert markdown to plain text', () => {
       const markdown = '# Header\n\n**Bold** text with *italic*';
       const result = markdownToPlainText(markdown);
-      
+
       expect(result).toContain('Header');
       expect(result).toContain('Bold text with italic');
       expect(result).not.toContain('#');
@@ -125,10 +125,10 @@ describe('Markdown Utilities', () => {
   describe('formatContent', () => {
     it('should format content based on target format', () => {
       const markdown = '# Test\n\n**Bold** text';
-      
+
       const htmlResult = formatContent(markdown, 'html');
       expect(htmlResult).toContain('<');
-      
+
       const plainResult = formatContent(markdown, 'plain');
       expect(plainResult).not.toContain('#');
       expect(plainResult).not.toContain('**');
@@ -136,7 +136,7 @@ describe('Markdown Utilities', () => {
 
     it('should handle plain text input', () => {
       const plainText = 'Just plain text';
-      
+
       expect(formatContent(plainText, 'html')).toContain('<p>');
       expect(formatContent(plainText, 'plain')).toBe(plainText);
       expect(formatContent(plainText, 'markdown')).toBe(plainText);
@@ -147,7 +147,7 @@ describe('Markdown Utilities', () => {
     it('should prepare markdown content for ClickUp', () => {
       const markdown = '# Header\n\n**Bold** text';
       const result = prepareContentForClickUp(markdown);
-      
+
       expect(typeof result).toBe('object');
       expect(result.description).toBeDefined();
       expect(result.description).toBeTruthy();
@@ -165,7 +165,7 @@ describe('Markdown Utilities', () => {
     it('should process ClickUp response content', () => {
       const htmlContent = '<p><strong>Bold</strong> text</p>';
       const result = processClickUpResponse(htmlContent);
-      
+
       expect(typeof result).toBe('string');
       expect(result.length).toBeGreaterThan(0);
     });
@@ -174,11 +174,11 @@ describe('Markdown Utilities', () => {
   describe('bidirectional conversion', () => {
     it('should maintain content integrity through conversions', () => {
       const originalMarkdown = '# Header\n\n**Bold** text with *italic* and `code`';
-      
+
       // Convert to HTML and back
       const html = markdownToHtml(originalMarkdown);
       const backToMarkdown = htmlToMarkdown(html);
-      
+
       // Should preserve the essential content structure
       expect(backToMarkdown).toContain('Header');
       expect(backToMarkdown).toContain('Bold');

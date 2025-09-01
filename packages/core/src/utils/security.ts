@@ -16,7 +16,7 @@ export interface RateLimitConfig {
 export const DEFAULT_RATE_LIMITS: Record<string, RateLimitConfig> = {
   webhook: { windowMs: 60000, maxRequests: 100 }, // 100 requests per minute
   api: { windowMs: 60000, maxRequests: 1000 }, // 1000 requests per minute
-  upload: { windowMs: 60000, maxRequests: 10 } // 10 uploads per minute
+  upload: { windowMs: 60000, maxRequests: 10 }, // 10 uploads per minute
 };
 
 // Rate limiter implementation
@@ -26,22 +26,22 @@ class RateLimiter {
   isAllowed(key: string, config: RateLimitConfig): boolean {
     const now = Date.now();
     const windowStart = now - config.windowMs;
-    
+
     // Get existing requests for this key
     const keyRequests = this.requests.get(key) || [];
-    
+
     // Filter out old requests
     const recentRequests = keyRequests.filter(time => time > windowStart);
-    
+
     // Check if under limit
     if (recentRequests.length >= config.maxRequests) {
       return false;
     }
-    
+
     // Add current request
     recentRequests.push(now);
     this.requests.set(key, recentRequests);
-    
+
     return true;
   }
 
@@ -147,9 +147,9 @@ export const validateWebhookSignature = (
 
     return { isValid };
   } catch (error) {
-    return { 
-      isValid: false, 
-      error: `Signature validation error: ${error instanceof Error ? error.message : 'Unknown error'}` 
+    return {
+      isValid: false,
+      error: `Signature validation error: ${error instanceof Error ? error.message : 'Unknown error'}`,
     };
   }
 };
@@ -175,10 +175,25 @@ export const validateFileUpload = (
 
     // Check for dangerous extensions
     const dangerousExtensions = [
-      '.exe', '.bat', '.cmd', '.com', '.pif', '.scr', '.vbs', '.js', '.jar',
-      '.php', '.asp', '.aspx', '.jsp', '.sh', '.ps1', '.py', '.rb'
+      '.exe',
+      '.bat',
+      '.cmd',
+      '.com',
+      '.pif',
+      '.scr',
+      '.vbs',
+      '.js',
+      '.jar',
+      '.php',
+      '.asp',
+      '.aspx',
+      '.jsp',
+      '.sh',
+      '.ps1',
+      '.py',
+      '.rb',
     ];
-    
+
     const extension = filename.toLowerCase().split('.').pop();
     if (extension && dangerousExtensions.includes(`.${extension}`)) {
       errors.push('File type not allowed for security reasons');
@@ -199,16 +214,31 @@ export const validateFileUpload = (
   if (mimetype) {
     const allowedMimetypes = [
       // Images
-      'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+      'image/svg+xml',
       // Documents
-      'application/pdf', 'text/plain', 'text/csv',
-      'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      'application/pdf',
+      'text/plain',
+      'text/csv',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.ms-powerpoint',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
       // Archives
-      'application/zip', 'application/x-rar-compressed', 'application/x-7z-compressed',
+      'application/zip',
+      'application/x-rar-compressed',
+      'application/x-7z-compressed',
       // Media
-      'video/mp4', 'video/webm', 'audio/mp3', 'audio/wav', 'audio/ogg'
+      'video/mp4',
+      'video/webm',
+      'audio/mp3',
+      'audio/wav',
+      'audio/ogg',
     ];
 
     if (!allowedMimetypes.includes(mimetype)) {
@@ -229,7 +259,7 @@ export const validateFileUpload = (
 
   return {
     isValid: errors.length === 0,
-    errors
+    errors,
   };
 };
 
@@ -239,7 +269,7 @@ export const validateFileUpload = (
 export const validateUrl = (url: string): { isValid: boolean; error?: string } => {
   try {
     const parsedUrl = new URL(url);
-    
+
     // Only allow HTTP and HTTPS
     if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
       return { isValid: false, error: 'Only HTTP and HTTPS URLs are allowed' };
@@ -293,7 +323,7 @@ export const validateEnvironment = (): { isValid: boolean; errors: string[] } =>
 
   // Check required environment variables
   const requiredVars = ['CLICKUP_API_TOKEN'];
-  
+
   for (const varName of requiredVars) {
     const value = process.env[varName];
     if (!value) {
@@ -311,7 +341,7 @@ export const validateEnvironment = (): { isValid: boolean; errors: string[] } =>
 
   return {
     isValid: errors.length === 0,
-    errors
+    errors,
   };
 };
 
@@ -325,7 +355,7 @@ export const getSecurityHeaders = (): Record<string, string> => {
     'X-XSS-Protection': '1; mode=block',
     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
     'Content-Security-Policy': "default-src 'self'",
-    'Referrer-Policy': 'strict-origin-when-cross-origin'
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
   };
 };
 
@@ -342,7 +372,7 @@ export const logSecurityEvent = (
     timestamp,
     event,
     level,
-    details: sanitizeInput(details)
+    details: sanitizeInput(details),
   };
 
   // In production, this should go to a proper logging system
@@ -359,20 +389,20 @@ export const validateMcpParameters = (
   try {
     // Sanitize input first
     const sanitizedParams = sanitizeInput(params);
-    
+
     // Validate with schema
     const data = schema.parse(sanitizedParams);
-    
+
     return { isValid: true, data };
   } catch (error) {
     if (error instanceof z.ZodError) {
       const errors = error.errors.map(err => `${err.path.join('.')}: ${err.message}`);
       return { isValid: false, errors };
     }
-    
-    return { 
-      isValid: false, 
-      errors: [`Validation error: ${error instanceof Error ? error.message : 'Unknown error'}`] 
+
+    return {
+      isValid: false,
+      errors: [`Validation error: ${error instanceof Error ? error.message : 'Unknown error'}`],
     };
   }
 };

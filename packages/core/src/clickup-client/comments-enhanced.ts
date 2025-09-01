@@ -1,8 +1,11 @@
 /* eslint-disable no-console, max-len */
 import { ClickUpClient } from './index.js';
 // import { processClickUpResponse } from '../utils/markdown.js';
-import { prepareCommentForClickUp, clickUpCommentToMarkdown, ClickUpCommentBlock } from 
-  '../utils/clickup-comment-formatter.js';
+import {
+  prepareCommentForClickUp,
+  clickUpCommentToMarkdown,
+  ClickUpCommentBlock,
+} from '../utils/clickup-comment-formatter.js';
 
 export interface Comment {
   id: string;
@@ -103,9 +106,9 @@ export interface CreateThreadedCommentParams {
 function processCommentResponse(comment: any): Comment {
   // Skip the cleanClickUpCommentResponse and processClickUpResponse chain
   // that was causing duplication - just return the comment as-is with minimal processing
-  
+
   const processed = { ...comment };
-  
+
   // Only add markdown conversion if we have structured comment data
   if (processed.comment && Array.isArray(processed.comment)) {
     try {
@@ -116,7 +119,7 @@ function processCommentResponse(comment: any): Comment {
       processed.comment_markdown = processed.comment_text || '';
     }
   }
-  
+
   return processed;
 }
 
@@ -155,14 +158,17 @@ export class CommentsEnhancedClient {
    * @param params Optional parameters for pagination
    * @returns A list of comments with processed content and markdown representation
    */
-  async getTaskComments(taskId: string, params?: GetTaskCommentsParams): Promise<{ comments: Comment[] }> {
+  async getTaskComments(
+    taskId: string,
+    params?: GetTaskCommentsParams
+  ): Promise<{ comments: Comment[] }> {
     const result = await this.client.get(`/task/${taskId}/comment`, params);
-    
+
     // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
       result.comments = result.comments.map((comment: any) => processCommentResponse(comment));
     }
-    
+
     return result;
   }
 
@@ -179,21 +185,21 @@ export class CommentsEnhancedClient {
     // Exact match to ClickUp's official Node.js example
     const payload = {
       notify_all: false,
-      comment_text: commentText
+      comment_text: commentText,
     };
-    
+
     console.log('=== RAW API TEST ===');
     console.log('URL:', `/task/${taskId}/comment`);
     console.log('Payload:', JSON.stringify(payload, null, 2));
     console.log('===================');
-    
+
     // Send raw request without any processing
     const result = await this.client.post(`/task/${taskId}/comment`, payload);
-    
+
     console.log('=== RAW API RESPONSE ===');
     console.log('Response:', JSON.stringify(result, null, 2));
     console.log('========================');
-    
+
     // Return raw response without any processing
     return result;
   }
@@ -201,26 +207,26 @@ export class CommentsEnhancedClient {
   async createTaskComment(taskId: string, params: CreateTaskCommentParams): Promise<Comment> {
     // Convert comment_text to structured array format
     const structuredComment = prepareCommentForClickUp(params.comment_text);
-    
+
     const payload = {
       notify_all: params.notify_all || false,
       assignee: params.assignee,
-      ...structuredComment // This adds the 'comment' array, NOT comment_text
+      ...structuredComment, // This adds the 'comment' array, NOT comment_text
     };
-    
+
     // DEBUG: Log exactly what we're sending to ClickUp API
     console.log('=== DEBUG: Sending to ClickUp API ===');
     console.log('URL:', `/task/${taskId}/comment`);
     console.log('Payload:', JSON.stringify(payload, null, 2));
     console.log('=====================================');
-    
+
     const result = await this.client.post(`/task/${taskId}/comment`, payload);
-    
+
     // DEBUG: Log what ClickUp returns
     console.log('=== DEBUG: ClickUp API Response ===');
     console.log('Raw Response:', JSON.stringify(result, null, 2));
     console.log('===================================');
-    
+
     return processCommentResponse(result);
   }
 
@@ -230,14 +236,17 @@ export class CommentsEnhancedClient {
    * @param params Optional parameters for pagination
    * @returns A list of comments with processed content and markdown representation
    */
-  async getChatViewComments(viewId: string, params?: GetChatViewCommentsParams): Promise<{ comments: Comment[] }> {
+  async getChatViewComments(
+    viewId: string,
+    params?: GetChatViewCommentsParams
+  ): Promise<{ comments: Comment[] }> {
     const result = await this.client.get(`/view/${viewId}/comment`, params);
-    
+
     // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
       result.comments = result.comments.map((comment: any) => processCommentResponse(comment));
     }
-    
+
     return result;
   }
 
@@ -247,15 +256,18 @@ export class CommentsEnhancedClient {
    * @param params The comment parameters (supports markdown in comment_text)
    * @returns The created comment with processed content
    */
-  async createChatViewComment(viewId: string, params: CreateChatViewCommentParams): Promise<Comment> {
+  async createChatViewComment(
+    viewId: string,
+    params: CreateChatViewCommentParams
+  ): Promise<Comment> {
     // Convert comment_text to structured array format
     const structuredComment = prepareCommentForClickUp(params.comment_text);
-    
+
     const payload = {
       notify_all: params.notify_all || false,
-      ...structuredComment // This adds the 'comment' array, NOT comment_text
+      ...structuredComment, // This adds the 'comment' array, NOT comment_text
     };
-    
+
     const result = await this.client.post(`/view/${viewId}/comment`, payload);
     return processCommentResponse(result);
   }
@@ -266,14 +278,17 @@ export class CommentsEnhancedClient {
    * @param params Optional parameters for pagination
    * @returns A list of comments with processed content and markdown representation
    */
-  async getListComments(listId: string, params?: GetListCommentsParams): Promise<{ comments: Comment[] }> {
+  async getListComments(
+    listId: string,
+    params?: GetListCommentsParams
+  ): Promise<{ comments: Comment[] }> {
     const result = await this.client.get(`/list/${listId}/comment`, params);
-    
+
     // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
       result.comments = result.comments.map((comment: any) => processCommentResponse(comment));
     }
-    
+
     return result;
   }
 
@@ -286,13 +301,13 @@ export class CommentsEnhancedClient {
   async createListComment(listId: string, params: CreateListCommentParams): Promise<Comment> {
     // Convert comment_text to structured array format
     const structuredComment = prepareCommentForClickUp(params.comment_text);
-    
+
     const payload = {
       notify_all: params.notify_all || false,
       assignee: params.assignee,
-      ...structuredComment // This adds the 'comment' array, NOT comment_text
+      ...structuredComment, // This adds the 'comment' array, NOT comment_text
     };
-    
+
     const result = await this.client.post(`/list/${listId}/comment`, payload);
     return processCommentResponse(result);
   }
@@ -306,13 +321,13 @@ export class CommentsEnhancedClient {
   async updateComment(commentId: string, params: UpdateCommentParams): Promise<Comment> {
     // Convert comment_text to structured array format
     const structuredComment = prepareCommentForClickUp(params.comment_text);
-    
+
     const payload = {
       assignee: params.assignee,
       resolved: params.resolved,
-      ...structuredComment // This adds the 'comment' array, NOT comment_text
+      ...structuredComment, // This adds the 'comment' array, NOT comment_text
     };
-    
+
     const result = await this.client.put(`/comment/${commentId}`, payload);
     return processCommentResponse(result);
   }
@@ -332,14 +347,17 @@ export class CommentsEnhancedClient {
    * @param params Optional parameters for pagination
    * @returns A list of threaded comments with processed content and markdown representation
    */
-  async getThreadedComments(commentId: string, params?: GetThreadedCommentsParams): Promise<{ comments: Comment[] }> {
+  async getThreadedComments(
+    commentId: string,
+    params?: GetThreadedCommentsParams
+  ): Promise<{ comments: Comment[] }> {
     const result = await this.client.get(`/comment/${commentId}/reply`, params);
-    
+
     // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
       result.comments = result.comments.map((comment: any) => processCommentResponse(comment));
     }
-    
+
     return result;
   }
 
@@ -349,15 +367,18 @@ export class CommentsEnhancedClient {
    * @param params The comment parameters (supports markdown in comment_text)
    * @returns The created threaded comment with processed content
    */
-  async createThreadedComment(commentId: string, params: CreateThreadedCommentParams): Promise<Comment> {
+  async createThreadedComment(
+    commentId: string,
+    params: CreateThreadedCommentParams
+  ): Promise<Comment> {
     // Convert comment_text to structured array format
     const structuredComment = prepareCommentForClickUp(params.comment_text);
-    
+
     const payload = {
       notify_all: params.notify_all || false,
-      ...structuredComment // This adds the 'comment' array, NOT comment_text
+      ...structuredComment, // This adds the 'comment' array, NOT comment_text
     };
-    
+
     const result = await this.client.post(`/comment/${commentId}/reply`, payload);
     return processCommentResponse(result);
   }

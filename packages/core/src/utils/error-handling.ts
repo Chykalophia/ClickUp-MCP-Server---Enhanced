@@ -18,7 +18,7 @@ export enum ErrorType {
   TIMEOUT = 'TIMEOUT',
   INTERNAL_ERROR = 'INTERNAL_ERROR',
   WEBHOOK_ERROR = 'WEBHOOK_ERROR',
-  FILE_ERROR = 'FILE_ERROR'
+  FILE_ERROR = 'FILE_ERROR',
 }
 
 // Error severity levels
@@ -26,7 +26,7 @@ export enum ErrorSeverity {
   LOW = 'LOW',
   MEDIUM = 'MEDIUM',
   HIGH = 'HIGH',
-  CRITICAL = 'CRITICAL'
+  CRITICAL = 'CRITICAL',
 }
 /* eslint-enable no-unused-vars */
 
@@ -91,7 +91,7 @@ export const createStructuredError = (
     workspaceId: options.workspaceId,
     stack: options.originalError?.stack,
     retryable: options.retryable || false,
-    retryAfter: options.retryAfter
+    retryAfter: options.retryAfter,
   };
 };
 
@@ -100,19 +100,21 @@ export const createStructuredError = (
  */
 export const errorToMcpResponse = (error: StructuredError): McpErrorResponse => {
   const userMessage = getUserFriendlyMessage(error);
-  
+
   return {
-    content: [{
-      type: 'text',
-      text: userMessage
-    }],
+    content: [
+      {
+        type: 'text',
+        text: userMessage,
+      },
+    ],
     isError: true,
     _meta: {
       errorType: error.type,
       severity: error.severity,
       retryable: error.retryable,
-      retryAfter: error.retryAfter
-    }
+      retryAfter: error.retryAfter,
+    },
   };
 };
 
@@ -121,90 +123,93 @@ export const errorToMcpResponse = (error: StructuredError): McpErrorResponse => 
  */
 export const getUserFriendlyMessage = (error: StructuredError): string => {
   const baseMessage = `Error: ${error.message}`;
-  
+
   let additionalInfo = '';
-  
+
   if (error.retryable && error.retryAfter) {
     additionalInfo += `\n\nThis operation can be retried after ${error.retryAfter} seconds.`;
   } else if (error.retryable) {
     additionalInfo += '\n\nThis operation can be retried.';
   }
-  
+
   if (error.type === ErrorType.RATE_LIMIT) {
     additionalInfo += '\n\nPlease reduce the frequency of requests.';
   }
-  
+
   if (error.type === ErrorType.AUTHENTICATION) {
     additionalInfo += '\n\nPlease check your ClickUp API token.';
   }
-  
+
   if (error.type === ErrorType.VALIDATION && error.details?.errors) {
-    const validationErrors = Array.isArray(error.details.errors) 
+    const validationErrors = Array.isArray(error.details.errors)
       ? error.details.errors.join(', ')
       : error.details.errors;
     additionalInfo += `\n\nValidation errors: ${validationErrors}`;
   }
-  
+
   return baseMessage + additionalInfo;
 };
 
 /**
  * Handle ClickUp API errors
  */
-export const handleClickUpApiError = (error: any, context?: {
-  operation?: string;
-  requestId?: string;
-  userId?: number;
-  workspaceId?: string;
-}): StructuredError => {
+export const handleClickUpApiError = (
+  error: any,
+  context?: {
+    operation?: string;
+    requestId?: string;
+    userId?: number;
+    workspaceId?: string;
+  }
+): StructuredError => {
   if (error.response) {
     const status = error.response.status;
     const data = error.response.data;
-    
+
     // Map HTTP status codes to error types
     let errorType: ErrorType;
     let severity: ErrorSeverity;
     let retryable = false;
     let retryAfter: number | undefined;
-    
+
     switch (status) {
-    case 400:
-      errorType = ErrorType.VALIDATION;
-      severity = ErrorSeverity.LOW;
-      break;
-    case 401:
-      errorType = ErrorType.AUTHENTICATION;
-      severity = ErrorSeverity.HIGH;
-      break;
-    case 403:
-      errorType = ErrorType.AUTHORIZATION;
-      severity = ErrorSeverity.HIGH;
-      break;
-    case 404:
-      errorType = ErrorType.NOT_FOUND;
-      severity = ErrorSeverity.LOW;
-      break;
-    case 429:
-      errorType = ErrorType.RATE_LIMIT;
-      severity = ErrorSeverity.MEDIUM;
-      retryable = true;
-      retryAfter = parseInt(error.response.headers['retry-after'], 10) || 60;
-      break;
-    case 500:
-    case 502:
-    case 503:
-    case 504:
-      errorType = ErrorType.API_ERROR;
-      severity = ErrorSeverity.HIGH;
-      retryable = true;
-      retryAfter = 30;
-      break;
-    default:
-      errorType = ErrorType.API_ERROR;
-      severity = ErrorSeverity.MEDIUM;
-      retryable = status >= 500;
+      case 400:
+        errorType = ErrorType.VALIDATION;
+        severity = ErrorSeverity.LOW;
+        break;
+      case 401:
+        errorType = ErrorType.AUTHENTICATION;
+        severity = ErrorSeverity.HIGH;
+        break;
+      case 403:
+        errorType = ErrorType.AUTHORIZATION;
+        severity = ErrorSeverity.HIGH;
+        break;
+      case 404:
+        errorType = ErrorType.NOT_FOUND;
+        severity = ErrorSeverity.LOW;
+        break;
+      case 429:
+        errorType = ErrorType.RATE_LIMIT;
+        severity = ErrorSeverity.MEDIUM;
+        retryable = true;
+        retryAfter = parseInt(error.response.headers['retry-after'], 10) || 60;
+        break;
+      case 500:
+      case 502:
+      case 503:
+      case 504:
+        errorType = ErrorType.API_ERROR;
+        severity = ErrorSeverity.HIGH;
+        retryable = true;
+        retryAfter = 30;
+        break;
+      default:
+        errorType = ErrorType.API_ERROR;
+        severity = ErrorSeverity.MEDIUM;
+        retryable = status >= 500;
     }
-    
+
     return createStructuredError(
       errorType,
       data?.err || data?.error || error.message || `HTTP ${status} error`,
@@ -214,54 +219,46 @@ export const handleClickUpApiError = (error: any, context?: {
         details: {
           status,
           data,
-          operation: context?.operation
+          operation: context?.operation,
         },
         requestId: context?.requestId,
         userId: context?.userId,
         workspaceId: context?.workspaceId,
         originalError: error,
         retryable,
-        retryAfter
+        retryAfter,
       }
     );
   }
-  
+
   if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
-    return createStructuredError(
-      ErrorType.TIMEOUT,
-      'Request timed out',
-      {
-        severity: ErrorSeverity.MEDIUM,
-        code: error.code,
-        details: { operation: context?.operation },
-        requestId: context?.requestId,
-        userId: context?.userId,
-        workspaceId: context?.workspaceId,
-        originalError: error,
-        retryable: true,
-        retryAfter: 10
-      }
-    );
+    return createStructuredError(ErrorType.TIMEOUT, 'Request timed out', {
+      severity: ErrorSeverity.MEDIUM,
+      code: error.code,
+      details: { operation: context?.operation },
+      requestId: context?.requestId,
+      userId: context?.userId,
+      workspaceId: context?.workspaceId,
+      originalError: error,
+      retryable: true,
+      retryAfter: 10,
+    });
   }
-  
+
   if (error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
-    return createStructuredError(
-      ErrorType.NETWORK_ERROR,
-      'Network connection failed',
-      {
-        severity: ErrorSeverity.HIGH,
-        code: error.code,
-        details: { operation: context?.operation },
-        requestId: context?.requestId,
-        userId: context?.userId,
-        workspaceId: context?.workspaceId,
-        originalError: error,
-        retryable: true,
-        retryAfter: 30
-      }
-    );
+    return createStructuredError(ErrorType.NETWORK_ERROR, 'Network connection failed', {
+      severity: ErrorSeverity.HIGH,
+      code: error.code,
+      details: { operation: context?.operation },
+      requestId: context?.requestId,
+      userId: context?.userId,
+      workspaceId: context?.workspaceId,
+      originalError: error,
+      retryable: true,
+      retryAfter: 30,
+    });
   }
-  
+
   return createStructuredError(
     ErrorType.INTERNAL_ERROR,
     error.message || 'Unknown error occurred',
@@ -272,7 +269,7 @@ export const handleClickUpApiError = (error: any, context?: {
       userId: context?.userId,
       workspaceId: context?.workspaceId,
       originalError: error,
-      retryable: false
+      retryable: false,
     }
   );
 };
@@ -288,20 +285,16 @@ export const handleValidationError = (
   }
 ): StructuredError => {
   const errors = error.errors.map(err => `${err.path.join('.')}: ${err.message}`);
-  
-  return createStructuredError(
-    ErrorType.VALIDATION,
-    'Input validation failed',
-    {
-      severity: ErrorSeverity.LOW,
-      details: {
-        errors,
-        operation: context?.operation
-      },
-      requestId: context?.requestId,
-      retryable: false
-    }
-  );
+
+  return createStructuredError(ErrorType.VALIDATION, 'Input validation failed', {
+    severity: ErrorSeverity.LOW,
+    details: {
+      errors,
+      operation: context?.operation,
+    },
+    requestId: context?.requestId,
+    retryable: false,
+  });
 };
 
 /**
@@ -322,12 +315,12 @@ export const handleWebhookError = (
       severity: ErrorSeverity.MEDIUM,
       details: {
         webhookId: context?.webhookId,
-        eventType: context?.eventType
+        eventType: context?.eventType,
       },
       requestId: context?.requestId,
       originalError: error,
       retryable: true,
-      retryAfter: 60
+      retryAfter: 60,
     }
   );
 };
@@ -345,7 +338,7 @@ export const handleFileError = (
 ): StructuredError => {
   let message = error.message || 'File operation failed';
   let severity = ErrorSeverity.MEDIUM;
-  
+
   if (error.code === 'ENOENT') {
     message = 'File not found';
     severity = ErrorSeverity.LOW;
@@ -356,22 +349,18 @@ export const handleFileError = (
     message = 'No space left on device';
     severity = ErrorSeverity.HIGH;
   }
-  
-  return createStructuredError(
-    ErrorType.FILE_ERROR,
-    message,
-    {
-      severity,
-      code: error.code,
-      details: {
-        filename: context?.filename,
-        operation: context?.operation
-      },
-      requestId: context?.requestId,
-      originalError: error,
-      retryable: error.code !== 'EACCES'
-    }
-  );
+
+  return createStructuredError(ErrorType.FILE_ERROR, message, {
+    severity,
+    code: error.code,
+    details: {
+      filename: context?.filename,
+      operation: context?.operation,
+    },
+    requestId: context?.requestId,
+    originalError: error,
+    retryable: error.code !== 'EACCES',
+  });
 };
 
 /**
@@ -381,13 +370,13 @@ export class RetryManager {
   private maxRetries: number;
   private baseDelay: number;
   private maxDelay: number;
-  
+
   constructor(maxRetries = 3, baseDelay = 1000, maxDelay = 30000) {
     this.maxRetries = maxRetries;
     this.baseDelay = baseDelay;
     this.maxDelay = maxDelay;
   }
-  
+
   async executeWithRetry<T>(
     operation: () => Promise<T>,
     context?: {
@@ -396,33 +385,40 @@ export class RetryManager {
     }
   ): Promise<T> {
     let lastError: StructuredError | undefined;
-    
+
     for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
       try {
         return await operation();
       } catch (error) {
-        const structuredError = error instanceof Error 
-          ? handleClickUpApiError(error, { operation: context?.operationName, requestId: context?.requestId })
-          : error as StructuredError;
-        
+        const structuredError =
+          error instanceof Error
+            ? handleClickUpApiError(error, {
+                operation: context?.operationName,
+                requestId: context?.requestId,
+              })
+            : (error as StructuredError);
+
         lastError = structuredError;
-        
+
         // Don't retry if not retryable or on last attempt
         if (!structuredError.retryable || attempt === this.maxRetries) {
           break;
         }
-        
+
         // Calculate delay with exponential backoff
         const delay = Math.min(
           this.baseDelay * Math.pow(2, attempt),
           structuredError.retryAfter ? structuredError.retryAfter * 1000 : this.maxDelay
         );
-        
-        console.warn(`Attempt ${attempt + 1} failed, retrying in ${delay}ms:`, structuredError.message);
+
+        console.warn(
+          `Attempt ${attempt + 1} failed, retrying in ${delay}ms:`,
+          structuredError.message
+        );
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
-    
+
     throw lastError;
   }
 }
@@ -431,10 +427,15 @@ export class RetryManager {
  * Global error logger
  */
 export const logError = (error: StructuredError): void => {
-  const logLevel = error.severity === ErrorSeverity.CRITICAL ? 'error' :
-    error.severity === ErrorSeverity.HIGH ? 'error' :
-      error.severity === ErrorSeverity.MEDIUM ? 'warn' : 'info';
-  
+  const logLevel =
+    error.severity === ErrorSeverity.CRITICAL
+      ? 'error'
+      : error.severity === ErrorSeverity.HIGH
+        ? 'error'
+        : error.severity === ErrorSeverity.MEDIUM
+          ? 'warn'
+          : 'info';
+
   const logData = {
     timestamp: error.timestamp,
     type: error.type,
@@ -445,11 +446,11 @@ export const logError = (error: StructuredError): void => {
     requestId: error.requestId,
     userId: error.userId,
     workspaceId: error.workspaceId,
-    retryable: error.retryable
+    retryable: error.retryable,
   };
-  
+
   console[logLevel](`[${error.type}] ${error.message}`, logData);
-  
+
   // In production, send to monitoring service
   if (error.severity === ErrorSeverity.CRITICAL) {
     // Send alert to monitoring system
@@ -467,24 +468,26 @@ export const wrapMcpTool = <T extends any[], R>(
 ) => {
   return async (args: any): Promise<any> => {
     const requestId = generateRequestId();
-    
+
     try {
       // Validate input
       const validatedArgs = schema.parse(args);
-      
+
       // Execute handler with proper type casting
       const result = await (handler as any)(validatedArgs);
-      
+
       // Return success response
       return {
-        content: [{
-          type: 'text',
-          text: typeof result === 'string' ? result : JSON.stringify(result, null, 2)
-        }]
+        content: [
+          {
+            type: 'text',
+            text: typeof result === 'string' ? result : JSON.stringify(result, null, 2),
+          },
+        ],
       };
     } catch (error) {
       let structuredError: StructuredError;
-      
+
       if (error instanceof z.ZodError) {
         structuredError = handleValidationError(error, { operation: toolName, requestId });
       } else if (error instanceof Error) {
@@ -492,10 +495,10 @@ export const wrapMcpTool = <T extends any[], R>(
       } else {
         structuredError = error as StructuredError;
       }
-      
+
       // Log error
       logError(structuredError);
-      
+
       // Return error response
       return errorToMcpResponse(structuredError);
     }
@@ -514,43 +517,48 @@ export const generateRequestId = (): string => {
  */
 export const performHealthCheck = async (): Promise<{
   status: 'healthy' | 'degraded' | 'unhealthy';
-  checks: Record<string, {
-    status: 'pass' | 'fail';
-    message?: string;
-    duration?: number;
-  }>;
+  checks: Record<
+    string,
+    {
+      status: 'pass' | 'fail';
+      message?: string;
+      duration?: number;
+    }
+  >;
 }> => {
   const checks: Record<string, any> = {};
-  
+
   // Check environment variables
   const startTime = Date.now();
   try {
     const envValidation = require('../utils/security').validateEnvironment();
     checks.environment = {
       status: envValidation.isValid ? 'pass' : 'fail',
-      message: envValidation.isValid ? 'All required environment variables present' : envValidation.errors.join(', '),
-      duration: Date.now() - startTime
+      message: envValidation.isValid
+        ? 'All required environment variables present'
+        : envValidation.errors.join(', '),
+      duration: Date.now() - startTime,
     };
   } catch (error) {
     checks.environment = {
       status: 'fail',
       message: 'Failed to validate environment',
-      duration: Date.now() - startTime
+      duration: Date.now() - startTime,
     };
   }
-  
+
   // Check memory usage
   const memoryUsage = process.memoryUsage();
   const memoryThreshold = 500 * 1024 * 1024; // 500MB
   checks.memory = {
     status: memoryUsage.heapUsed < memoryThreshold ? 'pass' : 'fail',
     message: `Heap used: ${Math.round(memoryUsage.heapUsed / 1024 / 1024)}MB`,
-    duration: 0
+    duration: 0,
   };
-  
+
   // Determine overall status
   const failedChecks = Object.values(checks).filter(check => check.status === 'fail').length;
   const status = failedChecks === 0 ? 'healthy' : failedChecks <= 1 ? 'degraded' : 'unhealthy';
-  
+
   return { status, checks };
 };

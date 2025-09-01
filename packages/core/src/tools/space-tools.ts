@@ -19,15 +19,15 @@ export function setupSpaceTools(server: McpServer): void {
         console.error(`[SpaceTools] Getting spaces for workspace ${workspace_id}...`);
         const spaces = await spacesClient.getSpacesFromWorkspace(workspace_id);
         console.error(`[SpaceTools] Got ${spaces.length} spaces`);
-        
+
         return {
-          content: [{ type: 'text', text: JSON.stringify(spaces, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(spaces, null, 2) }],
         };
       } catch (error: any) {
         console.error('Error getting spaces:', error);
         return {
           content: [{ type: 'text', text: `Error getting spaces: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -43,15 +43,15 @@ export function setupSpaceTools(server: McpServer): void {
         console.error(`[SpaceTools] Getting space ${space_id}...`);
         const space = await spacesClient.getSpace(space_id);
         console.error(`[SpaceTools] Got space: ${space.name}`);
-        
+
         return {
-          content: [{ type: 'text', text: JSON.stringify(space, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(space, null, 2) }],
         };
       } catch (error: any) {
         console.error('Error getting space:', error);
         return {
           content: [{ type: 'text', text: `Error getting space: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }

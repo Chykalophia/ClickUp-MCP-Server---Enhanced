@@ -128,9 +128,9 @@ export class EnhancedDocsClient {
 
   private getHeaders() {
     return {
-      'Authorization': this.apiToken,
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
+      Authorization: this.apiToken,
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
     };
   }
 
@@ -146,7 +146,7 @@ export class EnhancedDocsClient {
       const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs`;
       const response = await axios.get(url, {
         headers: this.getHeaders(),
-        params
+        params,
       });
       return response.data;
     } catch (error) {
@@ -158,19 +158,23 @@ export class EnhancedDocsClient {
   /**
    * Get the pages of a doc
    */
-  async getDocPages(workspaceId: string, docId: string, contentFormat: string = 'text/md'): Promise<Page[]> {
+  async getDocPages(
+    workspaceId: string,
+    docId: string,
+    contentFormat: string = 'text/md'
+  ): Promise<Page[]> {
     try {
       const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/pages`;
-      const params = { 
+      const params = {
         max_page_depth: -1,
-        content_format: contentFormat
+        content_format: contentFormat,
       };
-      
+
       const response = await axios.get(url, {
         headers: this.getHeaders(),
-        params
+        params,
       });
-      
+
       return response.data;
     } catch (error) {
       console.error('Error getting doc pages:', error);
@@ -186,20 +190,20 @@ export class EnhancedDocsClient {
       const url = `https://api.clickup.com/api/v2/team/${workspaceId}/docs/search`;
       const queryParams: any = {
         doc_name: params.query,
-        cursor: params.cursor
+        cursor: params.cursor,
       };
-      
+
       if (params.query.startsWith('space:')) {
         const spaceId = params.query.substring(6);
         queryParams.space_id = spaceId;
         delete queryParams.doc_name;
       }
-      
+
       const response = await axios.get(url, {
         headers: this.getHeaders(),
-        params: queryParams
+        params: queryParams,
       });
-      
+
       return response.data;
     } catch (error) {
       console.error('Error searching docs:', error);
@@ -217,7 +221,7 @@ export class EnhancedDocsClient {
   async createDoc(params: CreateDocParams): Promise<Doc> {
     try {
       let url: string;
-      
+
       // Determine the correct endpoint based on parent
       if (params.workspace_id) {
         url = `https://api.clickup.com/api/v3/workspaces/${params.workspace_id}/docs`;
@@ -232,7 +236,7 @@ export class EnhancedDocsClient {
       const requestBody = {
         name: params.name,
         content: params.content || '',
-        public: params.public || false
+        public: params.public || false,
       };
 
       // Add template_id if provided
@@ -241,7 +245,7 @@ export class EnhancedDocsClient {
       }
 
       const response = await axios.post(url, requestBody, {
-        headers: this.getHeaders()
+        headers: this.getHeaders(),
       });
 
       return response.data;
@@ -257,14 +261,14 @@ export class EnhancedDocsClient {
   async updateDoc(docId: string, params: UpdateDocParams): Promise<Doc> {
     try {
       const url = `https://api.clickup.com/api/v3/docs/${docId}`;
-      
+
       const requestBody: any = {};
       if (params.name !== undefined) requestBody.name = params.name;
       if (params.content !== undefined) requestBody.content = params.content;
       if (params.public !== undefined) requestBody.public = params.public;
 
       const response = await axios.put(url, requestBody, {
-        headers: this.getHeaders()
+        headers: this.getHeaders(),
       });
 
       return response.data;
@@ -280,9 +284,9 @@ export class EnhancedDocsClient {
   async deleteDoc(docId: string): Promise<void> {
     try {
       const url = `https://api.clickup.com/api/v3/docs/${docId}`;
-      
+
       await axios.delete(url, {
-        headers: this.getHeaders()
+        headers: this.getHeaders(),
       });
     } catch (error) {
       console.error('Error deleting document:', error);
@@ -296,9 +300,9 @@ export class EnhancedDocsClient {
   async getDoc(docId: string): Promise<Doc> {
     try {
       const url = `https://api.clickup.com/api/v3/docs/${docId}`;
-      
+
       const response = await axios.get(url, {
-        headers: this.getHeaders()
+        headers: this.getHeaders(),
       });
 
       return response.data;
@@ -318,11 +322,11 @@ export class EnhancedDocsClient {
   async createPage(docId: string, params: CreatePageParams): Promise<Page> {
     try {
       const url = `https://api.clickup.com/api/v3/docs/${docId}/pages`;
-      
+
       const requestBody = {
         name: params.name,
         content: params.content,
-        content_format: params.content_format || 'markdown'
+        content_format: params.content_format || 'markdown',
       };
 
       if (params.parent_page_id) {
@@ -333,7 +337,7 @@ export class EnhancedDocsClient {
       }
 
       const response = await axios.post(url, requestBody, {
-        headers: this.getHeaders()
+        headers: this.getHeaders(),
       });
 
       return response.data;
@@ -349,7 +353,7 @@ export class EnhancedDocsClient {
   async updatePage(docId: string, pageId: string, params: UpdatePageParams): Promise<Page> {
     try {
       const url = `https://api.clickup.com/api/v3/docs/${docId}/pages/${pageId}`;
-      
+
       const requestBody: any = {};
       if (params.name !== undefined) requestBody.name = params.name;
       if (params.content !== undefined) requestBody.content = params.content;
@@ -357,7 +361,7 @@ export class EnhancedDocsClient {
       if (params.position !== undefined) requestBody.position = params.position;
 
       const response = await axios.put(url, requestBody, {
-        headers: this.getHeaders()
+        headers: this.getHeaders(),
       });
 
       return response.data;
@@ -373,9 +377,9 @@ export class EnhancedDocsClient {
   async deletePage(docId: string, pageId: string): Promise<void> {
     try {
       const url = `https://api.clickup.com/api/v3/docs/${docId}/pages/${pageId}`;
-      
+
       await axios.delete(url, {
-        headers: this.getHeaders()
+        headers: this.getHeaders(),
       });
     } catch (error) {
       console.error('Error deleting page:', error);
@@ -390,10 +394,10 @@ export class EnhancedDocsClient {
     try {
       const url = `https://api.clickup.com/api/v3/docs/${docId}/pages/${pageId}`;
       const params = contentFormat ? { content_format: contentFormat } : {};
-      
+
       const response = await axios.get(url, {
         headers: this.getHeaders(),
-        params
+        params,
       });
 
       return response.data;
@@ -413,9 +417,9 @@ export class EnhancedDocsClient {
   async getDocSharing(docId: string): Promise<SharingConfig> {
     try {
       const url = `https://api.clickup.com/api/v3/docs/${docId}/sharing`;
-      
+
       const response = await axios.get(url, {
-        headers: this.getHeaders()
+        headers: this.getHeaders(),
       });
 
       return response.data;
@@ -431,9 +435,9 @@ export class EnhancedDocsClient {
   async updateDocSharing(docId: string, params: SharingParams): Promise<SharingConfig> {
     try {
       const url = `https://api.clickup.com/api/v3/docs/${docId}/sharing`;
-      
+
       const response = await axios.put(url, params, {
-        headers: this.getHeaders()
+        headers: this.getHeaders(),
       });
 
       return response.data;
@@ -454,7 +458,7 @@ export class EnhancedDocsClient {
     try {
       const createParams: CreateDocParams = {
         ...params,
-        template_id: templateId
+        template_id: templateId,
       };
 
       return await this.createDoc(createParams);
@@ -475,27 +479,27 @@ export class EnhancedDocsClient {
     if (axios.isAxiosError(error)) {
       const status = error.response?.status;
       const message = error.response?.data?.message || error.message;
-      
+
       switch (status) {
-      case 400:
-        return new Error(`${context}: Invalid request - ${message}`);
-      case 401:
-        return new Error(`${context}: Authentication failed - check API token`);
-      case 403:
-        return new Error(`${context}: Permission denied - insufficient access rights`);
-      case 404:
-        return new Error(`${context}: Resource not found - ${message}`);
-      case 413:
-        return new Error(`${context}: Content too large - reduce document size`);
-      case 429:
-        return new Error(`${context}: Rate limit exceeded - please retry later`);
-      case 500:
-        return new Error(`${context}: Server error - please try again`);
-      default:
-        return new Error(`${context}: ${message}`);
+        case 400:
+          return new Error(`${context}: Invalid request - ${message}`);
+        case 401:
+          return new Error(`${context}: Authentication failed - check API token`);
+        case 403:
+          return new Error(`${context}: Permission denied - insufficient access rights`);
+        case 404:
+          return new Error(`${context}: Resource not found - ${message}`);
+        case 413:
+          return new Error(`${context}: Content too large - reduce document size`);
+        case 429:
+          return new Error(`${context}: Rate limit exceeded - please retry later`);
+        case 500:
+          return new Error(`${context}: Server error - please try again`);
+        default:
+          return new Error(`${context}: ${message}`);
       }
     }
-    
+
     return new Error(`${context}: ${error.message || 'Unknown error'}`);
   }
 
@@ -503,7 +507,13 @@ export class EnhancedDocsClient {
    * Validate content format
    */
   private validateContentFormat(format: ContentFormat): boolean {
-    const validFormats: ContentFormat[] = ['markdown', 'html', 'text/md', 'text/plain', 'text/html'];
+    const validFormats: ContentFormat[] = [
+      'markdown',
+      'html',
+      'text/md',
+      'text/plain',
+      'text/html',
+    ];
     return validFormats.includes(format);
   }
 

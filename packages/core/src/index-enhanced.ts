@@ -33,7 +33,7 @@ class ClickUpServer {
       name: 'clickup-mcp-server',
       version: '3.4.0', // Updated version for namespaced tool names to prevent conflicts
     });
-    
+
     // Handle process termination
     process.on('SIGINT', async () => {
       await this.server.close();
@@ -75,7 +75,9 @@ class ClickUpServer {
   async run() {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    console.error('ClickUp MCP server running on stdio with comprehensive API coverage: enhanced documents, custom fields, time tracking, goals, webhooks, views, dependencies, and attachments management');
+    console.error(
+      'ClickUp MCP server running on stdio with comprehensive API coverage: enhanced documents, custom fields, time tracking, goals, webhooks, views, dependencies, and attachments management'
+    );
   }
 }
 

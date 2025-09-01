@@ -122,7 +122,11 @@ export class ListsClient {
    * @param params The list parameters
    * @returns The created list
    */
-  async createListFromTemplateInFolder(folderId: string, templateId: string, params: CreateListParams): Promise<List> {
+  async createListFromTemplateInFolder(
+    folderId: string,
+    templateId: string,
+    params: CreateListParams
+  ): Promise<List> {
     return this.client.post(`/folder/${folderId}/list/template/${templateId}`, params);
   }
 
@@ -133,7 +137,11 @@ export class ListsClient {
    * @param params The list parameters
    * @returns The created list
    */
-  async createListFromTemplateInSpace(spaceId: string, templateId: string, params: CreateListParams): Promise<List> {
+  async createListFromTemplateInSpace(
+    spaceId: string,
+    templateId: string,
+    params: CreateListParams
+  ): Promise<List> {
     return this.client.post(`/space/${spaceId}/list/template/${templateId}`, params);
   }
 }

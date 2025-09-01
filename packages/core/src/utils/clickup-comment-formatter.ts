@@ -39,29 +39,33 @@ export function markdownToClickUpComment(markdown: string): ClickUpCommentFormat
   }
 
   const blocks: ClickUpCommentBlock[] = [];
-  
+
   // Improved regex pattern that properly captures links
-  const parts = markdown.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|~~[^~]+~~|__[^_]+__|_[^_]+_|\[([^\]]+)\]\(([^)]+)\))/g);
-  
+  const parts = markdown.split(
+    /(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|~~[^~]+~~|__[^_]+__|_[^_]+_|\[([^\]]+)\]\(([^)]+)\))/g
+  );
+
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
     if (!part) continue;
-    
+
     // Bold text: **text**
     if (part.startsWith('**') && part.endsWith('**')) {
       const text = part.slice(2, -2);
       blocks.push({
         text,
-        attributes: { bold: true }
+        attributes: { bold: true },
       });
     }
     // Italic text: *text* or _text_
-    else if ((part.startsWith('*') && part.endsWith('*') && !part.startsWith('**')) ||
-             (part.startsWith('_') && part.endsWith('_') && !part.startsWith('__'))) {
+    else if (
+      (part.startsWith('*') && part.endsWith('*') && !part.startsWith('**')) ||
+      (part.startsWith('_') && part.endsWith('_') && !part.startsWith('__'))
+    ) {
       const text = part.slice(1, -1);
       blocks.push({
         text,
-        attributes: { italic: true }
+        attributes: { italic: true },
       });
     }
     // Underline: __text__
@@ -69,7 +73,7 @@ export function markdownToClickUpComment(markdown: string): ClickUpCommentFormat
       const text = part.slice(2, -2);
       blocks.push({
         text,
-        attributes: { underline: true }
+        attributes: { underline: true },
       });
     }
     // Strikethrough: ~~text~~
@@ -77,7 +81,7 @@ export function markdownToClickUpComment(markdown: string): ClickUpCommentFormat
       const text = part.slice(2, -2);
       blocks.push({
         text,
-        attributes: { strikethrough: true }
+        attributes: { strikethrough: true },
       });
     }
     // Inline code: `text`
@@ -85,7 +89,7 @@ export function markdownToClickUpComment(markdown: string): ClickUpCommentFormat
       const text = part.slice(1, -1);
       blocks.push({
         text,
-        attributes: { code: true }
+        attributes: { code: true },
       });
     }
     // Links: [text](url) - check if this is a link match
@@ -95,12 +99,12 @@ export function markdownToClickUpComment(markdown: string): ClickUpCommentFormat
         const [, linkText, url] = match;
         blocks.push({
           text: linkText,
-          attributes: { link: { url } }
+          attributes: { link: { url } },
         });
       }
     }
     // Check if this is a captured group from link regex (skip these)
-    else if (i > 0 && parts[i-1] && parts[i-1].match(/^\[([^\]]+)\]\(([^)]+)\)$/)) {
+    else if (i > 0 && parts[i - 1] && parts[i - 1].match(/^\[([^\]]+)\]\(([^)]+)\)$/)) {
       // This is a captured group from the link regex, skip it
       continue;
     }
@@ -109,7 +113,7 @@ export function markdownToClickUpComment(markdown: string): ClickUpCommentFormat
       if (part.trim()) {
         blocks.push({
           text: part,
-          attributes: {}
+          attributes: {},
         });
       }
     }
@@ -119,7 +123,7 @@ export function markdownToClickUpComment(markdown: string): ClickUpCommentFormat
   if (blocks.length === 0) {
     blocks.push({
       text: markdown,
-      attributes: {}
+      attributes: {},
     });
   }
 
@@ -136,32 +140,34 @@ export function clickUpCommentToMarkdown(commentFormat: ClickUpCommentFormat): s
     return '';
   }
 
-  return commentFormat.comment.map(block => {
-    let text = block.text || '';
-    const attrs = block.attributes || {};
+  return commentFormat.comment
+    .map(block => {
+      let text = block.text || '';
+      const attrs = block.attributes || {};
 
-    // Apply formatting based on attributes
-    if (attrs.bold) {
-      text = `**${text}**`;
-    }
-    if (attrs.italic) {
-      text = `*${text}*`;
-    }
-    if (attrs.underline) {
-      text = `__${text}__`;
-    }
-    if (attrs.strikethrough) {
-      text = `~~${text}~~`;
-    }
-    if (attrs.code) {
-      text = `\`${text}\``;
-    }
-    if (attrs.link) {
-      text = `[${text}](${attrs.link.url})`;
-    }
+      // Apply formatting based on attributes
+      if (attrs.bold) {
+        text = `**${text}**`;
+      }
+      if (attrs.italic) {
+        text = `*${text}*`;
+      }
+      if (attrs.underline) {
+        text = `__${text}__`;
+      }
+      if (attrs.strikethrough) {
+        text = `~~${text}~~`;
+      }
+      if (attrs.code) {
+        text = `\`${text}\``;
+      }
+      if (attrs.link) {
+        text = `[${text}](${attrs.link.url})`;
+      }
 
-    return text;
-  }).join('');
+      return text;
+    })
+    .join('');
 }
 
 /**
@@ -171,10 +177,12 @@ export function clickUpCommentToMarkdown(commentFormat: ClickUpCommentFormat): s
  */
 export function createPlainTextComment(text: string): ClickUpCommentFormat {
   return {
-    comment: [{
-      text: text || '',
-      attributes: {}
-    }]
+    comment: [
+      {
+        text: text || '',
+        attributes: {},
+      },
+    ],
   };
 }
 
@@ -185,10 +193,12 @@ export function createPlainTextComment(text: string): ClickUpCommentFormat {
  */
 export function createBoldComment(text: string): ClickUpCommentFormat {
   return {
-    comment: [{
-      text: text || '',
-      attributes: { bold: true }
-    }]
+    comment: [
+      {
+        text: text || '',
+        attributes: { bold: true },
+      },
+    ],
   };
 }
 
@@ -199,10 +209,12 @@ export function createBoldComment(text: string): ClickUpCommentFormat {
  */
 export function createItalicComment(text: string): ClickUpCommentFormat {
   return {
-    comment: [{
-      text: text || '',
-      attributes: { italic: true }
-    }]
+    comment: [
+      {
+        text: text || '',
+        attributes: { italic: true },
+      },
+    ],
   };
 }
 
@@ -213,10 +225,12 @@ export function createItalicComment(text: string): ClickUpCommentFormat {
  */
 export function createCodeComment(text: string): ClickUpCommentFormat {
   return {
-    comment: [{
-      text: text || '',
-      attributes: { code: true }
-    }]
+    comment: [
+      {
+        text: text || '',
+        attributes: { code: true },
+      },
+    ],
   };
 }
 
@@ -228,10 +242,12 @@ export function createCodeComment(text: string): ClickUpCommentFormat {
  */
 export function createLinkComment(text: string, url: string): ClickUpCommentFormat {
   return {
-    comment: [{
-      text: text || '',
-      attributes: { link: { url } }
-    }]
+    comment: [
+      {
+        text: text || '',
+        attributes: { link: { url } },
+      },
+    ],
   };
 }
 
@@ -261,7 +277,7 @@ export function parseMarkdownToClickUpComment(markdown: string): ClickUpCommentF
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
-    
+
     if (!line) {
       // Add line break for empty lines (except at the end)
       if (i < lines.length - 1) {
@@ -276,7 +292,7 @@ export function parseMarkdownToClickUpComment(markdown: string): ClickUpCommentF
       const headerText = line.replace(/^#+\s*/, '');
       blocks.push({
         text: headerText,
-        attributes: { bold: true } // ClickUp doesn't have header formatting, use bold
+        attributes: { bold: true }, // ClickUp doesn't have header formatting, use bold
       });
       blocks.push({ text: '\n', attributes: {} });
       continue;
@@ -310,11 +326,11 @@ export function parseMarkdownToClickUpComment(markdown: string): ClickUpCommentF
         codeLines.push(lines[i]);
         i++;
       }
-      
+
       if (codeLines.length > 0) {
         blocks.push({
           text: codeLines.join('\n'),
-          attributes: { code: true }
+          attributes: { code: true },
         });
         blocks.push({ text: '\n', attributes: {} });
       }
@@ -324,7 +340,7 @@ export function parseMarkdownToClickUpComment(markdown: string): ClickUpCommentF
     // Handle regular text with inline formatting
     const converted = markdownToClickUpComment(line);
     blocks.push(...converted.comment);
-    
+
     // Add line break if not the last line
     if (i < lines.length - 1) {
       blocks.push({ text: '\n', attributes: {} });
@@ -348,40 +364,40 @@ export function markdownToPlainText(markdown: string): string {
 
   // Remove headers
   plainText = plainText.replace(/^#{1,6}\s+/gm, '');
-  
+
   // Remove bold and italic
   plainText = plainText.replace(/\*\*([^*]+)\*\*/g, '$1');
   plainText = plainText.replace(/\*([^*]+)\*/g, '$1');
   plainText = plainText.replace(/__([^_]+)__/g, '$1');
   plainText = plainText.replace(/_([^_]+)_/g, '$1');
-  
+
   // Remove strikethrough
   plainText = plainText.replace(/~~([^~]+)~~/g, '$1');
-  
+
   // Remove inline code
   plainText = plainText.replace(/`([^`]+)`/g, '$1');
-  
+
   // Remove code blocks
-  plainText = plainText.replace(/```[\s\S]*?```/g, (match) => {
+  plainText = plainText.replace(/```[\s\S]*?```/g, match => {
     // Extract just the code content, remove the ``` markers
     const lines = match.split('\n');
     return lines.slice(1, -1).join('\n');
   });
-  
+
   // Remove links, keep just the text
   plainText = plainText.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
-  
+
   // Remove blockquotes
   plainText = plainText.replace(/^>\s*/gm, '');
-  
+
   // Convert list items to simple bullets
   plainText = plainText.replace(/^[-*+]\s+/gm, '• ');
   plainText = plainText.replace(/^\d+\.\s+/gm, '• ');
-  
+
   // Clean up extra whitespace
   plainText = plainText.replace(/\n{3,}/g, '\n\n');
   plainText = plainText.trim();
-  
+
   return plainText;
 }
 
@@ -398,7 +414,7 @@ export function cleanDuplicateCommentText(commentText: string): string {
 
   // ClickUp often appends the original markdown at the end after the processed text
   // Look for patterns where the same content appears twice
-  
+
   // First, try to find if there's a clear markdown pattern at the end
   // ClickUp typically appends content that starts with markdown headers or formatting
   const markdownPatterns = [
@@ -407,16 +423,16 @@ export function cleanDuplicateCommentText(commentText: string): string {
     /🎯 \*\*.*?\*\*/, // Emoji + bold pattern
     /### .*?\*\*/, // Header + bold pattern
     /## .*?\*\*/, // Header + bold pattern
-    /# .*?\*\*/ // Header + bold pattern
+    /# .*?\*\*/, // Header + bold pattern
   ];
-  
+
   for (const pattern of markdownPatterns) {
     const matches = commentText.match(new RegExp(pattern.source, 'g'));
     if (matches && matches.length >= 2) {
       // Found duplicate pattern, try to find the split point
       const firstMatch = commentText.indexOf(matches[0]);
       const lastMatch = commentText.lastIndexOf(matches[matches.length - 1]);
-      
+
       if (firstMatch !== lastMatch) {
         // There are multiple occurrences, likely a duplication
         // Keep everything up to the last occurrence of the first match
@@ -427,51 +443,53 @@ export function cleanDuplicateCommentText(commentText: string): string {
       }
     }
   }
-  
+
   // Alternative approach: look for the pattern where content is repeated
   // Split by common separators and look for duplicates
   const lines = commentText.split('\n');
   const totalLines = lines.length;
-  
+
   if (totalLines > 6) {
     // Look for a point where content starts repeating
-    for (let i = Math.floor(totalLines / 3); i < Math.floor(totalLines * 2 / 3); i++) {
+    for (let i = Math.floor(totalLines / 3); i < Math.floor((totalLines * 2) / 3); i++) {
       const beforeSplit = lines.slice(0, i).join('\n');
       const afterSplit = lines.slice(i).join('\n');
-      
+
       // Check if the after split contains similar content to before split
-      if (afterSplit.length > beforeSplit.length * 0.5 && 
-          beforeSplit.length > 50 && 
-          afterSplit.includes(lines[0]) && 
-          afterSplit.includes(lines[1])) {
+      if (
+        afterSplit.length > beforeSplit.length * 0.5 &&
+        beforeSplit.length > 50 &&
+        afterSplit.includes(lines[0]) &&
+        afterSplit.includes(lines[1])
+      ) {
         return beforeSplit.trim();
       }
     }
   }
-  
+
   // Last resort: check for exact duplicates by splitting in half
   const length = commentText.length;
   if (length > 100) {
     const midPoint = Math.floor(length / 2);
     const firstHalf = commentText.substring(0, midPoint);
     const secondHalf = commentText.substring(midPoint);
-    
+
     // Check if second half starts with similar content to first half
     const firstLines = firstHalf.split('\n').slice(0, 3);
     const secondLines = secondHalf.split('\n').slice(0, 3);
-    
+
     let similarity = 0;
     for (let i = 0; i < Math.min(firstLines.length, secondLines.length); i++) {
       if (firstLines[i].trim() && secondLines[i].includes(firstLines[i].trim().substring(0, 20))) {
         similarity++;
       }
     }
-    
+
     if (similarity >= 2) {
       return firstHalf.trim();
     }
   }
-  
+
   return commentText;
 }
 
@@ -486,17 +504,17 @@ export function cleanClickUpCommentResponse(comment: any): any {
   }
 
   const cleaned = { ...comment };
-  
+
   // Clean up comment_text field if it exists
   if (cleaned.comment_text && typeof cleaned.comment_text === 'string') {
     cleaned.comment_text = cleanDuplicateCommentText(cleaned.comment_text);
   }
-  
+
   // Clean up comment_markdown field if it exists
   if (cleaned.comment_markdown && typeof cleaned.comment_markdown === 'string') {
     cleaned.comment_markdown = cleanDuplicateCommentText(cleaned.comment_markdown);
   }
-  
+
   return cleaned;
 }
 
@@ -518,7 +536,8 @@ export function ensureCodeBlockSeparation(blocks: ClickUpCommentBlock[]): ClickU
     const previousBlock = i > 0 ? blocks[i - 1] : null;
 
     // Check if current block is a code block
-    const isCodeBlock = currentBlock.attributes && 
+    const isCodeBlock =
+      currentBlock.attributes &&
       (currentBlock.attributes['code-block'] || currentBlock.attributes.code);
 
     // If this is a code block and there's a previous block
@@ -531,10 +550,10 @@ export function ensureCodeBlockSeparation(blocks: ClickUpCommentBlock[]): ClickU
         // Add newline to the previous block's text
         const updatedPreviousBlock = {
           ...previousBlock,
-          text: `${previousText }\n`,
-          attributes: previousBlock.attributes || {}
+          text: `${previousText}\n`,
+          attributes: previousBlock.attributes || {},
         };
-        
+
         // Replace the previous block in our processed array
         if (processedBlocks.length > 0) {
           processedBlocks[processedBlocks.length - 1] = updatedPreviousBlock;
@@ -544,7 +563,7 @@ export function ensureCodeBlockSeparation(blocks: ClickUpCommentBlock[]): ClickU
 
     processedBlocks.push({
       ...currentBlock,
-      attributes: currentBlock.attributes || {}
+      attributes: currentBlock.attributes || {},
     });
   }
 
@@ -561,25 +580,24 @@ export function prepareCommentForClickUp(content: string): {
   comment: ClickUpCommentBlock[];
 } {
   if (!content || typeof content !== 'string') {
-    return { 
-      comment: [{ text: '', attributes: {} }]
+    return {
+      comment: [{ text: '', attributes: {} }],
     };
   }
 
   // Check if content contains markdown formatting
   const hasMarkdown = /[*_`~#[\]()>-]/.test(content) || content.includes('```');
-  
+
   if (hasMarkdown) {
     const formatted = parseMarkdownToClickUpComment(content);
     return {
-      comment: ensureCodeBlockSeparation(formatted.comment)
+      comment: ensureCodeBlockSeparation(formatted.comment),
     };
-  } 
+  }
   // Simple plain text
   return {
-    comment: [{ text: content, attributes: {} }]
+    comment: [{ text: content, attributes: {} }],
   };
-  
 }
 
 /**
@@ -596,7 +614,7 @@ export function processCommentBlocks(blocks: ClickUpCommentBlock[]): ClickUpComm
   // First, ensure all blocks have attributes (even if empty)
   const normalizedBlocks = blocks.map(block => ({
     ...block,
-    attributes: block.attributes || {}
+    attributes: block.attributes || {},
   }));
 
   return ensureCodeBlockSeparation(normalizedBlocks);

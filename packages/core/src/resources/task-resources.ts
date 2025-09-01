@@ -14,7 +14,7 @@ export function setupTaskResources(server: McpServer): void {
     new ResourceTemplate('clickup://task/{task_id}', { list: undefined }),
     {
       description:
-        'Get detailed information about a specific ClickUp task, including its name, description, assignees, status, and dates.',
+        'Get detailed information about a specific ClickUp task, including its name, description, assignees, status, and dates.'
     },
     async (uri, params) => {
       try {
@@ -28,9 +28,9 @@ export function setupTaskResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(task, null, 2),
-            },
-          ],
+              text: JSON.stringify(task, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[TaskResources] Error fetching task:', error);
@@ -44,7 +44,7 @@ export function setupTaskResources(server: McpServer): void {
     'example-task',
     'clickup://task/86rkjvttt',
     {
-      description: 'An example task resource demonstrating the task details format.',
+      description: 'An example task resource demonstrating the task details format.'
     },
     async uri => {
       try {
@@ -58,9 +58,9 @@ export function setupTaskResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(task, null, 2),
-            },
-          ],
+              text: JSON.stringify(task, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[TaskResources] Error fetching example task:', error);

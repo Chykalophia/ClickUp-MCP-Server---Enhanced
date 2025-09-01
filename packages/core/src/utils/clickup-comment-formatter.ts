@@ -54,7 +54,7 @@ export function markdownToClickUpComment(markdown: string): ClickUpCommentFormat
       const text = part.slice(2, -2);
       blocks.push({
         text,
-        attributes: { bold: true },
+        attributes: { bold: true }
       });
     }
     // Italic text: *text* or _text_
@@ -65,7 +65,7 @@ export function markdownToClickUpComment(markdown: string): ClickUpCommentFormat
       const text = part.slice(1, -1);
       blocks.push({
         text,
-        attributes: { italic: true },
+        attributes: { italic: true }
       });
     }
     // Underline: __text__
@@ -73,7 +73,7 @@ export function markdownToClickUpComment(markdown: string): ClickUpCommentFormat
       const text = part.slice(2, -2);
       blocks.push({
         text,
-        attributes: { underline: true },
+        attributes: { underline: true }
       });
     }
     // Strikethrough: ~~text~~
@@ -81,7 +81,7 @@ export function markdownToClickUpComment(markdown: string): ClickUpCommentFormat
       const text = part.slice(2, -2);
       blocks.push({
         text,
-        attributes: { strikethrough: true },
+        attributes: { strikethrough: true }
       });
     }
     // Inline code: `text`
@@ -89,7 +89,7 @@ export function markdownToClickUpComment(markdown: string): ClickUpCommentFormat
       const text = part.slice(1, -1);
       blocks.push({
         text,
-        attributes: { code: true },
+        attributes: { code: true }
       });
     }
     // Links: [text](url) - check if this is a link match
@@ -99,7 +99,7 @@ export function markdownToClickUpComment(markdown: string): ClickUpCommentFormat
         const [, linkText, url] = match;
         blocks.push({
           text: linkText,
-          attributes: { link: { url } },
+          attributes: { link: { url } }
         });
       }
     }
@@ -113,7 +113,7 @@ export function markdownToClickUpComment(markdown: string): ClickUpCommentFormat
       if (part.trim()) {
         blocks.push({
           text: part,
-          attributes: {},
+          attributes: {}
         });
       }
     }
@@ -123,7 +123,7 @@ export function markdownToClickUpComment(markdown: string): ClickUpCommentFormat
   if (blocks.length === 0) {
     blocks.push({
       text: markdown,
-      attributes: {},
+      attributes: {}
     });
   }
 
@@ -180,9 +180,9 @@ export function createPlainTextComment(text: string): ClickUpCommentFormat {
     comment: [
       {
         text: text || '',
-        attributes: {},
-      },
-    ],
+        attributes: {}
+      }
+    ]
   };
 }
 
@@ -196,9 +196,9 @@ export function createBoldComment(text: string): ClickUpCommentFormat {
     comment: [
       {
         text: text || '',
-        attributes: { bold: true },
-      },
-    ],
+        attributes: { bold: true }
+      }
+    ]
   };
 }
 
@@ -212,9 +212,9 @@ export function createItalicComment(text: string): ClickUpCommentFormat {
     comment: [
       {
         text: text || '',
-        attributes: { italic: true },
-      },
-    ],
+        attributes: { italic: true }
+      }
+    ]
   };
 }
 
@@ -228,9 +228,9 @@ export function createCodeComment(text: string): ClickUpCommentFormat {
     comment: [
       {
         text: text || '',
-        attributes: { code: true },
-      },
-    ],
+        attributes: { code: true }
+      }
+    ]
   };
 }
 
@@ -245,9 +245,9 @@ export function createLinkComment(text: string, url: string): ClickUpCommentForm
     comment: [
       {
         text: text || '',
-        attributes: { link: { url } },
-      },
-    ],
+        attributes: { link: { url } }
+      }
+    ]
   };
 }
 
@@ -292,7 +292,7 @@ export function parseMarkdownToClickUpComment(markdown: string): ClickUpCommentF
       const headerText = line.replace(/^#+\s*/, '');
       blocks.push({
         text: headerText,
-        attributes: { bold: true }, // ClickUp doesn't have header formatting, use bold
+        attributes: { bold: true } // ClickUp doesn't have header formatting, use bold
       });
       blocks.push({ text: '\n', attributes: {} });
       continue;
@@ -330,7 +330,7 @@ export function parseMarkdownToClickUpComment(markdown: string): ClickUpCommentF
       if (codeLines.length > 0) {
         blocks.push({
           text: codeLines.join('\n'),
-          attributes: { code: true },
+          attributes: { code: true }
         });
         blocks.push({ text: '\n', attributes: {} });
       }
@@ -423,7 +423,7 @@ export function cleanDuplicateCommentText(commentText: string): string {
     /🎯 \*\*.*?\*\*/, // Emoji + bold pattern
     /### .*?\*\*/, // Header + bold pattern
     /## .*?\*\*/, // Header + bold pattern
-    /# .*?\*\*/, // Header + bold pattern
+    /# .*?\*\*/ // Header + bold pattern
   ];
 
   for (const pattern of markdownPatterns) {
@@ -551,7 +551,7 @@ export function ensureCodeBlockSeparation(blocks: ClickUpCommentBlock[]): ClickU
         const updatedPreviousBlock = {
           ...previousBlock,
           text: `${previousText}\n`,
-          attributes: previousBlock.attributes || {},
+          attributes: previousBlock.attributes || {}
         };
 
         // Replace the previous block in our processed array
@@ -563,7 +563,7 @@ export function ensureCodeBlockSeparation(blocks: ClickUpCommentBlock[]): ClickU
 
     processedBlocks.push({
       ...currentBlock,
-      attributes: currentBlock.attributes || {},
+      attributes: currentBlock.attributes || {}
     });
   }
 
@@ -581,7 +581,7 @@ export function prepareCommentForClickUp(content: string): {
 } {
   if (!content || typeof content !== 'string') {
     return {
-      comment: [{ text: '', attributes: {} }],
+      comment: [{ text: '', attributes: {} }]
     };
   }
 
@@ -591,12 +591,12 @@ export function prepareCommentForClickUp(content: string): {
   if (hasMarkdown) {
     const formatted = parseMarkdownToClickUpComment(content);
     return {
-      comment: ensureCodeBlockSeparation(formatted.comment),
+      comment: ensureCodeBlockSeparation(formatted.comment)
     };
   }
   // Simple plain text
   return {
-    comment: [{ text: content, attributes: {} }],
+    comment: [{ text: content, attributes: {} }]
   };
 }
 
@@ -614,7 +614,7 @@ export function processCommentBlocks(blocks: ClickUpCommentBlock[]): ClickUpComm
   // First, ensure all blocks have attributes (even if empty)
   const normalizedBlocks = blocks.map(block => ({
     ...block,
-    attributes: block.attributes || {},
+    attributes: block.attributes || {}
   }));
 
   return ensureCodeBlockSeparation(normalizedBlocks);

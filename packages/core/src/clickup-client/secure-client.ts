@@ -4,7 +4,7 @@ import {
   validateApiToken,
   sanitizeInput,
   rateLimiter,
-  DEFAULT_RATE_LIMITS,
+  DEFAULT_RATE_LIMITS
 } from '../utils/security.js';
 import { handleClickUpApiError, RetryManager, generateRequestId } from '../utils/error-handling.js';
 
@@ -45,8 +45,8 @@ export class SecureClickUpClient {
         'Content-Type': 'application/json',
         'User-Agent': this.userAgent,
         Accept: 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-      },
+        'X-Requested-With': 'XMLHttpRequest'
+      }
     });
 
     // Add request interceptor for security and rate limiting
@@ -94,7 +94,7 @@ export class SecureClickUpClient {
         const requestId = error.config?.headers?.['X-Request-ID'];
         const structuredError = handleClickUpApiError(error, {
           operation: `${error.config?.method?.toUpperCase()} ${error.config?.url}`,
-          requestId,
+          requestId
         });
 
         // Log error
@@ -113,7 +113,7 @@ export class SecureClickUpClient {
       async () => {
         const response = await this.axiosInstance.get(endpoint, {
           params: sanitizeInput(params),
-          ...config,
+          ...config
         });
         return response.data;
       },
@@ -222,9 +222,9 @@ export class SecureClickUpClient {
       async () => {
         const response = await this.axiosInstance.post(endpoint, formData, {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            'Content-Type': 'multipart/form-data'
           },
-          timeout: 120000, // 2 minute timeout for uploads
+          timeout: 120000 // 2 minute timeout for uploads
         });
         return response.data;
       },
@@ -259,23 +259,23 @@ export class SecureClickUpClient {
           let data: T;
 
           switch (request.method) {
-            case 'GET':
-              data = await this.get<T>(request.endpoint, request.params);
-              break;
-            case 'POST':
-              data = await this.post<T>(request.endpoint, request.data);
-              break;
-            case 'PUT':
-              data = await this.put<T>(request.endpoint, request.data);
-              break;
-            case 'DELETE':
-              data = await this.delete<T>(request.endpoint);
-              break;
-            case 'PATCH':
-              data = await this.patch<T>(request.endpoint, request.data);
-              break;
-            default:
-              throw new Error(`Unsupported method: ${request.method}`);
+          case 'GET':
+            data = await this.get<T>(request.endpoint, request.params);
+            break;
+          case 'POST':
+            data = await this.post<T>(request.endpoint, request.data);
+            break;
+          case 'PUT':
+            data = await this.put<T>(request.endpoint, request.data);
+            break;
+          case 'DELETE':
+            data = await this.delete<T>(request.endpoint);
+            break;
+          case 'PATCH':
+            data = await this.patch<T>(request.endpoint, request.data);
+            break;
+          default:
+            throw new Error(`Unsupported method: ${request.method}`);
           }
 
           return { success: true, data };
@@ -315,13 +315,13 @@ export class SecureClickUpClient {
       return {
         status: 'healthy',
         latency,
-        timestamp: new Date().toISOString(),
+        timestamp: new Date().toISOString()
       };
     } catch (error) {
       return {
         status: 'unhealthy',
         latency: Date.now() - startTime,
-        timestamp: new Date().toISOString(),
+        timestamp: new Date().toISOString()
       };
     }
   }
@@ -334,12 +334,12 @@ export class SecureClickUpClient {
     rateLimitEnabled: boolean;
     userAgent: string;
     baseUrl: string;
-  } {
+    } {
     return {
       totalRequests: 0, // Would need to implement request counting
       rateLimitEnabled: this.enableRateLimit,
       userAgent: this.userAgent,
-      baseUrl: this.axiosInstance.defaults.baseURL || API_BASE_URL,
+      baseUrl: this.axiosInstance.defaults.baseURL || API_BASE_URL
     };
   }
 
@@ -393,6 +393,6 @@ export const createSecureClickUpClient = (
 
   return new SecureClickUpClient({
     apiToken,
-    ...config,
+    ...config
   });
 };

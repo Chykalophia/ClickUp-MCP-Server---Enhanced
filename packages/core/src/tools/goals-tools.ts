@@ -9,7 +9,7 @@ import {} from // TeamIdSchema,
 // CreateGoalSchema,
 // UpdateGoalSchema,
 // GoalColorSchema
-'../schemas/goals-schemas.js';
+  '../schemas/goals-schemas.js';
 
 // Create clients
 const clickUpClient = createClickUpClient();
@@ -29,7 +29,7 @@ export function setupGoalsTools(server: McpServer): void {
         .boolean()
         .optional()
         .default(false)
-        .describe('Whether to include completed goals'),
+        .describe('Whether to include completed goals')
     },
     async ({ team_id, include_completed }) => {
       try {
@@ -39,15 +39,15 @@ export function setupGoalsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Goals for team ${team_id}:\n\n${JSON.stringify(goals, null, 2)}`,
-            },
-          ],
+              text: `Goals for team ${team_id}:\n\n${JSON.stringify(goals, null, 2)}`
+            }
+          ]
         };
       } catch (error: any) {
         console.error('Error getting goals:', error);
         return {
           content: [{ type: 'text', text: `Error getting goals: ${error.message}` }],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -71,7 +71,7 @@ export function setupGoalsTools(server: McpServer): void {
         .regex(/^#[0-9A-Fa-f]{6}$/)
         .optional()
         .default('#007cff')
-        .describe('Goal color (hex format)'),
+        .describe('Goal color (hex format)')
     },
     async ({ team_id, name, due_date, description, multiple_owners, owners, color }) => {
       try {
@@ -79,7 +79,7 @@ export function setupGoalsTools(server: McpServer): void {
         if (!goalsClient.validateGoalDate(due_date)) {
           return {
             content: [{ type: 'text', text: 'Error: Due date must be in the future' }],
-            isError: true,
+            isError: true
           };
         }
 
@@ -89,7 +89,7 @@ export function setupGoalsTools(server: McpServer): void {
           description,
           multiple_owners,
           owners,
-          color,
+          color
         };
 
         const goal = await goalsClient.createGoal(team_id, params);
@@ -98,15 +98,15 @@ export function setupGoalsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Goal created successfully!\n\n${JSON.stringify(goal, null, 2)}`,
-            },
-          ],
+              text: `Goal created successfully!\n\n${JSON.stringify(goal, null, 2)}`
+            }
+          ]
         };
       } catch (error: any) {
         console.error('Error creating goal:', error);
         return {
           content: [{ type: 'text', text: `Error creating goal: ${error.message}` }],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -132,7 +132,7 @@ export function setupGoalsTools(server: McpServer): void {
         .string()
         .regex(/^#[0-9A-Fa-f]{6}$/)
         .optional()
-        .describe('New goal color (hex format)'),
+        .describe('New goal color (hex format)')
     },
     async ({ goal_id, name, due_date, description, rem_owners, add_owners, color }) => {
       try {
@@ -140,7 +140,7 @@ export function setupGoalsTools(server: McpServer): void {
         if (due_date && !goalsClient.validateGoalDate(due_date)) {
           return {
             content: [{ type: 'text', text: 'Error: Due date must be in the future' }],
-            isError: true,
+            isError: true
           };
         }
 
@@ -150,7 +150,7 @@ export function setupGoalsTools(server: McpServer): void {
           description,
           rem_owners,
           add_owners,
-          color,
+          color
         };
 
         const updatedGoal = await goalsClient.updateGoal(goal_id, params);
@@ -159,15 +159,15 @@ export function setupGoalsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Goal updated successfully!\n\n${JSON.stringify(updatedGoal, null, 2)}`,
-            },
-          ],
+              text: `Goal updated successfully!\n\n${JSON.stringify(updatedGoal, null, 2)}`
+            }
+          ]
         };
       } catch (error: any) {
         console.error('Error updating goal:', error);
         return {
           content: [{ type: 'text', text: `Error updating goal: ${error.message}` }],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -177,7 +177,7 @@ export function setupGoalsTools(server: McpServer): void {
     'clickup_delete_goal',
     'Delete a goal from ClickUp. This action cannot be undone and will remove all associated targets.',
     {
-      goal_id: z.string().min(1).describe('The ID of the goal to delete'),
+      goal_id: z.string().min(1).describe('The ID of the goal to delete')
     },
     async ({ goal_id }) => {
       try {
@@ -187,15 +187,15 @@ export function setupGoalsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Goal ${goal_id} deleted successfully. All associated targets have been removed.`,
-            },
-          ],
+              text: `Goal ${goal_id} deleted successfully. All associated targets have been removed.`
+            }
+          ]
         };
       } catch (error: any) {
         console.error('Error deleting goal:', error);
         return {
           content: [{ type: 'text', text: `Error deleting goal: ${error.message}` }],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -205,7 +205,7 @@ export function setupGoalsTools(server: McpServer): void {
     'clickup_get_goal',
     'Get detailed information about a specific goal including all targets and progress data.',
     {
-      goal_id: z.string().min(1).describe('The ID of the goal to retrieve'),
+      goal_id: z.string().min(1).describe('The ID of the goal to retrieve')
     },
     async ({ goal_id }) => {
       try {
@@ -219,23 +219,23 @@ export function setupGoalsTools(server: McpServer): void {
             days_until_due: goalsClient.getDaysUntilDue(goal.due_date),
             status: goalsClient.getGoalStatus(goal.percent_completed, goal.due_date),
             targets_count: goal.key_results.length,
-            completed_targets: goal.key_results.filter(t => t.completed).length,
-          },
+            completed_targets: goal.key_results.filter(t => t.completed).length
+          }
         };
 
         return {
           content: [
             {
               type: 'text',
-              text: `Goal details:\n\n${JSON.stringify(formattedGoal, null, 2)}`,
-            },
-          ],
+              text: `Goal details:\n\n${JSON.stringify(formattedGoal, null, 2)}`
+            }
+          ]
         };
       } catch (error: any) {
         console.error('Error getting goal:', error);
         return {
           content: [{ type: 'text', text: `Error getting goal: ${error.message}` }],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -264,7 +264,7 @@ export function setupGoalsTools(server: McpServer): void {
       list_ids: z
         .array(z.string())
         .optional()
-        .describe('List IDs to track (for list type targets)'),
+        .describe('List IDs to track (for list type targets)')
     },
     async ({ goal_id, name, type, target_value, start_value, unit, task_statuses, list_ids }) => {
       try {
@@ -275,7 +275,7 @@ export function setupGoalsTools(server: McpServer): void {
           start_value,
           unit,
           task_statuses,
-          list_ids,
+          list_ids
         };
 
         const target = await goalsClient.createGoalTarget(goal_id, params);
@@ -284,15 +284,15 @@ export function setupGoalsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Goal target created successfully!\n\n${JSON.stringify(target, null, 2)}`,
-            },
-          ],
+              text: `Goal target created successfully!\n\n${JSON.stringify(target, null, 2)}`
+            }
+          ]
         };
       } catch (error: any) {
         console.error('Error creating goal target:', error);
         return {
           content: [{ type: 'text', text: `Error creating goal target: ${error.message}` }],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -308,7 +308,7 @@ export function setupGoalsTools(server: McpServer): void {
       target_value: z.number().min(0).optional().describe('New target value'),
       unit: z.string().optional().describe('New unit of measurement'),
       task_statuses: z.array(z.string()).optional().describe('New task statuses to track'),
-      list_ids: z.array(z.string()).optional().describe('New list IDs to track'),
+      list_ids: z.array(z.string()).optional().describe('New list IDs to track')
     },
     async ({ goal_id, target_id, name, target_value, unit, task_statuses, list_ids }) => {
       try {
@@ -317,7 +317,7 @@ export function setupGoalsTools(server: McpServer): void {
           target_value,
           unit,
           task_statuses,
-          list_ids,
+          list_ids
         };
 
         const updatedTarget = await goalsClient.updateGoalTarget(goal_id, target_id, params);
@@ -326,15 +326,15 @@ export function setupGoalsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Goal target updated successfully!\n\n${JSON.stringify(updatedTarget, null, 2)}`,
-            },
-          ],
+              text: `Goal target updated successfully!\n\n${JSON.stringify(updatedTarget, null, 2)}`
+            }
+          ]
         };
       } catch (error: any) {
         console.error('Error updating goal target:', error);
         return {
           content: [{ type: 'text', text: `Error updating goal target: ${error.message}` }],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -345,7 +345,7 @@ export function setupGoalsTools(server: McpServer): void {
     'Delete a target from a goal. This action cannot be undone.',
     {
       goal_id: z.string().min(1).describe('The ID of the goal'),
-      target_id: z.string().min(1).describe('The ID of the target to delete'),
+      target_id: z.string().min(1).describe('The ID of the target to delete')
     },
     async ({ goal_id, target_id }) => {
       try {
@@ -355,15 +355,15 @@ export function setupGoalsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Goal target ${target_id} deleted successfully from goal ${goal_id}.`,
-            },
-          ],
+              text: `Goal target ${target_id} deleted successfully from goal ${goal_id}.`
+            }
+          ]
         };
       } catch (error: any) {
         console.error('Error deleting goal target:', error);
         return {
           content: [{ type: 'text', text: `Error deleting goal target: ${error.message}` }],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -377,7 +377,7 @@ export function setupGoalsTools(server: McpServer): void {
     'clickup_get_goal_summary',
     'Get comprehensive goal analytics and summary for a team. Includes progress statistics, status breakdown, and upcoming deadlines.',
     {
-      team_id: z.string().min(1).describe('The ID of the team to get goal summary for'),
+      team_id: z.string().min(1).describe('The ID of the team to get goal summary for')
     },
     async ({ team_id }) => {
       try {
@@ -387,15 +387,15 @@ export function setupGoalsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Goal summary for team ${team_id}:\n\n${JSON.stringify(summary, null, 2)}`,
-            },
-          ],
+              text: `Goal summary for team ${team_id}:\n\n${JSON.stringify(summary, null, 2)}`
+            }
+          ]
         };
       } catch (error: any) {
         console.error('Error getting goal summary:', error);
         return {
           content: [{ type: 'text', text: `Error getting goal summary: ${error.message}` }],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -425,7 +425,7 @@ export function setupGoalsTools(server: McpServer): void {
         .regex(/^#[0-9A-Fa-f]{6}$/)
         .optional()
         .default('#007cff')
-        .describe('Goal color'),
+        .describe('Goal color')
     },
     async ({
       team_id,
@@ -436,7 +436,7 @@ export function setupGoalsTools(server: McpServer): void {
       due_date,
       description,
       owners,
-      color,
+      color
     }) => {
       try {
         // Create the goal
@@ -446,7 +446,7 @@ export function setupGoalsTools(server: McpServer): void {
           description,
           multiple_owners: owners.length > 1,
           owners,
-          color,
+          color
         });
 
         // Create the number target
@@ -455,22 +455,22 @@ export function setupGoalsTools(server: McpServer): void {
           type: 'number',
           target_value,
           start_value: 0,
-          unit,
+          unit
         });
 
         return {
           content: [
             {
               type: 'text',
-              text: `Number goal created successfully!\n\nGoal: ${JSON.stringify(goal, null, 2)}\n\nTarget: ${JSON.stringify(target, null, 2)}`,
-            },
-          ],
+              text: `Number goal created successfully!\n\nGoal: ${JSON.stringify(goal, null, 2)}\n\nTarget: ${JSON.stringify(target, null, 2)}`
+            }
+          ]
         };
       } catch (error: any) {
         console.error('Error creating number goal:', error);
         return {
           content: [{ type: 'text', text: `Error creating number goal: ${error.message}` }],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -497,7 +497,7 @@ export function setupGoalsTools(server: McpServer): void {
         .regex(/^#[0-9A-Fa-f]{6}$/)
         .optional()
         .default('#00c851')
-        .describe('Goal color'),
+        .describe('Goal color')
     },
     async ({
       team_id,
@@ -508,7 +508,7 @@ export function setupGoalsTools(server: McpServer): void {
       due_date,
       description,
       owners,
-      color,
+      color
     }) => {
       try {
         // Create the goal
@@ -518,7 +518,7 @@ export function setupGoalsTools(server: McpServer): void {
           description,
           multiple_owners: owners.length > 1,
           owners,
-          color,
+          color
         });
 
         // Create the currency target
@@ -527,7 +527,7 @@ export function setupGoalsTools(server: McpServer): void {
           type: 'currency',
           target_value,
           start_value: 0,
-          unit: currency,
+          unit: currency
         });
 
         // Format the target value for display
@@ -537,15 +537,15 @@ export function setupGoalsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Currency goal created successfully!\n\nGoal: ${goal_name}\nTarget: ${formattedValue}\n\nDetails:\nGoal: ${JSON.stringify(goal, null, 2)}\n\nTarget: ${JSON.stringify(target, null, 2)}`,
-            },
-          ],
+              text: `Currency goal created successfully!\n\nGoal: ${goal_name}\nTarget: ${formattedValue}\n\nDetails:\nGoal: ${JSON.stringify(goal, null, 2)}\n\nTarget: ${JSON.stringify(target, null, 2)}`
+            }
+          ]
         };
       } catch (error: any) {
         console.error('Error creating currency goal:', error);
         return {
           content: [{ type: 'text', text: `Error creating currency goal: ${error.message}` }],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -555,7 +555,7 @@ export function setupGoalsTools(server: McpServer): void {
     'clickup_format_goal_progress',
     'Format goal progress information for human-readable display. Useful for reporting and dashboards.',
     {
-      goal_id: z.string().min(1).describe('The ID of the goal to format'),
+      goal_id: z.string().min(1).describe('The ID of the goal to format')
     },
     async ({ goal_id }) => {
       try {
@@ -600,15 +600,15 @@ export function setupGoalsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: formattedProgress,
-            },
-          ],
+              text: formattedProgress
+            }
+          ]
         };
       } catch (error: any) {
         console.error('Error formatting goal progress:', error);
         return {
           content: [{ type: 'text', text: `Error formatting goal progress: ${error.message}` }],
-          isError: true,
+          isError: true
         };
       }
     }

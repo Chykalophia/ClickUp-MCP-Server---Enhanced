@@ -41,13 +41,13 @@ jest.mock('../utils/markdown', () => ({
     if (!content) return '';
 
     switch (targetFormat) {
-      case 'html':
-        return content.includes('<') ? content : `<p>${content}</p>`;
-      case 'plain':
-        return content.replace(/<[^>]+>/g, '').replace(/[#*`]/g, '');
-      case 'markdown':
-      default:
-        return content;
+    case 'html':
+      return content.includes('<') ? content : `<p>${content}</p>`;
+    case 'plain':
+      return content.replace(/<[^>]+>/g, '').replace(/[#*`]/g, '');
+    case 'markdown':
+    default:
+      return content;
     }
   }),
 
@@ -61,7 +61,7 @@ jest.mock('../utils/markdown', () => ({
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
       return {
         description: html,
-        text_content: content.replace(/[#*`]/g, ''),
+        text_content: content.replace(/[#*`]/g, '')
       };
     }
 
@@ -73,7 +73,7 @@ jest.mock('../utils/markdown', () => ({
     return content
       .replace(/<h1>(.+?)<\/h1>/g, '# $1')
       .replace(/<strong>(.+?)<\/strong>/g, '**$1**');
-  }),
+  })
 }));
 
 import {
@@ -84,7 +84,7 @@ import {
   isHtml,
   formatContent,
   prepareContentForClickUp,
-  processClickUpResponse,
+  processClickUpResponse
 } from '../utils/markdown';
 
 describe('Markdown Utilities', () => {

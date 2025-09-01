@@ -297,7 +297,7 @@ export class EnhancedTimeTrackingClient {
             duration: 0,
             billable_duration: 0,
             entries_count: 0,
-            user_info: entry.user,
+            user_info: entry.user
           };
         }
         byUser[userId].duration += duration;
@@ -314,7 +314,7 @@ export class EnhancedTimeTrackingClient {
               duration: 0,
               billable_duration: 0,
               entries_count: 0,
-              task_info: entry.task,
+              task_info: entry.task
             };
           }
           byTask[taskId].duration += duration;
@@ -331,7 +331,7 @@ export class EnhancedTimeTrackingClient {
         non_billable_duration: nonBillableDuration,
         entries_count: timeEntries.length,
         by_user: byUser,
-        by_task: byTask,
+        by_task: byTask
       };
     } catch (error) {
       console.error('Error getting time summary:', error);
@@ -367,16 +367,16 @@ export class EnhancedTimeTrackingClient {
     format: 'milliseconds' | 'seconds' | 'minutes' | 'hours'
   ): number {
     switch (format) {
-      case 'milliseconds':
-        return milliseconds;
-      case 'seconds':
-        return Math.floor(milliseconds / 1000);
-      case 'minutes':
-        return Math.floor(milliseconds / (1000 * 60));
-      case 'hours':
-        return Math.floor(milliseconds / (1000 * 60 * 60));
-      default:
-        return milliseconds;
+    case 'milliseconds':
+      return milliseconds;
+    case 'seconds':
+      return Math.floor(milliseconds / 1000);
+    case 'minutes':
+      return Math.floor(milliseconds / (1000 * 60));
+    case 'hours':
+      return Math.floor(milliseconds / (1000 * 60 * 60));
+    default:
+      return milliseconds;
     }
   }
 
@@ -405,20 +405,20 @@ export class EnhancedTimeTrackingClient {
       const message = error.response?.data?.message || error.message;
 
       switch (status) {
-        case 400:
-          return new Error(`${context}: Invalid request - ${message}`);
-        case 401:
-          return new Error(`${context}: Authentication failed - check API token`);
-        case 403:
-          return new Error(`${context}: Permission denied - insufficient access rights`);
-        case 404:
-          return new Error(`${context}: Resource not found - ${message}`);
-        case 429:
-          return new Error(`${context}: Rate limit exceeded - please retry later`);
-        case 500:
-          return new Error(`${context}: Server error - please try again`);
-        default:
-          return new Error(`${context}: ${message}`);
+      case 400:
+        return new Error(`${context}: Invalid request - ${message}`);
+      case 401:
+        return new Error(`${context}: Authentication failed - check API token`);
+      case 403:
+        return new Error(`${context}: Permission denied - insufficient access rights`);
+      case 404:
+        return new Error(`${context}: Resource not found - ${message}`);
+      case 429:
+        return new Error(`${context}: Rate limit exceeded - please retry later`);
+      case 500:
+        return new Error(`${context}: Server error - please try again`);
+      default:
+        return new Error(`${context}: ${message}`);
       }
     }
 

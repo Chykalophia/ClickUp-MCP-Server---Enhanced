@@ -4,7 +4,7 @@ import { processClickUpResponse } from '../utils/markdown.js';
 import {
   prepareCommentForClickUp,
   clickUpCommentToMarkdown,
-  ClickUpCommentBlock,
+  ClickUpCommentBlock
 } from '../utils/clickup-comment-formatter.js';
 
 export interface Comment {

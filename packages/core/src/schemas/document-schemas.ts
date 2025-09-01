@@ -6,7 +6,7 @@ export const ContentFormatSchema = z.enum([
   'html',
   'text/md',
   'text/plain',
-  'text/html',
+  'text/html'
 ]);
 
 // Document creation schema
@@ -18,11 +18,11 @@ export const CreateDocSchema = z
     name: z.string().min(1, 'Document name is required').max(255, 'Document name too long'),
     content: z.string().optional(),
     public: z.boolean().optional().default(false),
-    template_id: z.string().optional(),
+    template_id: z.string().optional()
   })
   .refine(data => data.workspace_id || data.space_id || data.folder_id, {
     message: 'Must specify workspace_id, space_id, or folder_id',
-    path: ['workspace_id'],
+    path: ['workspace_id']
   });
 
 // Document update schema
@@ -34,13 +34,13 @@ export const UpdateDocSchema = z
       .max(255, 'Document name too long')
       .optional(),
     content: z.string().optional(),
-    public: z.boolean().optional(),
+    public: z.boolean().optional()
   })
   .refine(
     data => data.name !== undefined || data.content !== undefined || data.public !== undefined,
     {
       message: 'Must specify at least one field to update',
-      path: ['name'],
+      path: ['name']
     }
   );
 
@@ -50,7 +50,7 @@ export const CreatePageSchema = z.object({
   content: z.string().min(1, 'Page content is required'),
   content_format: z.enum(['markdown', 'html']).optional().default('markdown'),
   parent_page_id: z.string().optional(),
-  position: z.number().int().min(0, 'Position must be non-negative').optional(),
+  position: z.number().int().min(0, 'Position must be non-negative').optional()
 });
 
 // Page update schema
@@ -59,7 +59,7 @@ export const UpdatePageSchema = z
     name: z.string().min(1, 'Page name cannot be empty').max(255, 'Page name too long').optional(),
     content: z.string().optional(),
     content_format: z.enum(['markdown', 'html']).optional(),
-    position: z.number().int().min(0, 'Position must be non-negative').optional(),
+    position: z.number().int().min(0, 'Position must be non-negative').optional()
   })
   .refine(
     data =>
@@ -69,7 +69,7 @@ export const UpdatePageSchema = z
       data.position !== undefined,
     {
       message: 'Must specify at least one field to update',
-      path: ['name'],
+      path: ['name']
     }
   );
 
@@ -84,11 +84,11 @@ export const SharingConfigSchema = z
       .optional(),
     public_fields: z.array(z.string()).optional(),
     team_sharing: z.boolean().optional(),
-    guest_sharing: z.boolean().optional(),
+    guest_sharing: z.boolean().optional()
   })
   .refine(data => Object.keys(data).length > 0, {
     message: 'Must specify at least one sharing setting to update',
-    path: ['public'],
+    path: ['public']
   });
 
 // Template creation schema
@@ -98,11 +98,11 @@ export const CreateFromTemplateSchema = z
     space_id: z.string().optional(),
     folder_id: z.string().optional(),
     name: z.string().min(1, 'Document name is required').max(255, 'Document name too long'),
-    template_variables: z.record(z.any()).optional(),
+    template_variables: z.record(z.any()).optional()
   })
   .refine(data => data.workspace_id || data.space_id || data.folder_id, {
     message: 'Must specify workspace_id, space_id, or folder_id',
-    path: ['workspace_id'],
+    path: ['workspace_id']
   });
 
 // Get docs parameters schema
@@ -110,13 +110,13 @@ export const GetDocsParamsSchema = z.object({
   cursor: z.string().optional(),
   deleted: z.boolean().optional().default(false),
   archived: z.boolean().optional().default(false),
-  limit: z.number().int().min(1).max(100).optional().default(50),
+  limit: z.number().int().min(1).max(100).optional().default(50)
 });
 
 // Search docs parameters schema
 export const SearchDocsParamsSchema = z.object({
   query: z.string().min(1, 'Search query is required'),
-  cursor: z.string().optional(),
+  cursor: z.string().optional()
 });
 
 // Document ID validation
@@ -136,13 +136,13 @@ export const DocumentToolSchemas = {
     doc_id: DocIdSchema,
     name: z.string().min(1).optional(),
     content: z.string().optional(),
-    public: z.boolean().optional(),
+    public: z.boolean().optional()
   }),
   deleteDoc: z.object({
-    doc_id: DocIdSchema,
+    doc_id: DocIdSchema
   }),
   getDoc: z.object({
-    doc_id: DocIdSchema,
+    doc_id: DocIdSchema
   }),
 
   // Page operations
@@ -151,7 +151,7 @@ export const DocumentToolSchemas = {
     name: z.string().min(1),
     content: z.string().optional(),
     content_format: z.enum(['markdown', 'html']).optional().default('markdown'),
-    position: z.number().min(0).optional(),
+    position: z.number().min(0).optional()
   }),
   updatePage: z.object({
     doc_id: DocIdSchema,
@@ -159,21 +159,21 @@ export const DocumentToolSchemas = {
     name: z.string().min(1).optional(),
     content: z.string().optional(),
     content_format: z.enum(['markdown', 'html']).optional(),
-    position: z.number().min(0).optional(),
+    position: z.number().min(0).optional()
   }),
   deletePage: z.object({
     doc_id: DocIdSchema,
-    page_id: PageIdSchema,
+    page_id: PageIdSchema
   }),
   getPage: z.object({
     doc_id: DocIdSchema,
     page_id: PageIdSchema,
-    content_format: ContentFormatSchema.optional(),
+    content_format: ContentFormatSchema.optional()
   }),
 
   // Sharing operations
   getDocSharing: z.object({
-    doc_id: DocIdSchema,
+    doc_id: DocIdSchema
   }),
   updateDocSharing: z.object({
     doc_id: DocIdSchema,
@@ -181,7 +181,7 @@ export const DocumentToolSchemas = {
     public_share_expires_on: z.number().optional(),
     public_fields: z.array(z.string()).optional(),
     team_sharing: z.boolean().optional(),
-    guest_sharing: z.boolean().optional(),
+    guest_sharing: z.boolean().optional()
   }),
 
   // Template operations
@@ -191,7 +191,7 @@ export const DocumentToolSchemas = {
     space_id: z.string().optional(),
     folder_id: z.string().optional(),
     name: z.string().min(1),
-    template_variables: z.record(z.any()).optional(),
+    template_variables: z.record(z.any()).optional()
   }),
 
   // Read operations
@@ -200,16 +200,16 @@ export const DocumentToolSchemas = {
     cursor: z.string().optional(),
     deleted: z.boolean().optional().default(false),
     archived: z.boolean().optional().default(false),
-    limit: z.number().min(1).max(100).optional().default(25),
+    limit: z.number().min(1).max(100).optional().default(25)
   }),
   getDocPages: z.object({
     workspace_id: WorkspaceIdSchema,
     doc_id: DocIdSchema,
-    content_format: ContentFormatSchema.optional().default('text/md'),
+    content_format: ContentFormatSchema.optional().default('text/md')
   }),
   searchDocs: z.object({
     workspace_id: WorkspaceIdSchema,
     query: z.string().min(1),
-    cursor: z.string().optional(),
-  }),
+    cursor: z.string().optional()
+  })
 };

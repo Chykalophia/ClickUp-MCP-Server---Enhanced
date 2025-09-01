@@ -16,7 +16,7 @@ export interface RateLimitConfig {
 export const DEFAULT_RATE_LIMITS: Record<string, RateLimitConfig> = {
   webhook: { windowMs: 60000, maxRequests: 100 }, // 100 requests per minute
   api: { windowMs: 60000, maxRequests: 1000 }, // 1000 requests per minute
-  upload: { windowMs: 60000, maxRequests: 10 }, // 10 uploads per minute
+  upload: { windowMs: 60000, maxRequests: 10 } // 10 uploads per minute
 };
 
 // Rate limiter implementation
@@ -149,7 +149,7 @@ export const validateWebhookSignature = (
   } catch (error) {
     return {
       isValid: false,
-      error: `Signature validation error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      error: `Signature validation error: ${error instanceof Error ? error.message : 'Unknown error'}`
     };
   }
 };
@@ -191,7 +191,7 @@ export const validateFileUpload = (
       '.sh',
       '.ps1',
       '.py',
-      '.rb',
+      '.rb'
     ];
 
     const extension = filename.toLowerCase().split('.').pop();
@@ -238,7 +238,7 @@ export const validateFileUpload = (
       'video/webm',
       'audio/mp3',
       'audio/wav',
-      'audio/ogg',
+      'audio/ogg'
     ];
 
     if (!allowedMimetypes.includes(mimetype)) {
@@ -259,7 +259,7 @@ export const validateFileUpload = (
 
   return {
     isValid: errors.length === 0,
-    errors,
+    errors
   };
 };
 
@@ -341,7 +341,7 @@ export const validateEnvironment = (): { isValid: boolean; errors: string[] } =>
 
   return {
     isValid: errors.length === 0,
-    errors,
+    errors
   };
 };
 
@@ -355,7 +355,7 @@ export const getSecurityHeaders = (): Record<string, string> => {
     'X-XSS-Protection': '1; mode=block',
     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
     'Content-Security-Policy': "default-src 'self'",
-    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Referrer-Policy': 'strict-origin-when-cross-origin'
   };
 };
 
@@ -372,7 +372,7 @@ export const logSecurityEvent = (
     timestamp,
     event,
     level,
-    details: sanitizeInput(details),
+    details: sanitizeInput(details)
   };
 
   // In production, this should go to a proper logging system
@@ -402,7 +402,7 @@ export const validateMcpParameters = (
 
     return {
       isValid: false,
-      errors: [`Validation error: ${error instanceof Error ? error.message : 'Unknown error'}`],
+      errors: [`Validation error: ${error instanceof Error ? error.message : 'Unknown error'}`]
     };
   }
 };

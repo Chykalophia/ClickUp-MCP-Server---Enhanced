@@ -91,7 +91,7 @@ export const createStructuredError = (
     workspaceId: options.workspaceId,
     stack: options.originalError?.stack,
     retryable: options.retryable || false,
-    retryAfter: options.retryAfter,
+    retryAfter: options.retryAfter
   };
 };
 
@@ -105,16 +105,16 @@ export const errorToMcpResponse = (error: StructuredError): McpErrorResponse => 
     content: [
       {
         type: 'text',
-        text: userMessage,
-      },
+        text: userMessage
+      }
     ],
     isError: true,
     _meta: {
       errorType: error.type,
       severity: error.severity,
       retryable: error.retryable,
-      retryAfter: error.retryAfter,
-    },
+      retryAfter: error.retryAfter
+    }
   };
 };
 
@@ -173,41 +173,41 @@ export const handleClickUpApiError = (
     let retryAfter: number | undefined;
 
     switch (status) {
-      case 400:
-        errorType = ErrorType.VALIDATION;
-        severity = ErrorSeverity.LOW;
-        break;
-      case 401:
-        errorType = ErrorType.AUTHENTICATION;
-        severity = ErrorSeverity.HIGH;
-        break;
-      case 403:
-        errorType = ErrorType.AUTHORIZATION;
-        severity = ErrorSeverity.HIGH;
-        break;
-      case 404:
-        errorType = ErrorType.NOT_FOUND;
-        severity = ErrorSeverity.LOW;
-        break;
-      case 429:
-        errorType = ErrorType.RATE_LIMIT;
-        severity = ErrorSeverity.MEDIUM;
-        retryable = true;
-        retryAfter = parseInt(error.response.headers['retry-after'], 10) || 60;
-        break;
-      case 500:
-      case 502:
-      case 503:
-      case 504:
-        errorType = ErrorType.API_ERROR;
-        severity = ErrorSeverity.HIGH;
-        retryable = true;
-        retryAfter = 30;
-        break;
-      default:
-        errorType = ErrorType.API_ERROR;
-        severity = ErrorSeverity.MEDIUM;
-        retryable = status >= 500;
+    case 400:
+      errorType = ErrorType.VALIDATION;
+      severity = ErrorSeverity.LOW;
+      break;
+    case 401:
+      errorType = ErrorType.AUTHENTICATION;
+      severity = ErrorSeverity.HIGH;
+      break;
+    case 403:
+      errorType = ErrorType.AUTHORIZATION;
+      severity = ErrorSeverity.HIGH;
+      break;
+    case 404:
+      errorType = ErrorType.NOT_FOUND;
+      severity = ErrorSeverity.LOW;
+      break;
+    case 429:
+      errorType = ErrorType.RATE_LIMIT;
+      severity = ErrorSeverity.MEDIUM;
+      retryable = true;
+      retryAfter = parseInt(error.response.headers['retry-after'], 10) || 60;
+      break;
+    case 500:
+    case 502:
+    case 503:
+    case 504:
+      errorType = ErrorType.API_ERROR;
+      severity = ErrorSeverity.HIGH;
+      retryable = true;
+      retryAfter = 30;
+      break;
+    default:
+      errorType = ErrorType.API_ERROR;
+      severity = ErrorSeverity.MEDIUM;
+      retryable = status >= 500;
     }
 
     return createStructuredError(
@@ -219,14 +219,14 @@ export const handleClickUpApiError = (
         details: {
           status,
           data,
-          operation: context?.operation,
+          operation: context?.operation
         },
         requestId: context?.requestId,
         userId: context?.userId,
         workspaceId: context?.workspaceId,
         originalError: error,
         retryable,
-        retryAfter,
+        retryAfter
       }
     );
   }
@@ -241,7 +241,7 @@ export const handleClickUpApiError = (
       workspaceId: context?.workspaceId,
       originalError: error,
       retryable: true,
-      retryAfter: 10,
+      retryAfter: 10
     });
   }
 
@@ -255,7 +255,7 @@ export const handleClickUpApiError = (
       workspaceId: context?.workspaceId,
       originalError: error,
       retryable: true,
-      retryAfter: 30,
+      retryAfter: 30
     });
   }
 
@@ -269,7 +269,7 @@ export const handleClickUpApiError = (
       userId: context?.userId,
       workspaceId: context?.workspaceId,
       originalError: error,
-      retryable: false,
+      retryable: false
     }
   );
 };
@@ -290,10 +290,10 @@ export const handleValidationError = (
     severity: ErrorSeverity.LOW,
     details: {
       errors,
-      operation: context?.operation,
+      operation: context?.operation
     },
     requestId: context?.requestId,
-    retryable: false,
+    retryable: false
   });
 };
 
@@ -315,12 +315,12 @@ export const handleWebhookError = (
       severity: ErrorSeverity.MEDIUM,
       details: {
         webhookId: context?.webhookId,
-        eventType: context?.eventType,
+        eventType: context?.eventType
       },
       requestId: context?.requestId,
       originalError: error,
       retryable: true,
-      retryAfter: 60,
+      retryAfter: 60
     }
   );
 };
@@ -355,11 +355,11 @@ export const handleFileError = (
     code: error.code,
     details: {
       filename: context?.filename,
-      operation: context?.operation,
+      operation: context?.operation
     },
     requestId: context?.requestId,
     originalError: error,
-    retryable: error.code !== 'EACCES',
+    retryable: error.code !== 'EACCES'
   });
 };
 
@@ -393,9 +393,9 @@ export class RetryManager {
         const structuredError =
           error instanceof Error
             ? handleClickUpApiError(error, {
-                operation: context?.operationName,
-                requestId: context?.requestId,
-              })
+              operation: context?.operationName,
+              requestId: context?.requestId
+            })
             : (error as StructuredError);
 
         lastError = structuredError;
@@ -446,7 +446,7 @@ export const logError = (error: StructuredError): void => {
     requestId: error.requestId,
     userId: error.userId,
     workspaceId: error.workspaceId,
-    retryable: error.retryable,
+    retryable: error.retryable
   };
 
   console[logLevel](`[${error.type}] ${error.message}`, logData);
@@ -481,9 +481,9 @@ export const wrapMcpTool = <T extends any[], R>(
         content: [
           {
             type: 'text',
-            text: typeof result === 'string' ? result : JSON.stringify(result, null, 2),
-          },
-        ],
+            text: typeof result === 'string' ? result : JSON.stringify(result, null, 2)
+          }
+        ]
       };
     } catch (error) {
       let structuredError: StructuredError;
@@ -537,13 +537,13 @@ export const performHealthCheck = async (): Promise<{
       message: envValidation.isValid
         ? 'All required environment variables present'
         : envValidation.errors.join(', '),
-      duration: Date.now() - startTime,
+      duration: Date.now() - startTime
     };
   } catch (error) {
     checks.environment = {
       status: 'fail',
       message: 'Failed to validate environment',
-      duration: Date.now() - startTime,
+      duration: Date.now() - startTime
     };
   }
 
@@ -553,7 +553,7 @@ export const performHealthCheck = async (): Promise<{
   checks.memory = {
     status: memoryUsage.heapUsed < memoryThreshold ? 'pass' : 'fail',
     message: `Heap used: ${Math.round(memoryUsage.heapUsed / 1024 / 1024)}MB`,
-    duration: 0,
+    duration: 0
   };
 
   // Determine overall status

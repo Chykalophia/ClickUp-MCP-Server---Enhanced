@@ -11,7 +11,7 @@ import {
   DependencyConflictCheckSchema,
   BulkDependencyOperationSchema,
   DependencyTypeSchema,
-  DependencyStatusSchema,
+  DependencyStatusSchema
 } from '../schemas/dependencies-schemas.js';
 
 // Create clients
@@ -32,7 +32,7 @@ export function setupDependenciesTools(server: McpServer): void {
       type: DependencyTypeSchema.default('blocking').describe(
         'The type of dependency relationship'
       ),
-      link_id: z.string().optional().describe('Optional link ID for grouping related dependencies'),
+      link_id: z.string().optional().describe('Optional link ID for grouping related dependencies')
     },
     async args => {
       try {
@@ -43,19 +43,19 @@ export function setupDependenciesTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Dependency created successfully:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
+              text: `Dependency created successfully:\n\n${JSON.stringify(result, null, 2)}`
+            }
+          ]
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error creating dependency: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
+              text: `Error creating dependency: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           ],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -71,7 +71,7 @@ export function setupDependenciesTools(server: McpServer): void {
       include_resolved: z
         .boolean()
         .default(false)
-        .describe('Whether to include resolved dependencies'),
+        .describe('Whether to include resolved dependencies')
     },
     async args => {
       try {
@@ -82,19 +82,19 @@ export function setupDependenciesTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Dependencies for task ${args.task_id}:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
+              text: `Dependencies for task ${args.task_id}:\n\n${JSON.stringify(result, null, 2)}`
+            }
+          ]
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error getting task dependencies: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
+              text: `Error getting task dependencies: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           ],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -106,7 +106,7 @@ export function setupDependenciesTools(server: McpServer): void {
     {
       dependency_id: z.string().min(1).describe('The ID of the dependency to update'),
       type: DependencyTypeSchema.optional().describe('New dependency type'),
-      status: DependencyStatusSchema.optional().describe('New dependency status'),
+      status: DependencyStatusSchema.optional().describe('New dependency status')
     },
     async args => {
       try {
@@ -117,19 +117,19 @@ export function setupDependenciesTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Dependency updated successfully:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
+              text: `Dependency updated successfully:\n\n${JSON.stringify(result, null, 2)}`
+            }
+          ]
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error updating dependency: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
+              text: `Error updating dependency: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           ],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -139,7 +139,7 @@ export function setupDependenciesTools(server: McpServer): void {
     'clickup_delete_dependency',
     'Delete a dependency relationship between tasks.',
     {
-      dependency_id: z.string().min(1).describe('The ID of the dependency to delete'),
+      dependency_id: z.string().min(1).describe('The ID of the dependency to delete')
     },
     async args => {
       try {
@@ -149,19 +149,19 @@ export function setupDependenciesTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Dependency deleted successfully: ${JSON.stringify(result, null, 2)}`,
-            },
-          ],
+              text: `Dependency deleted successfully: ${JSON.stringify(result, null, 2)}`
+            }
+          ]
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error deleting dependency: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
+              text: `Error deleting dependency: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           ],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -186,7 +186,7 @@ export function setupDependenciesTools(server: McpServer): void {
         .boolean()
         .default(false)
         .describe('Whether to include resolved dependencies'),
-      include_broken: z.boolean().default(true).describe('Whether to include broken dependencies'),
+      include_broken: z.boolean().default(true).describe('Whether to include broken dependencies')
     },
     async args => {
       try {
@@ -197,19 +197,19 @@ export function setupDependenciesTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Dependency graph for task ${args.task_id}:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
+              text: `Dependency graph for task ${args.task_id}:\n\n${JSON.stringify(result, null, 2)}`
+            }
+          ]
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error getting dependency graph: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
+              text: `Error getting dependency graph: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           ],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -224,11 +224,11 @@ export function setupDependenciesTools(server: McpServer): void {
         .array(
           z.object({
             depends_on: z.string(),
-            type: DependencyTypeSchema,
+            type: DependencyTypeSchema
           })
         )
         .optional()
-        .describe('Proposed new dependencies to check for conflicts'),
+        .describe('Proposed new dependencies to check for conflicts')
     },
     async args => {
       try {
@@ -239,19 +239,19 @@ export function setupDependenciesTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Dependency conflict check results:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
+              text: `Dependency conflict check results:\n\n${JSON.stringify(result, null, 2)}`
+            }
+          ]
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error checking dependency conflicts: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
+              text: `Error checking dependency conflicts: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           ],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -273,7 +273,7 @@ export function setupDependenciesTools(server: McpServer): void {
         .number()
         .min(0)
         .optional()
-        .describe('Number of dependencies to skip for pagination'),
+        .describe('Number of dependencies to skip for pagination')
     },
     async args => {
       try {
@@ -281,26 +281,26 @@ export function setupDependenciesTools(server: McpServer): void {
           status: args.status,
           type: args.type,
           limit: args.limit,
-          offset: args.offset,
+          offset: args.offset
         });
 
         return {
           content: [
             {
               type: 'text',
-              text: `Workspace dependencies:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
+              text: `Workspace dependencies:\n\n${JSON.stringify(result, null, 2)}`
+            }
+          ]
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error getting workspace dependencies: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
+              text: `Error getting workspace dependencies: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           ],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -310,7 +310,7 @@ export function setupDependenciesTools(server: McpServer): void {
     'clickup_get_dependency_stats',
     'Get comprehensive statistics about dependencies in a workspace.',
     {
-      workspace_id: z.string().min(1).describe('The ID of the workspace'),
+      workspace_id: z.string().min(1).describe('The ID of the workspace')
     },
     async args => {
       try {
@@ -320,19 +320,19 @@ export function setupDependenciesTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Dependency statistics for workspace ${args.workspace_id}:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
+              text: `Dependency statistics for workspace ${args.workspace_id}:\n\n${JSON.stringify(result, null, 2)}`
+            }
+          ]
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error getting dependency statistics: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
+              text: `Error getting dependency statistics: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           ],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -351,33 +351,33 @@ export function setupDependenciesTools(server: McpServer): void {
       update_invalid_statuses: z
         .boolean()
         .default(true)
-        .describe('Whether to update invalid dependency statuses'),
+        .describe('Whether to update invalid dependency statuses')
     },
     async args => {
       try {
         const result = await dependenciesClient.resolveDependencyConflicts(args.task_id, {
           break_cycles: args.break_cycles,
           remove_duplicates: args.remove_duplicates,
-          update_invalid_statuses: args.update_invalid_statuses,
+          update_invalid_statuses: args.update_invalid_statuses
         });
 
         return {
           content: [
             {
               type: 'text',
-              text: `Dependency conflicts resolution results:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
+              text: `Dependency conflicts resolution results:\n\n${JSON.stringify(result, null, 2)}`
+            }
+          ]
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error resolving dependency conflicts: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
+              text: `Error resolving dependency conflicts: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           ],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -387,7 +387,7 @@ export function setupDependenciesTools(server: McpServer): void {
     'clickup_get_dependency_timeline_impact',
     'Analyze how dependencies affect task timelines and identify critical path impacts.',
     {
-      task_id: z.string().min(1).describe('The task ID to analyze timeline impact for'),
+      task_id: z.string().min(1).describe('The task ID to analyze timeline impact for')
     },
     async args => {
       try {
@@ -397,19 +397,19 @@ export function setupDependenciesTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Dependency timeline impact analysis:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
+              text: `Dependency timeline impact analysis:\n\n${JSON.stringify(result, null, 2)}`
+            }
+          ]
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error analyzing dependency timeline impact: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
+              text: `Error analyzing dependency timeline impact: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           ],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -420,7 +420,7 @@ export function setupDependenciesTools(server: McpServer): void {
     'Perform multiple dependency operations in a single request for efficiency.',
     {
       operation: z.enum(['create', 'delete', 'update']).describe('The bulk operation to perform'),
-      dependencies: z.array(z.any()).describe('Array of dependency operations to perform'),
+      dependencies: z.array(z.any()).describe('Array of dependency operations to perform')
     },
     async args => {
       try {
@@ -431,19 +431,19 @@ export function setupDependenciesTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Bulk dependency operations results:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
+              text: `Bulk dependency operations results:\n\n${JSON.stringify(result, null, 2)}`
+            }
+          ]
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error performing bulk dependency operations: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
+              text: `Error performing bulk dependency operations: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           ],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -454,7 +454,7 @@ export function setupDependenciesTools(server: McpServer): void {
     'Export dependency graph data in various formats for external analysis or backup.',
     {
       task_id: z.string().min(1).describe('The root task ID for the dependency graph to export'),
-      format: z.enum(['json', 'csv', 'graphml']).default('json').describe('Export format'),
+      format: z.enum(['json', 'csv', 'graphml']).default('json').describe('Export format')
     },
     async args => {
       try {
@@ -464,19 +464,19 @@ export function setupDependenciesTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Dependency graph export:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
+              text: `Dependency graph export:\n\n${JSON.stringify(result, null, 2)}`
+            }
+          ]
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error exporting dependency graph: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
+              text: `Error exporting dependency graph: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           ],
-          isError: true,
+          isError: true
         };
       }
     }

@@ -21,7 +21,7 @@ import {
   BoardViewSettingsSchema,
   CalendarViewSettingsSchema,
   GanttViewSettingsSchema,
-  TableViewSettingsSchema,
+  TableViewSettingsSchema
 } from '../schemas/views-schemas.js';
 
 // Create clients
@@ -54,11 +54,11 @@ export function setupViewsTools(server: McpServer): void {
           CalendarViewSettingsSchema,
           GanttViewSettingsSchema,
           TableViewSettingsSchema,
-          z.object({}),
+          z.object({})
         ])
         .optional()
         .describe('View-specific settings'),
-      description: z.string().optional().describe('Description of the view'),
+      description: z.string().optional().describe('Description of the view')
     },
     async args => {
       try {
@@ -69,19 +69,19 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `View created successfully:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
+              text: `View created successfully:\n\n${JSON.stringify(result, null, 2)}`
+            }
+          ]
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error creating view: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
+              text: `Error creating view: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           ],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -94,7 +94,7 @@ export function setupViewsTools(server: McpServer): void {
       parent_id: z.string().min(1).describe('The ID of the parent (space, folder, or list)'),
       parent_type: z.enum(['space', 'folder', 'list']).describe('The type of parent container'),
       type: ViewTypeSchema.optional().describe('Filter views by type'),
-      access: ViewAccessSchema.optional().describe('Filter views by access level'),
+      access: ViewAccessSchema.optional().describe('Filter views by access level')
     },
     async args => {
       try {
@@ -105,19 +105,19 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Views for ${args.parent_type} ${args.parent_id}:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
+              text: `Views for ${args.parent_type} ${args.parent_id}:\n\n${JSON.stringify(result, null, 2)}`
+            }
+          ]
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error getting views: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
+              text: `Error getting views: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           ],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -127,7 +127,7 @@ export function setupViewsTools(server: McpServer): void {
     'clickup_get_view',
     'Get detailed information about a specific view by its ID.',
     {
-      view_id: z.string().min(1).describe('The ID of the view to get'),
+      view_id: z.string().min(1).describe('The ID of the view to get')
     },
     async args => {
       try {
@@ -137,19 +137,19 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `View details:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
+              text: `View details:\n\n${JSON.stringify(result, null, 2)}`
+            }
+          ]
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error getting view: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
+              text: `Error getting view: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           ],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -171,11 +171,11 @@ export function setupViewsTools(server: McpServer): void {
           CalendarViewSettingsSchema,
           GanttViewSettingsSchema,
           TableViewSettingsSchema,
-          z.object({}),
+          z.object({})
         ])
         .optional()
         .describe('New view-specific settings'),
-      description: z.string().optional().describe('New description for the view'),
+      description: z.string().optional().describe('New description for the view')
     },
     async args => {
       try {
@@ -186,19 +186,19 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `View updated successfully:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
+              text: `View updated successfully:\n\n${JSON.stringify(result, null, 2)}`
+            }
+          ]
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error updating view: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
+              text: `Error updating view: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           ],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -208,7 +208,7 @@ export function setupViewsTools(server: McpServer): void {
     'clickup_delete_view',
     'Delete a view from ClickUp. This action cannot be undone.',
     {
-      view_id: z.string().min(1).describe('The ID of the view to delete'),
+      view_id: z.string().min(1).describe('The ID of the view to delete')
     },
     async args => {
       try {
@@ -218,19 +218,19 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `View deleted successfully: ${JSON.stringify(result, null, 2)}`,
-            },
-          ],
+              text: `View deleted successfully: ${JSON.stringify(result, null, 2)}`
+            }
+          ]
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error deleting view: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
+              text: `Error deleting view: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           ],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -241,7 +241,7 @@ export function setupViewsTools(server: McpServer): void {
     'Set or update filters for a view. Filters determine which tasks are visible in the view.',
     {
       view_id: z.string().min(1).describe('The ID of the view to update'),
-      filters: z.array(ViewFilterSchema).describe('Array of filters to apply to the view'),
+      filters: z.array(ViewFilterSchema).describe('Array of filters to apply to the view')
     },
     async args => {
       try {
@@ -252,19 +252,19 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `View filters updated successfully:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
+              text: `View filters updated successfully:\n\n${JSON.stringify(result, null, 2)}`
+            }
+          ]
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error setting view filters: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
+              text: `Error setting view filters: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           ],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -275,7 +275,7 @@ export function setupViewsTools(server: McpServer): void {
     'Set or update grouping configuration for a view. Grouping organizes tasks into sections.',
     {
       view_id: z.string().min(1).describe('The ID of the view to update'),
-      grouping: z.array(ViewGroupingSchema).describe('Array of grouping configurations'),
+      grouping: z.array(ViewGroupingSchema).describe('Array of grouping configurations')
     },
     async args => {
       try {
@@ -286,19 +286,19 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `View grouping updated successfully:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
+              text: `View grouping updated successfully:\n\n${JSON.stringify(result, null, 2)}`
+            }
+          ]
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error setting view grouping: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
+              text: `Error setting view grouping: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           ],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -309,7 +309,7 @@ export function setupViewsTools(server: McpServer): void {
     'Set or update sorting configuration for a view. Sorting determines the order of tasks.',
     {
       view_id: z.string().min(1).describe('The ID of the view to update'),
-      sorting: z.array(ViewSortingSchema).describe('Array of sorting configurations'),
+      sorting: z.array(ViewSortingSchema).describe('Array of sorting configurations')
     },
     async args => {
       try {
@@ -320,19 +320,19 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `View sorting updated successfully:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
+              text: `View sorting updated successfully:\n\n${JSON.stringify(result, null, 2)}`
+            }
+          ]
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error setting view sorting: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
+              text: `Error setting view sorting: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           ],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -349,9 +349,9 @@ export function setupViewsTools(server: McpServer): void {
           CalendarViewSettingsSchema,
           GanttViewSettingsSchema,
           TableViewSettingsSchema,
-          z.object({}),
+          z.object({})
         ])
-        .describe('View-specific settings object'),
+        .describe('View-specific settings object')
     },
     async args => {
       try {
@@ -362,19 +362,19 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `View settings updated successfully:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
+              text: `View settings updated successfully:\n\n${JSON.stringify(result, null, 2)}`
+            }
+          ]
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error updating view settings: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
+              text: `Error updating view settings: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           ],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -389,7 +389,7 @@ export function setupViewsTools(server: McpServer): void {
     "Get tasks that are visible in a specific view, respecting the view's filters and settings.",
     {
       view_id: z.string().min(1).describe('The ID of the view to get tasks from'),
-      page: z.number().positive().optional().describe('Page number for pagination'),
+      page: z.number().positive().optional().describe('Page number for pagination')
     },
     async args => {
       try {
@@ -399,19 +399,19 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Tasks in view ${args.view_id}:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
+              text: `Tasks in view ${args.view_id}:\n\n${JSON.stringify(result, null, 2)}`
+            }
+          ]
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error getting view tasks: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
+              text: `Error getting view tasks: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           ],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -422,7 +422,7 @@ export function setupViewsTools(server: McpServer): void {
     'Create a duplicate of an existing view with a new name.',
     {
       view_id: z.string().min(1).describe('The ID of the view to duplicate'),
-      name: z.string().min(1).describe('Name for the duplicated view'),
+      name: z.string().min(1).describe('Name for the duplicated view')
     },
     async args => {
       try {
@@ -432,19 +432,19 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `View duplicated successfully:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
+              text: `View duplicated successfully:\n\n${JSON.stringify(result, null, 2)}`
+            }
+          ]
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error duplicating view: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
+              text: `Error duplicating view: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           ],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -457,7 +457,7 @@ export function setupViewsTools(server: McpServer): void {
       view_id: z.string().min(1).describe('The ID of the view to update sharing for'),
       access: ViewAccessSchema.describe('Access level for the view'),
       password: z.string().optional().describe('Password for password-protected views'),
-      expires_at: z.number().optional().describe('Expiration timestamp (Unix timestamp)'),
+      expires_at: z.number().optional().describe('Expiration timestamp (Unix timestamp)')
     },
     async args => {
       try {
@@ -468,19 +468,19 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `View sharing updated successfully:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
+              text: `View sharing updated successfully:\n\n${JSON.stringify(result, null, 2)}`
+            }
+          ]
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error updating view sharing: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
+              text: `Error updating view sharing: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           ],
-          isError: true,
+          isError: true
         };
       }
     }
@@ -491,7 +491,7 @@ export function setupViewsTools(server: McpServer): void {
     'Get available fields that can be used for filtering, grouping, and sorting in views for a specific parent.',
     {
       parent_id: z.string().min(1).describe('The ID of the parent (space, folder, or list)'),
-      parent_type: z.enum(['space', 'folder', 'list']).describe('The type of parent container'),
+      parent_type: z.enum(['space', 'folder', 'list']).describe('The type of parent container')
     },
     async args => {
       try {
@@ -501,19 +501,19 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Available fields for ${args.parent_type} ${args.parent_id}:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
+              text: `Available fields for ${args.parent_type} ${args.parent_id}:\n\n${JSON.stringify(result, null, 2)}`
+            }
+          ]
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error getting view fields: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
+              text: `Error getting view fields: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }
           ],
-          isError: true,
+          isError: true
         };
       }
     }

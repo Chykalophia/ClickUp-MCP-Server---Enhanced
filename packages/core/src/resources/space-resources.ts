@@ -14,7 +14,7 @@ export function setupSpaceResources(server: McpServer): void {
     new ResourceTemplate('clickup://workspace/{workspace_id}/spaces', { list: undefined }),
     {
       description:
-        'Get all spaces in a ClickUp workspace, including their names, settings, and features.',
+        'Get all spaces in a ClickUp workspace, including their names, settings, and features.'
     },
     async (uri, params) => {
       try {
@@ -28,9 +28,9 @@ export function setupSpaceResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(spaces, null, 2),
-            },
-          ],
+              text: JSON.stringify(spaces, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[SpaceResources] Error fetching workspace spaces:', error);
@@ -45,7 +45,7 @@ export function setupSpaceResources(server: McpServer): void {
     new ResourceTemplate('clickup://space/{space_id}', { list: undefined }),
     {
       description:
-        'Get detailed information about a specific ClickUp space, including its name, settings, features, and metadata.',
+        'Get detailed information about a specific ClickUp space, including its name, settings, features, and metadata.'
     },
     async (uri, params) => {
       try {
@@ -59,9 +59,9 @@ export function setupSpaceResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(space, null, 2),
-            },
-          ],
+              text: JSON.stringify(space, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[SpaceResources] Error fetching space:', error);
@@ -75,7 +75,7 @@ export function setupSpaceResources(server: McpServer): void {
     'example-workspace-spaces',
     'clickup://workspace/9011839976/spaces',
     {
-      description: 'An example workspace spaces resource demonstrating the space list format.',
+      description: 'An example workspace spaces resource demonstrating the space list format.'
     },
     async uri => {
       try {
@@ -89,9 +89,9 @@ export function setupSpaceResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(spaces, null, 2),
-            },
-          ],
+              text: JSON.stringify(spaces, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[SpaceResources] Error fetching example workspace spaces:', error);
@@ -104,7 +104,7 @@ export function setupSpaceResources(server: McpServer): void {
     'example-space',
     'clickup://space/90113637923',
     {
-      description: 'An example space resource demonstrating the space details format.',
+      description: 'An example space resource demonstrating the space details format.'
     },
     async uri => {
       try {
@@ -118,9 +118,9 @@ export function setupSpaceResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(space, null, 2),
-            },
-          ],
+              text: JSON.stringify(space, null, 2)
+            }
+          ]
         };
       } catch (error: any) {
         console.error('[SpaceResources] Error fetching example space:', error);

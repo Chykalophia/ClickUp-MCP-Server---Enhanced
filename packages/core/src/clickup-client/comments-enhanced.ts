@@ -4,7 +4,7 @@ import { ClickUpClient } from './index.js';
 import {
   prepareCommentForClickUp,
   clickUpCommentToMarkdown,
-  ClickUpCommentBlock,
+  ClickUpCommentBlock
 } from '../utils/clickup-comment-formatter.js';
 
 export interface Comment {
@@ -185,7 +185,7 @@ export class CommentsEnhancedClient {
     // Exact match to ClickUp's official Node.js example
     const payload = {
       notify_all: false,
-      comment_text: commentText,
+      comment_text: commentText
     };
 
     console.log('=== RAW API TEST ===');
@@ -211,7 +211,7 @@ export class CommentsEnhancedClient {
     const payload = {
       notify_all: params.notify_all || false,
       assignee: params.assignee,
-      ...structuredComment, // This adds the 'comment' array, NOT comment_text
+      ...structuredComment // This adds the 'comment' array, NOT comment_text
     };
 
     // DEBUG: Log exactly what we're sending to ClickUp API
@@ -265,7 +265,7 @@ export class CommentsEnhancedClient {
 
     const payload = {
       notify_all: params.notify_all || false,
-      ...structuredComment, // This adds the 'comment' array, NOT comment_text
+      ...structuredComment // This adds the 'comment' array, NOT comment_text
     };
 
     const result = await this.client.post(`/view/${viewId}/comment`, payload);
@@ -305,7 +305,7 @@ export class CommentsEnhancedClient {
     const payload = {
       notify_all: params.notify_all || false,
       assignee: params.assignee,
-      ...structuredComment, // This adds the 'comment' array, NOT comment_text
+      ...structuredComment // This adds the 'comment' array, NOT comment_text
     };
 
     const result = await this.client.post(`/list/${listId}/comment`, payload);
@@ -325,7 +325,7 @@ export class CommentsEnhancedClient {
     const payload = {
       assignee: params.assignee,
       resolved: params.resolved,
-      ...structuredComment, // This adds the 'comment' array, NOT comment_text
+      ...structuredComment // This adds the 'comment' array, NOT comment_text
     };
 
     const result = await this.client.put(`/comment/${commentId}`, payload);
@@ -376,7 +376,7 @@ export class CommentsEnhancedClient {
 
     const payload = {
       notify_all: params.notify_all || false,
-      ...structuredComment, // This adds the 'comment' array, NOT comment_text
+      ...structuredComment // This adds the 'comment' array, NOT comment_text
     };
 
     const result = await this.client.post(`/comment/${commentId}/reply`, payload);

@@ -31,3 +31,13 @@ mcpclient.json
 .DS_Store
 *.log
 *.tgz
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.old
+*TEMP*
+*URGENT*
+*FIX*.md
+temp_*

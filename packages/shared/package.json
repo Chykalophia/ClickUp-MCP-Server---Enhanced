@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nsxdavid/clickup-mcp-server.git",
+    "url": "git+https://github.com/Chykalophia/ClickUp-MCP-Server---Enhanced.git",
     "directory": "packages/shared"
   },
   "keywords": [
@@ -34,9 +34,9 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nsxdavid/clickup-mcp-server/issues"
+    "url": "https://github.com/Chykalophia/ClickUp-MCP-Server---Enhanced/issues"
   },
-  "homepage": "https://github.com/nsxdavid/clickup-mcp-server#readme",
+  "homepage": "https://github.com/Chykalophia/ClickUp-MCP-Server---Enhanced#readme",
   "engines": {
     "node": ">=18.0.0"
   },

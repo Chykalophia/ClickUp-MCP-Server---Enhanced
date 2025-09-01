@@ -10,58 +10,58 @@
 ### ✅ IMPLEMENTED (36 endpoints)
 
 #### Authentication & Workspaces
-- `GET /user` → `get_workspaces` (via auth client)
-- `GET /team/{team_id}/seat` → `get_workspace_seats`
+- `GET /user` → `clickup_get_workspaces` (via auth client)
+- `GET /team/{team_id}/seat` → `clickup_get_workspace_seats`
 
 #### Tasks
-- `GET /list/{list_id}/task` → `get_tasks`
-- `GET /task/{task_id}` → `get_task_details`
-- `POST /list/{list_id}/task` → `create_task`
-- `PUT /task/{task_id}` → `update_task`
-- `POST /list/{list_id}/task/{task_id}` → `add_task_to_list`
-- `DELETE /list/{list_id}/task/{task_id}` → `remove_task_from_list`
+- `GET /list/{list_id}/task` → `clickup_get_tasks`
+- `GET /task/{task_id}` → `clickup_get_task_details`
+- `POST /list/{list_id}/task` → `clickup_create_task`
+- `PUT /task/{task_id}` → `clickup_update_task`
+- `POST /list/{list_id}/task/{task_id}` → `clickup_add_task_to_list`
+- `DELETE /list/{list_id}/task/{task_id}` → `clickup_remove_task_from_list`
 
 #### Lists
-- `GET /folder/{folder_id}/list` → `get_lists` (folder)
-- `GET /space/{space_id}/list` → `get_lists` (space) + `get_folderless_lists`
-- `GET /list/{list_id}` → `get_list`
-- `POST /folder/{folder_id}/list` → `create_list` (folder)
-- `POST /space/{space_id}/list` → `create_list` (space) + `create_folderless_list`
-- `PUT /list/{list_id}` → `update_list`
-- `DELETE /list/{list_id}` → `delete_list`
+- `GET /folder/{folder_id}/list` → `clickup_get_lists` (folder)
+- `GET /space/{space_id}/list` → `clickup_get_lists` (space) + `get_folderless_lists`
+- `GET /list/{list_id}` → `clickup_get_list`
+- `POST /folder/{folder_id}/list` → `clickup_create_list` (folder)
+- `POST /space/{space_id}/list` → `clickup_create_list` (space) + `create_folderless_list`
+- `PUT /list/{list_id}` → `clickup_update_list`
+- `DELETE /list/{list_id}` → `clickup_delete_list`
 
 #### Folders
-- `POST /space/{space_id}/folder` → `create_folder`
-- `PUT /folder/{folder_id}` → `update_folder`
-- `DELETE /folder/{folder_id}` → `delete_folder`
+- `POST /space/{space_id}/folder` → `clickup_create_folder`
+- `PUT /folder/{folder_id}` → `clickup_update_folder`
+- `DELETE /folder/{folder_id}` → `clickup_delete_folder`
 
 #### Spaces
-- `GET /team/{team_id}/space` → `get_spaces`
-- `GET /space/{space_id}` → `get_space`
+- `GET /team/{team_id}/space` → `clickup_get_spaces`
+- `GET /space/{space_id}` → `clickup_get_space`
 
 #### Templates (Limited)
-- `POST /folder/{folder_id}/list` (with template_id) → `create_list_from_template_in_folder`
-- `POST /space/{space_id}/list` (with template_id) → `create_list_from_template_in_space`
+- `POST /folder/{folder_id}/list` (with template_id) → `clickup_create_list_from_template_in_folder`
+- `POST /space/{space_id}/list` (with template_id) → `clickup_create_list_from_template_in_space`
 
 #### Checklists
-- `POST /task/{task_id}/checklist` → `create_checklist`
-- `PUT /checklist/{checklist_id}` → `update_checklist`
-- `DELETE /checklist/{checklist_id}` → `delete_checklist`
-- `POST /checklist/{checklist_id}/checklist_item` → `create_checklist_item`
-- `PUT /checklist/{checklist_id}/checklist_item/{checklist_item_id}` → `update_checklist_item`
-- `DELETE /checklist/{checklist_id}/checklist_item/{checklist_item_id}` → `delete_checklist_item`
+- `POST /task/{task_id}/checklist` → `clickup_create_checklist`
+- `PUT /checklist/{checklist_id}` → `clickup_update_checklist`
+- `DELETE /checklist/{checklist_id}` → `clickup_delete_checklist`
+- `POST /checklist/{checklist_id}/checklist_item` → `clickup_create_checklist_item`
+- `PUT /checklist/{checklist_id}/checklist_item/{checklist_item_id}` → `clickup_update_checklist_item`
+- `DELETE /checklist/{checklist_id}/checklist_item/{checklist_item_id}` → `clickup_delete_checklist_item`
 
 #### Comments
-- `GET /task/{task_id}/comment` → `get_task_comments`
-- `POST /task/{task_id}/comment` → `create_task_comment`
-- `GET /view/{view_id}/comment` → `get_chat_view_comments`
-- `POST /view/{view_id}/comment` → `create_chat_view_comment`
-- `GET /list/{list_id}/comment` → `get_list_comments`
-- `POST /list/{list_id}/comment` → `create_list_comment`
-- `PUT /comment/{comment_id}` → `update_comment`
-- `DELETE /comment/{comment_id}` → `delete_comment`
-- `GET /comment/{comment_id}/reply` → `get_threaded_comments`
-- `POST /comment/{comment_id}/reply` → `create_threaded_comment`
+- `GET /task/{task_id}/comment` → `clickup_get_task_comments`
+- `POST /task/{task_id}/comment` → `clickup_create_task_comment`
+- `GET /view/{view_id}/comment` → `clickup_get_chat_view_comments`
+- `POST /view/{view_id}/comment` → `clickup_create_chat_view_comment`
+- `GET /list/{list_id}/comment` → `clickup_get_list_comments`
+- `POST /list/{list_id}/comment` → `clickup_create_list_comment`
+- `PUT /comment/{comment_id}` → `clickup_update_comment`
+- `DELETE /comment/{comment_id}` → `clickup_delete_comment`
+- `GET /comment/{comment_id}/reply` → `clickup_get_threaded_comments`
+- `POST /comment/{comment_id}/reply` → `clickup_create_threaded_comment`
 
 #### Documents (READ ONLY)
 - `GET /team/{team_id}/doc` → `get_docs_from_workspace`

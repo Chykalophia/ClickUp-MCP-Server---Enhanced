@@ -46,7 +46,7 @@ async function main() {
     // Get workspaces
     console.log('\nFetching workspaces...');
     const workspacesResult = await client.callTool({
-      name: 'get_workspaces',
+      name: 'clickup_get_workspaces',
       arguments: {}
     });
     
@@ -60,7 +60,7 @@ async function main() {
       // Get spaces in the workspace
       console.log('\nFetching spaces...');
       const spacesResult = await client.callTool({
-        name: 'get_spaces',
+        name: 'clickup_get_spaces',
         arguments: {
           workspace_id: workspace.id
         }
@@ -76,7 +76,7 @@ async function main() {
         // Get lists in the space
         console.log('\nFetching lists...');
         const listsResult = await client.callTool({
-          name: 'get_lists',
+          name: 'clickup_get_lists',
           arguments: {
             container_type: 'space',
             container_id: space.id
@@ -93,7 +93,7 @@ async function main() {
           // Get tasks in the list
           console.log('\nFetching tasks...');
           const tasksResult = await client.callTool({
-            name: 'get_tasks',
+            name: 'clickup_get_tasks',
             arguments: {
               list_id: list.id,
               include_closed: false

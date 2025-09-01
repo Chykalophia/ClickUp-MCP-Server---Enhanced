@@ -67,7 +67,7 @@ interface ClickUpCommentFormat {
 ### Creating Comments with Formatting
 
 ```typescript
-// Using the create_task_comment tool
+// Using the clickup_create_task_comment tool
 {
   "task_id": "868f9p3bg",
   "comment_text": "**Status Update**\n\nCompleted:\n- *Authentication* system\n- `Database` setup\n\nNext: [Review PR](https://github.com/repo/pull/123)"

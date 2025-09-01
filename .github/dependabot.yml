@@ -22,7 +22,7 @@ updates:
       separator: "-"
     # Specify reviewers for pull requests
     reviewers:
-      - "nsxdavid"
+      - "peterkrzyzek"
     # Specify the versioning strategy
     versioning-strategy: auto
     # Allow only security updates
@@ -41,4 +41,4 @@ updates:
       - "dependencies"
     open-pull-requests-limit: 5
     reviewers:
-      - "nsxdavid"
+      - "peterkrzyzek"

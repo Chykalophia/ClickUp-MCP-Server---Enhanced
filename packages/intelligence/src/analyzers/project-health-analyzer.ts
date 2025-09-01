@@ -185,16 +185,16 @@ export class ProjectHealthAnalyzer {
     const startDate = new Date();
     
     switch (depth) {
-      case 'basic':
-        startDate.setDate(endDate.getDate() - 7); // Last week
-        break;
-      case 'comprehensive':
-        startDate.setDate(endDate.getDate() - 90); // Last 3 months
-        break;
-      case 'detailed':
-      default:
-        startDate.setDate(endDate.getDate() - 30); // Last month
-        break;
+    case 'basic':
+      startDate.setDate(endDate.getDate() - 7); // Last week
+      break;
+    case 'comprehensive':
+      startDate.setDate(endDate.getDate() - 90); // Last 3 months
+      break;
+    case 'detailed':
+    default:
+      startDate.setDate(endDate.getDate() - 30); // Last month
+      break;
     }
 
     return { startDate, endDate };
@@ -301,11 +301,11 @@ export class ProjectHealthAnalyzer {
   private analyzeTrends(metrics: DetailedHealthMetrics): ProjectHealthAnalysisResult['trends'] {
     return {
       velocityTrend: metrics.velocityTrend.trend === 'increasing' ? 'improving' :
-                    metrics.velocityTrend.trend === 'decreasing' ? 'declining' : 'stable',
+        metrics.velocityTrend.trend === 'decreasing' ? 'declining' : 'stable',
       qualityTrend: metrics.qualityIndicators.qualityScore >= 75 ? 'improving' :
-                    metrics.qualityIndicators.qualityScore <= 60 ? 'declining' : 'stable',
+        metrics.qualityIndicators.qualityScore <= 60 ? 'declining' : 'stable',
       timelineTrend: metrics.timelineAdherence.adherenceScore >= 80 ? 'improving' :
-                     metrics.timelineAdherence.adherenceScore <= 60 ? 'declining' : 'stable'
+        metrics.timelineAdherence.adherenceScore <= 60 ? 'declining' : 'stable'
     };
   }
 

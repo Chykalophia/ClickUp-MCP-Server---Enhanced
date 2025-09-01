@@ -18,7 +18,7 @@ Ask the user to share their API token, here is the instructions to give them to 
 ## Installation
 
 ```bash
-git clone https://github.com/nsxdavid/clickup-mcp-server.git
+git clone https://github.com/Chykalophia/ClickUp-MCP-Server---Enhanced.git
 cd clickup-mcp-server
 npm install
 ```
@@ -85,7 +85,7 @@ For users who prefer not to clone the repository, the package can be run directl
 ```javascript
 use_mcp_tool({
   server_name: "clickup",
-  tool_name: "get_workspaces",
+  tool_name: "clickup_get_workspaces",
   arguments: {}
 })
 ```

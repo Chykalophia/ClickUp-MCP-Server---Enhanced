@@ -25,8 +25,8 @@ Complete ClickUp API integration with **177+ tools** covering all major function
 
 ### Intelligence Server: `@chykalophia/clickup-intelligence-mcp-server` ⭐ **NEW**
 AI-powered project management intelligence and workflow optimization:
-- **Project Health Analyzer**: Real-time health scoring and risk assessment
-- **Smart Sprint Planner**: AI-optimized sprint planning with capacity analysis
+- **Project Health Analyzer**: Real-time health scoring and risk assessment ✅ **COMPLETED**
+- **Smart Sprint Planner**: AI-optimized sprint planning with capacity analysis ✅ **COMPLETED** 
 - **Task Decomposition Engine**: Intelligent task breakdown and sizing
 - **Resource Optimizer**: Team workload balancing and skill matching
 - **Workflow Intelligence**: Pattern analysis and automation recommendations
@@ -78,8 +78,8 @@ npm install @chykalophia/clickup-mcp-server @chykalophia/clickup-intelligence-mc
 
 ### Option 4: Development Setup (Monorepo)
 ```bash
-git clone https://github.com/nsxdavid/clickup-mcp-server.git
-cd clickup-mcp-server
+git clone https://github.com/Chykalophia/ClickUp-MCP-Server---Enhanced.git
+cd ClickUp-MCP-Server---Enhanced
 npm install
 npm run build
 ```

@@ -25,7 +25,7 @@ We have successfully implemented **Ideas 2, 3, and 4** from your request to enha
 'create_chat_view_comment': {
   efficiency: 'direct',
   efficiency_hint: 'Most direct way to post to chat channels. Use find_chat_channels if you need to discover chat view IDs first.',
-  alternatives: ['create_list_comment', 'create_task_comment'],
+  alternatives: ['clickup_create_list_comment', 'clickup_create_task_comment'],
   performance_impact: 'low'
 }
 ```
@@ -38,7 +38,7 @@ We have successfully implemented **Ideas 2, 3, and 4** from your request to enha
 
 #### `find_chat_channels` 🚀
 - **Purpose**: Direct chat channel discovery without workspace navigation
-- **Efficiency Gain**: 60% faster than `get_workspaces → get_spaces → get_views`
+- **Efficiency Gain**: 60% faster than `clickup_get_workspaces → clickup_get_spaces → clickup_get_views`
 - **Usage**: `find_chat_channels(channel_name="development")`
 
 #### `get_workspace_overview` 📊
@@ -82,7 +82,7 @@ We have successfully implemented **Ideas 2, 3, and 4** from your request to enha
 
 **Optimization Example**:
 ```typescript
-// Inefficient: get_workspaces → get_spaces → get_views → create_chat_view_comment
+// Inefficient: clickup_get_workspaces → clickup_get_spaces → clickup_get_views → clickup_create_chat_view_comment
 // Optimized: find_chat_channels → create_chat_view_comment
 // Improvement: 55% efficiency gain, 4+ calls reduced to 2 calls
 ```
@@ -127,7 +127,7 @@ node build/index-efficiency-simple.js
 
 ### 2. Use Smart Discovery Tools
 ```typescript
-// Instead of: get_workspaces → get_spaces → get_views
+// Instead of: clickup_get_workspaces → clickup_get_spaces → clickup_get_views
 find_chat_channels({ channel_name: "development" })
 
 // Instead of: multiple navigation calls
@@ -138,7 +138,7 @@ get_workspace_overview({ workspace_id: "123" })
 ```typescript
 analyze_workflow_efficiency({
   goal: "Post message to team chat",
-  planned_tools: ["get_workspaces", "get_spaces", "get_views"],
+  planned_tools: ["clickup_get_workspaces", "clickup_get_spaces", "clickup_get_views"],
   time_constraint: "urgent"
 })
 ```
@@ -184,8 +184,8 @@ analyze_workflow_efficiency({
 
 ### Before Enhancement:
 ```typescript
-get_workspaces() →           // API call 1
-get_spaces(workspace_id) →   // API call 2  
+clickup_get_workspaces() →           // API call 1
+clickup_get_spaces(workspace_id) →   // API call 2  
 get_views(space_id) →        // API call 3
 filter for chat views →      // Processing
 create_chat_view_comment()   // API call 4

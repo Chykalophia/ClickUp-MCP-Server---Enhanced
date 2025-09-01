@@ -106,17 +106,17 @@ If ANY answer is "no", I MUST NOT use attempt_completion.
 1. **Test Each Tool (REQUIRED)**
    - Testing workspace and space tools:
      ```javascript
-     // Test get_workspaces
+     // Test clickup_get_workspaces
      use_mcp_tool({
        server_name: "clickup",
-       tool_name: "get_workspaces",
+       tool_name: "clickup_get_workspaces",
        arguments: {}
      })
      
-     // Test get_spaces
+     // Test clickup_get_spaces
      use_mcp_tool({
        server_name: "clickup",
-       tool_name: "get_spaces",
+       tool_name: "clickup_get_spaces",
        arguments: { 
          workspace_id: "9011839976" 
        }
@@ -125,20 +125,20 @@ If ANY answer is "no", I MUST NOT use attempt_completion.
    
    - Testing task tools:
      ```javascript
-     // Test get_tasks
+     // Test clickup_get_tasks
      use_mcp_tool({
        server_name: "clickup",
-       tool_name: "get_tasks",
+       tool_name: "clickup_get_tasks",
        arguments: {
          list_id: "901109776097",
          include_closed: false
        }
      })
      
-     // Test create_task
+     // Test clickup_create_task
      use_mcp_tool({
        server_name: "clickup",
-       tool_name: "create_task",
+       tool_name: "clickup_create_task",
        arguments: {
          list_id: "901109776097",
          name: "Test task from MCP",
@@ -194,36 +194,36 @@ Only after ALL tools have been tested can attempt_completion be used.
 The server provides tools for interacting with various ClickUp entities:
 
 #### Workspace and Authentication Tools
-- `get_workspaces`: Get the list of workspaces the user has access to
-- `get_workspace_seats`: Get information about seats in a workspace
+- `clickup_get_workspaces`: Get the list of workspaces the user has access to
+- `clickup_get_workspace_seats`: Get information about seats in a workspace
 
 #### Space Tools
-- `get_spaces`: Get spaces within a workspace
-- `get_space`: Get details of a specific space
+- `clickup_get_spaces`: Get spaces within a workspace
+- `clickup_get_space`: Get details of a specific space
 
 #### Folder Tools
-- `create_folder`: Create a new folder in a space
-- `update_folder`: Update an existing folder
-- `delete_folder`: Delete a folder
+- `clickup_create_folder`: Create a new folder in a space
+- `clickup_update_folder`: Update an existing folder
+- `clickup_delete_folder`: Delete a folder
 
 #### List Tools
-- `get_lists`: Get lists in a folder or space
-- `get_folderless_lists`: Get lists not in any folder
-- `get_list`: Get details of a specific list
-- `create_list`: Create a new list in a folder or space
-- `create_folderless_list`: Create a list not in any folder
-- `update_list`: Update an existing list
-- `delete_list`: Delete a list
-- `create_list_from_template_in_folder`: Create a list from a template in a folder
-- `create_list_from_template_in_space`: Create a list from a template in a space
+- `clickup_get_lists`: Get lists in a folder or space
+- `clickup_get_folderless_lists`: Get lists not in any folder
+- `clickup_get_list`: Get details of a specific list
+- `clickup_create_list`: Create a new list in a folder or space
+- `clickup_create_folderless_list`: Create a list not in any folder
+- `clickup_update_list`: Update an existing list
+- `clickup_delete_list`: Delete a list
+- `clickup_create_list_from_template_in_folder`: Create a list from a template in a folder
+- `clickup_create_list_from_template_in_space`: Create a list from a template in a space
 
 #### Task Tools
-- `get_tasks`: Get tasks from a list
-- `get_task_details`: Get detailed information about a task
-- `create_task`: Create a new task
-- `update_task`: Update an existing task
-- `add_task_to_list`: Add a task to a list
-- `remove_task_from_list`: Remove a task from a list
+- `clickup_get_tasks`: Get tasks from a list
+- `clickup_get_task_details`: Get detailed information about a task
+- `clickup_create_task`: Create a new task
+- `clickup_update_task`: Update an existing task
+- `clickup_add_task_to_list`: Add a task to a list
+- `clickup_remove_task_from_list`: Remove a task from a list
 
 #### Document Tools
 - `get_docs_from_workspace`: Get all docs from a workspace
@@ -232,22 +232,22 @@ The server provides tools for interacting with various ClickUp entities:
 - `search_docs`: Search for docs in a workspace
 
 #### Checklist Tools
-- `create_checklist`: Create a new checklist in a task
-- `update_checklist`: Update an existing checklist
-- `delete_checklist`: Delete a checklist
-- `create_checklist_item`: Create a new checklist item
-- `update_checklist_item`: Update an existing checklist item
-- `delete_checklist_item`: Delete a checklist item
+- `clickup_create_checklist`: Create a new checklist in a task
+- `clickup_update_checklist`: Update an existing checklist
+- `clickup_delete_checklist`: Delete a checklist
+- `clickup_create_checklist_item`: Create a new checklist item
+- `clickup_update_checklist_item`: Update an existing checklist item
+- `clickup_delete_checklist_item`: Delete a checklist item
 
 #### Comment Tools
-- `get_task_comments`: Get comments for a task
-- `create_task_comment`: Create a comment on a task
-- `get_chat_view_comments`: Get comments for a chat view
-- `create_chat_view_comment`: Create a comment on a chat view
-- `get_list_comments`: Get comments for a list
-- `create_list_comment`: Create a comment on a list
-- `update_comment`: Update an existing comment
-- `delete_comment`: Delete a comment
+- `clickup_get_task_comments`: Get comments for a task
+- `clickup_create_task_comment`: Create a comment on a task
+- `clickup_get_chat_view_comments`: Get comments for a chat view
+- `clickup_create_chat_view_comment`: Create a comment on a chat view
+- `clickup_get_list_comments`: Get comments for a list
+- `clickup_create_list_comment`: Create a comment on a list
+- `clickup_update_comment`: Update an existing comment
+- `clickup_delete_comment`: Delete a comment
 - `get_threaded_comments`: Get threaded comments for a parent comment
 - `create_threaded_comment`: Create a threaded comment
 

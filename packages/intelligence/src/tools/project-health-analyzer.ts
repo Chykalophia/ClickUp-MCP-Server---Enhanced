@@ -74,29 +74,29 @@ export function setupProjectHealthAnalyzer(server: McpServer) {
 ## 🚨 Risk Assessment
 
 ${analysis.risks.length > 0 ? analysis.risks.map(risk => 
-  `### ${risk.level.toUpperCase()} Risk: ${risk.category.toUpperCase()}
+    `### ${risk.level.toUpperCase()} Risk: ${risk.category.toUpperCase()}
 - **Issue**: ${risk.description}
 - **Impact**: ${risk.impact}
 - **Recommendation**: ${risk.recommendation}
 - **Confidence**: ${risk.confidence}%`
-).join('\n\n') : '✅ No significant risks identified'}
+  ).join('\n\n') : '✅ No significant risks identified'}
 
 ## 💡 Key Insights
 
 ### 🎯 Strengths
 ${analysis.insights.keyStrengths.length > 0 ? 
-  analysis.insights.keyStrengths.map(strength => `- ${strength}`).join('\n') : 
-  '- No specific strengths identified in current analysis'}
+    analysis.insights.keyStrengths.map(strength => `- ${strength}`).join('\n') : 
+    '- No specific strengths identified in current analysis'}
 
 ### ⚠️ Critical Issues
 ${analysis.insights.criticalIssues.length > 0 ? 
-  analysis.insights.criticalIssues.map(issue => `- ${issue}`).join('\n') : 
-  '- No critical issues identified'}
+    analysis.insights.criticalIssues.map(issue => `- ${issue}`).join('\n') : 
+    '- No critical issues identified'}
 
 ### 📈 Improvement Areas
 ${analysis.insights.improvementAreas.length > 0 ? 
-  analysis.insights.improvementAreas.map(area => `- ${area}`).join('\n') : 
-  '- No specific improvement areas identified'}
+    analysis.insights.improvementAreas.map(area => `- ${area}`).join('\n') : 
+    '- No specific improvement areas identified'}
 
 ## 🎯 Action Plan
 
@@ -120,10 +120,10 @@ ${analysis.recommendations.longTerm.map(rec => `- ${rec}`).join('\n')}
 Based on this comprehensive analysis, your project has an overall health score of **${analysis.summary.overallScore}/100** with a grade of **${analysis.summary.healthGrade}**, indicating **${analysis.summary.status}** project health.
 
 ${analysis.summary.overallScore >= 80 ? 
-  '🎉 **Excellent work!** Your project is performing well. Focus on maintaining current standards and implementing long-term improvements.' :
-  analysis.summary.overallScore >= 60 ?
-  '⚠️ **Action needed.** Address the identified risks and implement the recommended improvements to get your project back on track.' :
-  '🚨 **Immediate attention required.** Critical issues have been identified that need urgent resolution to prevent project failure.'
+    '🎉 **Excellent work!** Your project is performing well. Focus on maintaining current standards and implementing long-term improvements.' :
+    analysis.summary.overallScore >= 60 ?
+      '⚠️ **Action needed.** Address the identified risks and implement the recommended improvements to get your project back on track.' :
+      '🚨 **Immediate attention required.** Critical issues have been identified that need urgent resolution to prevent project failure.'
 }
 
 ---

@@ -23,7 +23,7 @@ This project adheres to a Code of Conduct that all contributors are expected to 
 2. Fork the repository on GitHub
 3. Clone your fork locally:
    ```bash
-   git clone https://github.com/nsxdavid/clickup-server.git
+   git clone https://github.com/Chykalophia/ClickUp-MCP-Server---Enhanced.git
    cd clickup-server
    ```
 4. Install dependencies:

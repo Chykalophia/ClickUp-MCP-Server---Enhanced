@@ -229,14 +229,14 @@ export class HealthMetricsService {
     return Math.round((completedTasks / tasks.length) * 100);
   }
 
-  private calculateVelocityMetrics(tasks: ClickUpTask[]): DetailedHealthMetrics['velocityTrend'] {
+  private calculateVelocityMetrics(_tasks: ClickUpTask[]): DetailedHealthMetrics['velocityTrend'] {
     // Simplified velocity calculation - in production, this would analyze historical data
     const currentVelocity = Math.round(15 + Math.random() * 10); // Mock: 15-25 tasks/week
     const previousVelocity = Math.round(12 + Math.random() * 12); // Mock: 12-24 tasks/week
     
     const difference = currentVelocity - previousVelocity;
     const trend = Math.abs(difference) < 2 ? 'stable' : 
-                  difference > 0 ? 'increasing' : 'decreasing';
+      difference > 0 ? 'increasing' : 'decreasing';
     
     return {
       current: currentVelocity,
@@ -314,7 +314,7 @@ export class HealthMetricsService {
     };
   }
 
-  private calculateQualityIndicators(tasks: ClickUpTask[]): DetailedHealthMetrics['qualityIndicators'] {
+  private calculateQualityIndicators(_tasks: ClickUpTask[]): DetailedHealthMetrics['qualityIndicators'] {
     // Simplified quality calculation - in production, this would analyze actual quality metrics
     const bugRate = 0.05 + Math.random() * 0.1; // Mock: 5-15% bug rate
     const reworkFrequency = 0.1 + Math.random() * 0.15; // Mock: 10-25% rework frequency
@@ -364,12 +364,12 @@ export class HealthMetricsService {
   }): number {
     // Weighted scoring - adjust weights based on project priorities
     const weights = {
-      completion: 0.25,    // 25% - Task completion is critical
-      timeline: 0.20,      // 20% - Timeline adherence is important
-      quality: 0.20,       // 20% - Quality is important
-      workload: 0.15,      // 15% - Workload balance affects sustainability
-      dependencies: 0.10,  // 10% - Dependencies affect flow
-      velocity: 0.10       // 10% - Velocity indicates team performance
+      completion: 0.25, // 25% - Task completion is critical
+      timeline: 0.20, // 20% - Timeline adherence is important
+      quality: 0.20, // 20% - Quality is important
+      workload: 0.15, // 15% - Workload balance affects sustainability
+      dependencies: 0.10, // 10% - Dependencies affect flow
+      velocity: 0.10 // 10% - Velocity indicates team performance
     };
 
     return Math.round(
@@ -413,8 +413,6 @@ export class HealthMetricsService {
     qualityMetrics: DetailedHealthMetrics['qualityIndicators'];
     timelineMetrics: DetailedHealthMetrics['timelineAdherence'];
   }): RiskAssessment[] {
-    const risks: RiskAssessment[] = [];
-
     // Use the analyzeRisks method with a mock DetailedHealthMetrics object
     const mockMetrics: DetailedHealthMetrics = {
       overallScore: 0,
@@ -437,11 +435,11 @@ export class HealthMetricsService {
 
   private getRiskPriority(level: RiskAssessment['level']): number {
     switch (level) {
-      case 'critical': return 4;
-      case 'high': return 3;
-      case 'medium': return 2;
-      case 'low': return 1;
-      default: return 0;
+    case 'critical': return 4;
+    case 'high': return 3;
+    case 'medium': return 2;
+    case 'low': return 1;
+    default: return 0;
     }
   }
 }

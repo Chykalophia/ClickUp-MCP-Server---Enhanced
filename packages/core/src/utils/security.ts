@@ -22,13 +22,30 @@ export const DEFAULT_RATE_LIMITS: Record<string, RateLimitConfig> = {
 // Rate limiter implementation with memory leak prevention
 class RateLimiter {
   private requests: Map<string, number[]> = new Map();
-  private cleanupInterval: ReturnType<typeof setInterval>;
+  private cleanupInterval?: ReturnType<typeof setInterval>;
 
   constructor() {
-    // Cleanup old entries every 5 minutes to prevent memory leaks
-    this.cleanupInterval = setInterval(() => {
-      this.cleanup();
-    }, 5 * 60 * 1000);
+    // Only create cleanup interval in non-test environments
+    if (process.env.NODE_ENV !== 'test') {
+      // Cleanup old entries every 5 minutes to prevent memory leaks
+      this.cleanupInterval = setInterval(() => {
+        this.cleanup();
+      }, 5 * 60 * 1000);
+      
+      // Cleanup interval on process exit to prevent Jest hanging
+      if (typeof process !== 'undefined') {
+        process.on('exit', () => this.destroy());
+        process.on('SIGINT', () => this.destroy());
+        process.on('SIGTERM', () => this.destroy());
+      }
+    }
+  }
+
+  destroy(): void {
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+    }
+    this.requests.clear();
   }
 
   private cleanup(): void {
@@ -73,13 +90,6 @@ class RateLimiter {
     } else {
       this.requests.clear();
     }
-  }
-
-  destroy(): void {
-    if (this.cleanupInterval) {
-      clearInterval(this.cleanupInterval);
-    }
-    this.requests.clear();
   }
 }
 

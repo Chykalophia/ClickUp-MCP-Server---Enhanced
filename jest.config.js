@@ -7,6 +7,11 @@ const config = {
   preset: 'ts-jest/presets/default-esm',
   extensionsToTreatAsEsm: ['.ts'],
   
+  // Force exit to prevent hanging
+  forceExit: true,
+  detectOpenHandles: true,
+  testTimeout: 10000,
+  
   // Module resolution
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',

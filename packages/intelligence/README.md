@@ -27,11 +27,23 @@ Advanced project management intelligence and workflow optimization for ClickUp -
 - **Velocity prediction** using historical data and machine learning
 - **Risk mitigation** with buffer time and contingency planning
 
-### Task Decomposition Engine 🚧 **IN DEVELOPMENT**
+### Task Decomposition Engine ✅ **COMPLETED**
 - **Intelligent task breakdown** with complexity analysis
 - **Effort estimation** using historical patterns
 - **Dependency mapping** and critical path identification
 - **Skill-based assignment** recommendations
+
+### Resource Optimizer ✅ **COMPLETED**
+- **Team workload balancing** and capacity optimization
+- **Skill-based task assignment** recommendations
+- **Burnout risk analysis** with prevention strategies
+- **Capacity forecasting** for resource planning
+
+### Workflow Intelligence ✅ **COMPLETED**
+- **Pattern analysis** and automation recommendations
+- **Workflow optimization** suggestions
+- **Integration recommendations** for productivity gains
+- **Process improvement** insights
 
 ## 🚀 Quick Start
 
@@ -89,6 +101,43 @@ clickup_plan_smart_sprint({
 - Capacity utilization analysis
 - Risk assessment and mitigation strategies
 - Sprint success probability
+
+### Task Decomposition
+```typescript
+clickup_decompose_task({
+  task: {
+    id: "task123",
+    name: "Build user authentication system",
+    description: "Complete OAuth integration with security features"
+  },
+  options: {
+    targetGranularity: 4,
+    maxSubtasks: 8,
+    includeEstimation: true
+  }
+})
+```
+
+**Returns:**
+- Intelligent task breakdown into manageable subtasks
+- Effort estimation for each subtask
+- Dependency mapping and sequencing
+- Complexity analysis and recommendations
+
+### Resource Optimization
+```typescript
+clickup_analyze_team_workload({
+  workspace_id: "12345678",
+  team_members: ["user1", "user2", "user3"],
+  analysis_period: "2weeks"
+})
+```
+
+**Returns:**
+- Team workload distribution analysis
+- Capacity utilization metrics
+- Burnout risk assessment
+- Task assignment optimization recommendations
 
 ## 💬 Conversational AI Interface
 
@@ -162,10 +211,10 @@ This is a **conversational AI tool** - interact through natural language:
 
 ## 🔮 Roadmap
 
-- **Resource Optimizer**: Team workload balancing and skill matching
-- **Workflow Intelligence**: Pattern analysis and automation recommendations
-- **Predictive Analytics**: Forecast project outcomes and risks
+- **Real-Time Processing Engine**: Live data streaming and instant analytics
+- **Predictive Analytics**: Advanced forecasting and risk prediction
 - **Integration Optimizer**: Smart tool and workflow recommendations
+- **Advanced Automation**: Custom workflow automation builder
 
 ## 📄 License
 

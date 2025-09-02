@@ -31,7 +31,10 @@ export class RealTimeDataService extends EventEmitter {
   }) {
     super();
     this.config = config;
-    this.startProcessing();
+    // Only start processing in non-test environments
+    if (process.env.NODE_ENV !== 'test') {
+      this.startProcessing();
+    }
   }
 
   async processWebhookEvent(payload: any): Promise<void> {

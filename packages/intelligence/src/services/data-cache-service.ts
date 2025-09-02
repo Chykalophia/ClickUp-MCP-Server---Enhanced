@@ -42,7 +42,10 @@ export class DataCacheService {
     enableMetrics: true
   }) {
     this.config = config;
-    this.startCleanup();
+    // Only start cleanup in non-test environments
+    if (process.env.NODE_ENV !== 'test') {
+      this.startCleanup();
+    }
   }
 
   set<T>(key: string, data: T, ttl?: number): void {

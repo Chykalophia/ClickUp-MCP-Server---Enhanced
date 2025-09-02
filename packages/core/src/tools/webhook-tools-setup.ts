@@ -378,10 +378,11 @@ export function setupWebhookTools(server: McpServer): void {
     },
     async args => {
       try {
-        // Parse the payload if it's a string
+        // Parse the payload if it's a string using safe parsing
         let payload = args.payload;
         if (typeof payload === 'string') {
-          payload = JSON.parse(payload);
+          const { safeJsonParse } = await import('../utils/security.js');
+          payload = safeJsonParse(payload);
         }
 
         const parsedPayload = WebhookPayloadSchema.parse(payload);

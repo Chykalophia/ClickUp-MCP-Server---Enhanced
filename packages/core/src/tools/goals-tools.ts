@@ -3,6 +3,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createEnhancedGoalsClient } from '../clickup-client/goals-enhanced.js';
+import { htmlEncode } from '../utils/security.js';
 import {} from // TeamIdSchema,
 // GoalIdSchema,
 // TargetIdSchema,
@@ -39,7 +40,7 @@ export function setupGoalsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Goals for team ${team_id}:\n\n${JSON.stringify(goals, null, 2)}`
+              text: `Goals for team ${htmlEncode(team_id)}:\n\n${JSON.stringify(goals, null, 2)}`
             }
           ]
         };
@@ -187,7 +188,7 @@ export function setupGoalsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Goal ${goal_id} deleted successfully. All associated targets have been removed.`
+              text: `Goal ${htmlEncode(goal_id)} deleted successfully. All associated targets have been removed.`
             }
           ]
         };
@@ -355,7 +356,7 @@ export function setupGoalsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Goal target ${target_id} deleted successfully from goal ${goal_id}.`
+              text: `Goal target ${htmlEncode(target_id)} deleted successfully from goal ${htmlEncode(goal_id)}.`
             }
           ]
         };
@@ -387,7 +388,7 @@ export function setupGoalsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Goal summary for team ${team_id}:\n\n${JSON.stringify(summary, null, 2)}`
+              text: `Goal summary for team ${htmlEncode(team_id)}:\n\n${JSON.stringify(summary, null, 2)}`
             }
           ]
         };

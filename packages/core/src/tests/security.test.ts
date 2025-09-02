@@ -53,7 +53,7 @@ describe('Security Utilities', () => {
     it('should sanitize string input', () => {
       const input = '<script>alert("xss")</script>';
       const result = sanitizeInput(input);
-      expect(result).toBe('scriptalert("xss")/script');
+      expect(result).toBe('scriptalert(xss)/script');
     });
 
     it('should sanitize object input', () => {
@@ -62,8 +62,8 @@ describe('Security Utilities', () => {
         description: ['javascript', 'alert("xss")'].join(':')
       };
       const result = sanitizeInput(input);
-      expect(result.name).toBe('scriptalert("xss")/script');
-      expect(result.description).toBe('alert("xss")');
+      expect(result.name).toBe('scriptalert(xss)/script');
+      expect(result.description).toBe('alert(xss)');
     });
 
     it('should sanitize array input', () => {

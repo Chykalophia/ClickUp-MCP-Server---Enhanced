@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import { z } from 'zod';
+import { secureLog } from './security.js';
 
 /**
  * Comprehensive error handling utilities for the ClickUp MCP Server
@@ -411,9 +412,9 @@ export class RetryManager {
           structuredError.retryAfter ? structuredError.retryAfter * 1000 : this.maxDelay
         );
 
-        console.warn(
-          `Attempt ${attempt + 1} failed, retrying in ${delay}ms:`,
-          structuredError.message
+        secureLog(
+          'warn',
+          `Attempt ${attempt + 1} failed, retrying in ${delay}ms: ${structuredError.message}`
         );
         await new Promise(resolve => setTimeout(resolve, delay));
       }
@@ -449,12 +450,13 @@ export const logError = (error: StructuredError): void => {
     retryable: error.retryable
   };
 
-  console[logLevel](`[${error.type}] ${error.message}`, logData);
+  // Use secure logging to prevent log injection
+  secureLog(logLevel, `[${error.type}] ${error.message}`, logData);
 
   // In production, send to monitoring service
   if (error.severity === ErrorSeverity.CRITICAL) {
     // Send alert to monitoring system
-    console.error('CRITICAL ERROR - IMMEDIATE ATTENTION REQUIRED', logData);
+    secureLog('error', 'CRITICAL ERROR - IMMEDIATE ATTENTION REQUIRED', logData);
   }
 };
 

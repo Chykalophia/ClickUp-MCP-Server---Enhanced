@@ -5,6 +5,8 @@
  * Based on: https://developer.clickup.com/docs/comment-formatting
  */
 
+import { validateUrl } from './security.js';
+
 export interface ClickUpCommentBlock {
   text: string;
   attributes?: {
@@ -241,6 +243,12 @@ export function createCodeComment(text: string): ClickUpCommentFormat {
  * @returns ClickUp comment format structure
  */
 export function createLinkComment(text: string, url: string): ClickUpCommentFormat {
+  // Validate URL for security
+  const urlValidation = validateUrl(url);
+  if (!urlValidation.isValid) {
+    throw new Error(`Invalid URL: ${urlValidation.error}`);
+  }
+
   return {
     comment: [
       {
@@ -427,20 +435,31 @@ export function cleanDuplicateCommentText(commentText: string): string {
   ];
 
   for (const pattern of markdownPatterns) {
-    const matches = commentText.match(new RegExp(pattern.source, 'g'));
-    if (matches && matches.length >= 2) {
-      // Found duplicate pattern, try to find the split point
-      const firstMatch = commentText.indexOf(matches[0]);
-      const lastMatch = commentText.lastIndexOf(matches[matches.length - 1]);
+    // Prevent ReDoS by limiting input length
+    const maxLength = 10000;
+    if (commentText.length > maxLength) {
+      continue; // Skip processing for overly long text
+    }
+    
+    try {
+      const matches = commentText.match(new RegExp(pattern.source, 'g'));
+      if (matches && matches.length >= 2) {
+        // Found duplicate pattern, try to find the split point
+        const firstMatch = commentText.indexOf(matches[0]);
+        const lastMatch = commentText.lastIndexOf(matches[matches.length - 1]);
 
-      if (firstMatch !== lastMatch) {
-        // There are multiple occurrences, likely a duplication
-        // Keep everything up to the last occurrence of the first match
-        const splitPoint = commentText.indexOf(matches[0], firstMatch + 1);
-        if (splitPoint > 0) {
-          return commentText.substring(0, splitPoint).trim();
+        if (firstMatch !== lastMatch) {
+          // There are multiple occurrences, likely a duplication
+          // Keep everything up to the last occurrence of the first match
+          const splitPoint = commentText.indexOf(matches[0], firstMatch + 1);
+          if (splitPoint > 0) {
+            return commentText.substring(0, splitPoint).trim();
+          }
         }
       }
+    } catch (error) {
+      // Skip pattern if regex fails
+      continue;
     }
   }
 

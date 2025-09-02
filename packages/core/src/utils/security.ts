@@ -19,9 +19,31 @@ export const DEFAULT_RATE_LIMITS: Record<string, RateLimitConfig> = {
   upload: { windowMs: 60000, maxRequests: 10 } // 10 uploads per minute
 };
 
-// Rate limiter implementation
+// Rate limiter implementation with memory leak prevention
 class RateLimiter {
   private requests: Map<string, number[]> = new Map();
+  private cleanupInterval: ReturnType<typeof setInterval>;
+
+  constructor() {
+    // Cleanup old entries every 5 minutes to prevent memory leaks
+    this.cleanupInterval = setInterval(() => {
+      this.cleanup();
+    }, 5 * 60 * 1000);
+  }
+
+  private cleanup(): void {
+    const now = Date.now();
+    const maxAge = 60 * 60 * 1000; // 1 hour
+
+    for (const [key, timestamps] of this.requests.entries()) {
+      const recentRequests = timestamps.filter(time => now - time < maxAge);
+      if (recentRequests.length === 0) {
+        this.requests.delete(key);
+      } else {
+        this.requests.set(key, recentRequests);
+      }
+    }
+  }
 
   isAllowed(key: string, config: RateLimitConfig): boolean {
     const now = Date.now();
@@ -52,9 +74,36 @@ class RateLimiter {
       this.requests.clear();
     }
   }
+
+  destroy(): void {
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+    }
+    this.requests.clear();
+  }
 }
 
 export const rateLimiter = new RateLimiter();
+
+/**
+ * Operation-specific rate limits
+ */
+export const OPERATION_RATE_LIMITS = {
+  bulk_operations: { windowMs: 60000, maxRequests: 10 }, // 10 per minute
+  file_uploads: { windowMs: 60000, maxRequests: 5 }, // 5 per minute
+  webhook_processing: { windowMs: 60000, maxRequests: 50 }, // 50 per minute
+  search_operations: { windowMs: 60000, maxRequests: 30 }, // 30 per minute
+  default: { windowMs: 60000, maxRequests: 100 } // 100 per minute
+} as const;
+
+/**
+ * Check operation-specific rate limit
+ */
+export const checkOperationRateLimit = (operation: keyof typeof OPERATION_RATE_LIMITS, identifier: string): boolean => {
+  const limits = OPERATION_RATE_LIMITS[operation] || OPERATION_RATE_LIMITS.default;
+  const key = `${operation}_${identifier}`;
+  return rateLimiter.isAllowed(key, limits);
+};
 
 /**
  * Validate and sanitize API token
@@ -85,16 +134,54 @@ export const validateApiToken = (token: string): { isValid: boolean; error?: str
 };
 
 /**
+ * Remove control characters from string
+ */
+const removeControlCharacters = (str: string): string => {
+  return str.split('').filter(char => {
+    const code = char.charCodeAt(0);
+    return !(code >= 0 && code <= 31) && !(code >= 127 && code <= 159);
+  }).join('');
+};
+
+/**
+ * HTML encode user input to prevent XSS attacks
+ */
+export const htmlEncode = (input: string): string => {
+  if (typeof input !== 'string') {
+    return String(input);
+  }
+
+  return input
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\//g, '&#x2F;');
+};
+
+/**
  * Sanitize user input to prevent injection attacks
  */
 export const sanitizeInput = (input: any): any => {
   if (typeof input === 'string') {
-    // Remove potentially dangerous characters
-    return input
+    // Remove potentially dangerous characters and patterns
+    let sanitized = input
       .replace(/[<>]/g, '') // Remove HTML tags
       .replace(/javascript:/gi, '') // Remove javascript: protocol
       .replace(/on\w+=/gi, '') // Remove event handlers
-      .trim();
+      .replace(/[\r\n\t]/g, ' ') // Replace newlines/tabs with spaces to prevent log injection
+      .replace(/['"`;\\]/g, '') // Remove SQL injection characters
+      .replace(/\$\{.*?\}/g, '') // Remove template literals
+      .replace(/eval\s*\(/gi, '') // Remove eval calls
+      .replace(/Function\s*\(/gi, '') // Remove Function constructor
+      .trim()
+      .substring(0, 10000); // Limit length to prevent DoS
+    
+    // Remove control characters
+    sanitized = removeControlCharacters(sanitized);
+    
+    return sanitized;
   }
 
   if (Array.isArray(input)) {
@@ -104,7 +191,9 @@ export const sanitizeInput = (input: any): any => {
   if (input && typeof input === 'object') {
     const sanitized: any = {};
     for (const [key, value] of Object.entries(input)) {
-      sanitized[sanitizeInput(key)] = sanitizeInput(value);
+      // Sanitize both keys and values
+      const sanitizedKey = typeof key === 'string' ? sanitizeInput(key) : key;
+      sanitized[sanitizedKey] = sanitizeInput(value);
     }
     return sanitized;
   }
@@ -275,7 +364,7 @@ export const validateUrl = (url: string): { isValid: boolean; error?: string } =
       return { isValid: false, error: 'Only HTTP and HTTPS URLs are allowed' };
     }
 
-    // Block localhost and private IPs for security
+    // Block localhost and private IPs for security (complete RFC 1918 ranges)
     const hostname = parsedUrl.hostname.toLowerCase();
     if (
       hostname === 'localhost' ||
@@ -283,13 +372,12 @@ export const validateUrl = (url: string): { isValid: boolean; error?: string } =
       hostname === '::1' ||
       hostname.startsWith('192.168.') ||
       hostname.startsWith('10.') ||
-      hostname.startsWith('172.16.') ||
-      hostname.startsWith('172.17.') ||
-      hostname.startsWith('172.18.') ||
-      hostname.startsWith('172.19.') ||
-      hostname.startsWith('172.2') ||
-      hostname.startsWith('172.30.') ||
-      hostname.startsWith('172.31.')
+      // Complete 172.16.0.0/12 range (172.16.0.0 - 172.31.255.255)
+      /^172\.(1[6-9]|2[0-9]|3[01])\./.test(hostname) ||
+      // IPv6 private ranges
+      hostname.startsWith('fc00:') ||
+      hostname.startsWith('fd00:') ||
+      hostname.startsWith('fe80:')
     ) {
       return { isValid: false, error: 'Private and localhost URLs are not allowed' };
     }
@@ -360,6 +448,30 @@ export const getSecurityHeaders = (): Record<string, string> => {
 };
 
 /**
+ * Secure logging function that prevents log injection
+ */
+export const secureLog = (level: 'info' | 'warn' | 'error', message: string, data?: any): void => {
+  // Sanitize message to prevent log injection
+  let sanitizedMessage = message
+    .replace(/[\r\n\t]/g, ' ') // Replace newlines/tabs with spaces
+    .substring(0, 1000); // Limit length
+  
+  // Remove control characters
+  sanitizedMessage = removeControlCharacters(sanitizedMessage);
+
+  const timestamp = new Date().toISOString();
+  const logEntry = {
+    timestamp,
+    level,
+    message: sanitizedMessage,
+    data: data ? sanitizeInput(data) : undefined
+  };
+
+  // Use structured logging to prevent injection
+  console[level](`[${level.toUpperCase()}] ${timestamp}:`, logEntry);
+};
+
+/**
  * Log security events
  */
 export const logSecurityEvent = (
@@ -370,13 +482,147 @@ export const logSecurityEvent = (
   const timestamp = new Date().toISOString();
   const logEntry = {
     timestamp,
-    event,
+    event: sanitizeInput(event),
     level,
     details: sanitizeInput(details)
   };
 
-  // In production, this should go to a proper logging system
-  console.error(`[SECURITY ${level.toUpperCase()}] ${timestamp}: ${event}`, logEntry);
+  // Use secure logging to prevent log injection
+  secureLog('error', `[SECURITY ${level.toUpperCase()}] ${event}`, logEntry);
+};
+
+/**
+ * Prevent prototype pollution in objects
+ */
+export const sanitizeObject = (obj: any): any => {
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
+  }
+  
+  // Remove dangerous properties
+  delete obj.__proto__;
+  delete obj.constructor;
+  delete obj.prototype;
+  
+  // Recursively sanitize nested objects
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+        delete obj[key];
+      } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+        obj[key] = sanitizeObject(obj[key]);
+      }
+    }
+  }
+  
+  return obj;
+};
+
+/**
+ * Safe object merge that prevents prototype pollution
+ */
+export const safeMerge = (target: any, source: any): any => {
+  const sanitizedSource = sanitizeObject(source);
+  return { ...target, ...sanitizedSource };
+};
+
+/**
+ * Sanitize error messages for production to prevent information disclosure
+ */
+export const sanitizeErrorMessage = (error: any): string => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  if (isProduction) {
+    // Generic error messages in production
+    if (error?.message?.includes('ENOTFOUND') || error?.message?.includes('ECONNREFUSED')) {
+      return 'Network connection failed';
+    }
+    if (error?.message?.includes('401') || error?.message?.includes('Unauthorized')) {
+      return 'Authentication failed';
+    }
+    if (error?.message?.includes('403') || error?.message?.includes('Forbidden')) {
+      return 'Access denied';
+    }
+    if (error?.message?.includes('404') || error?.message?.includes('Not Found')) {
+      return 'Resource not found';
+    }
+    if (error?.message?.includes('429') || error?.message?.includes('rate limit')) {
+      return 'Rate limit exceeded';
+    }
+    return 'An error occurred';
+  }
+  // Detailed error messages in development
+  return error?.message || 'Unknown error';
+};
+
+/**
+ * Input length limits for security
+ */
+export const INPUT_LIMITS = {
+  COMMENT_TEXT: 10000,
+  TASK_NAME: 500,
+  DESCRIPTION: 50000,
+  JSON_PAYLOAD: 100000,
+  URL: 2000,
+  GENERAL_TEXT: 1000
+} as const;
+
+/**
+ * Validate input length to prevent DoS
+ */
+export const validateInputLength = (input: string, limit: number, fieldName: string): void => {
+  if (typeof input !== 'string') {
+    return; // Non-string inputs are handled elsewhere
+  }
+  
+  if (input.length > limit) {
+    throw new Error(`${fieldName} exceeds maximum length of ${limit} characters (got ${input.length})`);
+  }
+};
+
+/**
+ * Production-safe logging that prevents information disclosure
+ */
+export const productionSafeLog = (level: 'info' | 'warn' | 'error', message: string, data?: any): void => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  
+  if (isProduction) {
+    // Only log sanitized, non-sensitive information in production
+    const sanitizedMessage = sanitizeInput(message).substring(0, 200);
+    const sanitizedData = data ? { type: typeof data, hasData: !!data } : undefined;
+    secureLog(level, sanitizedMessage, sanitizedData);
+  } else {
+    // Development logging can be more verbose
+    secureLog(level, message, data);
+  }
+};
+
+/**
+ * Safe JSON parsing with validation and prototype pollution prevention
+ */
+export const safeJsonParse = (jsonString: string, maxLength = 100000): any => {
+  if (typeof jsonString !== 'string') {
+    throw new Error('Input must be a string');
+  }
+  
+  if (jsonString.length > maxLength) {
+    throw new Error(`JSON payload too large (${jsonString.length} > ${maxLength})`);
+  }
+  
+  try {
+    const parsed = JSON.parse(jsonString);
+    
+    // Prevent prototype pollution
+    if (parsed && typeof parsed === 'object') {
+      delete parsed.__proto__;
+      delete parsed.constructor;
+      delete parsed.prototype;
+    }
+    
+    return parsed;
+  } catch (error) {
+    throw new Error('Invalid JSON format');
+  }
 };
 
 /**

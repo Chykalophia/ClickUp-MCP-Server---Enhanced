@@ -73,8 +73,8 @@ export function htmlToMarkdown(html: string): string {
     return turndownService.turndown(html);
   } catch (error) {
     console.warn('Failed to convert HTML to markdown, returning as plain text:', error);
-    // Strip HTML tags as fallback
-    return html.replace(/<[^>]*>/g, '');
+    // Strip HTML tags as fallback with ReDoS-safe regex
+    return html.replace(/<[^>]{0,1000}>/g, '');
   }
 }
 
@@ -93,7 +93,7 @@ export function markdownToPlainText(markdown: string): string {
     const htmlResult = marked.parse(markdown);
     const html = typeof htmlResult === 'string' ? htmlResult : '';
     return html
-      .replace(/<[^>]*>/g, '')
+      .replace(/<[^>]{0,1000}>/g, '')
       .replace(/\n\s*\n/g, '\n')
       .trim();
   } catch (error) {
@@ -150,8 +150,8 @@ export function isHtml(content: string): boolean {
     return false;
   }
 
-  // Check for HTML tags
-  return /<[^>]+>/g.test(content);
+  // Check for HTML tags with ReDoS-safe regex
+  return /<[^>]{0,1000}>/g.test(content);
 }
 
 /**

@@ -1,5 +1,6 @@
 /* eslint-disable no-console, max-len */
 import { ClickUpClient } from './index.js';
+import { secureLog } from '../utils/security.js';
 // import { processClickUpResponse } from '../utils/markdown.js';
 import {
   prepareCommentForClickUp,
@@ -196,9 +197,9 @@ export class CommentsEnhancedClient {
     // Send raw request without any processing
     const result = await this.client.post(`/task/${taskId}/comment`, payload);
 
-    console.log('=== RAW API RESPONSE ===');
-    console.log('Response:', JSON.stringify(result, null, 2));
-    console.log('========================');
+    secureLog('info', '=== RAW API RESPONSE ===');
+    secureLog('info', 'Response received from ClickUp API', { responseLength: JSON.stringify(result).length });
+    secureLog('info', '========================');
 
     // Return raw response without any processing
     return result;

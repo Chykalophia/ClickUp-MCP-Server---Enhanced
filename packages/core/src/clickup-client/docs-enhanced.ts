@@ -124,6 +124,11 @@ export class EnhancedDocsClient {
   constructor(client: ClickUpClient) {
     this.client = client;
     this.apiToken = process.env.CLICKUP_API_TOKEN || '';
+    
+    // Validate API token is present
+    if (!this.apiToken) {
+      throw new Error('CLICKUP_API_TOKEN environment variable is required');
+    }
   }
 
   private getHeaders() {
@@ -518,14 +523,33 @@ export class EnhancedDocsClient {
   }
 
   /**
-   * Sanitize HTML content (basic implementation)
+   * Sanitize HTML content with comprehensive security measures
    */
   private sanitizeHtml(html: string): string {
-    // Basic HTML sanitization - remove script tags and dangerous attributes
+    if (!html || typeof html !== 'string') {
+      return '';
+    }
+
+    // Comprehensive HTML sanitization
     return html
+      // Remove script tags and their content
       .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .replace(/on\w+="[^"]*"/gi, '')
-      .replace(/javascript:/gi, '');
+      // Remove style tags and their content
+      .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+      // Remove all event handlers
+      .replace(/\s*on\w+\s*=\s*["'][^"']*["']/gi, '')
+      // Remove javascript: protocol
+      .replace(/javascript:/gi, '')
+      // Remove vbscript: protocol
+      .replace(/vbscript:/gi, '')
+      // Remove data: protocol (can be used for XSS)
+      .replace(/data:/gi, '')
+      // Remove dangerous tags
+      .replace(/<(iframe|object|embed|applet|meta|link|base|form|input|button|textarea|select|option)\b[^>]*>/gi, '')
+      // Remove closing tags for dangerous elements
+      .replace(/<\/(iframe|object|embed|applet|meta|link|base|form|input|button|textarea|select|option)>/gi, '')
+      // Limit to reasonable length to prevent DoS
+      .substring(0, 100000);
   }
 }
 

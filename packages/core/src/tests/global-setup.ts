@@ -13,7 +13,20 @@ export default async function globalSetup() {
   const testDirs = ['test-results', 'coverage', '.jest-cache'];
 
   testDirs.forEach(dir => {
+    // Validate directory path to prevent traversal
+    if (dir.includes('..') || dir.includes('~') || path.isAbsolute(dir)) {
+      throw new Error(`Invalid directory path: ${dir}`);
+    }
+    
     const dirPath = path.join(process.cwd(), dir);
+    const resolvedPath = path.resolve(dirPath);
+    const basePath = path.resolve(process.cwd());
+    
+    // Ensure the resolved path is within the project directory
+    if (!resolvedPath.startsWith(basePath)) {
+      throw new Error(`Directory path outside project: ${dir}`);
+    }
+    
     if (!fs.existsSync(dirPath)) {
       fs.mkdirSync(dirPath, { recursive: true });
     }

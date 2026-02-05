@@ -103,14 +103,14 @@ describe('Enhanced Document CRUD Operations', () => {
       const axios = require('axios');
       axios.put.mockResolvedValue({ data: mockUpdatedDoc });
 
-      const result = await enhancedDocsClient.updateDoc('doc123', {
+      const result = await enhancedDocsClient.updateDoc('workspace123', 'doc123', {
         name: 'Updated Document',
         content: 'Updated content'
       });
 
       expect(result).toEqual(mockUpdatedDoc);
       expect(axios.put).toHaveBeenCalledWith(
-        'https://api.clickup.com/api/v3/docs/doc123',
+        'https://api.clickup.com/api/v3/workspaces/workspace123/docs/doc123',
         {
           name: 'Updated Document',
           content: 'Updated content'
@@ -123,10 +123,10 @@ describe('Enhanced Document CRUD Operations', () => {
       const axios = require('axios');
       axios.delete.mockResolvedValue({});
 
-      await enhancedDocsClient.deleteDoc('doc123');
+      await enhancedDocsClient.deleteDoc('workspace123', 'doc123');
 
       expect(axios.delete).toHaveBeenCalledWith(
-        'https://api.clickup.com/api/v3/docs/doc123',
+        'https://api.clickup.com/api/v3/workspaces/workspace123/docs/doc123',
         expect.any(Object)
       );
     });
@@ -141,11 +141,11 @@ describe('Enhanced Document CRUD Operations', () => {
       const axios = require('axios');
       axios.get.mockResolvedValue({ data: mockDoc });
 
-      const result = await enhancedDocsClient.getDoc('doc123');
+      const result = await enhancedDocsClient.getDoc('workspace123', 'doc123');
 
       expect(result).toEqual(mockDoc);
       expect(axios.get).toHaveBeenCalledWith(
-        'https://api.clickup.com/api/v3/docs/doc123',
+        'https://api.clickup.com/api/v3/workspaces/workspace123/docs/doc123',
         expect.any(Object)
       );
     });
@@ -169,7 +169,7 @@ describe('Enhanced Document CRUD Operations', () => {
       const axios = require('axios');
       axios.post.mockResolvedValue({ data: mockPage });
 
-      const result = await enhancedDocsClient.createPage('doc123', {
+      const result = await enhancedDocsClient.createPage('workspace123', 'doc123', {
         name: 'Test Page',
         content: 'Test content',
         content_format: 'markdown'
@@ -177,7 +177,7 @@ describe('Enhanced Document CRUD Operations', () => {
 
       expect(result).toEqual(mockPage);
       expect(axios.post).toHaveBeenCalledWith(
-        'https://api.clickup.com/api/v3/docs/doc123/pages',
+        'https://api.clickup.com/api/v3/workspaces/workspace123/docs/doc123/pages',
         {
           name: 'Test Page',
           content: 'Test content',
@@ -197,14 +197,14 @@ describe('Enhanced Document CRUD Operations', () => {
       const axios = require('axios');
       axios.put.mockResolvedValue({ data: mockUpdatedPage });
 
-      const result = await enhancedDocsClient.updatePage('doc123', 'page123', {
+      const result = await enhancedDocsClient.updatePage('workspace123', 'doc123', 'page123', {
         name: 'Updated Page',
         content: 'Updated content'
       });
 
       expect(result).toEqual(mockUpdatedPage);
       expect(axios.put).toHaveBeenCalledWith(
-        'https://api.clickup.com/api/v3/docs/doc123/pages/page123',
+        'https://api.clickup.com/api/v3/workspaces/workspace123/docs/doc123/pages/page123',
         {
           name: 'Updated Page',
           content: 'Updated content'
@@ -217,10 +217,10 @@ describe('Enhanced Document CRUD Operations', () => {
       const axios = require('axios');
       axios.delete.mockResolvedValue({});
 
-      await enhancedDocsClient.deletePage('doc123', 'page123');
+      await enhancedDocsClient.deletePage('workspace123', 'doc123', 'page123');
 
       expect(axios.delete).toHaveBeenCalledWith(
-        'https://api.clickup.com/api/v3/docs/doc123/pages/page123',
+        'https://api.clickup.com/api/v3/workspaces/workspace123/docs/doc123/pages/page123',
         expect.any(Object)
       );
     });
@@ -237,11 +237,11 @@ describe('Enhanced Document CRUD Operations', () => {
       const axios = require('axios');
       axios.get.mockResolvedValue({ data: mockSharing });
 
-      const result = await enhancedDocsClient.getDocSharing('doc123');
+      const result = await enhancedDocsClient.getDocSharing('workspace123', 'doc123');
 
       expect(result).toEqual(mockSharing);
       expect(axios.get).toHaveBeenCalledWith(
-        'https://api.clickup.com/api/v3/docs/doc123/sharing',
+        'https://api.clickup.com/api/v3/workspaces/workspace123/docs/doc123/sharing',
         expect.any(Object)
       );
     });
@@ -255,14 +255,14 @@ describe('Enhanced Document CRUD Operations', () => {
       const axios = require('axios');
       axios.put.mockResolvedValue({ data: mockUpdatedSharing });
 
-      const result = await enhancedDocsClient.updateDocSharing('doc123', {
+      const result = await enhancedDocsClient.updateDocSharing('workspace123', 'doc123', {
         public: false,
         team_sharing: true
       });
 
       expect(result).toEqual(mockUpdatedSharing);
       expect(axios.put).toHaveBeenCalledWith(
-        'https://api.clickup.com/api/v3/docs/doc123/sharing',
+        'https://api.clickup.com/api/v3/workspaces/workspace123/docs/doc123/sharing',
         {
           public: false,
           team_sharing: true
@@ -284,7 +284,7 @@ describe('Enhanced Document CRUD Operations', () => {
       };
       axios.get.mockRejectedValue(error);
 
-      await expect(enhancedDocsClient.getDoc('nonexistent')).rejects.toThrow(
+      await expect(enhancedDocsClient.getDoc('workspace123', 'nonexistent')).rejects.toThrow(
         'Failed to get document nonexistent: Resource not found - Document not found'
       );
     });
@@ -299,7 +299,7 @@ describe('Enhanced Document CRUD Operations', () => {
       };
       axios.delete.mockRejectedValue(error);
 
-      await expect(enhancedDocsClient.deleteDoc('doc123')).rejects.toThrow(
+      await expect(enhancedDocsClient.deleteDoc('workspace123', 'doc123')).rejects.toThrow(
         'Failed to delete document doc123: Permission denied - insufficient access rights'
       );
     });

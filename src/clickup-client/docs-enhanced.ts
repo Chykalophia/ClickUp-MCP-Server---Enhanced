@@ -253,9 +253,9 @@ export class EnhancedDocsClient {
   /**
    * Update an existing document
    */
-  async updateDoc(docId: string, params: UpdateDocParams): Promise<Doc> {
+  async updateDoc(workspaceId: string, docId: string, params: UpdateDocParams): Promise<Doc> {
     try {
-      const url = `https://api.clickup.com/api/v3/docs/${docId}`;
+      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}`;
       
       const requestBody: any = {};
       if (params.name !== undefined) requestBody.name = params.name;
@@ -276,9 +276,9 @@ export class EnhancedDocsClient {
   /**
    * Delete a document
    */
-  async deleteDoc(docId: string): Promise<void> {
+  async deleteDoc(workspaceId: string, docId: string): Promise<void> {
     try {
-      const url = `https://api.clickup.com/api/v3/docs/${docId}`;
+      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}`;
       
       await axios.delete(url, {
         headers: this.getHeaders()
@@ -292,9 +292,9 @@ export class EnhancedDocsClient {
   /**
    * Get document details
    */
-  async getDoc(docId: string): Promise<Doc> {
+  async getDoc(workspaceId: string, docId: string): Promise<Doc> {
     try {
-      const url = `https://api.clickup.com/api/v3/docs/${docId}`;
+      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}`;
       
       const response = await axios.get(url, {
         headers: this.getHeaders()
@@ -314,9 +314,9 @@ export class EnhancedDocsClient {
   /**
    * Create a new page in a document
    */
-  async createPage(docId: string, params: CreatePageParams): Promise<Page> {
+  async createPage(workspaceId: string, docId: string, params: CreatePageParams): Promise<Page> {
     try {
-      const url = `https://api.clickup.com/api/v3/docs/${docId}/pages`;
+      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/pages`;
       
       const requestBody = {
         name: params.name,
@@ -345,9 +345,9 @@ export class EnhancedDocsClient {
   /**
    * Update an existing page
    */
-  async updatePage(docId: string, pageId: string, params: UpdatePageParams): Promise<Page> {
+  async updatePage(workspaceId: string, docId: string, pageId: string, params: UpdatePageParams): Promise<Page> {
     try {
-      const url = `https://api.clickup.com/api/v3/docs/${docId}/pages/${pageId}`;
+      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/pages/${pageId}`;
       
       const requestBody: any = {};
       if (params.name !== undefined) requestBody.name = params.name;
@@ -369,9 +369,9 @@ export class EnhancedDocsClient {
   /**
    * Delete a page from a document
    */
-  async deletePage(docId: string, pageId: string): Promise<void> {
+  async deletePage(workspaceId: string, docId: string, pageId: string): Promise<void> {
     try {
-      const url = `https://api.clickup.com/api/v3/docs/${docId}/pages/${pageId}`;
+      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/pages/${pageId}`;
       
       await axios.delete(url, {
         headers: this.getHeaders()
@@ -385,9 +385,9 @@ export class EnhancedDocsClient {
   /**
    * Get page details
    */
-  async getPage(docId: string, pageId: string, contentFormat?: ContentFormat): Promise<Page> {
+  async getPage(workspaceId: string, docId: string, pageId: string, contentFormat?: ContentFormat): Promise<Page> {
     try {
-      const url = `https://api.clickup.com/api/v3/docs/${docId}/pages/${pageId}`;
+      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/pages/${pageId}`;
       const params = contentFormat ? { content_format: contentFormat } : {};
       
       const response = await axios.get(url, {
@@ -409,9 +409,9 @@ export class EnhancedDocsClient {
   /**
    * Get document sharing settings
    */
-  async getDocSharing(docId: string): Promise<SharingConfig> {
+  async getDocSharing(workspaceId: string, docId: string): Promise<SharingConfig> {
     try {
-      const url = `https://api.clickup.com/api/v3/docs/${docId}/sharing`;
+      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/sharing`;
       
       const response = await axios.get(url, {
         headers: this.getHeaders()
@@ -427,9 +427,9 @@ export class EnhancedDocsClient {
   /**
    * Update document sharing settings
    */
-  async updateDocSharing(docId: string, params: SharingParams): Promise<SharingConfig> {
+  async updateDocSharing(workspaceId: string, docId: string, params: SharingParams): Promise<SharingConfig> {
     try {
-      const url = `https://api.clickup.com/api/v3/docs/${docId}/sharing`;
+      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/sharing`;
       
       const response = await axios.put(url, params, {
         headers: this.getHeaders()

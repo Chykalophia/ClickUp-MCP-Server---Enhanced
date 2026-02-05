@@ -186,12 +186,13 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'clickup_update_doc',
     'Update an existing ClickUp document. Can update name, content, and sharing settings.',
     {
+      workspace_id: z.string().min(1).describe('The ID of the workspace containing the document'),
       doc_id: z.string().min(1).describe('The ID of the document to update'),
       name: z.string().min(1).max(255).optional().describe('New name for the document'),
       content: z.string().optional().describe('New content for the document (markdown or HTML)'),
       public: z.boolean().optional().describe('Update public sharing setting')
     },
-    async ({ doc_id, name, content, public: isPublic }) => {
+    async ({ workspace_id, doc_id, name, content, public: isPublic }) => {
       try {
         // Validate that at least one field is being updated
         if (name === undefined && content === undefined && isPublic === undefined) {
@@ -201,7 +202,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
           };
         }
 
-        const updatedDoc = await enhancedDocsClient.updateDoc(doc_id, {
+        const updatedDoc = await enhancedDocsClient.updateDoc(workspace_id, doc_id, {
           name,
           content,
           public: isPublic
@@ -227,11 +228,12 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'clickup_delete_doc',
     'Delete a ClickUp document. This action cannot be undone.',
     {
+      workspace_id: z.string().min(1).describe('The ID of the workspace containing the document'),
       doc_id: z.string().min(1).describe('The ID of the document to delete')
     },
-    async ({ doc_id }) => {
+    async ({ workspace_id, doc_id }) => {
       try {
-        await enhancedDocsClient.deleteDoc(doc_id);
+        await enhancedDocsClient.deleteDoc(workspace_id, doc_id);
 
         return {
           content: [{ 
@@ -253,11 +255,12 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'clickup_get_doc',
     'Get detailed information about a specific ClickUp document including metadata and sharing settings.',
     {
+      workspace_id: z.string().min(1).describe('The ID of the workspace containing the document'),
       doc_id: z.string().min(1).describe('The ID of the document to get')
     },
-    async ({ doc_id }) => {
+    async ({ workspace_id, doc_id }) => {
       try {
-        const doc = await enhancedDocsClient.getDoc(doc_id);
+        const doc = await enhancedDocsClient.getDoc(workspace_id, doc_id);
 
         return {
           content: [{ 
@@ -283,6 +286,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'clickup_create_doc_page',
     'Create a new page in a ClickUp document. Supports markdown and HTML content formats.',
     {
+      workspace_id: z.string().min(1).describe('The ID of the workspace containing the document'),
       doc_id: z.string().min(1).describe('The ID of the document to create the page in'),
       name: z.string().min(1).max(255).describe('The name/title of the page'),
       content: z.string().min(1).describe('The content of the page'),
@@ -290,9 +294,9 @@ export function setupEnhancedDocTools(server: McpServer): void {
       parent_page_id: z.string().optional().describe('ID of parent page for nesting'),
       position: z.number().int().min(0).optional().describe('Position of the page in the document')
     },
-    async ({ doc_id, name, content, content_format, parent_page_id, position }) => {
+    async ({ workspace_id, doc_id, name, content, content_format, parent_page_id, position }) => {
       try {
-        const page = await enhancedDocsClient.createPage(doc_id, {
+        const page = await enhancedDocsClient.createPage(workspace_id, doc_id, {
           name,
           content,
           content_format,
@@ -320,6 +324,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'clickup_update_doc_page',
     'Update an existing page in a ClickUp document. Can update name, content, format, and position.',
     {
+      workspace_id: z.string().min(1).describe('The ID of the workspace containing the document'),
       doc_id: z.string().min(1).describe('The ID of the document containing the page'),
       page_id: z.string().min(1).describe('The ID of the page to update'),
       name: z.string().min(1).max(255).optional().describe('New name/title for the page'),
@@ -327,7 +332,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
       content_format: z.enum(['markdown', 'html']).optional().describe('New format for the content'),
       position: z.number().int().min(0).optional().describe('New position of the page in the document')
     },
-    async ({ doc_id, page_id, name, content, content_format, position }) => {
+    async ({ workspace_id, doc_id, page_id, name, content, content_format, position }) => {
       try {
         // Validate that at least one field is being updated
         if (name === undefined && content === undefined && content_format === undefined && position === undefined) {
@@ -337,7 +342,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
           };
         }
 
-        const updatedPage = await enhancedDocsClient.updatePage(doc_id, page_id, {
+        const updatedPage = await enhancedDocsClient.updatePage(workspace_id, doc_id, page_id, {
           name,
           content,
           content_format,
@@ -364,12 +369,13 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'clickup_delete_doc_page',
     'Delete a page from a ClickUp document. This action cannot be undone.',
     {
+      workspace_id: z.string().min(1).describe('The ID of the workspace containing the document'),
       doc_id: z.string().min(1).describe('The ID of the document containing the page'),
       page_id: z.string().min(1).describe('The ID of the page to delete')
     },
-    async ({ doc_id, page_id }) => {
+    async ({ workspace_id, doc_id, page_id }) => {
       try {
-        await enhancedDocsClient.deletePage(doc_id, page_id);
+        await enhancedDocsClient.deletePage(workspace_id, doc_id, page_id);
 
         return {
           content: [{ 
@@ -395,11 +401,12 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'clickup_get_doc_sharing',
     'Get the sharing settings for a ClickUp document.',
     {
+      workspace_id: z.string().min(1).describe('The ID of the workspace containing the document'),
       doc_id: z.string().min(1).describe('The ID of the document to get sharing settings for')
     },
-    async ({ doc_id }) => {
+    async ({ workspace_id, doc_id }) => {
       try {
-        const sharing = await enhancedDocsClient.getDocSharing(doc_id);
+        const sharing = await enhancedDocsClient.getDocSharing(workspace_id, doc_id);
 
         return {
           content: [{ 
@@ -421,6 +428,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'clickup_update_doc_sharing',
     'Update the sharing settings for a ClickUp document.',
     {
+      workspace_id: z.string().min(1).describe('The ID of the workspace containing the document'),
       doc_id: z.string().min(1).describe('The ID of the document to update sharing settings for'),
       public: z.boolean().optional().describe('Whether the document should be publicly accessible'),
       public_share_expires_on: z.number().int().positive().optional().describe('Expiration timestamp for public sharing'),
@@ -428,10 +436,10 @@ export function setupEnhancedDocTools(server: McpServer): void {
       team_sharing: z.boolean().optional().describe('Whether to enable team-wide sharing'),
       guest_sharing: z.boolean().optional().describe('Whether to enable guest access')
     },
-    async ({ doc_id, public: isPublic, public_share_expires_on, public_fields, team_sharing, guest_sharing }) => {
+    async ({ workspace_id, doc_id, public: isPublic, public_share_expires_on, public_fields, team_sharing, guest_sharing }) => {
       try {
         // Validate that at least one sharing setting is being updated
-        if (isPublic === undefined && public_share_expires_on === undefined && 
+        if (isPublic === undefined && public_share_expires_on === undefined &&
             public_fields === undefined && team_sharing === undefined && guest_sharing === undefined) {
           return {
             content: [{ type: 'text', text: 'Error: Must specify at least one sharing setting to update' }],
@@ -439,7 +447,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
           };
         }
 
-        const updatedSharing = await enhancedDocsClient.updateDocSharing(doc_id, {
+        const updatedSharing = await enhancedDocsClient.updateDocSharing(workspace_id, doc_id, {
           public: isPublic,
           public_share_expires_on,
           public_fields,

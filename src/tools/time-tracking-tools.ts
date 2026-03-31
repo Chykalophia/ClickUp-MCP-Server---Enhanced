@@ -1,7 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { createClickUpClient } from '../clickup-client/index.js';
-import { createEnhancedTimeTrackingClient } from '../clickup-client/time-tracking-enhanced.js';
+import { createEnhancedTimeTrackingClient, CreateTimeEntryParams, UpdateTimeEntryParams } from '../clickup-client/time-tracking-enhanced.js';
 import { 
 // TeamIdSchema, 
 // TimerIdSchema, 
@@ -76,7 +76,8 @@ export function setupTimeTrackingTools(server: McpServer): void {
       description: z.string().min(1).describe('Description of the time entry'),
       start: z.number().positive().describe('Start time (Unix timestamp in milliseconds)'),
       billable: z.boolean().default(false).describe('Whether the time is billable'),
-      end: z.number().positive().optional().describe('End time (Unix timestamp in milliseconds)'),
+      duration: z.number().positive().optional().describe('Duration in milliseconds. Provide either duration or stop, not both.'),
+      stop: z.number().positive().optional().describe('End time (Unix timestamp in milliseconds). Provide either stop or duration, not both.'),
       task_id: z.string().optional().describe('Associated task ID'),
       assignee: z.number().positive().optional().describe('User ID for the time entry'),
       tags: z.array(z.object({
@@ -85,14 +86,22 @@ export function setupTimeTrackingTools(server: McpServer): void {
         tag_bg: z.string().optional().describe('Tag background color')
       })).optional().describe('Array of tags for the time entry')
     },
-    async ({ team_id, description, start, billable, end, task_id, assignee, tags }) => {
+    async ({ team_id, description, start, billable, duration, stop, task_id, assignee, tags }) => {
       try {
-        const params = {
+        if (duration && stop) {
+          return {
+            content: [{ type: 'text', text: 'Error: Provide either duration or stop, not both.' }],
+            isError: true
+          };
+        }
+
+        const params: CreateTimeEntryParams = {
           description,
           start,
           billable,
-          end,
-          task_id,
+          ...(duration ? { duration } : {}),
+          ...(stop ? { stop } : {}),
+          tid: task_id,
           assignee,
           tags
         };
@@ -123,7 +132,8 @@ export function setupTimeTrackingTools(server: McpServer): void {
       timer_id: z.string().min(1).describe('The ID of the time entry to update'),
       description: z.string().min(1).optional().describe('New description for the time entry'),
       start: z.number().positive().optional().describe('New start time (Unix timestamp in milliseconds)'),
-      end: z.number().positive().optional().describe('New end time (Unix timestamp in milliseconds)'),
+      duration: z.number().positive().optional().describe('New duration in milliseconds. Provide either duration or stop, not both.'),
+      stop: z.number().positive().optional().describe('New end time (Unix timestamp in milliseconds). Provide either stop or duration, not both.'),
       billable: z.boolean().optional().describe('Update billable status'),
       task_id: z.string().optional().describe('Change associated task ID'),
       tags: z.array(z.object({
@@ -132,14 +142,22 @@ export function setupTimeTrackingTools(server: McpServer): void {
         tag_bg: z.string().optional().describe('Tag background color')
       })).optional().describe('Update tags for the time entry')
     },
-    async ({ team_id, timer_id, description, start, end, billable, task_id, tags }) => {
+    async ({ team_id, timer_id, description, start, duration, stop, billable, task_id, tags }) => {
       try {
-        const params = {
+        if (duration && stop) {
+          return {
+            content: [{ type: 'text', text: 'Error: Provide either duration or stop, not both.' }],
+            isError: true
+          };
+        }
+
+        const params: UpdateTimeEntryParams = {
           description,
           start,
-          end,
           billable,
-          task_id,
+          ...(duration ? { duration } : {}),
+          ...(stop ? { stop } : {}),
+          tid: task_id,
           tags
         };
 
@@ -221,20 +239,19 @@ export function setupTimeTrackingTools(server: McpServer): void {
 
   server.tool(
     'clickup_start_timer',
-    'Start a timer for time tracking. Creates an active time tracking session.',
+    'Start a timer for the authenticated user. Optionally associate with a task.',
     {
       team_id: z.string().min(1).describe('The ID of the team'),
-      timer_id: z.string().min(1).describe('The ID of the time entry to start timing'),
-      start: z.number().positive().optional().describe('Custom start time (Unix timestamp in milliseconds, defaults to current time)')
+      task_id: z.string().optional().describe('Task ID to associate with the timer')
     },
-    async ({ team_id, timer_id, start }) => {
+    async ({ team_id, task_id }) => {
       try {
-        await timeTrackingClient.startTimer(team_id, timer_id, start);
+        await timeTrackingClient.startTimer(team_id, task_id);
 
         return {
-          content: [{ 
-            type: 'text', 
-            text: `Timer started successfully for time entry ${timer_id} in team ${team_id}.` 
+          content: [{
+            type: 'text',
+            text: `Timer started successfully in team ${team_id}.`
           }]
         };
       } catch (error: any) {
@@ -249,20 +266,18 @@ export function setupTimeTrackingTools(server: McpServer): void {
 
   server.tool(
     'clickup_stop_timer',
-    'Stop a running timer. Ends the active time tracking session and records the duration.',
+    'Stop the running timer for the authenticated user.',
     {
-      team_id: z.string().min(1).describe('The ID of the team'),
-      timer_id: z.string().min(1).describe('The ID of the time entry to stop timing'),
-      end: z.number().positive().optional().describe('Custom end time (Unix timestamp in milliseconds, defaults to current time)')
+      team_id: z.string().min(1).describe('The ID of the team')
     },
-    async ({ team_id, timer_id, end }) => {
+    async ({ team_id }) => {
       try {
-        await timeTrackingClient.stopTimer(team_id, timer_id, end);
+        await timeTrackingClient.stopTimer(team_id);
 
         return {
-          content: [{ 
-            type: 'text', 
-            text: `Timer stopped successfully for time entry ${timer_id} in team ${team_id}.` 
+          content: [{
+            type: 'text',
+            text: `Timer stopped successfully in team ${team_id}.`
           }]
         };
       } catch (error: any) {
@@ -351,23 +366,22 @@ export function setupTimeTrackingTools(server: McpServer): void {
     async ({ team_id, description, task_id, billable, tags }) => {
       try {
         const currentTime = timeTrackingClient.getCurrentTimestamp();
-        
-        // Create time entry
+
         const timeEntry = await timeTrackingClient.createTimeEntry(team_id, {
           description,
           start: currentTime,
+          duration: 1,
           billable,
-          task_id,
+          tid: task_id,
           tags
         });
 
-        // Start the timer
-        await timeTrackingClient.startTimer(team_id, timeEntry.id);
+        await timeTrackingClient.startTimer(team_id, task_id);
 
         return {
-          content: [{ 
-            type: 'text', 
-            text: `Timer started successfully! Time entry created and timer is now running.\n\nTime Entry: ${JSON.stringify(timeEntry, null, 2)}` 
+          content: [{
+            type: 'text',
+            text: `Timer started successfully! Time entry created and timer is now running.\n\nTime Entry: ${JSON.stringify(timeEntry, null, 2)}`
           }]
         };
       } catch (error: any) {

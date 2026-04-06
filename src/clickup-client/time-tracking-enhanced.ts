@@ -12,22 +12,34 @@ export interface TimeEntryTag {
   creator?: number;
 }
 
+/** Parameters for creating a new time entry via the ClickUp API. */
 export interface CreateTimeEntryParams {
   description: string;
-  start: number; // Unix timestamp in milliseconds
+  /** Start time as a Unix timestamp in milliseconds. */
+  start: number;
   billable: boolean;
-  end?: number; // Unix timestamp in milliseconds
-  task_id?: string;
+  /** End time as a Unix timestamp in milliseconds. Provide either stop or duration, not both. */
+  stop?: number;
+  /** Duration in milliseconds. Provide either duration or stop, not both. */
+  duration?: number;
+  /** Task ID to associate the time entry with (ClickUp API field name). */
+  tid?: string;
   assignee?: number;
   tags?: TimeEntryTag[];
 }
 
+/** Parameters for updating an existing time entry via the ClickUp API. */
 export interface UpdateTimeEntryParams {
   description?: string;
+  /** Start time as a Unix timestamp in milliseconds. */
   start?: number;
-  end?: number;
+  /** End time as a Unix timestamp in milliseconds. Provide either stop or duration, not both. */
+  stop?: number;
+  /** Duration in milliseconds. Provide either duration or stop, not both. */
+  duration?: number;
   billable?: boolean;
-  task_id?: string;
+  /** Task ID to associate the time entry with (ClickUp API field name). */
+  tid?: string;
   tags?: TimeEntryTag[];
 }
 
@@ -221,32 +233,32 @@ export class EnhancedTimeTrackingClient {
   }
 
   /**
-   * Start a timer for a time entry
+   * Start a timer for the authenticated user.
+   * @param tid - Optional task ID to associate with the timer.
    */
-  async startTimer(teamId: string, timerId: string, startTime?: number): Promise<void> {
+  async startTimer(teamId: string, tid?: string): Promise<void> {
     try {
-      const endpoint = `/team/${teamId}/time_entries/${timerId}/start`;
-      const params = startTime ? { start: startTime } : {};
-      
+      const endpoint = `/team/${teamId}/time_entries/start`;
+      const params = tid ? { tid } : {};
+
       await this.getAxiosInstance().post(endpoint, params);
     } catch (error) {
       console.error('Error starting timer:', error);
-      throw this.handleError(error, `Failed to start timer ${timerId} for team ${teamId}`);
+      throw this.handleError(error, `Failed to start timer for team ${teamId}`);
     }
   }
 
   /**
-   * Stop a running timer
+   * Stop the running timer for the authenticated user.
    */
-  async stopTimer(teamId: string, timerId: string, endTime?: number): Promise<void> {
+  async stopTimer(teamId: string): Promise<void> {
     try {
-      const endpoint = `/team/${teamId}/time_entries/${timerId}/stop`;
-      const params = endTime ? { end: endTime } : {};
-      
-      await this.getAxiosInstance().post(endpoint, params);
+      const endpoint = `/team/${teamId}/time_entries/stop`;
+
+      await this.getAxiosInstance().post(endpoint);
     } catch (error) {
       console.error('Error stopping timer:', error);
-      throw this.handleError(error, `Failed to stop timer ${timerId} for team ${teamId}`);
+      throw this.handleError(error, `Failed to stop timer for team ${teamId}`);
     }
   }
 

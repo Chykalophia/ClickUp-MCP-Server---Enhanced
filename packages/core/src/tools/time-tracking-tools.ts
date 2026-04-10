@@ -7,14 +7,9 @@ import {
   CreateTimeEntryParams,
   UpdateTimeEntryParams,
 } from '../clickup-client/time-tracking-enhanced.js';
-import {
-  // TeamIdSchema,
-  // TimerIdSchema,
-// CreateTimeEntrySchema,
-// UpdateTimeEntrySchema,
-// GetTimeEntriesSchema,
-// TimeEntryTagSchema
-'../schemas/time-tracking-schemas.js';
+// Schemas imported from time-tracking-schemas if needed:
+// TeamIdSchema, TimerIdSchema, CreateTimeEntrySchema,
+// UpdateTimeEntrySchema, GetTimeEntriesSchema, TimeEntryTagSchema
 
 // Create clients
 const clickUpClient = createClickUpClient();

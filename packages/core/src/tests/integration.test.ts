@@ -11,7 +11,7 @@ describe('Integration Tests', () => {
   beforeEach(() => {
     server = new McpServer({
       name: 'test-server',
-      version: '1.0.0',
+      version: '1.0.0'
     });
   });
 

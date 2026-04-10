@@ -168,7 +168,7 @@ export class WebhooksEnhancedClient extends ClickUpClient {
         Buffer.from(receivedSignature, 'hex')
       );
     } catch (error) {
-      console.error('Error validating webhook signature:', error);
+      console.error('Error validating webhook signature:', error instanceof Error ? error.message : error);
       return false;
     }
   }

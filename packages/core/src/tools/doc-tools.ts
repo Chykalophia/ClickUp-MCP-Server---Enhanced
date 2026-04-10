@@ -2,7 +2,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createDocsClient } from '../clickup-client/docs.js';
-import {} from /* createAuthClient */ '../clickup-client/auth.js';
+// import { createAuthClient } from '../clickup-client/auth.js';
 import { mcpError } from '../utils/error-handling.js';
 
 // Create clients
@@ -13,7 +13,7 @@ const docsClient = createDocsClient(clickUpClient);
 export function setupDocTools(server: McpServer): void {
   // Register get_doc_content tool
   server.tool(
-    'get_doc_content',
+    'clickup_get_doc_content',
     'Get the content of a specific ClickUp doc. Returns combined content from all pages in the doc.',
     {
       doc_id: z.string().describe('The ID of the doc to get'),
@@ -45,7 +45,7 @@ export function setupDocTools(server: McpServer): void {
 
   // Register search_docs tool
   server.tool(
-    'search_docs',
+    'clickup_search_docs',
     'Search for docs in a ClickUp workspace using a query string. Returns matching docs with their metadata.',
     {
       workspace_id: z.string().describe('The ID of the workspace to search in'),
@@ -68,7 +68,7 @@ export function setupDocTools(server: McpServer): void {
 
   // Register get_docs_from_workspace tool
   server.tool(
-    'get_docs_from_workspace',
+    'clickup_get_docs_from_workspace',
     'Get all docs from a ClickUp workspace. Supports pagination and filtering for deleted/archived docs.',
     {
       workspace_id: z.string().describe('The ID of the workspace to get docs from'),
@@ -98,7 +98,7 @@ export function setupDocTools(server: McpServer): void {
 
   // Register get_doc_pages tool
   server.tool(
-    'get_doc_pages',
+    'clickup_get_doc_pages',
     'Get the pages of a specific ClickUp doc. Returns page content in the requested format (markdown or plain text).',
     {
       doc_id: z.string().describe('The ID of the doc to get pages from'),

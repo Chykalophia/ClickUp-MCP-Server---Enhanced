@@ -350,7 +350,7 @@ export class EnhancedCustomFieldsClient {
       });
       return response.data.fields || [];
     } catch (error) {
-      console.error('Error getting list custom fields:', error);
+      console.error('Error getting list custom fields:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to get custom fields for list ${listId}`);
     }
   }
@@ -370,7 +370,7 @@ export class EnhancedCustomFieldsClient {
       });
       return response.data.fields || [];
     } catch (error) {
-      console.error('Error getting folder custom fields:', error);
+      console.error('Error getting folder custom fields:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to get custom fields for folder ${folderId}`);
     }
   }
@@ -390,7 +390,7 @@ export class EnhancedCustomFieldsClient {
       });
       return response.data.fields || [];
     } catch (error) {
-      console.error('Error getting space custom fields:', error);
+      console.error('Error getting space custom fields:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to get custom fields for space ${spaceId}`);
     }
   }
@@ -409,7 +409,7 @@ export class EnhancedCustomFieldsClient {
       });
       return response.data;
     } catch (error) {
-      console.error('Error creating list custom field:', error);
+      console.error('Error creating list custom field:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to create custom field in list ${listId}`);
     }
   }
@@ -428,7 +428,7 @@ export class EnhancedCustomFieldsClient {
       });
       return response.data;
     } catch (error) {
-      console.error('Error creating folder custom field:', error);
+      console.error('Error creating folder custom field:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to create custom field in folder ${folderId}`);
     }
   }
@@ -447,7 +447,7 @@ export class EnhancedCustomFieldsClient {
       });
       return response.data;
     } catch (error) {
-      console.error('Error creating space custom field:', error);
+      console.error('Error creating space custom field:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to create custom field in space ${spaceId}`);
     }
   }
@@ -463,7 +463,7 @@ export class EnhancedCustomFieldsClient {
       });
       return response.data;
     } catch (error) {
-      console.error('Error updating custom field:', error);
+      console.error('Error updating custom field:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to update custom field ${fieldId}`);
     }
   }
@@ -478,7 +478,7 @@ export class EnhancedCustomFieldsClient {
         headers: this.getHeaders(),
       });
     } catch (error) {
-      console.error('Error deleting custom field:', error);
+      console.error('Error deleting custom field:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to delete custom field ${fieldId}`);
     }
   }
@@ -501,7 +501,7 @@ export class EnhancedCustomFieldsClient {
         }
       );
     } catch (error) {
-      console.error('Error setting custom field value:', error);
+      console.error('Error setting custom field value:', error instanceof Error ? error.message : error);
       throw this.handleError(
         error,
         `Failed to set custom field value for task ${taskId}, field ${fieldId}`
@@ -519,7 +519,7 @@ export class EnhancedCustomFieldsClient {
         headers: this.getHeaders(),
       });
     } catch (error) {
-      console.error('Error removing custom field value:', error);
+      console.error('Error removing custom field value:', error instanceof Error ? error.message : error);
       throw this.handleError(
         error,
         `Failed to remove custom field value for task ${taskId}, field ${fieldId}`
@@ -553,7 +553,7 @@ export class EnhancedCustomFieldsClient {
         type_config: customField.type_config,
       };
     } catch (error) {
-      console.error('Error getting custom field value:', error);
+      console.error('Error getting custom field value:', error instanceof Error ? error.message : error);
       throw this.handleError(
         error,
         `Failed to get custom field value for task ${taskId}, field ${fieldId}`
@@ -584,7 +584,7 @@ export class EnhancedCustomFieldsClient {
         })) || []
       );
     } catch (error) {
-      console.error('Error getting task custom field values:', error);
+      console.error('Error getting task custom field values:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to get custom field values for task ${taskId}`);
     }
   }
@@ -620,7 +620,7 @@ export class EnhancedCustomFieldsClient {
 
       return results;
     } catch (error) {
-      console.error('Error bulk setting custom field values:', error);
+      console.error('Error bulk setting custom field values:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to bulk set custom field values for task ${taskId}`);
     }
   }

@@ -24,7 +24,7 @@ jest.mock('../clickup-client/time-tracking-enhanced.js', () => {
       stopTimer: jest.fn(),
       getTimeSummary: jest.fn(),
       formatDuration: jest.fn(),
-      convertDuration: jest.fn(),
+      convertDuration: jest.fn()
     })
   };
 });
@@ -51,7 +51,7 @@ describe('Time Tracking', () => {
         description: 'Test entry',
         start: 1774983600000,
         billable: false,
-        stop: 1774990800000,
+        stop: 1774990800000
       };
       expect(params.stop).toBe(1774990800000);
       expect(params.duration).toBeUndefined();
@@ -62,7 +62,7 @@ describe('Time Tracking', () => {
         description: 'Test entry',
         start: 1774983600000,
         billable: false,
-        duration: 7200000,
+        duration: 7200000
       };
       expect(params.duration).toBe(7200000);
       expect(params.stop).toBeUndefined();
@@ -74,7 +74,7 @@ describe('Time Tracking', () => {
         start: 1774983600000,
         billable: false,
         duration: 1800000,
-        tid: 'abc123',
+        tid: 'abc123'
       };
       expect(params.tid).toBe('abc123');
       expect((params as unknown as Record<string, unknown>)['task_id']).toBeUndefined();
@@ -84,7 +84,7 @@ describe('Time Tracking', () => {
   describe('UpdateTimeEntryParams', () => {
     it('should use tid for task association', () => {
       const params: UpdateTimeEntryParams = {
-        tid: 'abc123',
+        tid: 'abc123'
       };
       expect(params.tid).toBe('abc123');
       expect((params as unknown as Record<string, unknown>)['task_id']).toBeUndefined();
@@ -124,14 +124,14 @@ describe('Time Tracking', () => {
         description: 'Test',
         start: 1774983600000,
         billable: false,
-        task_id: 'task-abc',
+        task_id: 'task-abc'
       });
 
       expect(mockCreateTimeEntry).toHaveBeenCalledWith('123', expect.objectContaining({
-        tid: 'task-abc',
+        tid: 'task-abc'
       }));
       expect(mockCreateTimeEntry).toHaveBeenCalledWith('123', expect.not.objectContaining({
-        task_id: expect.anything(),
+        task_id: expect.anything()
       }));
     });
 
@@ -145,11 +145,11 @@ describe('Time Tracking', () => {
         description: 'Test',
         start: 1774983600000,
         billable: false,
-        duration: 3600000,
+        duration: 3600000
       });
 
       expect(mockCreateTimeEntry).toHaveBeenCalledWith('123', expect.objectContaining({
-        duration: 3600000,
+        duration: 3600000
       }));
     });
 
@@ -163,11 +163,11 @@ describe('Time Tracking', () => {
         description: 'Test',
         start: 1774983600000,
         billable: false,
-        stop: 1774990800000,
+        stop: 1774990800000
       });
 
       expect(mockCreateTimeEntry).toHaveBeenCalledWith('123', expect.objectContaining({
-        stop: 1774990800000,
+        stop: 1774990800000
       }));
     });
 
@@ -182,7 +182,7 @@ describe('Time Tracking', () => {
         start: 1774983600000,
         billable: false,
         duration: 3600000,
-        stop: 1774990800000,
+        stop: 1774990800000
       });
 
       expect(result.isError).toBe(true);
@@ -199,7 +199,7 @@ describe('Time Tracking', () => {
         team_id: '123',
         timer_id: 'entry-456',
         duration: 3600000,
-        stop: 1774990800000,
+        stop: 1774990800000
       });
 
       expect(result.isError).toBe(true);
@@ -216,14 +216,14 @@ describe('Time Tracking', () => {
         team_id: '123',
         timer_id: 'entry-456',
         task_id: 'task-abc',
-        duration: 3600000,
+        duration: 3600000
       });
 
       expect(mockUpdateTimeEntry).toHaveBeenCalledWith('123', 'entry-456', expect.objectContaining({
-        tid: 'task-abc',
+        tid: 'task-abc'
       }));
       expect(mockUpdateTimeEntry).toHaveBeenCalledWith('123', 'entry-456', expect.not.objectContaining({
-        task_id: expect.anything(),
+        task_id: expect.anything()
       }));
     });
   });

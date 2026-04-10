@@ -2,6 +2,7 @@
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createFoldersClient } from '../clickup-client/folders.js';
+import { resourceError } from '../utils/error-handling.js';
 
 // Create clients
 const clickUpClient = createClickUpClient();
@@ -32,9 +33,8 @@ export function setupFolderResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[FolderResources] Error fetching space folders:', error);
-        throw new Error(`Error fetching space folders: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching space folders', error);
       }
     }
   );
@@ -71,9 +71,8 @@ export function setupFolderResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[FolderResources] Error fetching folder:', error);
-        throw new Error(`Error fetching folder: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching folder', error);
       }
     }
   );
@@ -102,9 +101,8 @@ export function setupFolderResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[FolderResources] Error fetching folder lists:', error);
-        throw new Error(`Error fetching folder lists: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching folder lists', error);
       }
     }
   );
@@ -132,9 +130,8 @@ export function setupFolderResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[FolderResources] Error fetching example space folders:', error);
-        throw new Error(`Error fetching example space folders: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching example space folders', error);
       }
     }
   );
@@ -165,9 +162,8 @@ export function setupFolderResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[FolderResources] Error fetching example folder:', error);
-        throw new Error(`Error fetching example folder: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching example folder', error);
       }
     }
   );
@@ -194,9 +190,8 @@ export function setupFolderResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[FolderResources] Error fetching example folder lists:', error);
-        throw new Error(`Error fetching example folder lists: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching example folder lists', error);
       }
     }
   );

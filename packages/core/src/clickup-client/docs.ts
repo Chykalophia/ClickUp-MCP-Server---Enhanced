@@ -68,7 +68,7 @@ export class DocsClient {
 
       return response.data;
     } catch (error) {
-      console.error('Error getting docs:', error);
+      console.error('Error getting docs:', error instanceof Error ? error.message : error);
       throw error;
     }
   }
@@ -110,7 +110,7 @@ export class DocsClient {
 
       return response.data;
     } catch (error) {
-      console.error('Error getting doc pages:', error);
+      console.error('Error getting doc pages:', error instanceof Error ? error.message : error);
       throw error;
     }
   }
@@ -161,7 +161,7 @@ export class DocsClient {
 
       return response.data;
     } catch (error) {
-      console.error('Error searching docs:', error);
+      console.error('Error searching docs:', error instanceof Error ? error.message : error);
       throw error;
     }
   }

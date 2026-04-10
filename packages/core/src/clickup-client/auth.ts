@@ -42,7 +42,7 @@ export class AuthClient {
     try {
       return await this.client.get('/user');
     } catch (error) {
-      console.error('Error getting authorized user:', error);
+      console.error('Error getting authorized user:', error instanceof Error ? error.message : error);
       throw error;
     }
   }
@@ -55,7 +55,7 @@ export class AuthClient {
     try {
       return await this.client.get('/team');
     } catch (error) {
-      console.error('Error getting workspaces:', error);
+      console.error('Error getting workspaces:', error instanceof Error ? error.message : error);
       throw error;
     }
   }
@@ -115,7 +115,7 @@ export class AuthClient {
     try {
       return await this.client.get(`/team/${workspaceId}/space`);
     } catch (error) {
-      console.error('Error getting spaces:', error);
+      console.error('Error getting spaces:', error instanceof Error ? error.message : error);
       throw error;
     }
   }
@@ -182,7 +182,7 @@ export class AuthClient {
     try {
       return await this.client.get(`/space/${spaceId}/folder`);
     } catch (error) {
-      console.error('Error getting folders:', error);
+      console.error('Error getting folders:', error instanceof Error ? error.message : error);
       throw error;
     }
   }
@@ -236,7 +236,7 @@ export class AuthClient {
     try {
       return await this.client.get(`/folder/${folderId}/list`);
     } catch (error) {
-      console.error('Error getting lists:', error);
+      console.error('Error getting lists:', error instanceof Error ? error.message : error);
       throw error;
     }
   }
@@ -284,7 +284,7 @@ export class AuthClient {
     try {
       return await this.client.get(`/space/${spaceId}/list`);
     } catch (error) {
-      console.error('Error getting lists from space:', error);
+      console.error('Error getting lists from space:', error instanceof Error ? error.message : error);
       throw error;
     }
   }
@@ -307,7 +307,7 @@ export class AuthClient {
     try {
       return await this.client.get(`/team/${workspaceId}/seats`);
     } catch (error) {
-      console.error('Error getting workspace seats:', error);
+      console.error('Error getting workspace seats:', error instanceof Error ? error.message : error);
       throw error;
     }
   }

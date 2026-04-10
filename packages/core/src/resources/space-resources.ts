@@ -2,6 +2,7 @@
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createSpacesClient } from '../clickup-client/spaces.js';
+import { resourceError } from '../utils/error-handling.js';
 
 // Create clients
 const clickUpClient = createClickUpClient();
@@ -32,9 +33,8 @@ export function setupSpaceResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[SpaceResources] Error fetching workspace spaces:', error);
-        throw new Error(`Error fetching workspace spaces: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching workspace spaces', error);
       }
     }
   );
@@ -63,9 +63,8 @@ export function setupSpaceResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[SpaceResources] Error fetching space:', error);
-        throw new Error(`Error fetching space: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching space', error);
       }
     }
   );
@@ -93,9 +92,8 @@ export function setupSpaceResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[SpaceResources] Error fetching example workspace spaces:', error);
-        throw new Error(`Error fetching example workspace spaces: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching example workspace spaces', error);
       }
     }
   );
@@ -122,9 +120,8 @@ export function setupSpaceResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[SpaceResources] Error fetching example space:', error);
-        throw new Error(`Error fetching example space: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching example space', error);
       }
     }
   );

@@ -258,8 +258,14 @@ export function setupEnhancedDocTools(server: McpServer): void {
           };
         }
 
-        // Get document details first for confirmation message
-        const docDetails = await enhancedDocsClient.getDoc(doc_id);
+        // Try to get document name for confirmation, but don't block deletion if read fails
+        let docName = doc_id;
+        try {
+          const docDetails = await enhancedDocsClient.getDoc(doc_id);
+          docName = docDetails?.name || doc_id;
+        } catch {
+          // Proceed with deletion even if we can't read doc details
+        }
         await enhancedDocsClient.deleteDoc(doc_id);
 
         return {
@@ -267,8 +273,8 @@ export function setupEnhancedDocTools(server: McpServer): void {
             {
               type: 'text',
               text:
-                `✅ Document "${docDetails.name}" (ID: ${doc_id}) has been permanently deleted.\n\n` +
-                '⚠️ This action cannot be undone. The document and all its content have been removed from ClickUp.',
+                `Document "${docName}" (ID: ${doc_id}) has been permanently deleted.\n\n` +
+                'This action cannot be undone.',
             },
           ],
         };

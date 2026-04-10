@@ -2,6 +2,7 @@
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createDocsClient } from '../clickup-client/docs.js';
+import { resourceError } from '../utils/error-handling.js';
 
 // Create clients
 const clickUpClient = createClickUpClient();
@@ -45,9 +46,8 @@ export function setupDocResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[DocResources] Error fetching doc:', error);
-        throw new Error(`Error fetching doc: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching doc', error);
       }
     }
   );
@@ -88,9 +88,8 @@ export function setupDocResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[DocResources] Error fetching example doc:', error);
-        throw new Error(`Error fetching example doc: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching example doc', error);
       }
     }
   );

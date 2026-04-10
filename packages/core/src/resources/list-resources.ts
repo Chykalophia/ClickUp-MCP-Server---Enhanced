@@ -2,6 +2,7 @@
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createListsClient } from '../clickup-client/lists.js';
+import { resourceError } from '../utils/error-handling.js';
 
 // Create clients
 const clickUpClient = createClickUpClient();
@@ -32,9 +33,8 @@ export function setupListResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[ListResources] Error fetching space lists:', error);
-        throw new Error(`Error fetching space lists: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching space lists', error);
       }
     }
   );
@@ -63,9 +63,8 @@ export function setupListResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[ListResources] Error fetching list:', error);
-        throw new Error(`Error fetching list: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching list', error);
       }
     }
   );
@@ -93,9 +92,8 @@ export function setupListResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[ListResources] Error fetching example list:', error);
-        throw new Error(`Error fetching example list: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching example list', error);
       }
     }
   );
@@ -122,9 +120,8 @@ export function setupListResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[ListResources] Error fetching example space lists:', error);
-        throw new Error(`Error fetching example space lists: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching example space lists', error);
       }
     }
   );

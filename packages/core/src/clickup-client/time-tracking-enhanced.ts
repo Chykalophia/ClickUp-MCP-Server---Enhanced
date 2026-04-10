@@ -169,7 +169,7 @@ export class EnhancedTimeTrackingClient {
 
       return response.data.data || [];
     } catch (error) {
-      console.error('Error getting time entries:', error);
+      console.error('Error getting time entries:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to get time entries for team ${teamId}`);
     }
   }
@@ -184,7 +184,7 @@ export class EnhancedTimeTrackingClient {
 
       return response.data.data;
     } catch (error) {
-      console.error('Error creating time entry:', error);
+      console.error('Error creating time entry:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to create time entry for team ${teamId}`);
     }
   }
@@ -203,7 +203,7 @@ export class EnhancedTimeTrackingClient {
 
       return response.data.data;
     } catch (error) {
-      console.error('Error updating time entry:', error);
+      console.error('Error updating time entry:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to update time entry ${timerId} for team ${teamId}`);
     }
   }
@@ -216,7 +216,7 @@ export class EnhancedTimeTrackingClient {
       const endpoint = `/team/${teamId}/time_entries/${timerId}`;
       await this.getAxiosInstance().delete(endpoint);
     } catch (error) {
-      console.error('Error deleting time entry:', error);
+      console.error('Error deleting time entry:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to delete time entry ${timerId} for team ${teamId}`);
     }
   }
@@ -238,7 +238,7 @@ export class EnhancedTimeTrackingClient {
 
       return response.data.data || [];
     } catch (error) {
-      console.error('Error getting running timers:', error);
+      console.error('Error getting running timers:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to get running timers for team ${teamId}`);
     }
   }
@@ -254,7 +254,7 @@ export class EnhancedTimeTrackingClient {
 
       await this.getAxiosInstance().post(endpoint, params);
     } catch (error) {
-      console.error('Error starting timer:', error);
+      console.error('Error starting timer:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to start timer for team ${teamId}`);
     }
   }
@@ -268,7 +268,7 @@ export class EnhancedTimeTrackingClient {
 
       await this.getAxiosInstance().post(endpoint);
     } catch (error) {
-      console.error('Error stopping timer:', error);
+      console.error('Error stopping timer:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to stop timer for team ${teamId}`);
     }
   }
@@ -346,7 +346,7 @@ export class EnhancedTimeTrackingClient {
         by_task: byTask,
       };
     } catch (error) {
-      console.error('Error getting time summary:', error);
+      console.error('Error getting time summary:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to get time summary for team ${teamId}`);
     }
   }

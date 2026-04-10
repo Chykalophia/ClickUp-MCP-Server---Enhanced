@@ -604,8 +604,9 @@ export function prepareCommentForClickUp(content: string): {
     };
   }
 
-  // Check if content contains markdown formatting
-  const hasMarkdown = /[*_`~#[\]()>-]/.test(content) || content.includes('```');
+  // Check if content contains actual markdown formatting patterns (not just individual characters)
+  const hasMarkdown =
+    /(\*\*.+?\*\*|__.+?__|`.+?`|~~.+?~~|^#{1,6}\s|\[.+?\]\(.+?\)|^>\s|^-\s|^\d+\.\s|```)/m.test(content);
 
   if (hasMarkdown) {
     const formatted = parseMarkdownToClickUpComment(content);

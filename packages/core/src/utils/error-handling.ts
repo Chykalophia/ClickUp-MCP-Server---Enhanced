@@ -62,6 +62,15 @@ export function mcpError(
   };
 }
 
+/**
+ * Error helper for MCP resource handlers. Resources must throw (not return error objects)
+ * because their return type is { contents: [...] }, not { content: [...], isError }.
+ */
+export function resourceError(operation: string, error: unknown): never {
+  const message = error instanceof Error ? error.message : String(error);
+  throw new Error(`Error ${operation}: ${message}`);
+}
+
 // Error response for MCP tools
 export interface McpErrorResponse {
   content: Array<{

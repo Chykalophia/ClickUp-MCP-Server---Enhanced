@@ -2,6 +2,7 @@
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createTasksClient } from '../clickup-client/tasks.js';
+import { resourceError } from '../utils/error-handling.js';
 
 // Create clients
 const clickUpClient = createClickUpClient();
@@ -32,9 +33,8 @@ export function setupTaskResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[TaskResources] Error fetching task:', error);
-        throw new Error(`Error fetching task: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching task', error);
       }
     }
   );
@@ -62,9 +62,8 @@ export function setupTaskResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[TaskResources] Error fetching example task:', error);
-        throw new Error(`Error fetching example task: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching example task', error);
       }
     }
   );

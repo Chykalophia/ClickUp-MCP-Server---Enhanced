@@ -1,8 +1,9 @@
-/* eslint-disable no-console, max-len */
+/* eslint-disable max-len */
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createTasksClient } from '../clickup-client/tasks.js';
 import { /* createChecklistsClient, */ Checklist } from '../clickup-client/checklists.js';
+import { resourceError } from '../utils/error-handling.js';
 
 // Create clients
 const clickUpClient = createClickUpClient();
@@ -52,9 +53,8 @@ export function setupChecklistResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[ChecklistResources] Error fetching checklists:', error);
-        throw new Error(`Error fetching checklists: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching checklists', error);
       }
     }
   );
@@ -90,9 +90,8 @@ export function setupChecklistResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[ChecklistResources] Error fetching checklist items:', error);
-        throw new Error(`Error fetching checklist items: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching checklist items', error);
       }
     }
   );
@@ -131,9 +130,8 @@ export function setupChecklistResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[ChecklistResources] Error fetching example checklists:', error);
-        throw new Error(`Error fetching example checklists: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching example checklists', error);
       }
     }
   );

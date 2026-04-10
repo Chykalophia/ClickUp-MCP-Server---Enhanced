@@ -121,6 +121,13 @@ export function setupTimeTrackingTools(server: McpServer): void {
           };
         }
 
+        if (!duration && !stop) {
+          return {
+            content: [{ type: 'text', text: 'Error: Provide either duration or stop to define the time entry length.' }],
+            isError: true
+          };
+        }
+
         const params: CreateTimeEntryParams = {
           description,
           start,

@@ -155,7 +155,7 @@ export class EnhancedDocsClient {
       });
       return response.data;
     } catch (error) {
-      console.error('Error getting docs from workspace:', error);
+      console.error('Error getting docs from workspace:', error instanceof Error ? error.message : error);
       throw this.handleError(error, 'Failed to get docs from workspace');
     }
   }
@@ -182,7 +182,7 @@ export class EnhancedDocsClient {
 
       return response.data;
     } catch (error) {
-      console.error('Error getting doc pages:', error);
+      console.error('Error getting doc pages:', error instanceof Error ? error.message : error);
       throw this.handleError(error, 'Failed to get doc pages');
     }
   }
@@ -211,7 +211,7 @@ export class EnhancedDocsClient {
 
       return response.data;
     } catch (error) {
-      console.error('Error searching docs:', error);
+      console.error('Error searching docs:', error instanceof Error ? error.message : error);
       throw this.handleError(error, 'Failed to search docs');
     }
   }
@@ -255,7 +255,7 @@ export class EnhancedDocsClient {
 
       return response.data;
     } catch (error) {
-      console.error('Error creating document:', error);
+      console.error('Error creating document:', error instanceof Error ? error.message : error);
       throw this.handleError(error, 'Failed to create document');
     }
   }
@@ -278,7 +278,7 @@ export class EnhancedDocsClient {
 
       return response.data;
     } catch (error) {
-      console.error('Error updating document:', error);
+      console.error('Error updating document:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to update document ${docId}`);
     }
   }
@@ -294,7 +294,7 @@ export class EnhancedDocsClient {
         headers: this.getHeaders(),
       });
     } catch (error) {
-      console.error('Error deleting document:', error);
+      console.error('Error deleting document:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to delete document ${docId}`);
     }
   }
@@ -312,7 +312,7 @@ export class EnhancedDocsClient {
 
       return response.data;
     } catch (error) {
-      console.error('Error getting document:', error);
+      console.error('Error getting document:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to get document ${docId}`);
     }
   }
@@ -347,7 +347,7 @@ export class EnhancedDocsClient {
 
       return response.data;
     } catch (error) {
-      console.error('Error creating page:', error);
+      console.error('Error creating page:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to create page in document ${docId}`);
     }
   }
@@ -371,7 +371,7 @@ export class EnhancedDocsClient {
 
       return response.data;
     } catch (error) {
-      console.error('Error updating page:', error);
+      console.error('Error updating page:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to update page ${pageId} in document ${docId}`);
     }
   }
@@ -387,7 +387,7 @@ export class EnhancedDocsClient {
         headers: this.getHeaders(),
       });
     } catch (error) {
-      console.error('Error deleting page:', error);
+      console.error('Error deleting page:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to delete page ${pageId} from document ${docId}`);
     }
   }
@@ -407,7 +407,7 @@ export class EnhancedDocsClient {
 
       return response.data;
     } catch (error) {
-      console.error('Error getting page:', error);
+      console.error('Error getting page:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to get page ${pageId} from document ${docId}`);
     }
   }
@@ -429,7 +429,7 @@ export class EnhancedDocsClient {
 
       return response.data;
     } catch (error) {
-      console.error('Error getting document sharing:', error);
+      console.error('Error getting document sharing:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to get sharing settings for document ${docId}`);
     }
   }
@@ -447,7 +447,7 @@ export class EnhancedDocsClient {
 
       return response.data;
     } catch (error) {
-      console.error('Error updating document sharing:', error);
+      console.error('Error updating document sharing:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to update sharing settings for document ${docId}`);
     }
   }
@@ -468,7 +468,7 @@ export class EnhancedDocsClient {
 
       return await this.createDoc(createParams);
     } catch (error) {
-      console.error('Error creating document from template:', error);
+      console.error('Error creating document from template:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to create document from template ${templateId}`);
     }
   }

@@ -2,6 +2,7 @@
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createCommentsClient } from '../clickup-client/comments.js';
+import { resourceError } from '../utils/error-handling.js';
 
 // Create clients
 const clickUpClient = createClickUpClient();
@@ -32,9 +33,8 @@ export function setupCommentResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[CommentResources] Error fetching task comments:', error);
-        throw new Error(`Error fetching task comments: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching task comments', error);
       }
     }
   );
@@ -63,9 +63,8 @@ export function setupCommentResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[CommentResources] Error fetching chat view comments:', error);
-        throw new Error(`Error fetching chat view comments: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching chat view comments', error);
       }
     }
   );
@@ -94,9 +93,8 @@ export function setupCommentResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[CommentResources] Error fetching list comments:', error);
-        throw new Error(`Error fetching list comments: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching list comments', error);
       }
     }
   );
@@ -125,9 +123,8 @@ export function setupCommentResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[CommentResources] Error fetching threaded comments:', error);
-        throw new Error(`Error fetching threaded comments: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching threaded comments', error);
       }
     }
   );
@@ -155,9 +152,8 @@ export function setupCommentResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[CommentResources] Error fetching example task comments:', error);
-        throw new Error(`Error fetching example task comments: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching example task comments', error);
       }
     }
   );
@@ -184,9 +180,8 @@ export function setupCommentResources(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('[CommentResources] Error fetching example list comments:', error);
-        throw new Error(`Error fetching example list comments: ${error.message}`);
+      } catch (error: unknown) {
+        resourceError('fetching example list comments', error);
       }
     }
   );

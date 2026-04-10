@@ -356,13 +356,20 @@ export function setupCustomFieldTools(server: McpServer): void {
           validatedFieldValues
         );
 
+        const hasErrors = results.some((r: any) => r.status === 'error');
+        const errorCount = results.filter((r: any) => r.status === 'error').length;
+        const successCount = results.filter((r: any) => r.status === 'success').length;
+
         return {
           content: [
             {
               type: 'text',
-              text: `Bulk custom field values set successfully on task ${task_id}!\n\nResults:\n${JSON.stringify(results, null, 2)}`,
+              text: hasErrors
+                ? `Bulk custom field update partially failed on task ${task_id}.\n${successCount} succeeded, ${errorCount} failed.\n\nResults:\n${JSON.stringify(results, null, 2)}`
+                : `Bulk custom field values set successfully on task ${task_id}!\n\nResults:\n${JSON.stringify(results, null, 2)}`,
             },
           ],
+          ...(hasErrors ? { isError: true as const } : {}),
         };
       } catch (error: unknown) {
         return mcpError('bulk setting custom field values', error);

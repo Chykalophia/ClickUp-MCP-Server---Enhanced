@@ -137,7 +137,7 @@ export class EnhancedGoalsClient {
 
       return response.data.goals || [];
     } catch (error) {
-      console.error('Error getting goals:', error);
+      console.error('Error getting goals:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to get goals for team ${teamId}`);
     }
   }
@@ -152,7 +152,7 @@ export class EnhancedGoalsClient {
 
       return response.data.goal;
     } catch (error) {
-      console.error('Error creating goal:', error);
+      console.error('Error creating goal:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to create goal for team ${teamId}`);
     }
   }
@@ -167,7 +167,7 @@ export class EnhancedGoalsClient {
 
       return response.data.goal;
     } catch (error) {
-      console.error('Error updating goal:', error);
+      console.error('Error updating goal:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to update goal ${goalId}`);
     }
   }
@@ -180,7 +180,7 @@ export class EnhancedGoalsClient {
       const endpoint = `/goal/${goalId}`;
       await this.getAxiosInstance().delete(endpoint);
     } catch (error) {
-      console.error('Error deleting goal:', error);
+      console.error('Error deleting goal:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to delete goal ${goalId}`);
     }
   }
@@ -195,7 +195,7 @@ export class EnhancedGoalsClient {
 
       return response.data.goal;
     } catch (error) {
-      console.error('Error getting goal:', error);
+      console.error('Error getting goal:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to get goal ${goalId}`);
     }
   }
@@ -214,7 +214,7 @@ export class EnhancedGoalsClient {
 
       return response.data.target;
     } catch (error) {
-      console.error('Error creating goal target:', error);
+      console.error('Error creating goal target:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to create target for goal ${goalId}`);
     }
   }
@@ -233,7 +233,7 @@ export class EnhancedGoalsClient {
 
       return response.data.target;
     } catch (error) {
-      console.error('Error updating goal target:', error);
+      console.error('Error updating goal target:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to update target ${targetId} for goal ${goalId}`);
     }
   }
@@ -246,7 +246,7 @@ export class EnhancedGoalsClient {
       const endpoint = `/goal/${goalId}/target/${targetId}`;
       await this.getAxiosInstance().delete(endpoint);
     } catch (error) {
-      console.error('Error deleting goal target:', error);
+      console.error('Error deleting goal target:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to delete target ${targetId} for goal ${goalId}`);
     }
   }
@@ -320,7 +320,7 @@ export class EnhancedGoalsClient {
         upcoming_deadlines: upcomingDeadlines,
       };
     } catch (error) {
-      console.error('Error getting goal summary:', error);
+      console.error('Error getting goal summary:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to get goal summary for team ${teamId}`);
     }
   }

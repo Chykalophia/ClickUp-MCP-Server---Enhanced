@@ -1,0 +1,77 @@
+packages/core/src/tests/bulk-task-operations.test.ts
+  7d7837a3461811e9 6,18,26,35,44,55-56,69,77,86,98,106,115,125,134,147,149,157,166,169,180,190,199,208,217,227,235,246,255,264,274,284,288,316-317,334
+packages/core/src/resources/folder-resources.ts
+  7d7837a3461811e9 5,36-37,74-75,104-105,133-134,165-166,193-194
+packages/core/src/clickup-client/custom-fields-enhanced.ts
+  7d7837a3461811e9 353,373,393,412,431,450,466,481,504,522,556,587,623
+packages/core/src/resources/task-resources.ts
+  7d7837a3461811e9 5,36-37,65-66
+packages/core/src/tests/clickup-comment-formatter.test.ts
+  7d7837a3461811e9 14,26-28,39-41,54-56,69-71,84-86,99-101,112,121,130,139,148,157,169,180-182,193-195,206-208,220-222,234-236,248-250,262-264,276-278,292-293,305-307,326,348,371,377,383,389,402-404,413,418,422-423,434-436,446,452
+packages/core/src/tests/integration.test.ts
+  7d7837a3461811e9 14
+packages/core/src/resources/checklist-resources.ts
+  7d7837a3461811e9 1,6,56-57,93-94,133-134
+packages/core/src/utils/error-handling.ts
+  7d7837a3461811e9 65-73
+packages/core/src/resources/space-resources.ts
+  7d7837a3461811e9 5,36-37,66-67,95-96,123-124
+packages/core/src/tools/doc-tools-enhanced.ts
+  7d7837a3461811e9 261-268,276-277
+packages/core/src/utils/clickup-comment-formatter.ts
+  7d7837a3461811e9 607-609
+packages/core/src/tools/doc-tools.ts
+  7d7837a3461811e9 5,16,48,71,101
+packages/core/src/resources/list-resources.ts
+  7d7837a3461811e9 5,36-37,66-67,95-96,123-124
+packages/core/src/clickup-client/docs.ts
+  7d7837a3461811e9 71,113,164
+packages/core/src/clickup-client/goals-enhanced.ts
+  7d7837a3461811e9 140,155,170,183,198,217,236,249,323
+packages/core/src/clickup-client/docs-enhanced.ts
+  7d7837a3461811e9 158,185,214,258,281,297,315,350,374,390,410,432,450,471
+packages/core/src/tools/custom-field-tools.ts
+  7d7837a3461811e9 359-362,367-369,372
+packages/core/src/clickup-client/webhooks-enhanced.ts
+  7d7837a3461811e9 171
+packages/core/src/tests/markdown.test.ts
+  7d7837a3461811e9 44-50,64,76,87
+packages/core/src/tools/time-tracking-tools.ts
+  7d7837a3461811e9 124-130
+packages/core/src/tests/security.test.ts
+  7d7837a3461811e9 11,62
+packages/core/src/tests/time-tracking.test.ts
+  7d7837a3461811e9 27,54,65,77,87,127,131,134,148,152,166,170,185,202,219,223,226
+packages/core/src/tests/delete-merge-operations.test.ts
+  7d7837a3461811e9 9,15,36,41,46,62,78,98,119,130,148,160,174,189,204,228,243,264,279
+packages/core/src/tests/error-handling.test.ts
+  7d7837a3461811e9 13,34,62-63,78-79,92,106
+packages/core/src/clickup-client/auth.ts
+  7d7837a3461811e9 45,58,118,185,239,287,310
+packages/core/src/clickup-client/time-tracking-enhanced.ts
+  7d7837a3461811e9 172,187,206,219,241,257,271,349
+packages/core/src/resources/comment-resources.ts
+  7d7837a3461811e9 5,36-37,66-67,96-97,126-127,155-156,183-184
+packages/core/src/resources/doc-resources.ts
+  7d7837a3461811e9 5,49-50,91-92
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "70b9e37ebc94e789516c8315562d6c5ffc3f2fec",
+  "prompts": {
+    "7d7837a3461811e9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "12cf0107-9a71-4d2e-9439-06b336b84f41",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Peter Krzyzek",
+      "messages": [],
+      "total_additions": 9677,
+      "total_deletions": 349,
+      "accepted_lines": 325,
+      "overriden_lines": 0
+    }
+  }
+}

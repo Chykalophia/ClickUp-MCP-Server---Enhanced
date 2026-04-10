@@ -1,0 +1,25 @@
+packages/core/package.json
+  7d7837a3461811e9 90-91
+packages/core/src/tools/time-tracking-tools.ts
+  7d7837a3461811e9 10-12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.6",
+  "base_commit_sha": "c50b8a37f3007afc6f1afdfe7ca42508df2970b5",
+  "prompts": {
+    "7d7837a3461811e9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "12cf0107-9a71-4d2e-9439-06b336b84f41",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Peter Krzyzek",
+      "messages": [],
+      "total_additions": 5,
+      "total_deletions": 10,
+      "accepted_lines": 5,
+      "overriden_lines": 0
+    }
+  }
+}

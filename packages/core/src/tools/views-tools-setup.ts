@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-import {} from /* createClickUpClient */ '../clickup-client/index.js';
+import { getApiToken } from '../clickup-client/index.js';
 import { ViewsEnhancedClient } from '../clickup-client/views-enhanced.js';
 import {
   CreateViewSchema,
@@ -23,10 +23,10 @@ import {
   GanttViewSettingsSchema,
   TableViewSettingsSchema,
 } from '../schemas/views-schemas.js';
+import { mcpError } from '../utils/error-handling.js';
 
 // Create clients
-// const clickUpClient = createClickUpClient();
-const viewsClient = new ViewsEnhancedClient(process.env.CLICKUP_API_TOKEN!);
+const viewsClient = new ViewsEnhancedClient(getApiToken());
 
 export function setupViewsTools(server: McpServer): void {
   // ========================================
@@ -73,16 +73,8 @@ export function setupViewsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error creating view: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating view', error);
       }
     }
   );
@@ -109,16 +101,8 @@ export function setupViewsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting views: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting views', error);
       }
     }
   );
@@ -141,16 +125,8 @@ export function setupViewsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting view: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting view', error);
       }
     }
   );
@@ -190,16 +166,8 @@ export function setupViewsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error updating view: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('updating view', error);
       }
     }
   );
@@ -222,16 +190,8 @@ export function setupViewsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error deleting view: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('deleting view', error);
       }
     }
   );
@@ -256,16 +216,8 @@ export function setupViewsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error setting view filters: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('setting view filters', error);
       }
     }
   );
@@ -290,16 +242,8 @@ export function setupViewsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error setting view grouping: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('setting view grouping', error);
       }
     }
   );
@@ -324,16 +268,8 @@ export function setupViewsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error setting view sorting: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('setting view sorting', error);
       }
     }
   );
@@ -366,16 +302,8 @@ export function setupViewsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error updating view settings: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('updating view settings', error);
       }
     }
   );
@@ -403,16 +331,8 @@ export function setupViewsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting view tasks: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting view tasks', error);
       }
     }
   );
@@ -436,16 +356,8 @@ export function setupViewsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error duplicating view: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('duplicating view', error);
       }
     }
   );
@@ -472,16 +384,8 @@ export function setupViewsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error updating view sharing: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('updating view sharing', error);
       }
     }
   );
@@ -505,16 +409,8 @@ export function setupViewsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting view fields: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting view fields', error);
       }
     }
   );

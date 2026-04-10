@@ -1,9 +1,10 @@
-/* eslint-disable no-console, max-len */
+/* eslint-disable max-len */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createEnhancedGoalsClient } from '../clickup-client/goals-enhanced.js';
 import { htmlEncode } from '../utils/security.js';
+import { mcpError } from '../utils/error-handling.js';
 import {} from // TeamIdSchema,
 // GoalIdSchema,
 // TargetIdSchema,
@@ -44,12 +45,8 @@ export function setupGoalsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error getting goals:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting goals: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting goals', error);
       }
     }
   );
@@ -103,12 +100,8 @@ export function setupGoalsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error creating goal:', error);
-        return {
-          content: [{ type: 'text', text: `Error creating goal: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating goal', error);
       }
     }
   );
@@ -164,12 +157,8 @@ export function setupGoalsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error updating goal:', error);
-        return {
-          content: [{ type: 'text', text: `Error updating goal: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('updating goal', error);
       }
     }
   );
@@ -192,12 +181,8 @@ export function setupGoalsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error deleting goal:', error);
-        return {
-          content: [{ type: 'text', text: `Error deleting goal: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('deleting goal', error);
       }
     }
   );
@@ -232,12 +217,8 @@ export function setupGoalsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error getting goal:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting goal: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting goal', error);
       }
     }
   );
@@ -289,12 +270,8 @@ export function setupGoalsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error creating goal target:', error);
-        return {
-          content: [{ type: 'text', text: `Error creating goal target: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating goal target', error);
       }
     }
   );
@@ -331,12 +308,8 @@ export function setupGoalsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error updating goal target:', error);
-        return {
-          content: [{ type: 'text', text: `Error updating goal target: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('updating goal target', error);
       }
     }
   );
@@ -360,12 +333,8 @@ export function setupGoalsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error deleting goal target:', error);
-        return {
-          content: [{ type: 'text', text: `Error deleting goal target: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('deleting goal target', error);
       }
     }
   );
@@ -392,12 +361,8 @@ export function setupGoalsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error getting goal summary:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting goal summary: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting goal summary', error);
       }
     }
   );
@@ -467,12 +432,8 @@ export function setupGoalsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error creating number goal:', error);
-        return {
-          content: [{ type: 'text', text: `Error creating number goal: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating number goal', error);
       }
     }
   );
@@ -542,12 +503,8 @@ export function setupGoalsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error creating currency goal:', error);
-        return {
-          content: [{ type: 'text', text: `Error creating currency goal: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating currency goal', error);
       }
     }
   );
@@ -605,12 +562,8 @@ export function setupGoalsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error formatting goal progress:', error);
-        return {
-          content: [{ type: 'text', text: `Error formatting goal progress: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('formatting goal progress', error);
       }
     }
   );

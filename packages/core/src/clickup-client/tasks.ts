@@ -244,8 +244,8 @@ export class TasksClient {
       // Filter tasks to find those that have the specified task as parent
       return result.tasks.filter(task => task.parent === taskId);
     } catch (error) {
-      console.error(`Error getting subtasks for task ${taskId}:`, error);
-      return [];
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to get subtasks for task ${taskId}: ${message}`);
     }
   }
   /**
@@ -282,36 +282,43 @@ export class TasksClient {
     let successCount = 0;
     let errorCount = 0;
 
-    for (let i = 0; i < tasks.length; i++) {
-      try {
-        const task = await this.createTask(listId, tasks[i]);
-        results.push({
-          success: true,
-          task_id: task.id,
-          index: i,
-        });
-        successCount++;
-      } catch (error: any) {
-        const errorMessage = error.message || 'Unknown error occurred';
-        results.push({
-          success: false,
-          error: errorMessage,
-          index: i,
-        });
-        errorCount++;
+    const CONCURRENCY = 5;
 
-        // If not continuing on error, break the loop
-        if (!continueOnError) {
-          // Add remaining tasks as failed
+    if (!continueOnError) {
+      // Sequential mode: stop on first error
+      for (let i = 0; i < tasks.length; i++) {
+        try {
+          const task = await this.createTask(listId, tasks[i]);
+          results.push({ success: true, task_id: task.id, index: i });
+          successCount++;
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          results.push({ success: false, error: errorMessage, index: i });
+          errorCount++;
           for (let j = i + 1; j < tasks.length; j++) {
-            results.push({
-              success: false,
-              error: 'Skipped due to previous error',
-              index: j,
-            });
+            results.push({ success: false, error: 'Skipped due to previous error', index: j });
             errorCount++;
           }
           break;
+        }
+      }
+    } else {
+      // Parallel mode: process in chunks of CONCURRENCY
+      for (let i = 0; i < tasks.length; i += CONCURRENCY) {
+        const chunk = tasks.slice(i, i + CONCURRENCY);
+        const chunkResults = await Promise.allSettled(
+          chunk.map((task, j) => this.createTask(listId, task).then(t => ({ index: i + j, task: t })))
+        );
+        for (const result of chunkResults) {
+          if (result.status === 'fulfilled') {
+            results.push({ success: true, task_id: result.value.task.id, index: result.value.index });
+            successCount++;
+          } else {
+            const errorMessage = result.reason instanceof Error ? result.reason.message : 'Unknown error';
+            const idx = results.length + i;
+            results.push({ success: false, error: errorMessage, index: idx });
+            errorCount++;
+          }
         }
       }
     }
@@ -359,37 +366,47 @@ export class TasksClient {
     let successCount = 0;
     let errorCount = 0;
 
-    for (let i = 0; i < taskUpdates.length; i++) {
-      try {
-        const { task_id, ...updateParams } = taskUpdates[i];
-        const task = await this.updateTask(task_id, updateParams);
-        results.push({
-          success: true,
-          task_id: task.id,
-          index: i,
-        });
-        successCount++;
-      } catch (error: any) {
-        const errorMessage = error.message || 'Unknown error occurred';
-        results.push({
-          success: false,
-          error: errorMessage,
-          index: i,
-        });
-        errorCount++;
+    const CONCURRENCY = 5;
 
-        // If not continuing on error, break the loop
-        if (!continueOnError) {
-          // Add remaining tasks as failed
+    if (!continueOnError) {
+      // Sequential mode: stop on first error
+      for (let i = 0; i < taskUpdates.length; i++) {
+        try {
+          const { task_id, ...updateParams } = taskUpdates[i];
+          const task = await this.updateTask(task_id, updateParams);
+          results.push({ success: true, task_id: task.id, index: i });
+          successCount++;
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          results.push({ success: false, error: errorMessage, index: i });
+          errorCount++;
           for (let j = i + 1; j < taskUpdates.length; j++) {
-            results.push({
-              success: false,
-              error: 'Skipped due to previous error',
-              index: j,
-            });
+            results.push({ success: false, error: 'Skipped due to previous error', index: j });
             errorCount++;
           }
           break;
+        }
+      }
+    } else {
+      // Parallel mode: process in chunks of CONCURRENCY
+      for (let i = 0; i < taskUpdates.length; i += CONCURRENCY) {
+        const chunk = taskUpdates.slice(i, i + CONCURRENCY);
+        const chunkResults = await Promise.allSettled(
+          chunk.map((update, j) => {
+            const { task_id, ...updateParams } = update;
+            return this.updateTask(task_id, updateParams).then(t => ({ index: i + j, task: t }));
+          })
+        );
+        for (const result of chunkResults) {
+          if (result.status === 'fulfilled') {
+            results.push({ success: true, task_id: result.value.task.id, index: result.value.index });
+            successCount++;
+          } else {
+            const errorMessage = result.reason instanceof Error ? result.reason.message : 'Unknown error';
+            const idx = results.length + i;
+            results.push({ success: false, error: errorMessage, index: idx });
+            errorCount++;
+          }
         }
       }
     }

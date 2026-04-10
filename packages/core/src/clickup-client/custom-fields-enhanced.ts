@@ -599,23 +599,22 @@ export class EnhancedCustomFieldsClient {
     try {
       const results = [];
 
-      // ClickUp doesn't have a native bulk API, so we'll set them individually
-      // but return consolidated results
-      for (const { field_id, value } of fieldValues) {
-        try {
-          await this.setCustomFieldValue(taskId, field_id, value);
-          results.push({
-            field_id,
-            value,
-            status: 'success',
-          });
-        } catch (error: any) {
-          results.push({
-            field_id,
-            value,
-            status: 'error',
-            error: error.message,
-          });
+      // ClickUp doesn't have a native bulk API — parallelize independent calls
+      const CONCURRENCY = 5;
+      for (let i = 0; i < fieldValues.length; i += CONCURRENCY) {
+        const chunk = fieldValues.slice(i, i + CONCURRENCY);
+        const chunkResults = await Promise.allSettled(
+          chunk.map(({ field_id, value }) =>
+            this.setCustomFieldValue(taskId, field_id, value).then(() => ({ field_id, value }))
+          )
+        );
+        for (const result of chunkResults) {
+          if (result.status === 'fulfilled') {
+            results.push({ field_id: result.value.field_id, value: result.value.value, status: 'success' });
+          } else {
+            const errorMessage = result.reason instanceof Error ? result.reason.message : 'Unknown error';
+            results.push({ field_id: '', value: null, status: 'error', error: errorMessage });
+          }
         }
       }
 

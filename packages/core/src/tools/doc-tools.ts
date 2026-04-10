@@ -1,9 +1,9 @@
-/* eslint-disable no-console */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createDocsClient } from '../clickup-client/docs.js';
 import {} from /* createAuthClient */ '../clickup-client/auth.js';
+import { mcpError } from '../utils/error-handling.js';
 
 // Create clients
 const clickUpClient = createClickUpClient();
@@ -37,12 +37,8 @@ export function setupDocTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: combinedContent || 'No content found in this doc.' }],
         };
-      } catch (error: any) {
-        console.error('Error getting doc content:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting doc content: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting doc content', error);
       }
     }
   );
@@ -64,12 +60,8 @@ export function setupDocTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result.docs, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error searching docs:', error);
-        return {
-          content: [{ type: 'text', text: `Error searching docs: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('searching docs', error);
       }
     }
   );
@@ -98,12 +90,8 @@ export function setupDocTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result.docs, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error getting docs from workspace:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting docs from workspace: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting docs from workspace', error);
       }
     }
   );
@@ -128,12 +116,8 @@ export function setupDocTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(pages, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error getting doc pages:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting doc pages: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting doc pages', error);
       }
     }
   );

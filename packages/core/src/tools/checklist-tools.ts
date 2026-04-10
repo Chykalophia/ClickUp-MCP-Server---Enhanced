@@ -1,4 +1,4 @@
-/* eslint-disable no-console, max-len */
+/* eslint-disable max-len */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { createClickUpClient } from '../clickup-client/index.js';
@@ -8,6 +8,7 @@ import {
   /* UpdateChecklistParams, */ CreateChecklistItemParams,
   UpdateChecklistItemParams,
 } from '../clickup-client/checklists.js';
+import { mcpError } from '../utils/error-handling.js';
 
 // Create clients
 const clickUpClient = createClickUpClient();
@@ -31,12 +32,8 @@ export function setupChecklistTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(checklist, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error creating checklist:', error);
-        return {
-          content: [{ type: 'text', text: `Error creating checklist: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating checklist', error);
       }
     }
   );
@@ -56,12 +53,8 @@ export function setupChecklistTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(checklist, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error updating checklist:', error);
-        return {
-          content: [{ type: 'text', text: `Error updating checklist: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('updating checklist', error);
       }
     }
   );
@@ -80,12 +73,8 @@ export function setupChecklistTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error deleting checklist:', error);
-        return {
-          content: [{ type: 'text', text: `Error deleting checklist: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('deleting checklist', error);
       }
     }
   );
@@ -114,12 +103,8 @@ export function setupChecklistTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(checklistItem, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error creating checklist item:', error);
-        return {
-          content: [{ type: 'text', text: `Error creating checklist item: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating checklist item', error);
       }
     }
   );
@@ -154,12 +139,8 @@ export function setupChecklistTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(checklistItem, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error updating checklist item:', error);
-        return {
-          content: [{ type: 'text', text: `Error updating checklist item: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('updating checklist item', error);
       }
     }
   );
@@ -179,12 +160,8 @@ export function setupChecklistTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error deleting checklist item:', error);
-        return {
-          content: [{ type: 'text', text: `Error deleting checklist item: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('deleting checklist item', error);
       }
     }
   );

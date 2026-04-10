@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-import {} from /* createClickUpClient */ '../clickup-client/index.js';
+import { getApiToken } from '../clickup-client/index.js';
 import { DependenciesEnhancedClient } from '../clickup-client/dependencies-enhanced.js';
 import {
   CreateDependencySchema,
@@ -13,10 +13,10 @@ import {
   DependencyTypeSchema,
   DependencyStatusSchema,
 } from '../schemas/dependencies-schemas.js';
+import { mcpError } from '../utils/error-handling.js';
 
 // Create clients
-// const clickUpClient = createClickUpClient();
-const dependenciesClient = new DependenciesEnhancedClient(process.env.CLICKUP_API_TOKEN!);
+const dependenciesClient = new DependenciesEnhancedClient(getApiToken());
 
 export function setupDependenciesTools(server: McpServer): void {
   // ========================================
@@ -47,16 +47,8 @@ export function setupDependenciesTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error creating dependency: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating dependency', error);
       }
     }
   );
@@ -86,16 +78,8 @@ export function setupDependenciesTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting task dependencies: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting task dependencies', error);
       }
     }
   );
@@ -121,16 +105,8 @@ export function setupDependenciesTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error updating dependency: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('updating dependency', error);
       }
     }
   );
@@ -153,16 +129,8 @@ export function setupDependenciesTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error deleting dependency: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('deleting dependency', error);
       }
     }
   );
@@ -201,16 +169,8 @@ export function setupDependenciesTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting dependency graph: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting dependency graph', error);
       }
     }
   );
@@ -243,16 +203,8 @@ export function setupDependenciesTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error checking dependency conflicts: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('checking dependency conflicts', error);
       }
     }
   );
@@ -292,16 +244,8 @@ export function setupDependenciesTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting workspace dependencies: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting workspace dependencies', error);
       }
     }
   );
@@ -324,16 +268,8 @@ export function setupDependenciesTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting dependency statistics: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting dependency statistics', error);
       }
     }
   );
@@ -369,16 +305,8 @@ export function setupDependenciesTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error resolving dependency conflicts: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('resolving dependency conflicts', error);
       }
     }
   );
@@ -401,16 +329,8 @@ export function setupDependenciesTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error analyzing dependency timeline impact: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('analyzing dependency timeline impact', error);
       }
     }
   );
@@ -435,16 +355,8 @@ export function setupDependenciesTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error performing bulk dependency operations: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('performing bulk dependency operations', error);
       }
     }
   );
@@ -468,16 +380,8 @@ export function setupDependenciesTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error exporting dependency graph: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('exporting dependency graph', error);
       }
     }
   );

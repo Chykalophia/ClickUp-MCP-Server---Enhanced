@@ -80,9 +80,9 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
   ): Promise<AttachmentResponse> {
     const updateData: Record<string, any> = {};
 
-    if (request.filename) updateData.filename = request.filename;
+    if (request.filename !== undefined) updateData.filename = request.filename;
     if (request.description !== undefined) updateData.description = request.description;
-    if (request.tags) updateData.tags = request.tags;
+    if (request.tags !== undefined) updateData.tags = request.tags;
 
     const response = await this.put<{ attachment: AttachmentResponse }>(
       `/attachment/${request.attachment_id}`,

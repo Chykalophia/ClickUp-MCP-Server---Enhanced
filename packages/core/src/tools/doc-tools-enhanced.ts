@@ -1,10 +1,11 @@
-/* eslint-disable no-console, max-len */
+/* eslint-disable max-len */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createEnhancedDocsClient } from '../clickup-client/docs-enhanced.js';
 import {} from /* createAuthClient */ '../clickup-client/auth.js';
 import {} from /* DocumentToolSchemas */ '../schemas/document-schemas.js';
+import { mcpError } from '../utils/error-handling.js';
 
 // Create clients
 const clickUpClient = createClickUpClient();
@@ -44,12 +45,8 @@ export function setupEnhancedDocTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: combinedContent || 'No content found in this doc.' }],
         };
-      } catch (error: any) {
-        console.error('Error getting doc content:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting doc content: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting doc content', error);
       }
     }
   );
@@ -68,12 +65,8 @@ export function setupEnhancedDocTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error searching docs:', error);
-        return {
-          content: [{ type: 'text', text: `Error searching docs: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('searching docs', error);
       }
     }
   );
@@ -106,12 +99,8 @@ export function setupEnhancedDocTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error getting docs from workspace:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting docs from workspace: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting docs from workspace', error);
       }
     }
   );
@@ -134,12 +123,8 @@ export function setupEnhancedDocTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(pages, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error getting doc pages:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting doc pages: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting doc pages', error);
       }
     }
   );
@@ -200,12 +185,8 @@ export function setupEnhancedDocTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error creating document:', error);
-        return {
-          content: [{ type: 'text', text: `Error creating document: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating document', error);
       }
     }
   );
@@ -248,12 +229,8 @@ export function setupEnhancedDocTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error updating document:', error);
-        return {
-          content: [{ type: 'text', text: `Error updating document: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('updating document', error);
       }
     }
   );
@@ -295,12 +272,8 @@ export function setupEnhancedDocTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error deleting document:', error);
-        return {
-          content: [{ type: 'text', text: `Error deleting document: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('deleting document', error);
       }
     }
   );
@@ -323,12 +296,8 @@ export function setupEnhancedDocTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error getting document:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting document: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting document', error);
       }
     }
   );
@@ -370,12 +339,8 @@ export function setupEnhancedDocTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error creating page:', error);
-        return {
-          content: [{ type: 'text', text: `Error creating page: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating page', error);
       }
     }
   );
@@ -434,12 +399,8 @@ export function setupEnhancedDocTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error updating page:', error);
-        return {
-          content: [{ type: 'text', text: `Error updating page: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('updating page', error);
       }
     }
   );
@@ -463,12 +424,8 @@ export function setupEnhancedDocTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error deleting page:', error);
-        return {
-          content: [{ type: 'text', text: `Error deleting page: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('deleting page', error);
       }
     }
   );
@@ -495,12 +452,8 @@ export function setupEnhancedDocTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error getting document sharing:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting document sharing: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting document sharing', error);
       }
     }
   );
@@ -562,12 +515,8 @@ export function setupEnhancedDocTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error updating document sharing:', error);
-        return {
-          content: [{ type: 'text', text: `Error updating document sharing: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('updating document sharing', error);
       }
     }
   );
@@ -621,14 +570,8 @@ export function setupEnhancedDocTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error creating document from template:', error);
-        return {
-          content: [
-            { type: 'text', text: `Error creating document from template: ${error.message}` },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating document from template', error);
       }
     }
   );

@@ -3,6 +3,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createSpacesClient } from '../clickup-client/spaces.js';
+import { mcpError } from '../utils/error-handling.js';
 
 // Create clients
 const clickUpClient = createClickUpClient();
@@ -23,12 +24,8 @@ export function setupSpaceTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(spaces, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error getting spaces:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting spaces: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting spaces', error);
       }
     }
   );
@@ -47,12 +44,8 @@ export function setupSpaceTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(space, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error getting space:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting space: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting space', error);
       }
     }
   );

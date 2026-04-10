@@ -18,6 +18,7 @@ export class ClickUpClient {
 
     this.axiosInstance = axios.create({
       baseURL: config.baseUrl || API_BASE_URL,
+      timeout: 30000,
       headers: {
         accept: 'application/json',
         'content-type': 'application/json',
@@ -73,13 +74,30 @@ export class ClickUpClient {
   }
 }
 
-// Create a singleton instance using environment variables
+// Singleton instance cache
+let _clientInstance: ClickUpClient | null = null;
+
+// Create or return the singleton client instance
 export const createClickUpClient = (): ClickUpClient => {
+  if (_clientInstance) {
+    return _clientInstance;
+  }
+
   const apiToken = process.env.CLICKUP_API_TOKEN;
 
   if (!apiToken) {
     throw new Error('CLICKUP_API_TOKEN environment variable is required');
   }
 
-  return new ClickUpClient({ apiToken });
+  _clientInstance = new ClickUpClient({ apiToken });
+  return _clientInstance;
+};
+
+// Get the API token with proper validation (use instead of process.env.CLICKUP_API_TOKEN!)
+export const getApiToken = (): string => {
+  const apiToken = process.env.CLICKUP_API_TOKEN;
+  if (!apiToken) {
+    throw new Error('CLICKUP_API_TOKEN environment variable is required');
+  }
+  return apiToken;
 };

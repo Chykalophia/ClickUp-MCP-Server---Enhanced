@@ -12,6 +12,7 @@ import {
 } from '../clickup-client/comments-enhanced.js';
 import { /* applyMarkdownStyling, */ createMarkdownPreview } from '../utils/markdown-styling.js';
 import { processCommentBlocks } from '../utils/clickup-comment-formatter.js';
+import { mcpError } from '../utils/error-handling.js';
 
 // Create clients
 const clickUpClient = createClickUpClient();
@@ -70,12 +71,8 @@ export function setupCommentTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error in raw API test:', error);
-        return {
-          content: [{ type: 'text', text: `Error in raw API test: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('in raw API test', error);
       }
     }
   );
@@ -96,12 +93,8 @@ export function setupCommentTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(styledResult, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error getting task comments:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting task comments: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting task comments', error);
       }
     }
   );
@@ -167,12 +160,8 @@ export function setupCommentTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error creating task comment:', error);
-        return {
-          content: [{ type: 'text', text: `Error creating task comment: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating task comment', error);
       }
     }
   );
@@ -192,12 +181,8 @@ export function setupCommentTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error getting chat view comments:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting chat view comments: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting chat view comments', error);
       }
     }
   );
@@ -224,12 +209,8 @@ export function setupCommentTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error creating chat view comment:', error);
-        return {
-          content: [{ type: 'text', text: `Error creating chat view comment: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating chat view comment', error);
       }
     }
   );
@@ -249,12 +230,8 @@ export function setupCommentTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error getting list comments:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting list comments: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting list comments', error);
       }
     }
   );
@@ -282,12 +259,8 @@ export function setupCommentTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error creating list comment:', error);
-        return {
-          content: [{ type: 'text', text: `Error creating list comment: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating list comment', error);
       }
     }
   );
@@ -315,12 +288,8 @@ export function setupCommentTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error updating comment:', error);
-        return {
-          content: [{ type: 'text', text: `Error updating comment: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('updating comment', error);
       }
     }
   );
@@ -338,12 +307,8 @@ export function setupCommentTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error deleting comment:', error);
-        return {
-          content: [{ type: 'text', text: `Error deleting comment: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('deleting comment', error);
       }
     }
   );
@@ -363,12 +328,8 @@ export function setupCommentTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error getting threaded comments:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting threaded comments: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting threaded comments', error);
       }
     }
   );
@@ -395,12 +356,8 @@ export function setupCommentTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error creating threaded comment:', error);
-        return {
-          content: [{ type: 'text', text: `Error creating threaded comment: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating threaded comment', error);
       }
     }
   );

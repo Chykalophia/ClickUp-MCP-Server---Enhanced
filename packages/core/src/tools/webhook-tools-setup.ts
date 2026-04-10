@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-import {} from /* createClickUpClient */ '../clickup-client/index.js';
+import { getApiToken } from '../clickup-client/index.js';
 import { WebhooksEnhancedClient } from '../clickup-client/webhooks-enhanced.js';
 import {
   CreateWebhookSchema,
@@ -11,10 +11,10 @@ import {
   ProcessWebhookSchema,
   WebhookPayloadSchema,
 } from '../schemas/webhook-schemas.js';
+import { mcpError } from '../utils/error-handling.js';
 
 // Create clients
-// const clickUpClient = createClickUpClient();
-const webhooksClient = new WebhooksEnhancedClient(process.env.CLICKUP_API_TOKEN!);
+const webhooksClient = new WebhooksEnhancedClient(getApiToken());
 
 export function setupWebhookTools(server: McpServer): void {
   // ========================================
@@ -79,16 +79,8 @@ export function setupWebhookTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error creating webhook: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating webhook', error);
       }
     }
   );
@@ -114,16 +106,8 @@ export function setupWebhookTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting webhooks: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting webhooks', error);
       }
     }
   );
@@ -146,16 +130,8 @@ export function setupWebhookTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting webhook: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting webhook', error);
       }
     }
   );
@@ -217,16 +193,8 @@ export function setupWebhookTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error updating webhook: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('updating webhook', error);
       }
     }
   );
@@ -249,16 +217,8 @@ export function setupWebhookTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error deleting webhook: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('deleting webhook', error);
       }
     }
   );
@@ -282,16 +242,8 @@ export function setupWebhookTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting webhook event history: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting webhook event history', error);
       }
     }
   );
@@ -314,16 +266,8 @@ export function setupWebhookTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error pinging webhook: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('pinging webhook', error);
       }
     }
   );
@@ -350,16 +294,8 @@ export function setupWebhookTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error validating webhook signature: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('validating webhook signature', error);
       }
     }
   );
@@ -400,16 +336,8 @@ export function setupWebhookTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error processing webhook: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('processing webhook', error);
       }
     }
   );
@@ -437,16 +365,8 @@ export function setupWebhookTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting webhook statistics: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting webhook statistics', error);
       }
     }
   );
@@ -475,16 +395,8 @@ export function setupWebhookTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error retrying webhook events: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('retrying webhook events', error);
       }
     }
   );

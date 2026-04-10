@@ -396,12 +396,14 @@ export class EnhancedGoalsClient {
     if (percentCompleted >= 100) return 'completed';
     if (now > due) return 'overdue';
 
-    // Calculate if on track (simple heuristic: progress should match time elapsed)
-    const timeElapsed = now;
-    const totalTime = due;
-    const expectedProgress = (timeElapsed / totalTime) * 100;
+    // Without a start date we can't compute expected progress precisely.
+    // Use a simple heuristic: if the due date is more than 7 days away,
+    // consider it on_track as long as some progress exists. Within the
+    // last 7 days, require at least 80% completion to be on_track.
+    const daysLeft = (due - now) / (1000 * 60 * 60 * 24);
 
-    if (percentCompleted >= expectedProgress * 0.8) return 'on_track';
+    if (daysLeft > 7) return 'on_track';
+    if (percentCompleted >= 80) return 'on_track';
     return 'at_risk';
   }
 
@@ -419,7 +421,9 @@ export class EnhancedGoalsClient {
    */
   validateGoalDate(dueDate: number): boolean {
     const now = Date.now();
-    return dueDate > now;
+    // Handle both seconds and milliseconds timestamps
+    const dueDateMs = dueDate < 1e12 ? dueDate * 1000 : dueDate;
+    return dueDateMs > now;
   }
 
   // ========================================

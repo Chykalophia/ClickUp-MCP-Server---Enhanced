@@ -1,4 +1,4 @@
-/* eslint-disable no-console, max-len */
+/* eslint-disable max-len */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { createClickUpClient } from '../clickup-client/index.js';
@@ -9,6 +9,7 @@ import {
 import {
   /* CustomFieldToolSchemas, */ DropdownOptionSchema,
 } from '../schemas/custom-field-schemas.js';
+import { mcpError } from '../utils/error-handling.js';
 
 // Create clients
 const clickUpClient = createClickUpClient();
@@ -65,12 +66,8 @@ export function setupCustomFieldTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error getting custom fields:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting custom fields: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting custom fields', error);
       }
     }
   );
@@ -159,12 +156,8 @@ export function setupCustomFieldTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error creating custom field:', error);
-        return {
-          content: [{ type: 'text', text: `Error creating custom field: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating custom field', error);
       }
     }
   );
@@ -218,12 +211,8 @@ export function setupCustomFieldTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error updating custom field:', error);
-        return {
-          content: [{ type: 'text', text: `Error updating custom field: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('updating custom field', error);
       }
     }
   );
@@ -250,12 +239,8 @@ export function setupCustomFieldTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error deleting custom field:', error);
-        return {
-          content: [{ type: 'text', text: `Error deleting custom field: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('deleting custom field', error);
       }
     }
   );
@@ -284,12 +269,8 @@ export function setupCustomFieldTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error setting custom field value:', error);
-        return {
-          content: [{ type: 'text', text: `Error setting custom field value: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('setting custom field value', error);
       }
     }
   );
@@ -316,12 +297,8 @@ export function setupCustomFieldTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error removing custom field value:', error);
-        return {
-          content: [{ type: 'text', text: `Error removing custom field value: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('removing custom field value', error);
       }
     }
   );
@@ -345,12 +322,8 @@ export function setupCustomFieldTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error getting custom field value:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting custom field value: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting custom field value', error);
       }
     }
   );
@@ -391,14 +364,8 @@ export function setupCustomFieldTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error bulk setting custom field values:', error);
-        return {
-          content: [
-            { type: 'text', text: `Error bulk setting custom field values: ${error.message}` },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('bulk setting custom field values', error);
       }
     }
   );
@@ -421,14 +388,8 @@ export function setupCustomFieldTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error getting task custom field values:', error);
-        return {
-          content: [
-            { type: 'text', text: `Error getting task custom field values: ${error.message}` },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting task custom field values', error);
       }
     }
   );
@@ -497,12 +458,8 @@ export function setupCustomFieldTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error creating text custom field:', error);
-        return {
-          content: [{ type: 'text', text: `Error creating text custom field: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating text custom field', error);
       }
     }
   );
@@ -574,14 +531,8 @@ export function setupCustomFieldTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error creating dropdown custom field:', error);
-        return {
-          content: [
-            { type: 'text', text: `Error creating dropdown custom field: ${error.message}` },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating dropdown custom field', error);
       }
     }
   );
@@ -652,12 +603,8 @@ export function setupCustomFieldTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error creating number custom field:', error);
-        return {
-          content: [{ type: 'text', text: `Error creating number custom field: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating number custom field', error);
       }
     }
   );
@@ -730,12 +677,8 @@ export function setupCustomFieldTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error creating date custom field:', error);
-        return {
-          content: [{ type: 'text', text: `Error creating date custom field: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating date custom field', error);
       }
     }
   );
@@ -790,14 +733,8 @@ export function setupCustomFieldTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error creating checkbox custom field:', error);
-        return {
-          content: [
-            { type: 'text', text: `Error creating checkbox custom field: ${error.message}` },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating checkbox custom field', error);
       }
     }
   );
@@ -857,14 +794,8 @@ export function setupCustomFieldTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error validating custom field value:', error);
-        return {
-          content: [
-            { type: 'text', text: `Error validating custom field value: ${error.message}` },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('validating custom field value', error);
       }
     }
   );

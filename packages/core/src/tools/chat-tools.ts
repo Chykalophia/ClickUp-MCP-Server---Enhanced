@@ -1,7 +1,9 @@
 /* eslint-disable max-len */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
+import { getApiToken } from '../clickup-client/index.js';
 import { ChatEnhancedClient } from '../clickup-client/chat-enhanced.js';
+import { mcpError } from '../utils/error-handling.js';
 import {
   CreateChannelSchema,
   CreateChannelOnParentSchema,
@@ -21,7 +23,7 @@ import {
 } from '../schemas/chat-schemas.js';
 
 // Create enhanced chat client
-const chatClient = new ChatEnhancedClient(process.env.CLICKUP_API_TOKEN!);
+const chatClient = new ChatEnhancedClient(getApiToken());
 
 export function setupChatTools(server: McpServer): void {
   // ========================================
@@ -49,16 +51,8 @@ export function setupChatTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting chat channels: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting chat channels', error);
       }
     }
   );
@@ -93,16 +87,8 @@ export function setupChatTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error creating chat channel: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating chat channel', error);
       }
     }
   );
@@ -138,16 +124,8 @@ export function setupChatTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error creating channel on parent: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating channel on parent', error);
       }
     }
   );
@@ -176,16 +154,8 @@ export function setupChatTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error creating direct message: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating direct message', error);
       }
     }
   );
@@ -208,16 +178,8 @@ export function setupChatTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting channel: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting channel', error);
       }
     }
   );
@@ -244,16 +206,8 @@ export function setupChatTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error updating channel: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('updating channel', error);
       }
     }
   );
@@ -280,16 +234,8 @@ export function setupChatTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting channel followers: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting channel followers', error);
       }
     }
   );
@@ -312,16 +258,8 @@ export function setupChatTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting channel members: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting channel members', error);
       }
     }
   );
@@ -346,16 +284,8 @@ export function setupChatTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error adding channel member: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('adding channel member', error);
       }
     }
   );
@@ -380,16 +310,8 @@ export function setupChatTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error removing channel member: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('removing channel member', error);
       }
     }
   );
@@ -425,16 +347,8 @@ export function setupChatTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting channel messages: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting channel messages', error);
       }
     }
   );
@@ -465,16 +379,8 @@ export function setupChatTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error sending message: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('sending message', error);
       }
     }
   );
@@ -501,16 +407,8 @@ export function setupChatTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error updating message: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('updating message', error);
       }
     }
   );
@@ -534,16 +432,8 @@ export function setupChatTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error deleting message: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('deleting message', error);
       }
     }
   );
@@ -580,16 +470,8 @@ export function setupChatTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting message replies: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting message replies', error);
       }
     }
   );
@@ -620,16 +502,8 @@ export function setupChatTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error creating reply: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating reply', error);
       }
     }
   );
@@ -657,16 +531,8 @@ export function setupChatTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting message reactions: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting message reactions', error);
       }
     }
   );
@@ -692,16 +558,8 @@ export function setupChatTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error creating reaction: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating reaction', error);
       }
     }
   );
@@ -727,16 +585,8 @@ export function setupChatTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error deleting reaction: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('deleting reaction', error);
       }
     }
   );
@@ -764,16 +614,8 @@ export function setupChatTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting tagged users: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting tagged users', error);
       }
     }
   );
@@ -797,16 +639,8 @@ export function setupChatTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error searching channels: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('searching channels', error);
       }
     }
   );
@@ -829,16 +663,8 @@ export function setupChatTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting channel stats: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting channel stats', error);
       }
     }
   );
@@ -861,16 +687,8 @@ export function setupChatTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error marking channel as read: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('marking channel as read', error);
       }
     }
   );
@@ -893,16 +711,8 @@ export function setupChatTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting unread count: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting unread count', error);
       }
     }
   );

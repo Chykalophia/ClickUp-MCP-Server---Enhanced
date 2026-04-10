@@ -47,6 +47,21 @@ export interface StructuredError {
   retryAfter?: number;
 }
 
+/**
+ * Simple MCP error response helper. Replaces ad-hoc catch blocks across tool files.
+ * Safely extracts the error message without leaking full error objects or auth tokens.
+ */
+export function mcpError(
+  operation: string,
+  error: unknown
+): { content: Array<{ type: 'text'; text: string }>; isError: true } {
+  const message = error instanceof Error ? error.message : String(error);
+  return {
+    content: [{ type: 'text' as const, text: `Error ${operation}: ${message}` }],
+    isError: true as const,
+  };
+}
+
 // Error response for MCP tools
 export interface McpErrorResponse {
   content: Array<{

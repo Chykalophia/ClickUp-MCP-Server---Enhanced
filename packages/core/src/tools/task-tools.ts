@@ -12,6 +12,7 @@ import {
   BulkCreateTaskItemSchema,
   BulkUpdateTaskItemSchema,
 } from '../schemas/task-schemas.js';
+import { mcpError } from '../utils/error-handling.js';
 
 // Create clients
 const clickUpClient = createClickUpClient();
@@ -32,12 +33,8 @@ export function setupTaskTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error getting workspace seats:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting workspace seats: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting workspace seats', error);
       }
     }
   );
@@ -52,12 +49,8 @@ export function setupTaskTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result.teams, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error getting workspaces:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting workspaces: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting workspaces', error);
       }
     }
   );
@@ -80,12 +73,8 @@ export function setupTaskTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error getting tasks:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting tasks: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting tasks', error);
       }
     }
   );
@@ -106,12 +95,8 @@ export function setupTaskTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(task, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error getting task details:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting task details: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting task details', error);
       }
     }
   );
@@ -164,12 +149,8 @@ export function setupTaskTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error creating task:', error);
-        return {
-          content: [{ type: 'text', text: `Error creating task: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating task', error);
       }
     }
   );
@@ -220,12 +201,8 @@ export function setupTaskTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error updating task:', error);
-        return {
-          content: [{ type: 'text', text: `Error updating task: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('updating task', error);
       }
     }
   );
@@ -254,12 +231,8 @@ export function setupTaskTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error(`Error getting lists from ${container_type}:`, error);
-        return {
-          content: [{ type: 'text', text: `Error getting lists: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting lists', error);
       }
     }
   );
@@ -277,12 +250,8 @@ export function setupTaskTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error creating folder:', error);
-        return {
-          content: [{ type: 'text', text: `Error creating folder: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating folder', error);
       }
     }
   );
@@ -300,12 +269,8 @@ export function setupTaskTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error updating folder:', error);
-        return {
-          content: [{ type: 'text', text: `Error updating folder: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('updating folder', error);
       }
     }
   );
@@ -322,12 +287,8 @@ export function setupTaskTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error deleting folder:', error);
-        return {
-          content: [{ type: 'text', text: `Error deleting folder: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('deleting folder', error);
       }
     }
   );
@@ -344,12 +305,8 @@ export function setupTaskTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error getting folderless lists:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting folderless lists: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting folderless lists', error);
       }
     }
   );
@@ -378,12 +335,8 @@ export function setupTaskTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error(`Error creating list in ${container_type}:`, error);
-        return {
-          content: [{ type: 'text', text: `Error creating list: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating list', error);
       }
     }
   );
@@ -401,12 +354,8 @@ export function setupTaskTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error creating folderless list:', error);
-        return {
-          content: [{ type: 'text', text: `Error creating folderless list: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating folderless list', error);
       }
     }
   );
@@ -423,12 +372,8 @@ export function setupTaskTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error getting list:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting list: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting list', error);
       }
     }
   );
@@ -446,12 +391,8 @@ export function setupTaskTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error updating list:', error);
-        return {
-          content: [{ type: 'text', text: `Error updating list: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('updating list', error);
       }
     }
   );
@@ -495,12 +436,8 @@ export function setupTaskTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error deleting list:', error);
-        return {
-          content: [{ type: 'text', text: `Error deleting list: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('deleting list', error);
       }
     }
   );
@@ -518,12 +455,8 @@ export function setupTaskTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error adding task to list:', error);
-        return {
-          content: [{ type: 'text', text: `Error adding task to list: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('adding task to list', error);
       }
     }
   );
@@ -541,12 +474,8 @@ export function setupTaskTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error removing task from list:', error);
-        return {
-          content: [{ type: 'text', text: `Error removing task from list: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('removing task from list', error);
       }
     }
   );
@@ -575,10 +504,8 @@ export function setupTaskTools(server: McpServer): void {
         const taskParams: CreateTaskParams[] = validatedData.tasks.map(task => {
           // Handle markdown content preference
           if (task.markdown_content && task.description) {
-            console.warn(
-              'Both description and markdown_content provided for a task. Using markdown_content.'
-            );
-            const { ...rest } = task;
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { description, ...rest } = task;
             return rest as CreateTaskParams;
           }
           return task as CreateTaskParams;
@@ -604,17 +531,8 @@ export function setupTaskTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error in bulk task creation:', error);
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error in bulk task creation: ${error.message}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('in bulk task creation', error);
       }
     }
   );
@@ -642,10 +560,8 @@ export function setupTaskTools(server: McpServer): void {
         const taskUpdates = validatedData.tasks.map(task => {
           // Handle markdown content preference
           if (task.markdown_content && task.description) {
-            console.warn(
-              'Both description and markdown_content provided for a task. Using markdown_content.'
-            );
-            const { ...rest } = task;
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { description, ...rest } = task;
             return rest as { task_id: string } & UpdateTaskParams;
           }
           return task as { task_id: string } & UpdateTaskParams;
@@ -670,17 +586,8 @@ export function setupTaskTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error in bulk task update:', error);
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error in bulk task update: ${error.message}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('in bulk task update', error);
       }
     }
   );
@@ -722,17 +629,8 @@ export function setupTaskTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error deleting task:', error);
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error deleting task: ${error.message}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('deleting task', error);
       }
     }
   );
@@ -837,17 +735,8 @@ export function setupTaskTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error in bulk task deletion:', error);
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error in bulk task deletion: ${error.message}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('in bulk task deletion', error);
       }
     }
   );
@@ -889,17 +778,8 @@ export function setupTaskTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error deleting subtask:', error);
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error deleting subtask: ${error.message}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('deleting subtask', error);
       }
     }
   );
@@ -1033,17 +913,8 @@ export function setupTaskTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error merging tasks:', error);
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error merging tasks: ${error.message}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('merging tasks', error);
       }
     }
   );
@@ -1064,14 +935,8 @@ export function setupTaskTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error creating list from template in folder:', error);
-        return {
-          content: [
-            { type: 'text', text: `Error creating list from template in folder: ${error.message}` },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating list from template in folder', error);
       }
     }
   );
@@ -1092,14 +957,8 @@ export function setupTaskTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
-      } catch (error: any) {
-        console.error('Error creating list from template in space:', error);
-        return {
-          content: [
-            { type: 'text', text: `Error creating list from template in space: ${error.message}` },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating list from template in space', error);
       }
     }
   );

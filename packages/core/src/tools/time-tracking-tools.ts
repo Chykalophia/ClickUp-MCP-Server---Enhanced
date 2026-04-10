@@ -1,4 +1,4 @@
-/* eslint-disable no-console, max-len */
+/* eslint-disable max-len */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { createClickUpClient } from '../clickup-client/index.js';
@@ -7,6 +7,7 @@ import {
   CreateTimeEntryParams,
   UpdateTimeEntryParams,
 } from '../clickup-client/time-tracking-enhanced.js';
+import { mcpError } from '../utils/error-handling.js';
 // Schemas imported from time-tracking-schemas if needed:
 // TeamIdSchema, TimerIdSchema, CreateTimeEntrySchema,
 // UpdateTimeEntrySchema, GetTimeEntriesSchema, TimeEntryTagSchema
@@ -82,12 +83,8 @@ export function setupTimeTrackingTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error getting time entries:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting time entries: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting time entries', error);
       }
     }
   );
@@ -145,12 +142,8 @@ export function setupTimeTrackingTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error creating time entry:', error);
-        return {
-          content: [{ type: 'text', text: `Error creating time entry: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating time entry', error);
       }
     }
   );
@@ -223,12 +216,8 @@ export function setupTimeTrackingTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error updating time entry:', error);
-        return {
-          content: [{ type: 'text', text: `Error updating time entry: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('updating time entry', error);
       }
     }
   );
@@ -252,12 +241,8 @@ export function setupTimeTrackingTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error deleting time entry:', error);
-        return {
-          content: [{ type: 'text', text: `Error deleting time entry: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('deleting time entry', error);
       }
     }
   );
@@ -285,12 +270,8 @@ export function setupTimeTrackingTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error getting running timers:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting running timers: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting running timers', error);
       }
     }
   );
@@ -314,12 +295,8 @@ export function setupTimeTrackingTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error starting timer:', error);
-        return {
-          content: [{ type: 'text', text: `Error starting timer: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('starting timer', error);
       }
     }
   );
@@ -342,12 +319,8 @@ export function setupTimeTrackingTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error stopping timer:', error);
-        return {
-          content: [{ type: 'text', text: `Error stopping timer: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('stopping timer', error);
       }
     }
   );
@@ -405,12 +378,8 @@ export function setupTimeTrackingTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error getting time summary:', error);
-        return {
-          content: [{ type: 'text', text: `Error getting time summary: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting time summary', error);
       }
     }
   );
@@ -438,33 +407,18 @@ export function setupTimeTrackingTools(server: McpServer): void {
     },
     async ({ team_id, description, task_id, billable, tags }) => {
       try {
-        const currentTime = timeTrackingClient.getCurrentTimestamp();
-
-        const timeEntry = await timeTrackingClient.createTimeEntry(team_id, {
-          description,
-          start: currentTime,
-          duration: 1,
-          billable,
-          tid: task_id,
-          tags,
-        });
-
         await timeTrackingClient.startTimer(team_id, task_id);
 
         return {
           content: [
             {
               type: 'text',
-              text: `Timer started successfully! Time entry created and timer is now running.\n\nTime Entry: ${JSON.stringify(timeEntry, null, 2)}`,
+              text: `Timer started successfully in team ${team_id}.${task_id ? ` Associated with task ${task_id}.` : ''}\nDescription: ${description}\nBillable: ${billable}`,
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error creating timer entry:', error);
-        return {
-          content: [{ type: 'text', text: `Error creating timer entry: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('creating timer entry', error);
       }
     }
   );
@@ -498,12 +452,8 @@ export function setupTimeTrackingTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error: any) {
-        console.error('Error formatting duration:', error);
-        return {
-          content: [{ type: 'text', text: `Error formatting duration: ${error.message}` }],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('formatting duration', error);
       }
     }
   );

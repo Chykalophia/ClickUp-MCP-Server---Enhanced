@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-import {} from /* createClickUpClient */ '../clickup-client/index.js';
+import { getApiToken } from '../clickup-client/index.js';
 import { AttachmentsEnhancedClient } from '../clickup-client/attachments-enhanced.js';
 import {
   UploadAttachmentSchema,
@@ -13,10 +13,10 @@ import {
   UploadSourceSchema,
   AttachmentParentSchema,
 } from '../schemas/attachments-schemas.js';
+import { mcpError } from '../utils/error-handling.js';
 
 // Create clients
-// const clickUpClient = createClickUpClient();
-const attachmentsClient = new AttachmentsEnhancedClient(process.env.CLICKUP_API_TOKEN!);
+const attachmentsClient = new AttachmentsEnhancedClient(getApiToken());
 
 export function setupAttachmentsTools(server: McpServer): void {
   // ========================================
@@ -49,16 +49,8 @@ export function setupAttachmentsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error uploading attachment: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('uploading attachment', error);
       }
     }
   );
@@ -96,16 +88,8 @@ export function setupAttachmentsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting attachments: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting attachments', error);
       }
     }
   );
@@ -128,16 +112,8 @@ export function setupAttachmentsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting attachment info: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting attachment info', error);
       }
     }
   );
@@ -164,16 +140,8 @@ export function setupAttachmentsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error updating attachment metadata: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('updating attachment metadata', error);
       }
     }
   );
@@ -196,16 +164,8 @@ export function setupAttachmentsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error deleting attachment: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('deleting attachment', error);
       }
     }
   );
@@ -228,16 +188,8 @@ export function setupAttachmentsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting download information: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting download information', error);
       }
     }
   );
@@ -296,16 +248,8 @@ export function setupAttachmentsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error searching attachments: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('searching attachments', error);
       }
     }
   );
@@ -328,16 +272,8 @@ export function setupAttachmentsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting attachment statistics: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting attachment statistics', error);
       }
     }
   );
@@ -369,16 +305,8 @@ export function setupAttachmentsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error updating attachment sharing: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('updating attachment sharing', error);
       }
     }
   );
@@ -407,16 +335,8 @@ export function setupAttachmentsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error copying attachment: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('copying attachment', error);
       }
     }
   );
@@ -445,16 +365,8 @@ export function setupAttachmentsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error moving attachment: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('moving attachment', error);
       }
     }
   );
@@ -487,16 +399,8 @@ export function setupAttachmentsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error generating thumbnail: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('generating thumbnail', error);
       }
     }
   );
@@ -519,16 +423,8 @@ export function setupAttachmentsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error getting attachment versions: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('getting attachment versions', error);
       }
     }
   );
@@ -560,16 +456,8 @@ export function setupAttachmentsTools(server: McpServer): void {
             },
           ],
         };
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error performing bulk attachment operations: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
-          isError: true,
-        };
+      } catch (error: unknown) {
+        return mcpError('performing bulk attachment operations', error);
       }
     }
   );

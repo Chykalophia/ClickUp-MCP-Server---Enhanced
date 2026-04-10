@@ -103,11 +103,11 @@ export class WebhooksEnhancedClient extends ClickUpClient {
   async updateWebhook(request: UpdateWebhookRequest): Promise<WebhookResponse> {
     const updateData: Record<string, any> = {};
 
-    if (request.endpoint) updateData.endpoint = request.endpoint;
-    if (request.events) updateData.events = request.events;
-    if (request.health_check_url) updateData.health_check_url = request.health_check_url;
-    if (request.secret) updateData.secret = request.secret;
-    if (request.status) updateData.status = request.status;
+    if (request.endpoint !== undefined) updateData.endpoint = request.endpoint;
+    if (request.events !== undefined) updateData.events = request.events;
+    if (request.health_check_url !== undefined) updateData.health_check_url = request.health_check_url;
+    if (request.secret !== undefined) updateData.secret = request.secret;
+    if (request.status !== undefined) updateData.status = request.status;
 
     const response = await this.put<WebhookResponse>(`/webhook/${request.webhook_id}`, updateData);
     return response;

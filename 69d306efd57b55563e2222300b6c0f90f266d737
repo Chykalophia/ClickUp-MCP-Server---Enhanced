@@ -1,0 +1,25 @@
+packages/core/src/clickup-client/custom-fields-enhanced.ts
+  7d7837a3461811e9 3,319,323,339,356,373,390,407,424,438,452,469,471,488,505,536
+packages/core/src/clickup-client/docs-enhanced.ts
+  7d7837a3461811e9 3,122,126-127,140,163,189,231,252,268,282,315,337,353,368,388,404
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "69d306efd57b55563e2222300b6c0f90f266d737",
+  "prompts": {
+    "7d7837a3461811e9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "12cf0107-9a71-4d2e-9439-06b336b84f41",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Peter Krzyzek",
+      "messages": [],
+      "total_additions": 169,
+      "total_deletions": 247,
+      "accepted_lines": 33,
+      "overriden_lines": 0
+    }
+  }
+}

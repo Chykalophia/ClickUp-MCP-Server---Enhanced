@@ -10,7 +10,7 @@ import type {
   ViewSharingRequest,
   ViewFilter,
   ViewGrouping,
-  ViewSorting
+  ViewSorting,
   // ViewSettings
 } from '../schemas/views-schemas.js';
 
@@ -108,16 +108,16 @@ export class ViewsEnhancedClient extends ClickUpClient {
       type: request.type,
       parent: {
         id: request.parent_id,
-        type: request.parent_type
+        type: request.parent_type,
       },
       grouping: request.grouping ? this.formatGrouping(request.grouping) : undefined,
       sorting: request.sorting ? this.formatSorting(request.sorting) : undefined,
       filters: request.filters ? this.formatFilters(request.filters) : undefined,
       settings: request.settings || {},
       visibility: {
-        access: request.access || 'private'
+        access: request.access || 'private',
       },
-      description: request.description
+      description: request.description,
     };
 
     const response = await this.post<{ view: ViewResponse }>(`${endpoint}/view`, payload);
@@ -180,7 +180,7 @@ export class ViewsEnhancedClient extends ClickUpClient {
    */
   async setViewFilters(request: SetViewFiltersRequest): Promise<ViewResponse> {
     const payload = {
-      filters: this.formatFilters(request.filters)
+      filters: this.formatFilters(request.filters),
     };
 
     const response = await this.put<{ view: ViewResponse }>(`/view/${request.view_id}`, payload);
@@ -192,7 +192,7 @@ export class ViewsEnhancedClient extends ClickUpClient {
    */
   async setViewGrouping(request: SetViewGroupingRequest): Promise<ViewResponse> {
     const payload = {
-      grouping: this.formatGrouping(request.grouping)
+      grouping: this.formatGrouping(request.grouping),
     };
 
     const response = await this.put<{ view: ViewResponse }>(`/view/${request.view_id}`, payload);
@@ -204,7 +204,7 @@ export class ViewsEnhancedClient extends ClickUpClient {
    */
   async setViewSorting(request: SetViewSortingRequest): Promise<ViewResponse> {
     const payload = {
-      sorting: this.formatSorting(request.sorting)
+      sorting: this.formatSorting(request.sorting),
     };
 
     const response = await this.put<{ view: ViewResponse }>(`/view/${request.view_id}`, payload);
@@ -216,7 +216,7 @@ export class ViewsEnhancedClient extends ClickUpClient {
    */
   async updateViewSettings(request: UpdateViewSettingsRequest): Promise<ViewResponse> {
     const payload = {
-      settings: request.settings
+      settings: request.settings,
     };
 
     const response = await this.put<{ view: ViewResponse }>(`/view/${request.view_id}`, payload);
@@ -232,8 +232,8 @@ export class ViewsEnhancedClient extends ClickUpClient {
         access: request.access,
         password_protected: !!request.password,
         password: request.password,
-        expires: request.expires_at ? new Date(request.expires_at * 1000).toISOString() : undefined
-      }
+        expires: request.expires_at ? new Date(request.expires_at * 1000).toISOString() : undefined,
+      },
     };
 
     const response = await this.put<{ view: ViewResponse }>(`/view/${request.view_id}`, payload);
@@ -269,7 +269,7 @@ export class ViewsEnhancedClient extends ClickUpClient {
    */
   async duplicateView(viewId: string, name: string): Promise<ViewResponse> {
     const payload = {
-      name
+      name,
     };
 
     const response = await this.post<{ view: ViewResponse }>(`/view/${viewId}/duplicate`, payload);
@@ -280,14 +280,14 @@ export class ViewsEnhancedClient extends ClickUpClient {
 
   private getParentEndpoint(parentType: string, parentId: string): string {
     switch (parentType) {
-    case 'space':
-      return `/space/${parentId}`;
-    case 'folder':
-      return `/folder/${parentId}`;
-    case 'list':
-      return `/list/${parentId}`;
-    default:
-      throw new Error(`Invalid parent type: ${parentType}`);
+      case 'space':
+        return `/space/${parentId}`;
+      case 'folder':
+        return `/folder/${parentId}`;
+      case 'list':
+        return `/list/${parentId}`;
+      default:
+        throw new Error(`Invalid parent type: ${parentType}`);
     }
   }
 
@@ -298,7 +298,7 @@ export class ViewsEnhancedClient extends ClickUpClient {
     return {
       field: primary.field,
       dir: primary.order === 'asc' ? 1 : -1,
-      collapsed: primary.collapsed
+      collapsed: primary.collapsed,
     };
   }
 
@@ -306,8 +306,8 @@ export class ViewsEnhancedClient extends ClickUpClient {
     return {
       fields: sorting.map(sort => ({
         field: sort.field,
-        dir: sort.order === 'asc' ? 1 : -1
-      }))
+        dir: sort.order === 'asc' ? 1 : -1,
+      })),
     };
   }
 
@@ -317,10 +317,10 @@ export class ViewsEnhancedClient extends ClickUpClient {
       fields: filters.map(filter => ({
         field: filter.field,
         operator: filter.operator,
-        value: filter.value || filter.values
+        value: filter.value || filter.values,
       })),
       search: '',
-      show_closed: false
+      show_closed: false,
     };
   }
 

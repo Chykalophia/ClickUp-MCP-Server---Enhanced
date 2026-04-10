@@ -10,7 +10,7 @@ import {
   BulkCreateTasksSchema,
   BulkUpdateTasksSchema,
   BulkCreateTaskItemSchema,
-  BulkUpdateTaskItemSchema
+  BulkUpdateTaskItemSchema,
 } from '../schemas/task-schemas.js';
 
 // Create clients
@@ -30,13 +30,13 @@ export function setupTaskTools(server: McpServer): void {
       try {
         const result = await authClient.getWorkspaceSeats(workspace_id);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: any) {
         console.error('Error getting workspace seats:', error);
         return {
           content: [{ type: 'text', text: `Error getting workspace seats: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -50,13 +50,13 @@ export function setupTaskTools(server: McpServer): void {
       try {
         const result = await authClient.getWorkspaces();
         return {
-          content: [{ type: 'text', text: JSON.stringify(result.teams, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result.teams, null, 2) }],
         };
       } catch (error: any) {
         console.error('Error getting workspaces:', error);
         return {
           content: [{ type: 'text', text: `Error getting workspaces: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -72,19 +72,19 @@ export function setupTaskTools(server: McpServer): void {
       subtasks: z.boolean().optional().describe('Whether to include subtasks in the results'),
       page: z.number().optional().describe('The page number to get'),
       order_by: z.string().optional().describe('The field to order by'),
-      reverse: z.boolean().optional().describe('Whether to reverse the order')
+      reverse: z.boolean().optional().describe('Whether to reverse the order'),
     },
     async ({ list_id, ...params }) => {
       try {
         const result = await tasksClient.getTasksFromList(list_id, params);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: any) {
         console.error('Error getting tasks:', error);
         return {
           content: [{ type: 'text', text: `Error getting tasks: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -98,19 +98,19 @@ export function setupTaskTools(server: McpServer): void {
       include_subtasks: z
         .boolean()
         .optional()
-        .describe('Whether to include subtasks in the task details')
+        .describe('Whether to include subtasks in the task details'),
     },
     async ({ task_id, include_subtasks }) => {
       try {
         const task = await tasksClient.getTask(task_id, { include_subtasks });
         return {
-          content: [{ type: 'text', text: JSON.stringify(task, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(task, null, 2) }],
         };
       } catch (error: any) {
         console.error('Error getting task details:', error);
         return {
           content: [{ type: 'text', text: `Error getting task details: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -150,7 +150,7 @@ export function setupTaskTools(server: McpServer): void {
       start_date: z.number().optional().describe('The start date of the task (Unix timestamp)'),
       start_date_time: z.boolean().optional().describe('Whether the start date includes a time'),
       notify_all: z.boolean().optional().describe('Whether to notify all assignees'),
-      parent: z.string().optional().describe('The ID of the parent task')
+      parent: z.string().optional().describe('The ID of the parent task'),
     },
     async ({ list_id, ...taskParams }) => {
       try {
@@ -162,13 +162,13 @@ export function setupTaskTools(server: McpServer): void {
 
         const result = await tasksClient.createTask(list_id, taskParams as CreateTaskParams);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: any) {
         console.error('Error creating task:', error);
         return {
           content: [{ type: 'text', text: `Error creating task: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -206,7 +206,7 @@ export function setupTaskTools(server: McpServer): void {
         .describe('The new time estimate for the task (in milliseconds)'),
       start_date: z.number().optional().describe('The new start date of the task (Unix timestamp)'),
       start_date_time: z.boolean().optional().describe('Whether the start date includes a time'),
-      notify_all: z.boolean().optional().describe('Whether to notify all assignees')
+      notify_all: z.boolean().optional().describe('Whether to notify all assignees'),
     },
     async ({ task_id, ...taskParams }) => {
       try {
@@ -218,13 +218,13 @@ export function setupTaskTools(server: McpServer): void {
 
         const result = await tasksClient.updateTask(task_id, taskParams as UpdateTaskParams);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: any) {
         console.error('Error updating task:', error);
         return {
           content: [{ type: 'text', text: `Error updating task: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -238,7 +238,7 @@ export function setupTaskTools(server: McpServer): void {
       container_type: z
         .enum(['folder', 'space'])
         .describe('The type of container to get lists from'),
-      container_id: z.string().describe('The ID of the container to get lists from')
+      container_id: z.string().describe('The ID of the container to get lists from'),
     },
     async ({ container_type, container_id }) => {
       try {
@@ -252,13 +252,13 @@ export function setupTaskTools(server: McpServer): void {
         }
 
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: any) {
         console.error(`Error getting lists from ${container_type}:`, error);
         return {
           content: [{ type: 'text', text: `Error getting lists: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -269,19 +269,19 @@ export function setupTaskTools(server: McpServer): void {
     'Create a new folder in a ClickUp space with the specified name.',
     {
       space_id: z.string().describe('The ID of the space to create the folder in'),
-      name: z.string().describe('The name of the folder')
+      name: z.string().describe('The name of the folder'),
     },
     async ({ space_id, name }) => {
       try {
         const result = await foldersClient.createFolder(space_id, { name });
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: any) {
         console.error('Error creating folder:', error);
         return {
           content: [{ type: 'text', text: `Error creating folder: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -292,19 +292,19 @@ export function setupTaskTools(server: McpServer): void {
     "Update an existing ClickUp folder's name.",
     {
       folder_id: z.string().describe('The ID of the folder to update'),
-      name: z.string().describe('The new name of the folder')
+      name: z.string().describe('The new name of the folder'),
     },
     async ({ folder_id, name }) => {
       try {
         const result = await foldersClient.updateFolder(folder_id, { name });
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: any) {
         console.error('Error updating folder:', error);
         return {
           content: [{ type: 'text', text: `Error updating folder: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -314,19 +314,19 @@ export function setupTaskTools(server: McpServer): void {
     'clickup_delete_folder',
     'Delete a folder from ClickUp. Removes the folder and its contents.',
     {
-      folder_id: z.string().describe('The ID of the folder to delete')
+      folder_id: z.string().describe('The ID of the folder to delete'),
     },
     async ({ folder_id }) => {
       try {
         const result = await foldersClient.deleteFolder(folder_id);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: any) {
         console.error('Error deleting folder:', error);
         return {
           content: [{ type: 'text', text: `Error deleting folder: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -336,19 +336,19 @@ export function setupTaskTools(server: McpServer): void {
     'clickup_get_folderless_lists',
     'Get lists that are not in any folder within a ClickUp space.',
     {
-      space_id: z.string().describe('The ID of the space to get folderless lists from')
+      space_id: z.string().describe('The ID of the space to get folderless lists from'),
     },
     async ({ space_id }) => {
       try {
         const result = await listsClient.getListsFromSpace(space_id);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: any) {
         console.error('Error getting folderless lists:', error);
         return {
           content: [{ type: 'text', text: `Error getting folderless lists: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -362,7 +362,7 @@ export function setupTaskTools(server: McpServer): void {
         .enum(['folder', 'space'])
         .describe('The type of container to create the list in'),
       container_id: z.string().describe('The ID of the container to create the list in'),
-      name: z.string().describe('The name of the list')
+      name: z.string().describe('The name of the list'),
     },
     async ({ container_type, container_id, name }) => {
       try {
@@ -376,13 +376,13 @@ export function setupTaskTools(server: McpServer): void {
         }
 
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: any) {
         console.error(`Error creating list in ${container_type}:`, error);
         return {
           content: [{ type: 'text', text: `Error creating list: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -393,19 +393,19 @@ export function setupTaskTools(server: McpServer): void {
     'Create a new list directly in a ClickUp space without placing it in a folder.',
     {
       space_id: z.string().describe('The ID of the space to create the folderless list in'),
-      name: z.string().describe('The name of the folderless list')
+      name: z.string().describe('The name of the folderless list'),
     },
     async ({ space_id, name }) => {
       try {
         const result = await listsClient.createFolderlessList(space_id, { name });
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: any) {
         console.error('Error creating folderless list:', error);
         return {
           content: [{ type: 'text', text: `Error creating folderless list: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -415,19 +415,19 @@ export function setupTaskTools(server: McpServer): void {
     'clickup_get_list',
     'Get details about a specific ClickUp list including its name and content.',
     {
-      list_id: z.string().describe('The ID of the list to get')
+      list_id: z.string().describe('The ID of the list to get'),
     },
     async ({ list_id }) => {
       try {
         const result = await listsClient.getList(list_id);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: any) {
         console.error('Error getting list:', error);
         return {
           content: [{ type: 'text', text: `Error getting list: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -438,19 +438,19 @@ export function setupTaskTools(server: McpServer): void {
     "Update an existing ClickUp list's name.",
     {
       list_id: z.string().describe('The ID of the list to update'),
-      name: z.string().describe('The new name of the list')
+      name: z.string().describe('The new name of the list'),
     },
     async ({ list_id, name }) => {
       try {
         const result = await listsClient.updateList(list_id, { name });
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: any) {
         console.error('Error updating list:', error);
         return {
           content: [{ type: 'text', text: `Error updating list: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -465,7 +465,7 @@ export function setupTaskTools(server: McpServer): void {
         .boolean()
         .describe(
           'Confirmation that you want to permanently delete this list and all its tasks (must be true)'
-        )
+        ),
     },
     async ({ list_id, confirm_deletion }) => {
       try {
@@ -474,10 +474,10 @@ export function setupTaskTools(server: McpServer): void {
             content: [
               {
                 type: 'text',
-                text: '❌ List deletion cancelled. You must set confirm_deletion to true to proceed with this destructive operation.'
-              }
+                text: '❌ List deletion cancelled. You must set confirm_deletion to true to proceed with this destructive operation.',
+              },
             ],
-            isError: true
+            isError: true,
           };
         }
 
@@ -491,15 +491,15 @@ export function setupTaskTools(server: McpServer): void {
               type: 'text',
               text:
                 `✅ List "${listDetails.name}" (ID: ${list_id}) has been permanently deleted.\n\n` +
-                '⚠️ This action cannot be undone. The list and all its tasks have been removed from ClickUp.'
-            }
-          ]
+                '⚠️ This action cannot be undone. The list and all its tasks have been removed from ClickUp.',
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error deleting list:', error);
         return {
           content: [{ type: 'text', text: `Error deleting list: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -510,19 +510,19 @@ export function setupTaskTools(server: McpServer): void {
     'Add an existing task to a ClickUp list.',
     {
       list_id: z.string().describe('The ID of the list to add the task to'),
-      task_id: z.string().describe('The ID of the task to add')
+      task_id: z.string().describe('The ID of the task to add'),
     },
     async ({ list_id, task_id }) => {
       try {
         const result = await listsClient.addTaskToList(list_id, task_id);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: any) {
         console.error('Error adding task to list:', error);
         return {
           content: [{ type: 'text', text: `Error adding task to list: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -533,19 +533,19 @@ export function setupTaskTools(server: McpServer): void {
     'Remove a task from a ClickUp list without deleting the task.',
     {
       list_id: z.string().describe('The ID of the list to remove the task from'),
-      task_id: z.string().describe('The ID of the task to remove')
+      task_id: z.string().describe('The ID of the task to remove'),
     },
     async ({ list_id, task_id }) => {
       try {
         const result = await listsClient.removeTaskFromList(list_id, task_id);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: any) {
         console.error('Error removing task from list:', error);
         return {
           content: [{ type: 'text', text: `Error removing task from list: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -565,7 +565,7 @@ export function setupTaskTools(server: McpServer): void {
       continue_on_error: z
         .boolean()
         .default(false)
-        .describe('Whether to continue creating remaining tasks if one fails')
+        .describe('Whether to continue creating remaining tasks if one fails'),
     },
     async ({ list_id, tasks, continue_on_error }) => {
       try {
@@ -600,9 +600,9 @@ export function setupTaskTools(server: McpServer): void {
                 `❌ Failed: ${result.error_count} tasks\n` +
                 `📊 Total: ${result.total_count} tasks\n` +
                 `⏱️ Execution time: ${result.execution_time_ms}ms\n\n` +
-                `Detailed Results:\n${JSON.stringify(result.results, null, 2)}`
-            }
-          ]
+                `Detailed Results:\n${JSON.stringify(result.results, null, 2)}`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error in bulk task creation:', error);
@@ -610,10 +610,10 @@ export function setupTaskTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Error in bulk task creation: ${error.message}`
-            }
+              text: `Error in bulk task creation: ${error.message}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -632,7 +632,7 @@ export function setupTaskTools(server: McpServer): void {
       continue_on_error: z
         .boolean()
         .default(false)
-        .describe('Whether to continue updating remaining tasks if one fails')
+        .describe('Whether to continue updating remaining tasks if one fails'),
     },
     async ({ tasks, continue_on_error }) => {
       try {
@@ -666,9 +666,9 @@ export function setupTaskTools(server: McpServer): void {
                 `❌ Failed: ${result.error_count} tasks\n` +
                 `📊 Total: ${result.total_count} tasks\n` +
                 `⏱️ Execution time: ${result.execution_time_ms}ms\n\n` +
-                `Detailed Results:\n${JSON.stringify(result.results, null, 2)}`
-            }
-          ]
+                `Detailed Results:\n${JSON.stringify(result.results, null, 2)}`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error in bulk task update:', error);
@@ -676,10 +676,10 @@ export function setupTaskTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Error in bulk task update: ${error.message}`
-            }
+              text: `Error in bulk task update: ${error.message}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -692,7 +692,7 @@ export function setupTaskTools(server: McpServer): void {
       task_id: z.string().min(1).describe('The ID of the task to delete'),
       confirm_deletion: z
         .boolean()
-        .describe('Confirmation that you want to permanently delete this task (must be true)')
+        .describe('Confirmation that you want to permanently delete this task (must be true)'),
     },
     async ({ task_id, confirm_deletion }) => {
       try {
@@ -701,10 +701,10 @@ export function setupTaskTools(server: McpServer): void {
             content: [
               {
                 type: 'text',
-                text: '❌ Task deletion cancelled. You must set confirm_deletion to true to proceed with this destructive operation.'
-              }
+                text: '❌ Task deletion cancelled. You must set confirm_deletion to true to proceed with this destructive operation.',
+              },
             ],
-            isError: true
+            isError: true,
           };
         }
 
@@ -718,9 +718,9 @@ export function setupTaskTools(server: McpServer): void {
               type: 'text',
               text:
                 `✅ Task "${taskDetails.name}" (ID: ${task_id}) has been permanently deleted.\n\n` +
-                '⚠️ This action cannot be undone. The task and all its data have been removed from ClickUp.'
-            }
-          ]
+                '⚠️ This action cannot be undone. The task and all its data have been removed from ClickUp.',
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error deleting task:', error);
@@ -728,10 +728,10 @@ export function setupTaskTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Error deleting task: ${error.message}`
-            }
+              text: `Error deleting task: ${error.message}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -752,7 +752,7 @@ export function setupTaskTools(server: McpServer): void {
       continue_on_error: z
         .boolean()
         .default(false)
-        .describe('Whether to continue deleting remaining tasks if one fails')
+        .describe('Whether to continue deleting remaining tasks if one fails'),
     },
     async ({ task_ids, confirm_deletion, continue_on_error }) => {
       try {
@@ -761,10 +761,10 @@ export function setupTaskTools(server: McpServer): void {
             content: [
               {
                 type: 'text',
-                text: '❌ Bulk task deletion cancelled. You must set confirm_deletion to true to proceed with this destructive operation.'
-              }
+                text: '❌ Bulk task deletion cancelled. You must set confirm_deletion to true to proceed with this destructive operation.',
+              },
             ],
-            isError: true
+            isError: true,
           };
         }
 
@@ -791,7 +791,7 @@ export function setupTaskTools(server: McpServer): void {
               success: true,
               task_id: taskId,
               task_name: taskDetails.name,
-              index: i
+              index: i,
             });
             successCount++;
           } catch (error: any) {
@@ -800,7 +800,7 @@ export function setupTaskTools(server: McpServer): void {
               success: false,
               task_id: task_ids[i],
               error: errorMessage,
-              index: i
+              index: i,
             });
             errorCount++;
 
@@ -811,7 +811,7 @@ export function setupTaskTools(server: McpServer): void {
                   success: false,
                   task_id: task_ids[j],
                   error: 'Skipped due to previous error',
-                  index: j
+                  index: j,
                 });
                 errorCount++;
               }
@@ -833,9 +833,9 @@ export function setupTaskTools(server: McpServer): void {
                 `📊 Total: ${task_ids.length} tasks\n` +
                 `⏱️ Execution time: ${executionTime}ms\n\n` +
                 '⚠️ This action cannot be undone. All successfully deleted tasks have been permanently removed.\n\n' +
-                `Detailed Results:\n${JSON.stringify(results, null, 2)}`
-            }
-          ]
+                `Detailed Results:\n${JSON.stringify(results, null, 2)}`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error in bulk task deletion:', error);
@@ -843,10 +843,10 @@ export function setupTaskTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Error in bulk task deletion: ${error.message}`
-            }
+              text: `Error in bulk task deletion: ${error.message}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -859,7 +859,7 @@ export function setupTaskTools(server: McpServer): void {
       task_id: z.string().min(1).describe('The ID of the subtask to delete'),
       confirm_deletion: z
         .boolean()
-        .describe('Confirmation that you want to permanently delete this subtask (must be true)')
+        .describe('Confirmation that you want to permanently delete this subtask (must be true)'),
     },
     async ({ task_id, confirm_deletion }) => {
       try {
@@ -868,10 +868,10 @@ export function setupTaskTools(server: McpServer): void {
             content: [
               {
                 type: 'text',
-                text: '❌ Subtask deletion cancelled. You must set confirm_deletion to true to proceed with this destructive operation.'
-              }
+                text: '❌ Subtask deletion cancelled. You must set confirm_deletion to true to proceed with this destructive operation.',
+              },
             ],
-            isError: true
+            isError: true,
           };
         }
 
@@ -885,9 +885,9 @@ export function setupTaskTools(server: McpServer): void {
               type: 'text',
               text:
                 `✅ Subtask "${subtaskDetails.name}" (ID: ${task_id}) has been permanently deleted.\n\n` +
-                '⚠️ This action cannot be undone. The subtask and all its data have been removed from ClickUp.'
-            }
-          ]
+                '⚠️ This action cannot be undone. The subtask and all its data have been removed from ClickUp.',
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error deleting subtask:', error);
@@ -895,10 +895,10 @@ export function setupTaskTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Error deleting subtask: ${error.message}`
-            }
+              text: `Error deleting subtask: ${error.message}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -941,7 +941,7 @@ export function setupTaskTools(server: McpServer): void {
         .boolean()
         .describe(
           'Confirmation that you want to merge these tasks (secondary tasks will be deleted)'
-        )
+        ),
     },
     async ({
       primary_task_id,
@@ -950,7 +950,7 @@ export function setupTaskTools(server: McpServer): void {
       merge_comments: _merge_comments,
       merge_attachments: _merge_attachments,
       merge_time_tracking: _merge_time_tracking,
-      confirm_merge
+      confirm_merge,
     }) => {
       try {
         if (!confirm_merge) {
@@ -958,10 +958,10 @@ export function setupTaskTools(server: McpServer): void {
             content: [
               {
                 type: 'text',
-                text: '❌ Task merge cancelled. You must set confirm_merge to true to proceed. Secondary tasks will be deleted after merging.'
-              }
+                text: '❌ Task merge cancelled. You must set confirm_merge to true to proceed. Secondary tasks will be deleted after merging.',
+              },
             ],
-            isError: true
+            isError: true,
           };
         }
 
@@ -979,8 +979,8 @@ export function setupTaskTools(server: McpServer): void {
             descriptions: 0,
             comments: 0,
             attachments: 0,
-            time_entries: 0
-          }
+            time_entries: 0,
+          },
         };
 
         // Merge descriptions
@@ -997,7 +997,7 @@ export function setupTaskTools(server: McpServer): void {
         // Update primary task with merged description
         if (merge_descriptions && mergedDescription !== primaryTask.description) {
           await tasksClient.updateTask(primary_task_id, {
-            description: mergedDescription
+            description: mergedDescription,
           });
         }
 
@@ -1029,9 +1029,9 @@ export function setupTaskTools(server: McpServer): void {
                 `- Attachments: ${mergeResults.merged_content.attachments} (not yet implemented)\n` +
                 `- Time Entries: ${mergeResults.merged_content.time_entries} (not yet implemented)\n\n` +
                 `Deletion Results:\n${JSON.stringify(deletionResults, null, 2)}\n\n` +
-                '⚠️ Secondary tasks have been permanently deleted and cannot be recovered.'
-            }
-          ]
+                '⚠️ Secondary tasks have been permanently deleted and cannot be recovered.',
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error merging tasks:', error);
@@ -1039,10 +1039,10 @@ export function setupTaskTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Error merging tasks: ${error.message}`
-            }
+              text: `Error merging tasks: ${error.message}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -1054,23 +1054,23 @@ export function setupTaskTools(server: McpServer): void {
     {
       folder_id: z.string().describe('The ID of the folder to create the list in'),
       template_id: z.string().describe('The ID of the template to use'),
-      name: z.string().describe('The name of the list')
+      name: z.string().describe('The name of the list'),
     },
     async ({ folder_id, template_id, name }) => {
       try {
         const result = await listsClient.createListFromTemplateInFolder(folder_id, template_id, {
-          name
+          name,
         });
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: any) {
         console.error('Error creating list from template in folder:', error);
         return {
           content: [
-            { type: 'text', text: `Error creating list from template in folder: ${error.message}` }
+            { type: 'text', text: `Error creating list from template in folder: ${error.message}` },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -1082,23 +1082,23 @@ export function setupTaskTools(server: McpServer): void {
     {
       space_id: z.string().describe('The ID of the space to create the list in'),
       template_id: z.string().describe('The ID of the template to use'),
-      name: z.string().describe('The name of the list')
+      name: z.string().describe('The name of the list'),
     },
     async ({ space_id, template_id, name }) => {
       try {
         const result = await listsClient.createListFromTemplateInSpace(space_id, template_id, {
-          name
+          name,
         });
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: any) {
         console.error('Error creating list from template in space:', error);
         return {
           content: [
-            { type: 'text', text: `Error creating list from template in space: ${error.message}` }
+            { type: 'text', text: `Error creating list from template in space: ${error.message}` },
           ],
-          isError: true
+          isError: true,
         };
       }
     }

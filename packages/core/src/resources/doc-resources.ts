@@ -14,7 +14,7 @@ export function setupDocResources(server: McpServer): void {
     new ResourceTemplate('clickup://workspace/{workspace_id}/doc/{doc_id}', { list: undefined }),
     {
       description:
-        'Get the content of a specific ClickUp doc, combining all pages into a single document.'
+        'Get the content of a specific ClickUp doc, combining all pages into a single document.',
     },
     async (uri, params) => {
       try {
@@ -41,9 +41,9 @@ export function setupDocResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: combinedContent || 'No content found in this doc.'
-            }
-          ]
+              text: combinedContent || 'No content found in this doc.',
+            },
+          ],
         };
       } catch (error: any) {
         console.error('[DocResources] Error fetching doc:', error);
@@ -57,7 +57,7 @@ export function setupDocResources(server: McpServer): void {
     'example-doc',
     'clickup://workspace/9011839976/doc/8cjbgz8-911',
     {
-      description: 'An example doc resource demonstrating the doc content format.'
+      description: 'An example doc resource demonstrating the doc content format.',
     },
     async uri => {
       try {
@@ -84,9 +84,9 @@ export function setupDocResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: combinedContent || 'No content found in this doc.'
-            }
-          ]
+              text: combinedContent || 'No content found in this doc.',
+            },
+          ],
         };
       } catch (error: any) {
         console.error('[DocResources] Error fetching example doc:', error);

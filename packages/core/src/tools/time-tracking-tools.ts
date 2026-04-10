@@ -9,7 +9,7 @@ import {} from // TeamIdSchema,
 // UpdateTimeEntrySchema,
 // GetTimeEntriesSchema,
 // TimeEntryTagSchema
-  '../schemas/time-tracking-schemas.js';
+'../schemas/time-tracking-schemas.js';
 
 // Create clients
 const clickUpClient = createClickUpClient();
@@ -45,7 +45,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
       space_id: z.string().optional().describe('Filter by space ID'),
       folder_id: z.string().optional().describe('Filter by folder ID'),
       list_id: z.string().optional().describe('Filter by list ID'),
-      task_id: z.string().optional().describe('Filter by task ID')
+      task_id: z.string().optional().describe('Filter by task ID'),
     },
     async ({
       team_id,
@@ -57,7 +57,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
       space_id,
       folder_id,
       list_id,
-      task_id
+      task_id,
     }) => {
       try {
         const params = {
@@ -69,7 +69,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
           space_id,
           folder_id,
           list_id,
-          task_id
+          task_id,
         };
 
         const timeEntries = await timeTrackingClient.getTimeEntries(team_id, params);
@@ -78,15 +78,15 @@ export function setupTimeTrackingTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Time entries for team ${team_id}:\n\n${JSON.stringify(timeEntries, null, 2)}`
-            }
-          ]
+              text: `Time entries for team ${team_id}:\n\n${JSON.stringify(timeEntries, null, 2)}`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error getting time entries:', error);
         return {
           content: [{ type: 'text', text: `Error getting time entries: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -108,11 +108,11 @@ export function setupTimeTrackingTools(server: McpServer): void {
           z.object({
             name: z.string().min(1).describe('Tag name'),
             tag_fg: z.string().optional().describe('Tag foreground color'),
-            tag_bg: z.string().optional().describe('Tag background color')
+            tag_bg: z.string().optional().describe('Tag background color'),
           })
         )
         .optional()
-        .describe('Array of tags for the time entry')
+        .describe('Array of tags for the time entry'),
     },
     async ({ team_id, description, start, billable, end, task_id, assignee, tags }) => {
       try {
@@ -123,7 +123,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
           end,
           task_id,
           assignee,
-          tags
+          tags,
         };
 
         const timeEntry = await timeTrackingClient.createTimeEntry(team_id, params);
@@ -132,15 +132,15 @@ export function setupTimeTrackingTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Time entry created successfully!\n\n${JSON.stringify(timeEntry, null, 2)}`
-            }
-          ]
+              text: `Time entry created successfully!\n\n${JSON.stringify(timeEntry, null, 2)}`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error creating time entry:', error);
         return {
           content: [{ type: 'text', text: `Error creating time entry: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -170,11 +170,11 @@ export function setupTimeTrackingTools(server: McpServer): void {
           z.object({
             name: z.string().min(1).describe('Tag name'),
             tag_fg: z.string().optional().describe('Tag foreground color'),
-            tag_bg: z.string().optional().describe('Tag background color')
+            tag_bg: z.string().optional().describe('Tag background color'),
           })
         )
         .optional()
-        .describe('Update tags for the time entry')
+        .describe('Update tags for the time entry'),
     },
     async ({ team_id, timer_id, description, start, end, billable, task_id, tags }) => {
       try {
@@ -184,7 +184,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
           end,
           billable,
           task_id,
-          tags
+          tags,
         };
 
         const updatedTimeEntry = await timeTrackingClient.updateTimeEntry(
@@ -197,15 +197,15 @@ export function setupTimeTrackingTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Time entry updated successfully!\n\n${JSON.stringify(updatedTimeEntry, null, 2)}`
-            }
-          ]
+              text: `Time entry updated successfully!\n\n${JSON.stringify(updatedTimeEntry, null, 2)}`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error updating time entry:', error);
         return {
           content: [{ type: 'text', text: `Error updating time entry: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -216,7 +216,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
     'Delete a time entry from ClickUp. This action cannot be undone.',
     {
       team_id: z.string().min(1).describe('The ID of the team'),
-      timer_id: z.string().min(1).describe('The ID of the time entry to delete')
+      timer_id: z.string().min(1).describe('The ID of the time entry to delete'),
     },
     async ({ team_id, timer_id }) => {
       try {
@@ -226,15 +226,15 @@ export function setupTimeTrackingTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Time entry ${timer_id} deleted successfully from team ${team_id}.`
-            }
-          ]
+              text: `Time entry ${timer_id} deleted successfully from team ${team_id}.`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error deleting time entry:', error);
         return {
           content: [{ type: 'text', text: `Error deleting time entry: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -249,7 +249,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
     'Get currently running timers for a team. Shows active time tracking sessions.',
     {
       team_id: z.string().min(1).describe('The ID of the team to get running timers for'),
-      assignee: z.number().positive().optional().describe('Filter by specific user ID')
+      assignee: z.number().positive().optional().describe('Filter by specific user ID'),
     },
     async ({ team_id, assignee }) => {
       try {
@@ -259,15 +259,15 @@ export function setupTimeTrackingTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Running timers for team ${team_id}:\n\n${JSON.stringify(runningTimers, null, 2)}`
-            }
-          ]
+              text: `Running timers for team ${team_id}:\n\n${JSON.stringify(runningTimers, null, 2)}`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error getting running timers:', error);
         return {
           content: [{ type: 'text', text: `Error getting running timers: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -283,7 +283,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
         .number()
         .positive()
         .optional()
-        .describe('Custom start time (Unix timestamp in milliseconds, defaults to current time)')
+        .describe('Custom start time (Unix timestamp in milliseconds, defaults to current time)'),
     },
     async ({ team_id, timer_id, start }) => {
       try {
@@ -293,15 +293,15 @@ export function setupTimeTrackingTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Timer started successfully for time entry ${timer_id} in team ${team_id}.`
-            }
-          ]
+              text: `Timer started successfully for time entry ${timer_id} in team ${team_id}.`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error starting timer:', error);
         return {
           content: [{ type: 'text', text: `Error starting timer: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -317,7 +317,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
         .number()
         .positive()
         .optional()
-        .describe('Custom end time (Unix timestamp in milliseconds, defaults to current time)')
+        .describe('Custom end time (Unix timestamp in milliseconds, defaults to current time)'),
     },
     async ({ team_id, timer_id, end }) => {
       try {
@@ -327,15 +327,15 @@ export function setupTimeTrackingTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Timer stopped successfully for time entry ${timer_id} in team ${team_id}.`
-            }
-          ]
+              text: `Timer stopped successfully for time entry ${timer_id} in team ${team_id}.`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error stopping timer:', error);
         return {
           content: [{ type: 'text', text: `Error stopping timer: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -360,7 +360,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
       task_id: z.string().optional().describe('Filter by task ID'),
       list_id: z.string().optional().describe('Filter by list ID'),
       folder_id: z.string().optional().describe('Filter by folder ID'),
-      space_id: z.string().optional().describe('Filter by space ID')
+      space_id: z.string().optional().describe('Filter by space ID'),
     },
     async ({ team_id, start_date, end_date, assignee, task_id, list_id, folder_id, space_id }) => {
       try {
@@ -371,7 +371,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
           task_id,
           list_id,
           folder_id,
-          space_id
+          space_id,
         };
 
         const timeSummary = await timeTrackingClient.getTimeSummary(team_id, params);
@@ -383,22 +383,22 @@ export function setupTimeTrackingTools(server: McpServer): void {
           ...timeSummary,
           total_duration_formatted: formatDuration(timeSummary.total_duration),
           billable_duration_formatted: formatDuration(timeSummary.billable_duration),
-          non_billable_duration_formatted: formatDuration(timeSummary.non_billable_duration)
+          non_billable_duration_formatted: formatDuration(timeSummary.non_billable_duration),
         };
 
         return {
           content: [
             {
               type: 'text',
-              text: `Time summary for team ${team_id}:\n\n${JSON.stringify(formattedSummary, null, 2)}`
-            }
-          ]
+              text: `Time summary for team ${team_id}:\n\n${JSON.stringify(formattedSummary, null, 2)}`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error getting time summary:', error);
         return {
           content: [{ type: 'text', text: `Error getting time summary: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -419,11 +419,11 @@ export function setupTimeTrackingTools(server: McpServer): void {
       tags: z
         .array(
           z.object({
-            name: z.string().min(1).describe('Tag name')
+            name: z.string().min(1).describe('Tag name'),
           })
         )
         .optional()
-        .describe('Array of tags for the time entry')
+        .describe('Array of tags for the time entry'),
     },
     async ({ team_id, description, task_id, billable, tags }) => {
       try {
@@ -435,7 +435,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
           start: currentTime,
           billable,
           task_id,
-          tags
+          tags,
         });
 
         // Start the timer
@@ -445,15 +445,15 @@ export function setupTimeTrackingTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Timer started successfully! Time entry created and timer is now running.\n\nTime Entry: ${JSON.stringify(timeEntry, null, 2)}`
-            }
-          ]
+              text: `Timer started successfully! Time entry created and timer is now running.\n\nTime Entry: ${JSON.stringify(timeEntry, null, 2)}`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error creating timer entry:', error);
         return {
           content: [{ type: 'text', text: `Error creating timer entry: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -473,7 +473,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
         .enum(['milliseconds', 'seconds', 'minutes', 'hours'])
         .optional()
         .default('milliseconds')
-        .describe('Convert to specific time unit')
+        .describe('Convert to specific time unit'),
     },
     async ({ milliseconds, include_seconds, format }) => {
       try {
@@ -484,15 +484,15 @@ export function setupTimeTrackingTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Duration formatting:\n\nOriginal: ${milliseconds} milliseconds\nFormatted: ${formattedDuration}\nConverted to ${format}: ${convertedValue}`
-            }
-          ]
+              text: `Duration formatting:\n\nOriginal: ${milliseconds} milliseconds\nFormatted: ${formattedDuration}\nConverted to ${format}: ${convertedValue}`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error formatting duration:', error);
         return {
           content: [{ type: 'text', text: `Error formatting duration: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }

@@ -4,10 +4,10 @@ import { z } from 'zod';
 import { createClickUpClient } from '../clickup-client/index.js';
 import {
   createEnhancedCustomFieldsClient,
-  CustomFieldType
+  CustomFieldType,
 } from '../clickup-client/custom-fields-enhanced.js';
 import {
-  /* CustomFieldToolSchemas, */ DropdownOptionSchema
+  /* CustomFieldToolSchemas, */ DropdownOptionSchema,
 } from '../schemas/custom-field-schemas.js';
 
 // Create clients
@@ -31,45 +31,45 @@ export function setupCustomFieldTools(server: McpServer): void {
         .boolean()
         .optional()
         .default(false)
-        .describe('Whether to include deleted custom fields')
+        .describe('Whether to include deleted custom fields'),
     },
     async ({ container_type, container_id, include_deleted }) => {
       try {
         let fields;
 
         switch (container_type) {
-        case 'list':
-          fields = await customFieldsClient.getListCustomFields(container_id, {
-            include_deleted
-          });
-          break;
-        case 'folder':
-          fields = await customFieldsClient.getFolderCustomFields(container_id, {
-            include_deleted
-          });
-          break;
-        case 'space':
-          fields = await customFieldsClient.getSpaceCustomFields(container_id, {
-            include_deleted
-          });
-          break;
-        default:
-          throw new Error('Invalid container type');
+          case 'list':
+            fields = await customFieldsClient.getListCustomFields(container_id, {
+              include_deleted,
+            });
+            break;
+          case 'folder':
+            fields = await customFieldsClient.getFolderCustomFields(container_id, {
+              include_deleted,
+            });
+            break;
+          case 'space':
+            fields = await customFieldsClient.getSpaceCustomFields(container_id, {
+              include_deleted,
+            });
+            break;
+          default:
+            throw new Error('Invalid container type');
         }
 
         return {
           content: [
             {
               type: 'text',
-              text: `Custom fields for ${container_type} ${container_id}:\n\n${JSON.stringify(fields, null, 2)}`
-            }
-          ]
+              text: `Custom fields for ${container_type} ${container_id}:\n\n${JSON.stringify(fields, null, 2)}`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error getting custom fields:', error);
         return {
           content: [{ type: 'text', text: `Error getting custom fields: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -103,7 +103,7 @@ export function setupCustomFieldTools(server: McpServer): void {
           'phone',
           'rating',
           'progress',
-          'task_relationship'
+          'task_relationship',
         ] as const)
         .describe('The type of custom field to create'),
       type_config: z.record(z.any()).optional().describe('Type-specific configuration object'),
@@ -112,7 +112,7 @@ export function setupCustomFieldTools(server: McpServer): void {
         .boolean()
         .optional()
         .default(false)
-        .describe('Whether to hide the field from guests')
+        .describe('Whether to hide the field from guests'),
     },
     async ({
       container_type,
@@ -121,7 +121,7 @@ export function setupCustomFieldTools(server: McpServer): void {
       type,
       type_config,
       required,
-      hide_from_guests
+      hide_from_guests,
     }) => {
       try {
         // Get default configuration for field type if not provided
@@ -133,37 +133,37 @@ export function setupCustomFieldTools(server: McpServer): void {
           type: type as CustomFieldType,
           type_config: finalTypeConfig,
           required,
-          hide_from_guests
+          hide_from_guests,
         };
 
         let field;
         switch (container_type) {
-        case 'list':
-          field = await customFieldsClient.createListCustomField(container_id, fieldParams);
-          break;
-        case 'folder':
-          field = await customFieldsClient.createFolderCustomField(container_id, fieldParams);
-          break;
-        case 'space':
-          field = await customFieldsClient.createSpaceCustomField(container_id, fieldParams);
-          break;
-        default:
-          throw new Error('Invalid container type');
+          case 'list':
+            field = await customFieldsClient.createListCustomField(container_id, fieldParams);
+            break;
+          case 'folder':
+            field = await customFieldsClient.createFolderCustomField(container_id, fieldParams);
+            break;
+          case 'space':
+            field = await customFieldsClient.createSpaceCustomField(container_id, fieldParams);
+            break;
+          default:
+            throw new Error('Invalid container type');
         }
 
         return {
           content: [
             {
               type: 'text',
-              text: `Custom field created successfully in ${container_type} ${container_id}!\n\n${JSON.stringify(field, null, 2)}`
-            }
-          ]
+              text: `Custom field created successfully in ${container_type} ${container_id}!\n\n${JSON.stringify(field, null, 2)}`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error creating custom field:', error);
         return {
           content: [{ type: 'text', text: `Error creating custom field: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -181,7 +181,7 @@ export function setupCustomFieldTools(server: McpServer): void {
       name: z.string().min(1).max(255).optional().describe('New name for the custom field'),
       type_config: z.record(z.any()).optional().describe('Updated type-specific configuration'),
       required: z.boolean().optional().describe('Whether the field should be required'),
-      hide_from_guests: z.boolean().optional().describe('Whether to hide the field from guests')
+      hide_from_guests: z.boolean().optional().describe('Whether to hide the field from guests'),
     },
     async ({ field_id, name, type_config, required, hide_from_guests }) => {
       try {
@@ -196,10 +196,10 @@ export function setupCustomFieldTools(server: McpServer): void {
             content: [
               {
                 type: 'text',
-                text: 'Error: Must specify at least one field to update (name, type_config, required, or hide_from_guests)'
-              }
+                text: 'Error: Must specify at least one field to update (name, type_config, required, or hide_from_guests)',
+              },
             ],
-            isError: true
+            isError: true,
           };
         }
 
@@ -207,22 +207,22 @@ export function setupCustomFieldTools(server: McpServer): void {
           name,
           type_config,
           required,
-          hide_from_guests
+          hide_from_guests,
         });
 
         return {
           content: [
             {
               type: 'text',
-              text: `Custom field updated successfully!\n\n${JSON.stringify(updatedField, null, 2)}`
-            }
-          ]
+              text: `Custom field updated successfully!\n\n${JSON.stringify(updatedField, null, 2)}`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error updating custom field:', error);
         return {
           content: [{ type: 'text', text: `Error updating custom field: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -236,7 +236,7 @@ export function setupCustomFieldTools(server: McpServer): void {
     'clickup_delete_custom_field',
     'Delete a custom field from ClickUp. This will remove the field and all its values from tasks. This action cannot be undone.',
     {
-      field_id: z.string().min(1).describe('The ID of the custom field to delete')
+      field_id: z.string().min(1).describe('The ID of the custom field to delete'),
     },
     async ({ field_id }) => {
       try {
@@ -246,15 +246,15 @@ export function setupCustomFieldTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Custom field ${field_id} deleted successfully. All field values have been removed from tasks.`
-            }
-          ]
+              text: `Custom field ${field_id} deleted successfully. All field values have been removed from tasks.`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error deleting custom field:', error);
         return {
           content: [{ type: 'text', text: `Error deleting custom field: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -270,7 +270,7 @@ export function setupCustomFieldTools(server: McpServer): void {
     {
       task_id: z.string().min(1).describe('The ID of the task to set the custom field value on'),
       field_id: z.string().min(1).describe('The ID of the custom field'),
-      value: z.any().describe('The value to set (format depends on field type)')
+      value: z.any().describe('The value to set (format depends on field type)'),
     },
     async ({ task_id, field_id, value }) => {
       try {
@@ -280,15 +280,15 @@ export function setupCustomFieldTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Custom field value set successfully on task ${task_id} for field ${field_id}.`
-            }
-          ]
+              text: `Custom field value set successfully on task ${task_id} for field ${field_id}.`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error setting custom field value:', error);
         return {
           content: [{ type: 'text', text: `Error setting custom field value: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -302,7 +302,7 @@ export function setupCustomFieldTools(server: McpServer): void {
         .string()
         .min(1)
         .describe('The ID of the task to remove the custom field value from'),
-      field_id: z.string().min(1).describe('The ID of the custom field to clear')
+      field_id: z.string().min(1).describe('The ID of the custom field to clear'),
     },
     async ({ task_id, field_id }) => {
       try {
@@ -312,15 +312,15 @@ export function setupCustomFieldTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Custom field value removed successfully from task ${task_id} for field ${field_id}.`
-            }
-          ]
+              text: `Custom field value removed successfully from task ${task_id} for field ${field_id}.`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error removing custom field value:', error);
         return {
           content: [{ type: 'text', text: `Error removing custom field value: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -331,7 +331,7 @@ export function setupCustomFieldTools(server: McpServer): void {
     'Get a custom field value from a ClickUp task. Returns the current value and field information.',
     {
       task_id: z.string().min(1).describe('The ID of the task to get the custom field value from'),
-      field_id: z.string().min(1).describe('The ID of the custom field to retrieve')
+      field_id: z.string().min(1).describe('The ID of the custom field to retrieve'),
     },
     async ({ task_id, field_id }) => {
       try {
@@ -341,15 +341,15 @@ export function setupCustomFieldTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Custom field value for task ${task_id}, field ${field_id}:\n\n${JSON.stringify(value, null, 2)}`
-            }
-          ]
+              text: `Custom field value for task ${task_id}, field ${field_id}:\n\n${JSON.stringify(value, null, 2)}`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error getting custom field value:', error);
         return {
           content: [{ type: 'text', text: `Error getting custom field value: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -364,18 +364,18 @@ export function setupCustomFieldTools(server: McpServer): void {
         .array(
           z.object({
             field_id: z.string().min(1).describe('The ID of the custom field'),
-            value: z.any().describe('The value to set (format depends on field type)')
+            value: z.any().describe('The value to set (format depends on field type)'),
           })
         )
         .min(1)
-        .describe('Array of field ID and value pairs to set')
+        .describe('Array of field ID and value pairs to set'),
     },
     async ({ task_id, field_values }) => {
       try {
         // Ensure all field_values have the required properties
         const validatedFieldValues = field_values.map(fv => ({
           field_id: fv.field_id,
-          value: fv.value
+          value: fv.value,
         }));
 
         const results = await customFieldsClient.bulkSetCustomFieldValues(
@@ -387,17 +387,17 @@ export function setupCustomFieldTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Bulk custom field values set successfully on task ${task_id}!\n\nResults:\n${JSON.stringify(results, null, 2)}`
-            }
-          ]
+              text: `Bulk custom field values set successfully on task ${task_id}!\n\nResults:\n${JSON.stringify(results, null, 2)}`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error bulk setting custom field values:', error);
         return {
           content: [
-            { type: 'text', text: `Error bulk setting custom field values: ${error.message}` }
+            { type: 'text', text: `Error bulk setting custom field values: ${error.message}` },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -407,7 +407,7 @@ export function setupCustomFieldTools(server: McpServer): void {
     'clickup_get_task_custom_field_values',
     'Get all custom field values for a ClickUp task. Returns all field values with their definitions.',
     {
-      task_id: z.string().min(1).describe('The ID of the task to get custom field values from')
+      task_id: z.string().min(1).describe('The ID of the task to get custom field values from'),
     },
     async ({ task_id }) => {
       try {
@@ -417,17 +417,17 @@ export function setupCustomFieldTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `All custom field values for task ${task_id}:\n\n${JSON.stringify(values, null, 2)}`
-            }
-          ]
+              text: `All custom field values for task ${task_id}:\n\n${JSON.stringify(values, null, 2)}`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error getting task custom field values:', error);
         return {
           content: [
-            { type: 'text', text: `Error getting task custom field values: ${error.message}` }
+            { type: 'text', text: `Error getting task custom field values: ${error.message}` },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -451,7 +451,7 @@ export function setupCustomFieldTools(server: McpServer): void {
         .boolean()
         .optional()
         .default(false)
-        .describe('Whether to hide from guests')
+        .describe('Whether to hide from guests'),
     },
     async ({
       container_type,
@@ -460,12 +460,12 @@ export function setupCustomFieldTools(server: McpServer): void {
       default_value,
       placeholder,
       required,
-      hide_from_guests
+      hide_from_guests,
     }) => {
       try {
         const type_config = {
           default: default_value,
-          placeholder
+          placeholder,
         };
 
         const fieldParams = {
@@ -473,35 +473,35 @@ export function setupCustomFieldTools(server: McpServer): void {
           type: 'text' as CustomFieldType,
           type_config,
           required,
-          hide_from_guests
+          hide_from_guests,
         };
 
         let field;
         switch (container_type) {
-        case 'list':
-          field = await customFieldsClient.createListCustomField(container_id, fieldParams);
-          break;
-        case 'folder':
-          field = await customFieldsClient.createFolderCustomField(container_id, fieldParams);
-          break;
-        case 'space':
-          field = await customFieldsClient.createSpaceCustomField(container_id, fieldParams);
-          break;
+          case 'list':
+            field = await customFieldsClient.createListCustomField(container_id, fieldParams);
+            break;
+          case 'folder':
+            field = await customFieldsClient.createFolderCustomField(container_id, fieldParams);
+            break;
+          case 'space':
+            field = await customFieldsClient.createSpaceCustomField(container_id, fieldParams);
+            break;
         }
 
         return {
           content: [
             {
               type: 'text',
-              text: `Text custom field created successfully!\n\n${JSON.stringify(field, null, 2)}`
-            }
-          ]
+              text: `Text custom field created successfully!\n\n${JSON.stringify(field, null, 2)}`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error creating text custom field:', error);
         return {
           content: [{ type: 'text', text: `Error creating text custom field: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -525,7 +525,7 @@ export function setupCustomFieldTools(server: McpServer): void {
         .boolean()
         .optional()
         .default(false)
-        .describe('Whether to hide from guests')
+        .describe('Whether to hide from guests'),
     },
     async ({
       container_type,
@@ -534,15 +534,15 @@ export function setupCustomFieldTools(server: McpServer): void {
       options,
       default_option_index,
       required,
-      hide_from_guests
+      hide_from_guests,
     }) => {
       try {
         const type_config = {
           options: options.map((option, index) => ({
             ...option,
-            orderindex: option.orderindex ?? index
+            orderindex: option.orderindex ?? index,
           })),
-          default: default_option_index
+          default: default_option_index,
         };
 
         const fieldParams = {
@@ -550,37 +550,37 @@ export function setupCustomFieldTools(server: McpServer): void {
           type: 'drop_down' as CustomFieldType,
           type_config,
           required,
-          hide_from_guests
+          hide_from_guests,
         };
 
         let field;
         switch (container_type) {
-        case 'list':
-          field = await customFieldsClient.createListCustomField(container_id, fieldParams);
-          break;
-        case 'folder':
-          field = await customFieldsClient.createFolderCustomField(container_id, fieldParams);
-          break;
-        case 'space':
-          field = await customFieldsClient.createSpaceCustomField(container_id, fieldParams);
-          break;
+          case 'list':
+            field = await customFieldsClient.createListCustomField(container_id, fieldParams);
+            break;
+          case 'folder':
+            field = await customFieldsClient.createFolderCustomField(container_id, fieldParams);
+            break;
+          case 'space':
+            field = await customFieldsClient.createSpaceCustomField(container_id, fieldParams);
+            break;
         }
 
         return {
           content: [
             {
               type: 'text',
-              text: `Dropdown custom field created successfully with ${options.length} options!\n\n${JSON.stringify(field, null, 2)}`
-            }
-          ]
+              text: `Dropdown custom field created successfully with ${options.length} options!\n\n${JSON.stringify(field, null, 2)}`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error creating dropdown custom field:', error);
         return {
           content: [
-            { type: 'text', text: `Error creating dropdown custom field: ${error.message}` }
+            { type: 'text', text: `Error creating dropdown custom field: ${error.message}` },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -606,7 +606,7 @@ export function setupCustomFieldTools(server: McpServer): void {
         .boolean()
         .optional()
         .default(false)
-        .describe('Whether to hide from guests')
+        .describe('Whether to hide from guests'),
     },
     async ({
       container_type,
@@ -615,12 +615,12 @@ export function setupCustomFieldTools(server: McpServer): void {
       default_value,
       precision,
       required,
-      hide_from_guests
+      hide_from_guests,
     }) => {
       try {
         const type_config = {
           default: default_value,
-          precision
+          precision,
         };
 
         const fieldParams = {
@@ -628,35 +628,35 @@ export function setupCustomFieldTools(server: McpServer): void {
           type: 'number' as CustomFieldType,
           type_config,
           required,
-          hide_from_guests
+          hide_from_guests,
         };
 
         let field;
         switch (container_type) {
-        case 'list':
-          field = await customFieldsClient.createListCustomField(container_id, fieldParams);
-          break;
-        case 'folder':
-          field = await customFieldsClient.createFolderCustomField(container_id, fieldParams);
-          break;
-        case 'space':
-          field = await customFieldsClient.createSpaceCustomField(container_id, fieldParams);
-          break;
+          case 'list':
+            field = await customFieldsClient.createListCustomField(container_id, fieldParams);
+            break;
+          case 'folder':
+            field = await customFieldsClient.createFolderCustomField(container_id, fieldParams);
+            break;
+          case 'space':
+            field = await customFieldsClient.createSpaceCustomField(container_id, fieldParams);
+            break;
         }
 
         return {
           content: [
             {
               type: 'text',
-              text: `Number custom field created successfully with ${precision} decimal places!\n\n${JSON.stringify(field, null, 2)}`
-            }
-          ]
+              text: `Number custom field created successfully with ${precision} decimal places!\n\n${JSON.stringify(field, null, 2)}`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error creating number custom field:', error);
         return {
           content: [{ type: 'text', text: `Error creating number custom field: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -684,7 +684,7 @@ export function setupCustomFieldTools(server: McpServer): void {
         .boolean()
         .optional()
         .default(false)
-        .describe('Whether to hide from guests')
+        .describe('Whether to hide from guests'),
     },
     async ({
       container_type,
@@ -693,12 +693,12 @@ export function setupCustomFieldTools(server: McpServer): void {
       include_time,
       default_value,
       required,
-      hide_from_guests
+      hide_from_guests,
     }) => {
       try {
         const type_config = {
           include_time,
-          default: default_value
+          default: default_value,
         };
 
         const fieldParams = {
@@ -706,35 +706,35 @@ export function setupCustomFieldTools(server: McpServer): void {
           type: 'date' as CustomFieldType,
           type_config,
           required,
-          hide_from_guests
+          hide_from_guests,
         };
 
         let field;
         switch (container_type) {
-        case 'list':
-          field = await customFieldsClient.createListCustomField(container_id, fieldParams);
-          break;
-        case 'folder':
-          field = await customFieldsClient.createFolderCustomField(container_id, fieldParams);
-          break;
-        case 'space':
-          field = await customFieldsClient.createSpaceCustomField(container_id, fieldParams);
-          break;
+          case 'list':
+            field = await customFieldsClient.createListCustomField(container_id, fieldParams);
+            break;
+          case 'folder':
+            field = await customFieldsClient.createFolderCustomField(container_id, fieldParams);
+            break;
+          case 'space':
+            field = await customFieldsClient.createSpaceCustomField(container_id, fieldParams);
+            break;
         }
 
         return {
           content: [
             {
               type: 'text',
-              text: `Date custom field created successfully${include_time ? ' with time support' : ''}!\n\n${JSON.stringify(field, null, 2)}`
-            }
-          ]
+              text: `Date custom field created successfully${include_time ? ' with time support' : ''}!\n\n${JSON.stringify(field, null, 2)}`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error creating date custom field:', error);
         return {
           content: [{ type: 'text', text: `Error creating date custom field: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -753,12 +753,12 @@ export function setupCustomFieldTools(server: McpServer): void {
         .boolean()
         .optional()
         .default(false)
-        .describe('Whether to hide from guests')
+        .describe('Whether to hide from guests'),
     },
     async ({ container_type, container_id, name, default_value, required, hide_from_guests }) => {
       try {
         const type_config = {
-          default: default_value
+          default: default_value,
         };
 
         const fieldParams = {
@@ -766,37 +766,37 @@ export function setupCustomFieldTools(server: McpServer): void {
           type: 'checkbox' as CustomFieldType,
           type_config,
           required,
-          hide_from_guests
+          hide_from_guests,
         };
 
         let field;
         switch (container_type) {
-        case 'list':
-          field = await customFieldsClient.createListCustomField(container_id, fieldParams);
-          break;
-        case 'folder':
-          field = await customFieldsClient.createFolderCustomField(container_id, fieldParams);
-          break;
-        case 'space':
-          field = await customFieldsClient.createSpaceCustomField(container_id, fieldParams);
-          break;
+          case 'list':
+            field = await customFieldsClient.createListCustomField(container_id, fieldParams);
+            break;
+          case 'folder':
+            field = await customFieldsClient.createFolderCustomField(container_id, fieldParams);
+            break;
+          case 'space':
+            field = await customFieldsClient.createSpaceCustomField(container_id, fieldParams);
+            break;
         }
 
         return {
           content: [
             {
               type: 'text',
-              text: `Checkbox custom field created successfully!\n\n${JSON.stringify(field, null, 2)}`
-            }
-          ]
+              text: `Checkbox custom field created successfully!\n\n${JSON.stringify(field, null, 2)}`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error creating checkbox custom field:', error);
         return {
           content: [
-            { type: 'text', text: `Error creating checkbox custom field: ${error.message}` }
+            { type: 'text', text: `Error creating checkbox custom field: ${error.message}` },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -815,22 +815,22 @@ export function setupCustomFieldTools(server: McpServer): void {
         .enum(['list', 'folder', 'space'])
         .describe('The type of container the field belongs to'),
       container_id: z.string().min(1).describe('The ID of the container'),
-      value: z.any().describe('The value to validate')
+      value: z.any().describe('The value to validate'),
     },
     async ({ field_id, container_type, container_id, value }) => {
       try {
         // Get the field definition first
         let fields;
         switch (container_type) {
-        case 'list':
-          fields = await customFieldsClient.getListCustomFields(container_id);
-          break;
-        case 'folder':
-          fields = await customFieldsClient.getFolderCustomFields(container_id);
-          break;
-        case 'space':
-          fields = await customFieldsClient.getSpaceCustomFields(container_id);
-          break;
+          case 'list':
+            fields = await customFieldsClient.getListCustomFields(container_id);
+            break;
+          case 'folder':
+            fields = await customFieldsClient.getFolderCustomFields(container_id);
+            break;
+          case 'space':
+            fields = await customFieldsClient.getSpaceCustomFields(container_id);
+            break;
         }
 
         const field = fields.find(f => f.id === field_id);
@@ -839,10 +839,10 @@ export function setupCustomFieldTools(server: McpServer): void {
             content: [
               {
                 type: 'text',
-                text: `Error: Custom field ${field_id} not found in ${container_type} ${container_id}`
-              }
+                text: `Error: Custom field ${field_id} not found in ${container_type} ${container_id}`,
+              },
             ],
-            isError: true
+            isError: true,
           };
         }
 
@@ -853,17 +853,17 @@ export function setupCustomFieldTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Validation result for field "${field.name}" (${field.type}):\n\nValue: ${JSON.stringify(value)}\nValid: ${isValid}\n\nField Configuration:\n${JSON.stringify(field.type_config, null, 2)}`
-            }
-          ]
+              text: `Validation result for field "${field.name}" (${field.type}):\n\nValue: ${JSON.stringify(value)}\nValid: ${isValid}\n\nField Configuration:\n${JSON.stringify(field.type_config, null, 2)}`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('Error validating custom field value:', error);
         return {
           content: [
-            { type: 'text', text: `Error validating custom field value: ${error.message}` }
+            { type: 'text', text: `Error validating custom field value: ${error.message}` },
           ],
-          isError: true
+          isError: true,
         };
       }
     }

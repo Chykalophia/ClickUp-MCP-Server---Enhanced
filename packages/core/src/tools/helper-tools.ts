@@ -5,7 +5,7 @@ import { createClickUpClient } from '../clickup-client/index.js';
 import {
   suggestToolsForTask,
   /* getChatChannelDiscoveryStrategy, */ getEfficiencyRating,
-  TOOL_METADATA
+  TOOL_METADATA,
 } from '../utils/tool-efficiency.js';
 
 const client = createClickUpClient();
@@ -29,10 +29,10 @@ export function setupHelperTools(server: McpServer): void {
           preferred_approach: z
             .enum(['direct', 'search', 'explore'])
             .optional()
-            .describe('Preferred approach style')
+            .describe('Preferred approach style'),
         })
         .optional()
-        .describe('Additional context about the request')
+        .describe('Additional context about the request'),
     },
     async args => {
       try {
@@ -63,21 +63,21 @@ ${efficiency.suggestions.map(s => `- ${s}`).join('\n')}
 ${
   args.context?.known_ids
     ? `\n### 🔑 Available IDs\n${Object.entries(args.context.known_ids)
-      .map(([key, value]) => `- ${key}: ${value}`)
-      .join('\n')}`
+        .map(([key, value]) => `- ${key}: ${value}`)
+        .join('\n')}`
     : ''
-}`
-            }
-          ]
+}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error getting tool suggestions: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
-          ]
+              text: `Error getting tool suggestions: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
+          ],
         };
       }
     }
@@ -93,7 +93,7 @@ ${
     {
       workspace_id: z.string().optional().describe('Specific workspace ID to search in'),
       channel_name: z.string().optional().describe('Partial or full channel name to search for'),
-      include_private: z.boolean().default(true).describe('Whether to include private channels')
+      include_private: z.boolean().default(true).describe('Whether to include private channels'),
     },
     async args => {
       try {
@@ -127,7 +127,7 @@ ${
                       workspace_name: (workspace as any).name,
                       space_id: space.id,
                       space_name: space.name,
-                      visibility: chatView.visibility || 'unknown'
+                      visibility: chatView.visibility || 'unknown',
                     });
                   }
                 }
@@ -151,9 +151,9 @@ ${
   allChatChannels.length === 0
     ? '❌ No chat channels found matching your criteria.'
     : allChatChannels
-      .map(
-        channel =>
-          `### 📢 ${channel.name}
+        .map(
+          channel =>
+            `### 📢 ${channel.name}
 - **ID**: \`${channel.id}\`
 - **Type**: ${channel.type}
 - **Workspace**: ${channel.workspace_name} (\`${channel.workspace_id}\`)
@@ -161,26 +161,26 @@ ${
 - **Visibility**: ${channel.visibility}
 
 *Use this ID with \`create_chat_view_comment\` to post messages.*`
-      )
-      .join('\n\n')
+        )
+        .join('\n\n')
 }
 
 ### 🚀 Next Steps
 To post a message to any of these channels, use:
 \`\`\`
 create_chat_view_comment(view_id="CHANNEL_ID", comment_text="Your message")
-\`\`\``
-            }
-          ]
+\`\`\``,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `❌ Error finding chat channels: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
-          ]
+              text: `❌ Error finding chat channels: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
+          ],
         };
       }
     }
@@ -209,10 +209,10 @@ create_chat_view_comment(view_id="CHANNEL_ID", comment_text="Your message")
           'workload',
           'activity',
           'map',
-          'embed'
+          'embed',
         ])
         .optional()
-        .describe('Filter by view type')
+        .describe('Filter by view type'),
     },
     async args => {
       try {
@@ -239,7 +239,7 @@ create_chat_view_comment(view_id="CHANNEL_ID", comment_text="Your message")
                     workspace_id: workspace.id,
                     workspace_name: (workspace as any).name,
                     space_id: space.id,
-                    space_name: space.name
+                    space_name: space.name,
                   });
                 }
               }
@@ -256,27 +256,27 @@ create_chat_view_comment(view_id="CHANNEL_ID", comment_text="Your message")
               text: `## 🔍 Found ${matchingViews.length} Views matching "${args.view_name}"
 
 ${matchingViews
-    .map(
-      view =>
-        `### 📋 ${view.name}
+  .map(
+    view =>
+      `### 📋 ${view.name}
 - **ID**: \`${view.id}\`
 - **Type**: ${view.type}
 - **Workspace**: ${view.workspace_name}
 - **Space**: ${view.space_name}
 - **Visibility**: ${view.visibility || 'unknown'}`
-    )
-    .join('\n\n')}`
-            }
-          ]
+  )
+  .join('\n\n')}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error searching views: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
-          ]
+              text: `Error searching views: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
+          ],
         };
       }
     }
@@ -298,7 +298,7 @@ ${matchingViews
       include_chat_channels: z
         .boolean()
         .default(true)
-        .describe('Whether to include chat channel discovery')
+        .describe('Whether to include chat channel discovery'),
     },
     async args => {
       try {
@@ -306,7 +306,7 @@ ${matchingViews
           client
             .get('/team')
             .then((teams: any) => teams.teams?.find((w: any) => w.id === args.workspace_id)),
-          client.get(`/space?team_id=${args.workspace_id}`)
+          client.get(`/space?team_id=${args.workspace_id}`),
         ]);
 
         if (!workspace) {
@@ -317,15 +317,15 @@ ${matchingViews
           workspace: {
             id: workspace.id,
             name: workspace.name,
-            members: workspace.members?.length || 0
+            members: workspace.members?.length || 0,
           },
           spaces: [],
           chat_channels: [],
           summary: {
             total_spaces: spaces.spaces?.length || 0,
             total_chat_channels: 0,
-            total_views: 0
-          }
+            total_views: 0,
+          },
         };
 
         // Process each space
@@ -337,7 +337,7 @@ ${matchingViews
             private: space.private,
             folders: [],
             lists: [],
-            views: []
+            views: [],
           };
 
           try {
@@ -350,7 +350,7 @@ ${matchingViews
               client
                 .get(`/space/${space.id}/list`)
                 .then((r: any) => r.lists || [])
-                .catch(() => [])
+                .catch(() => []),
             ]);
 
             spaceData.folders = folders;
@@ -378,7 +378,7 @@ ${matchingViews
                     id: chatView.id,
                     name: chatView.name,
                     space_name: space.name,
-                    space_id: space.id
+                    space_id: space.id,
                   });
                 }
               }
@@ -411,39 +411,39 @@ ${
   overview.chat_channels.length === 0
     ? '❌ No chat channels found'
     : overview.chat_channels
-      .map((chat: any) => `- **${chat.name}** (\`${chat.id}\`) in ${chat.space_name}`)
-      .join('\n')
+        .map((chat: any) => `- **${chat.name}** (\`${chat.id}\`) in ${chat.space_name}`)
+        .join('\n')
 }
 
 ### 🏗️ Spaces Structure
 ${overview.spaces
-    .map(
-      (space: any) =>
-        `#### 📁 ${space.name} ${space.private ? '🔒' : '🌐'}
+  .map(
+    (space: any) =>
+      `#### 📁 ${space.name} ${space.private ? '🔒' : '🌐'}
 - **ID**: \`${space.id}\`
 - **Folders**: ${space.folders.length}
 - **Lists**: ${space.lists.length}
 ${args.include_views ? `- **Views**: ${space.views.length}` : ''}`
-    )
-    .join('\n\n')}
+  )
+  .join('\n\n')}
 
 ### 🚀 Quick Actions
 ${
   overview.chat_channels.length > 0
     ? '**Post to chat**: Use `create_chat_view_comment` with any of the chat channel IDs above.'
     : '**No chat channels available for posting.**'
-}`
-            }
-          ]
+}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error getting workspace overview: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
-          ]
+              text: `Error getting workspace overview: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
+          ],
         };
       }
     }
@@ -458,7 +458,7 @@ ${
     'Analyze the efficiency of a planned tool sequence and get optimization suggestions.',
     {
       planned_tools: z.array(z.string()).min(1).describe('Array of tool names you plan to use'),
-      goal: z.string().describe('What you are trying to accomplish')
+      goal: z.string().describe('What you are trying to accomplish'),
     },
     async args => {
       try {
@@ -472,7 +472,7 @@ ${
             efficiency: metadata?.efficiency || 'unknown',
             category: metadata?.category || 'unknown',
             performance_impact: metadata?.performance_impact || 'unknown',
-            hint: metadata?.efficiency_hint || 'No specific guidance available'
+            hint: metadata?.efficiency_hint || 'No specific guidance available',
           };
         });
 
@@ -486,15 +486,15 @@ ${
 
 ### 📋 Planned Tools Analysis
 ${toolAnalysis
-    .map(
-      analysis =>
-        `#### ${analysis.tool}
+  .map(
+    analysis =>
+      `#### ${analysis.tool}
 - **Efficiency**: ${analysis.efficiency}
 - **Category**: ${analysis.category}
 - **Performance Impact**: ${analysis.performance_impact}
 - **Hint**: ${analysis.hint}`
-    )
-    .join('\n\n')}
+  )
+  .join('\n\n')}
 
 ### 📊 Overall Efficiency Rating: ${efficiency.rating.toUpperCase()}
 
@@ -506,18 +506,18 @@ ${efficiency.suggestions.map(s => `- ${s}`).join('\n')}
 **Workflow**: ${suggestion.workflow_hint}
 
 ### ⚡ Efficiency Notes
-${suggestion.efficiency_notes.map(note => `- ${note}`).join('\n')}`
-            }
-          ]
+${suggestion.efficiency_notes.map(note => `- ${note}`).join('\n')}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error analyzing tool efficiency: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
-          ]
+              text: `Error analyzing tool efficiency: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
+          ],
         };
       }
     }

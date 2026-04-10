@@ -58,12 +58,12 @@ export class DocsClient {
       // Use the exact same headers that worked in the successful request
       const headers = {
         Authorization: apiToken,
-        Accept: 'application/json'
+        Accept: 'application/json',
       };
 
       const response = await axios.get(url, {
         headers,
-        params
+        params,
       });
 
       return response.data;
@@ -94,18 +94,18 @@ export class DocsClient {
       // Use the exact same parameters that worked in the successful request
       const params = {
         max_page_depth: -1,
-        content_format: contentFormat
+        content_format: contentFormat,
       };
 
       // Use the exact same headers that worked in the successful request
       const headers = {
         Authorization: apiToken,
-        Accept: 'application/json'
+        Accept: 'application/json',
       };
 
       const response = await axios.get(url, {
         headers,
-        params
+        params,
       });
 
       return response.data;
@@ -137,14 +137,14 @@ export class DocsClient {
       // Use the exact same headers that worked in the successful request
       const headers = {
         Authorization: apiToken,
-        Accept: 'application/json'
+        Accept: 'application/json',
       };
 
       // According to the ClickUp API documentation, this should be a GET request
       // with the parameters as query parameters
       const queryParams: any = {
         doc_name: params.query,
-        cursor: params.cursor
+        cursor: params.cursor,
       };
 
       // If the query is a space ID, use it as a space_id parameter
@@ -156,7 +156,7 @@ export class DocsClient {
 
       const response = await axios.get(url, {
         headers,
-        params: queryParams
+        params: queryParams,
       });
 
       return response.data;

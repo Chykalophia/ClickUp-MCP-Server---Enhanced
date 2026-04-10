@@ -17,7 +17,7 @@ export function setupDocTools(server: McpServer): void {
     'Get the content of a specific ClickUp doc. Returns combined content from all pages in the doc.',
     {
       doc_id: z.string().describe('The ID of the doc to get'),
-      workspace_id: z.string().describe('The ID of the workspace containing the doc')
+      workspace_id: z.string().describe('The ID of the workspace containing the doc'),
     },
     async ({ doc_id, workspace_id }) => {
       try {
@@ -35,13 +35,13 @@ export function setupDocTools(server: McpServer): void {
         }
 
         return {
-          content: [{ type: 'text', text: combinedContent || 'No content found in this doc.' }]
+          content: [{ type: 'text', text: combinedContent || 'No content found in this doc.' }],
         };
       } catch (error: any) {
         console.error('Error getting doc content:', error);
         return {
           content: [{ type: 'text', text: `Error getting doc content: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -54,7 +54,7 @@ export function setupDocTools(server: McpServer): void {
     {
       workspace_id: z.string().describe('The ID of the workspace to search in'),
       query: z.string().describe('The search query'),
-      cursor: z.string().optional().describe('Cursor for pagination')
+      cursor: z.string().optional().describe('Cursor for pagination'),
     },
     async ({ workspace_id, query, cursor }) => {
       try {
@@ -62,13 +62,13 @@ export function setupDocTools(server: McpServer): void {
         const result = await docsClient.searchDocs(workspace_id, { query, cursor });
 
         return {
-          content: [{ type: 'text', text: JSON.stringify(result.docs, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result.docs, null, 2) }],
         };
       } catch (error: any) {
         console.error('Error searching docs:', error);
         return {
           content: [{ type: 'text', text: `Error searching docs: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -83,7 +83,7 @@ export function setupDocTools(server: McpServer): void {
       cursor: z.string().optional().describe('Cursor for pagination'),
       deleted: z.boolean().optional().describe('Whether to include deleted docs'),
       archived: z.boolean().optional().describe('Whether to include archived docs'),
-      limit: z.number().optional().describe('The maximum number of docs to return')
+      limit: z.number().optional().describe('The maximum number of docs to return'),
     },
     async ({ workspace_id, cursor, deleted, archived, limit }) => {
       try {
@@ -92,17 +92,17 @@ export function setupDocTools(server: McpServer): void {
           cursor,
           deleted: deleted !== undefined ? deleted : false,
           archived: archived !== undefined ? archived : false,
-          limit: limit || 50
+          limit: limit || 50,
         });
 
         return {
-          content: [{ type: 'text', text: JSON.stringify(result.docs, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result.docs, null, 2) }],
         };
       } catch (error: any) {
         console.error('Error getting docs from workspace:', error);
         return {
           content: [{ type: 'text', text: `Error getting docs from workspace: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -118,7 +118,7 @@ export function setupDocTools(server: McpServer): void {
       content_format: z
         .enum(['text/md', 'text/plain'])
         .optional()
-        .describe('The format to return the content in')
+        .describe('The format to return the content in'),
     },
     async ({ doc_id, workspace_id, content_format }) => {
       try {
@@ -126,13 +126,13 @@ export function setupDocTools(server: McpServer): void {
         const pages = await docsClient.getDocPages(workspace_id, doc_id, content_format);
 
         return {
-          content: [{ type: 'text', text: JSON.stringify(pages, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(pages, null, 2) }],
         };
       } catch (error: any) {
         console.error('Error getting doc pages:', error);
         return {
           content: [{ type: 'text', text: `Error getting doc pages: ${error.message}` }],
-          isError: true
+          isError: true,
         };
       }
     }

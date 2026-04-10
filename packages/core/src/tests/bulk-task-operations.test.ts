@@ -3,7 +3,7 @@ import {
   BulkCreateTasksSchema,
   BulkUpdateTasksSchema,
   BulkCreateTaskItemSchema,
-  BulkUpdateTaskItemSchema
+  BulkUpdateTaskItemSchema,
 } from '../schemas/task-schemas.js';
 
 describe('Bulk Task Operations Schema Validation', () => {
@@ -15,7 +15,7 @@ describe('Bulk Task Operations Schema Validation', () => {
         assignees: [123, 456],
         tags: ['urgent', 'bug'],
         status: 'open',
-        priority: 2
+        priority: 2,
       };
 
       expect(() => BulkCreateTaskItemSchema.parse(validTask)).not.toThrow();
@@ -23,7 +23,7 @@ describe('Bulk Task Operations Schema Validation', () => {
 
     it('should require name field', () => {
       const invalidTask = {
-        description: 'Test description'
+        description: 'Test description',
       };
 
       expect(() => BulkCreateTaskItemSchema.parse(invalidTask)).toThrow();
@@ -32,7 +32,7 @@ describe('Bulk Task Operations Schema Validation', () => {
     it('should validate priority range (1-4)', () => {
       const invalidTask = {
         name: 'Test Task',
-        priority: 5
+        priority: 5,
       };
 
       expect(() => BulkCreateTaskItemSchema.parse(invalidTask)).toThrow();
@@ -41,7 +41,7 @@ describe('Bulk Task Operations Schema Validation', () => {
     it('should accept markdown_content field', () => {
       const validTask = {
         name: 'Test Task',
-        markdown_content: '# Header\n\nSome **bold** text'
+        markdown_content: '# Header\n\nSome **bold** text',
       };
 
       expect(() => BulkCreateTaskItemSchema.parse(validTask)).not.toThrow();
@@ -52,8 +52,8 @@ describe('Bulk Task Operations Schema Validation', () => {
         name: 'Test Task',
         custom_fields: [
           { id: 'field1', value: 'value1' },
-          { id: 'field2', value: 42 }
-        ]
+          { id: 'field2', value: 42 },
+        ],
       };
 
       expect(() => BulkCreateTaskItemSchema.parse(validTask)).not.toThrow();
@@ -66,7 +66,7 @@ describe('Bulk Task Operations Schema Validation', () => {
         task_id: 'task123',
         name: 'Updated Task',
         status: 'in progress',
-        priority: 3
+        priority: 3,
       };
 
       expect(() => BulkUpdateTaskItemSchema.parse(validUpdate)).not.toThrow();
@@ -74,7 +74,7 @@ describe('Bulk Task Operations Schema Validation', () => {
 
     it('should require task_id field', () => {
       const invalidUpdate = {
-        name: 'Updated Task'
+        name: 'Updated Task',
       };
 
       expect(() => BulkUpdateTaskItemSchema.parse(invalidUpdate)).toThrow();
@@ -83,7 +83,7 @@ describe('Bulk Task Operations Schema Validation', () => {
     it('should validate priority range (1-4)', () => {
       const invalidUpdate = {
         task_id: 'task123',
-        priority: 0
+        priority: 0,
       };
 
       expect(() => BulkUpdateTaskItemSchema.parse(invalidUpdate)).toThrow();
@@ -95,7 +95,7 @@ describe('Bulk Task Operations Schema Validation', () => {
       const validRequest = {
         list_id: 'list123',
         tasks: [{ name: 'Task 1' }, { name: 'Task 2', description: 'Description 2' }],
-        continue_on_error: true
+        continue_on_error: true,
       };
 
       expect(() => BulkCreateTasksSchema.parse(validRequest)).not.toThrow();
@@ -103,7 +103,7 @@ describe('Bulk Task Operations Schema Validation', () => {
 
     it('should require list_id', () => {
       const invalidRequest = {
-        tasks: [{ name: 'Task 1' }]
+        tasks: [{ name: 'Task 1' }],
       };
 
       expect(() => BulkCreateTasksSchema.parse(invalidRequest)).toThrow();
@@ -112,7 +112,7 @@ describe('Bulk Task Operations Schema Validation', () => {
     it('should require at least one task', () => {
       const invalidRequest = {
         list_id: 'list123',
-        tasks: []
+        tasks: [],
       };
 
       expect(() => BulkCreateTasksSchema.parse(invalidRequest)).toThrow();
@@ -122,7 +122,7 @@ describe('Bulk Task Operations Schema Validation', () => {
       const tasks = Array.from({ length: 51 }, (_, i) => ({ name: `Task ${i + 1}` }));
       const invalidRequest = {
         list_id: 'list123',
-        tasks
+        tasks,
       };
 
       expect(() => BulkCreateTasksSchema.parse(invalidRequest)).toThrow();
@@ -131,7 +131,7 @@ describe('Bulk Task Operations Schema Validation', () => {
     it('should default continue_on_error to false', () => {
       const request = {
         list_id: 'list123',
-        tasks: [{ name: 'Task 1' }]
+        tasks: [{ name: 'Task 1' }],
       };
 
       const parsed = BulkCreateTasksSchema.parse(request);
@@ -144,9 +144,9 @@ describe('Bulk Task Operations Schema Validation', () => {
       const validRequest = {
         tasks: [
           { task_id: 'task1', name: 'Updated Task 1' },
-          { task_id: 'task2', status: 'completed' }
+          { task_id: 'task2', status: 'completed' },
         ],
-        continue_on_error: false
+        continue_on_error: false,
       };
 
       expect(() => BulkUpdateTasksSchema.parse(validRequest)).not.toThrow();
@@ -154,7 +154,7 @@ describe('Bulk Task Operations Schema Validation', () => {
 
     it('should require at least one task', () => {
       const invalidRequest = {
-        tasks: []
+        tasks: [],
       };
 
       expect(() => BulkUpdateTasksSchema.parse(invalidRequest)).toThrow();
@@ -163,10 +163,10 @@ describe('Bulk Task Operations Schema Validation', () => {
     it('should limit to maximum 50 tasks', () => {
       const tasks = Array.from({ length: 51 }, (_, i) => ({
         task_id: `task${i + 1}`,
-        name: `Updated Task ${i + 1}`
+        name: `Updated Task ${i + 1}`,
       }));
       const invalidRequest = {
-        tasks
+        tasks,
       };
 
       expect(() => BulkUpdateTasksSchema.parse(invalidRequest)).toThrow();
@@ -177,7 +177,7 @@ describe('Bulk Task Operations Schema Validation', () => {
     it('should sanitize task names to prevent XSS', () => {
       const maliciousTask = {
         name: '<script>alert("xss")</script>Test Task',
-        description: '<img src="x" onerror="alert(1)">'
+        description: '<img src="x" onerror="alert(1)">',
       };
 
       // The schema should accept the input, but the client should sanitize it
@@ -187,7 +187,7 @@ describe('Bulk Task Operations Schema Validation', () => {
     it('should validate assignee IDs are numbers', () => {
       const invalidTask = {
         name: 'Test Task',
-        assignees: ['not-a-number', 123]
+        assignees: ['not-a-number', 123],
       };
 
       expect(() => BulkCreateTaskItemSchema.parse(invalidTask)).toThrow();
@@ -196,7 +196,7 @@ describe('Bulk Task Operations Schema Validation', () => {
     it('should validate timestamps are numbers', () => {
       const invalidTask = {
         name: 'Test Task',
-        due_date: 'not-a-timestamp'
+        due_date: 'not-a-timestamp',
       };
 
       expect(() => BulkCreateTaskItemSchema.parse(invalidTask)).toThrow();
@@ -205,7 +205,7 @@ describe('Bulk Task Operations Schema Validation', () => {
     it('should validate task_id is not empty string', () => {
       const invalidUpdate = {
         task_id: '',
-        name: 'Updated Task'
+        name: 'Updated Task',
       };
 
       expect(() => BulkUpdateTaskItemSchema.parse(invalidUpdate)).toThrow();
@@ -214,7 +214,7 @@ describe('Bulk Task Operations Schema Validation', () => {
     it('should validate list_id is not empty string', () => {
       const invalidRequest = {
         list_id: '',
-        tasks: [{ name: 'Task 1' }]
+        tasks: [{ name: 'Task 1' }],
       };
 
       expect(() => BulkCreateTasksSchema.parse(invalidRequest)).toThrow();
@@ -224,7 +224,7 @@ describe('Bulk Task Operations Schema Validation', () => {
   describe('Edge Cases', () => {
     it('should handle tasks with only required fields', () => {
       const minimalTask = {
-        name: 'Minimal Task'
+        name: 'Minimal Task',
       };
 
       expect(() => BulkCreateTaskItemSchema.parse(minimalTask)).not.toThrow();
@@ -232,7 +232,7 @@ describe('Bulk Task Operations Schema Validation', () => {
 
     it('should handle updates with only task_id', () => {
       const minimalUpdate = {
-        task_id: 'task123'
+        task_id: 'task123',
       };
 
       expect(() => BulkUpdateTaskItemSchema.parse(minimalUpdate)).not.toThrow();
@@ -243,7 +243,7 @@ describe('Bulk Task Operations Schema Validation', () => {
         name: 'Test Task',
         assignees: [],
         tags: [],
-        custom_fields: []
+        custom_fields: [],
       };
 
       expect(() => BulkCreateTaskItemSchema.parse(taskWithEmptyArrays)).not.toThrow();
@@ -252,7 +252,7 @@ describe('Bulk Task Operations Schema Validation', () => {
     it('should handle maximum valid priority', () => {
       const taskWithMaxPriority = {
         name: 'High Priority Task',
-        priority: 4
+        priority: 4,
       };
 
       expect(() => BulkCreateTaskItemSchema.parse(taskWithMaxPriority)).not.toThrow();
@@ -261,7 +261,7 @@ describe('Bulk Task Operations Schema Validation', () => {
     it('should handle minimum valid priority', () => {
       const taskWithMinPriority = {
         name: 'Low Priority Task',
-        priority: 1
+        priority: 1,
       };
 
       expect(() => BulkCreateTaskItemSchema.parse(taskWithMinPriority)).not.toThrow();
@@ -271,7 +271,7 @@ describe('Bulk Task Operations Schema Validation', () => {
       const taskWithBoth = {
         name: 'Test Task',
         description: 'Plain description',
-        markdown_content: '# Markdown Description'
+        markdown_content: '# Markdown Description',
       };
 
       expect(() => BulkCreateTaskItemSchema.parse(taskWithBoth)).not.toThrow();
@@ -281,11 +281,11 @@ describe('Bulk Task Operations Schema Validation', () => {
   describe('Performance Considerations', () => {
     it('should handle maximum allowed tasks (50)', () => {
       const maxTasks = Array.from({ length: 50 }, (_, i) => ({
-        name: `Task ${i + 1}`
+        name: `Task ${i + 1}`,
       }));
       const request = {
         list_id: 'list123',
-        tasks: maxTasks
+        tasks: maxTasks,
       };
 
       expect(() => BulkCreateTasksSchema.parse(request)).not.toThrow();
@@ -313,8 +313,8 @@ describe('Bulk Task Operations Schema Validation', () => {
           { id: 'field1', value: 'text value' },
           { id: 'field2', value: 42 },
           { id: 'field3', value: true },
-          { id: 'field4', value: ['option1', 'option2'] }
-        ]
+          { id: 'field4', value: ['option1', 'option2'] },
+        ],
       };
 
       expect(() => BulkCreateTaskItemSchema.parse(complexTask)).not.toThrow();
@@ -331,7 +331,7 @@ describe('Bulk Task Operations Schema Validation', () => {
         due_date: 1234567890, // Should be number
         due_date_time: true, // Should be boolean
         tags: ['tag1', 'tag2'], // Should be string[]
-        custom_fields: [{ id: 'field1', value: 'value1' }] // Should have correct structure
+        custom_fields: [{ id: 'field1', value: 'value1' }], // Should have correct structure
       };
 
       expect(() => BulkCreateTaskItemSchema.parse(validTask)).not.toThrow();

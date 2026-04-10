@@ -7,7 +7,7 @@ import {
   WebhookFilterSchema,
   ValidateWebhookSignatureSchema,
   ProcessWebhookSchema,
-  WebhookPayloadSchema
+  WebhookPayloadSchema,
 } from '../schemas/webhook-schemas.js';
 
 export function createWebhookTools(_client: WebhooksEnhancedClient): Tool[] {
@@ -22,11 +22,11 @@ export function createWebhookTools(_client: WebhooksEnhancedClient): Tool[] {
         properties: {
           workspace_id: {
             type: 'string',
-            description: 'The ID of the workspace to create the webhook in'
+            description: 'The ID of the workspace to create the webhook in',
           },
           endpoint: {
             type: 'string',
-            description: 'The URL endpoint that will receive webhook notifications'
+            description: 'The URL endpoint that will receive webhook notifications',
           },
           events: {
             type: 'array',
@@ -55,22 +55,22 @@ export function createWebhookTools(_client: WebhooksEnhancedClient): Tool[] {
                 'goalCreated',
                 'goalUpdated',
                 'goalDeleted',
-                'goalTargetUpdated'
-              ]
+                'goalTargetUpdated',
+              ],
             },
-            description: 'Array of events to subscribe to'
+            description: 'Array of events to subscribe to',
           },
           health_check_url: {
             type: 'string',
-            description: 'Optional URL for webhook health checks'
+            description: 'Optional URL for webhook health checks',
           },
           secret: {
             type: 'string',
-            description: 'Optional secret for HMAC signature validation'
-          }
+            description: 'Optional secret for HMAC signature validation',
+          },
         },
-        required: ['workspace_id', 'endpoint', 'events']
-      }
+        required: ['workspace_id', 'endpoint', 'events'],
+      },
     },
 
     // Get webhooks
@@ -83,20 +83,20 @@ export function createWebhookTools(_client: WebhooksEnhancedClient): Tool[] {
         properties: {
           workspace_id: {
             type: 'string',
-            description: 'The ID of the workspace to get webhooks from'
+            description: 'The ID of the workspace to get webhooks from',
           },
           status: {
             type: 'string',
             enum: ['active', 'inactive'],
-            description: 'Filter webhooks by status'
+            description: 'Filter webhooks by status',
           },
           event_type: {
             type: 'string',
-            description: 'Filter webhooks by event type'
-          }
+            description: 'Filter webhooks by event type',
+          },
         },
-        required: ['workspace_id']
-      }
+        required: ['workspace_id'],
+      },
     },
 
     // Get webhook
@@ -108,11 +108,11 @@ export function createWebhookTools(_client: WebhooksEnhancedClient): Tool[] {
         properties: {
           webhook_id: {
             type: 'string',
-            description: 'The ID of the webhook to get'
-          }
+            description: 'The ID of the webhook to get',
+          },
         },
-        required: ['webhook_id']
-      }
+        required: ['webhook_id'],
+      },
     },
 
     // Update webhook
@@ -125,11 +125,11 @@ export function createWebhookTools(_client: WebhooksEnhancedClient): Tool[] {
         properties: {
           webhook_id: {
             type: 'string',
-            description: 'The ID of the webhook to update'
+            description: 'The ID of the webhook to update',
           },
           endpoint: {
             type: 'string',
-            description: 'The new URL endpoint for webhook notifications'
+            description: 'The new URL endpoint for webhook notifications',
           },
           events: {
             type: 'array',
@@ -158,27 +158,27 @@ export function createWebhookTools(_client: WebhooksEnhancedClient): Tool[] {
                 'goalCreated',
                 'goalUpdated',
                 'goalDeleted',
-                'goalTargetUpdated'
-              ]
+                'goalTargetUpdated',
+              ],
             },
-            description: 'New array of events to subscribe to'
+            description: 'New array of events to subscribe to',
           },
           health_check_url: {
             type: 'string',
-            description: 'New URL for webhook health checks'
+            description: 'New URL for webhook health checks',
           },
           secret: {
             type: 'string',
-            description: 'New secret for HMAC signature validation'
+            description: 'New secret for HMAC signature validation',
           },
           status: {
             type: 'string',
             enum: ['active', 'inactive'],
-            description: 'New status for the webhook'
-          }
+            description: 'New status for the webhook',
+          },
         },
-        required: ['webhook_id']
-      }
+        required: ['webhook_id'],
+      },
     },
 
     // Delete webhook
@@ -191,11 +191,11 @@ export function createWebhookTools(_client: WebhooksEnhancedClient): Tool[] {
         properties: {
           webhook_id: {
             type: 'string',
-            description: 'The ID of the webhook to delete'
-          }
+            description: 'The ID of the webhook to delete',
+          },
         },
-        required: ['webhook_id']
-      }
+        required: ['webhook_id'],
+      },
     },
 
     // Get webhook event history
@@ -208,15 +208,15 @@ export function createWebhookTools(_client: WebhooksEnhancedClient): Tool[] {
         properties: {
           webhook_id: {
             type: 'string',
-            description: 'The ID of the webhook to get event history for'
+            description: 'The ID of the webhook to get event history for',
           },
           limit: {
             type: 'number',
-            description: 'Maximum number of events to return'
-          }
+            description: 'Maximum number of events to return',
+          },
         },
-        required: ['webhook_id']
-      }
+        required: ['webhook_id'],
+      },
     },
 
     // Ping webhook
@@ -228,11 +228,11 @@ export function createWebhookTools(_client: WebhooksEnhancedClient): Tool[] {
         properties: {
           webhook_id: {
             type: 'string',
-            description: 'The ID of the webhook to ping'
-          }
+            description: 'The ID of the webhook to ping',
+          },
         },
-        required: ['webhook_id']
-      }
+        required: ['webhook_id'],
+      },
     },
 
     // Validate webhook signature
@@ -244,19 +244,19 @@ export function createWebhookTools(_client: WebhooksEnhancedClient): Tool[] {
         properties: {
           payload: {
             type: 'string',
-            description: 'The raw webhook payload as a string'
+            description: 'The raw webhook payload as a string',
           },
           signature: {
             type: 'string',
-            description: 'The signature header from the webhook request'
+            description: 'The signature header from the webhook request',
           },
           secret: {
             type: 'string',
-            description: 'The webhook secret used for signature generation'
-          }
+            description: 'The webhook secret used for signature generation',
+          },
         },
-        required: ['payload', 'signature', 'secret']
-      }
+        required: ['payload', 'signature', 'secret'],
+      },
     },
 
     // Process webhook
@@ -269,24 +269,24 @@ export function createWebhookTools(_client: WebhooksEnhancedClient): Tool[] {
         properties: {
           payload: {
             type: 'object',
-            description: 'The webhook payload object'
+            description: 'The webhook payload object',
           },
           validate_signature: {
             type: 'boolean',
             description: 'Whether to validate the webhook signature',
-            default: true
+            default: true,
           },
           signature: {
             type: 'string',
-            description: 'The signature header for validation'
+            description: 'The signature header for validation',
           },
           secret: {
             type: 'string',
-            description: 'The webhook secret for signature validation'
-          }
+            description: 'The webhook secret for signature validation',
+          },
         },
-        required: ['payload']
-      }
+        required: ['payload'],
+      },
     },
 
     // Get webhook statistics
@@ -299,15 +299,15 @@ export function createWebhookTools(_client: WebhooksEnhancedClient): Tool[] {
         properties: {
           webhook_id: {
             type: 'string',
-            description: 'The ID of the webhook to get statistics for'
+            description: 'The ID of the webhook to get statistics for',
           },
           days: {
             type: 'number',
-            description: 'Number of days to include in statistics (default: 30)'
-          }
+            description: 'Number of days to include in statistics (default: 30)',
+          },
         },
-        required: ['webhook_id']
-      }
+        required: ['webhook_id'],
+      },
     },
 
     // Retry webhook events
@@ -319,20 +319,20 @@ export function createWebhookTools(_client: WebhooksEnhancedClient): Tool[] {
         properties: {
           webhook_id: {
             type: 'string',
-            description: 'The ID of the webhook to retry events for'
+            description: 'The ID of the webhook to retry events for',
           },
           event_ids: {
             type: 'array',
             items: {
-              type: 'string'
+              type: 'string',
             },
             description:
-              'Optional array of specific event IDs to retry. If not provided, all failed events will be retried.'
-          }
+              'Optional array of specific event IDs to retry. If not provided, all failed events will be retried.',
+          },
         },
-        required: ['webhook_id']
-      }
-    }
+        required: ['webhook_id'],
+      },
+    },
   ];
 }
 
@@ -343,75 +343,75 @@ export async function handleWebhookTool(
 ): Promise<any> {
   try {
     switch (name) {
-    case 'create_webhook': {
-      const request = CreateWebhookSchema.parse(args);
-      return await client.createWebhook(request);
-    }
-
-    case 'get_webhooks': {
-      const filter = WebhookFilterSchema.parse(args);
-      return await client.getWebhooks(filter);
-    }
-
-    case 'get_webhook': {
-      const { webhook_id } = args;
-      return await client.getWebhook(webhook_id);
-    }
-
-    case 'update_webhook': {
-      const request = UpdateWebhookSchema.parse(args);
-      return await client.updateWebhook(request);
-    }
-
-    case 'delete_webhook': {
-      const { webhook_id } = args;
-      return await client.deleteWebhook(webhook_id);
-    }
-
-    case 'get_webhook_event_history': {
-      const { webhook_id, limit } = args;
-      return await client.getWebhookEventHistory(webhook_id, limit);
-    }
-
-    case 'ping_webhook': {
-      const { webhook_id } = args;
-      return await client.pingWebhook(webhook_id);
-    }
-
-    case 'validate_webhook_signature': {
-      const request = ValidateWebhookSignatureSchema.parse(args);
-      const isValid = client.validateWebhookSignature(request);
-      return { valid: isValid };
-    }
-
-    case 'process_webhook': {
-      // Parse the payload if it's a string using safe parsing
-      let payload = args.payload;
-      if (typeof payload === 'string') {
-        const { safeJsonParse } = await import('../utils/security.js');
-        payload = safeJsonParse(payload);
+      case 'create_webhook': {
+        const request = CreateWebhookSchema.parse(args);
+        return await client.createWebhook(request);
       }
 
-      const parsedPayload = WebhookPayloadSchema.parse(payload);
-      const request = ProcessWebhookSchema.parse({
-        ...args,
-        payload: parsedPayload
-      });
-      return await client.processWebhook(request);
-    }
+      case 'get_webhooks': {
+        const filter = WebhookFilterSchema.parse(args);
+        return await client.getWebhooks(filter);
+      }
 
-    case 'get_webhook_stats': {
-      const { webhook_id, days } = args;
-      return await client.getWebhookStats(webhook_id, days);
-    }
+      case 'get_webhook': {
+        const { webhook_id } = args;
+        return await client.getWebhook(webhook_id);
+      }
 
-    case 'retry_webhook_events': {
-      const { webhook_id, event_ids } = args;
-      return await client.retryWebhookEvents(webhook_id, event_ids);
-    }
+      case 'update_webhook': {
+        const request = UpdateWebhookSchema.parse(args);
+        return await client.updateWebhook(request);
+      }
 
-    default:
-      throw new Error(`Unknown webhook tool: ${name}`);
+      case 'delete_webhook': {
+        const { webhook_id } = args;
+        return await client.deleteWebhook(webhook_id);
+      }
+
+      case 'get_webhook_event_history': {
+        const { webhook_id, limit } = args;
+        return await client.getWebhookEventHistory(webhook_id, limit);
+      }
+
+      case 'ping_webhook': {
+        const { webhook_id } = args;
+        return await client.pingWebhook(webhook_id);
+      }
+
+      case 'validate_webhook_signature': {
+        const request = ValidateWebhookSignatureSchema.parse(args);
+        const isValid = client.validateWebhookSignature(request);
+        return { valid: isValid };
+      }
+
+      case 'process_webhook': {
+        // Parse the payload if it's a string using safe parsing
+        let payload = args.payload;
+        if (typeof payload === 'string') {
+          const { safeJsonParse } = await import('../utils/security.js');
+          payload = safeJsonParse(payload);
+        }
+
+        const parsedPayload = WebhookPayloadSchema.parse(payload);
+        const request = ProcessWebhookSchema.parse({
+          ...args,
+          payload: parsedPayload,
+        });
+        return await client.processWebhook(request);
+      }
+
+      case 'get_webhook_stats': {
+        const { webhook_id, days } = args;
+        return await client.getWebhookStats(webhook_id, days);
+      }
+
+      case 'retry_webhook_events': {
+        const { webhook_id, event_ids } = args;
+        return await client.retryWebhookEvents(webhook_id, event_ids);
+      }
+
+      default:
+        throw new Error(`Unknown webhook tool: ${name}`);
     }
   } catch (error) {
     if (error instanceof Error) {

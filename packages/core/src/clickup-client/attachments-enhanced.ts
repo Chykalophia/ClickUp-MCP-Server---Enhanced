@@ -9,7 +9,7 @@ import type {
   AttachmentResponse,
   AttachmentListResponse,
   AttachmentUploadResponse,
-  AttachmentStatsResponse
+  AttachmentStatsResponse,
 } from '../schemas/attachments-schemas.js';
 
 export class AttachmentsEnhancedClient extends ClickUpClient {
@@ -27,7 +27,7 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
       filename: request.filename,
       source: request.source,
       description: request.description,
-      tags: request.tags
+      tags: request.tags,
     };
 
     if (request.file_data) {
@@ -166,7 +166,7 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
       expires_at: request.expires_at
         ? new Date(request.expires_at * 1000).toISOString()
         : undefined,
-      password: request.password
+      password: request.password,
     };
 
     const response = await this.put<{ attachment: AttachmentResponse }>(
@@ -288,7 +288,7 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
   ): Promise<AttachmentResponse> {
     const payload = {
       target_parent_id: targetParentId,
-      target_parent_type: targetParentType
+      target_parent_type: targetParentType,
     };
 
     const response = await this.post<{ attachment: AttachmentResponse }>(
@@ -308,7 +308,7 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
   ): Promise<AttachmentResponse> {
     const payload = {
       target_parent_id: targetParentId,
-      target_parent_type: targetParentType
+      target_parent_type: targetParentType,
     };
 
     const response = await this.put<{ attachment: AttachmentResponse }>(
@@ -359,16 +359,16 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
 
   private getParentEndpoint(parentType: string, parentId: string): string {
     switch (parentType) {
-    case 'task':
-      return `/task/${parentId}`;
-    case 'comment':
-      return `/comment/${parentId}`;
-    case 'doc':
-      return `/doc/${parentId}`;
-    case 'chat':
-      return `/chat/${parentId}`;
-    default:
-      throw new Error(`Invalid parent type: ${parentType}`);
+      case 'task':
+        return `/task/${parentId}`;
+      case 'comment':
+        return `/comment/${parentId}`;
+      case 'doc':
+        return `/doc/${parentId}`;
+      case 'chat':
+        return `/chat/${parentId}`;
+      default:
+        throw new Error(`Invalid parent type: ${parentType}`);
     }
   }
 }

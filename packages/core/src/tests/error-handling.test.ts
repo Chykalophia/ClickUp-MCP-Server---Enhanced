@@ -10,7 +10,7 @@ import {
   handleFileError,
   RetryManager,
   wrapMcpTool,
-  generateRequestId
+  generateRequestId,
 } from '../utils/error-handling';
 import { z } from 'zod';
 
@@ -31,7 +31,7 @@ describe('Error Handling', () => {
         severity: ErrorSeverity.HIGH,
         retryable: true,
         retryAfter: 30,
-        code: '500'
+        code: '500',
       });
 
       expect(error.severity).toBe(ErrorSeverity.HIGH);
@@ -59,8 +59,8 @@ describe('Error Handling', () => {
       const mockError = {
         response: {
           status: 401,
-          data: { err: 'Invalid token' }
-        }
+          data: { err: 'Invalid token' },
+        },
       };
 
       const error = handleClickUpApiError(mockError);
@@ -75,8 +75,8 @@ describe('Error Handling', () => {
         response: {
           status: 429,
           headers: { 'retry-after': '60' },
-          data: { err: 'Rate limited' }
-        }
+          data: { err: 'Rate limited' },
+        },
       };
 
       const error = handleClickUpApiError(mockError);
@@ -89,7 +89,7 @@ describe('Error Handling', () => {
     it('should handle network timeout error', () => {
       const mockError = {
         code: 'ETIMEDOUT',
-        message: 'Request timeout'
+        message: 'Request timeout',
       };
 
       const error = handleClickUpApiError(mockError);
@@ -103,7 +103,7 @@ describe('Error Handling', () => {
     it('should handle Zod validation error', () => {
       const schema = z.object({
         name: z.string().min(1),
-        age: z.number().min(0)
+        age: z.number().min(0),
       });
 
       try {

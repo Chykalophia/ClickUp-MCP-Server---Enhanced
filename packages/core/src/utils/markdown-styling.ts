@@ -14,7 +14,7 @@ const DEFAULT_OPTIONS: MarkdownStyleOptions = {
   useColors: true,
   useEmojis: true,
   indentSize: 2,
-  maxWidth: 80
+  maxWidth: 80,
 };
 
 // ANSI color codes for terminal styling
@@ -43,7 +43,7 @@ const COLORS = {
   bgBlue: '\x1b[44m',
   bgMagenta: '\x1b[45m',
   bgCyan: '\x1b[46m',
-  bgWhite: '\x1b[47m'
+  bgWhite: '\x1b[47m',
 };
 
 // Emoji mappings for enhanced visual display
@@ -66,7 +66,7 @@ const EMOJI_MAP = {
   warning: '⚠️',
   info: '💡',
   success: '🎉',
-  error: '❌'
+  error: '❌',
 };
 
 /**
@@ -96,24 +96,24 @@ function processHeaders(content: string, options: MarkdownStyleOptions): string 
     let styled = text;
 
     switch (level) {
-    case 1:
-      styled = colorize(text.toUpperCase(), COLORS.bright + COLORS.red, options);
-      break;
-    case 2:
-      styled = colorize(text, COLORS.bright + COLORS.blue, options);
-      break;
-    case 3:
-      styled = colorize(text, COLORS.bright + COLORS.green, options);
-      break;
-    case 4:
-      styled = colorize(text, COLORS.bright + COLORS.yellow, options);
-      break;
-    case 5:
-      styled = colorize(text, COLORS.bright + COLORS.magenta, options);
-      break;
-    case 6:
-      styled = colorize(text, COLORS.bright + COLORS.cyan, options);
-      break;
+      case 1:
+        styled = colorize(text.toUpperCase(), COLORS.bright + COLORS.red, options);
+        break;
+      case 2:
+        styled = colorize(text, COLORS.bright + COLORS.blue, options);
+        break;
+      case 3:
+        styled = colorize(text, COLORS.bright + COLORS.green, options);
+        break;
+      case 4:
+        styled = colorize(text, COLORS.bright + COLORS.yellow, options);
+        break;
+      case 5:
+        styled = colorize(text, COLORS.bright + COLORS.magenta, options);
+        break;
+      case 6:
+        styled = colorize(text, COLORS.bright + COLORS.cyan, options);
+        break;
     }
 
     const result = addEmoji(styled, emoji, options);
@@ -322,45 +322,45 @@ export function extractStyledSections(
   const sections: string[] = [];
 
   switch (sectionType) {
-  case 'headers': {
-    const headerMatches = markdown.match(/^#{1,6}\s+.+$/gm);
-    if (headerMatches) {
-      sections.push(...headerMatches.map(h => processHeaders(h, opts)));
+    case 'headers': {
+      const headerMatches = markdown.match(/^#{1,6}\s+.+$/gm);
+      if (headerMatches) {
+        sections.push(...headerMatches.map(h => processHeaders(h, opts)));
+      }
+      break;
     }
-    break;
-  }
 
-  case 'code': {
-    const codeMatches = markdown.match(/```[\s\S]*?```|`[^`]+`/g);
-    if (codeMatches) {
-      sections.push(...codeMatches.map(c => processCode(c, opts)));
+    case 'code': {
+      const codeMatches = markdown.match(/```[\s\S]*?```|`[^`]+`/g);
+      if (codeMatches) {
+        sections.push(...codeMatches.map(c => processCode(c, opts)));
+      }
+      break;
     }
-    break;
-  }
 
-  case 'lists': {
-    const listMatches = markdown.match(/^(\s*)[-*+]\s+.+$|^(\s*)\d+\.\s+.+$/gm);
-    if (listMatches) {
-      sections.push(...listMatches.map(l => processLists(l, opts)));
+    case 'lists': {
+      const listMatches = markdown.match(/^(\s*)[-*+]\s+.+$|^(\s*)\d+\.\s+.+$/gm);
+      if (listMatches) {
+        sections.push(...listMatches.map(l => processLists(l, opts)));
+      }
+      break;
     }
-    break;
-  }
 
-  case 'quotes': {
-    const quoteMatches = markdown.match(/^>\s+.+$/gm);
-    if (quoteMatches) {
-      sections.push(...quoteMatches.map(q => processBlockquotes(q, opts)));
+    case 'quotes': {
+      const quoteMatches = markdown.match(/^>\s+.+$/gm);
+      if (quoteMatches) {
+        sections.push(...quoteMatches.map(q => processBlockquotes(q, opts)));
+      }
+      break;
     }
-    break;
-  }
 
-  case 'links': {
-    const linkMatches = markdown.match(/\[([^\]]+)\]\(([^)]+)\)|!\[([^\]]*)\]\(([^)]+)\)/g);
-    if (linkMatches) {
-      sections.push(...linkMatches.map(l => processLinks(l, opts)));
+    case 'links': {
+      const linkMatches = markdown.match(/\[([^\]]+)\]\(([^)]+)\)|!\[([^\]]*)\]\(([^)]+)\)/g);
+      if (linkMatches) {
+        sections.push(...linkMatches.map(l => processLinks(l, opts)));
+      }
+      break;
     }
-    break;
-  }
   }
 
   return sections;

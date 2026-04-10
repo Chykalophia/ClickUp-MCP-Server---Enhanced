@@ -17,7 +17,7 @@ import {
   DeleteReactionSchema,
   AddChannelMemberSchema,
   RemoveChannelMemberSchema,
-  ReactionTypeSchema
+  ReactionTypeSchema,
 } from '../schemas/chat-schemas.js';
 
 // Create enhanced chat client
@@ -34,7 +34,7 @@ export function setupChatTools(server: McpServer): void {
     {
       workspace_id: z.string().min(1).describe('The ID of the workspace to get channels from'),
       archived: z.boolean().optional().describe('Whether to include archived channels'),
-      type: z.enum(['public', 'private', 'direct']).optional().describe('Filter by channel type')
+      type: z.enum(['public', 'private', 'direct']).optional().describe('Filter by channel type'),
     },
     async args => {
       try {
@@ -45,19 +45,19 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Found ${result.channels.length} channels:\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Found ${result.channels.length} channels:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error getting chat channels: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error getting chat channels: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -78,7 +78,7 @@ export function setupChatTools(server: McpServer): void {
         .array(z.number())
         .optional()
         .describe('Array of user IDs to add as initial members'),
-      is_private: z.boolean().optional().describe('Whether the channel is private')
+      is_private: z.boolean().optional().describe('Whether the channel is private'),
     },
     async args => {
       try {
@@ -89,19 +89,19 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Channel created successfully:\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Channel created successfully:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error creating chat channel: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error creating chat channel: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -123,7 +123,7 @@ export function setupChatTools(server: McpServer): void {
         .array(z.number())
         .optional()
         .describe('Array of user IDs to add as initial members'),
-      is_private: z.boolean().optional().describe('Whether the channel is private')
+      is_private: z.boolean().optional().describe('Whether the channel is private'),
     },
     async args => {
       try {
@@ -134,19 +134,19 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Channel created on ${args.parent_type} successfully:\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Channel created on ${args.parent_type} successfully:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error creating channel on parent: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error creating channel on parent: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -161,7 +161,7 @@ export function setupChatTools(server: McpServer): void {
         .array(z.number())
         .min(2)
         .describe('Array of user IDs to include in the direct message (minimum 2)'),
-      name: z.string().optional().describe('Optional name for the direct message channel')
+      name: z.string().optional().describe('Optional name for the direct message channel'),
     },
     async args => {
       try {
@@ -172,19 +172,19 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Direct message channel created successfully:\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Direct message channel created successfully:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error creating direct message: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error creating direct message: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -194,7 +194,7 @@ export function setupChatTools(server: McpServer): void {
     'clickup_get_chat_channel',
     'Retrieve detailed information about a specific chat channel by its ID.',
     {
-      channel_id: z.string().min(1).describe('The ID of the channel to retrieve')
+      channel_id: z.string().min(1).describe('The ID of the channel to retrieve'),
     },
     async args => {
       try {
@@ -204,19 +204,19 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Channel details:\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Channel details:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error getting channel: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error getting channel: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -229,7 +229,7 @@ export function setupChatTools(server: McpServer): void {
       channel_id: z.string().min(1).describe('The ID of the channel to update'),
       name: z.string().min(1).max(255).optional().describe('New name for the channel'),
       description: z.string().optional().describe('New description for the channel'),
-      is_private: z.boolean().optional().describe('Update privacy setting')
+      is_private: z.boolean().optional().describe('Update privacy setting'),
     },
     async args => {
       try {
@@ -240,19 +240,19 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Channel updated successfully:\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Channel updated successfully:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error updating channel: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error updating channel: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -266,7 +266,7 @@ export function setupChatTools(server: McpServer): void {
     'clickup_get_chat_channel_followers',
     'Retrieve all followers of a chat channel who receive notifications about channel activity.',
     {
-      channel_id: z.string().min(1).describe('The ID of the channel to get followers for')
+      channel_id: z.string().min(1).describe('The ID of the channel to get followers for'),
     },
     async args => {
       try {
@@ -276,19 +276,19 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Channel followers (${result.followers.length}):\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Channel followers (${result.followers.length}):\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error getting channel followers: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error getting channel followers: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -298,7 +298,7 @@ export function setupChatTools(server: McpServer): void {
     'clickup_get_chat_channel_members',
     'Retrieve all members of a chat channel with their roles and join dates.',
     {
-      channel_id: z.string().min(1).describe('The ID of the channel to get members for')
+      channel_id: z.string().min(1).describe('The ID of the channel to get members for'),
     },
     async args => {
       try {
@@ -308,19 +308,19 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Channel members (${result.members.length}):\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Channel members (${result.members.length}):\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error getting channel members: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error getting channel members: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -331,7 +331,7 @@ export function setupChatTools(server: McpServer): void {
     'Add a user as a member to a chat channel.',
     {
       channel_id: z.string().min(1).describe('The ID of the channel'),
-      user_id: z.number().describe('The ID of the user to add as a member')
+      user_id: z.number().describe('The ID of the user to add as a member'),
     },
     async args => {
       try {
@@ -342,19 +342,19 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `User ${args.user_id} added to channel ${args.channel_id} successfully`
-            }
-          ]
+              text: `User ${args.user_id} added to channel ${args.channel_id} successfully`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error adding channel member: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error adding channel member: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -365,7 +365,7 @@ export function setupChatTools(server: McpServer): void {
     'Remove a user from a chat channel membership.',
     {
       channel_id: z.string().min(1).describe('The ID of the channel'),
-      user_id: z.number().describe('The ID of the user to remove from the channel')
+      user_id: z.number().describe('The ID of the user to remove from the channel'),
     },
     async args => {
       try {
@@ -376,19 +376,19 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `User ${args.user_id} removed from channel ${args.channel_id} successfully`
-            }
-          ]
+              text: `User ${args.user_id} removed from channel ${args.channel_id} successfully`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error removing channel member: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error removing channel member: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -410,7 +410,7 @@ export function setupChatTools(server: McpServer): void {
         .optional()
         .describe('Maximum number of messages to return (1-100)'),
       before: z.string().optional().describe('Get messages before this message ID'),
-      after: z.string().optional().describe('Get messages after this message ID')
+      after: z.string().optional().describe('Get messages after this message ID'),
     },
     async args => {
       try {
@@ -421,19 +421,19 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Retrieved ${result.messages.length} messages:\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Retrieved ${result.messages.length} messages:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error getting channel messages: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error getting channel messages: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -450,7 +450,7 @@ export function setupChatTools(server: McpServer): void {
         .optional()
         .describe('Array of user IDs to mention in the message'),
       attachments: z.array(z.string()).optional().describe('Array of attachment IDs to include'),
-      reply_to: z.string().optional().describe('ID of the message this is replying to')
+      reply_to: z.string().optional().describe('ID of the message this is replying to'),
     },
     async args => {
       try {
@@ -461,19 +461,19 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Message sent successfully:\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Message sent successfully:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error sending message: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error sending message: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -486,7 +486,7 @@ export function setupChatTools(server: McpServer): void {
       channel_id: z.string().min(1).describe('The ID of the channel containing the message'),
       message_id: z.string().min(1).describe('The ID of the message to update'),
       text: z.string().min(1).describe('The new text content of the message'),
-      mentions: z.array(z.number()).optional().describe('Updated array of user IDs to mention')
+      mentions: z.array(z.number()).optional().describe('Updated array of user IDs to mention'),
     },
     async args => {
       try {
@@ -497,19 +497,19 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Message updated successfully:\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Message updated successfully:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error updating message: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error updating message: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -520,7 +520,7 @@ export function setupChatTools(server: McpServer): void {
     'Delete a message from a chat channel. This action cannot be undone.',
     {
       channel_id: z.string().min(1).describe('The ID of the channel containing the message'),
-      message_id: z.string().min(1).describe('The ID of the message to delete')
+      message_id: z.string().min(1).describe('The ID of the message to delete'),
     },
     async args => {
       try {
@@ -530,19 +530,19 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Message ${args.message_id} deleted successfully from channel ${args.channel_id}`
-            }
-          ]
+              text: `Message ${args.message_id} deleted successfully from channel ${args.channel_id}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error deleting message: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error deleting message: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -565,7 +565,7 @@ export function setupChatTools(server: McpServer): void {
         .optional()
         .describe('Maximum number of replies to return (1-100)'),
       before: z.string().optional().describe('Get replies before this reply ID'),
-      after: z.string().optional().describe('Get replies after this reply ID')
+      after: z.string().optional().describe('Get replies after this reply ID'),
     },
     async args => {
       try {
@@ -576,19 +576,19 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Retrieved ${result.replies.length} replies:\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Retrieved ${result.replies.length} replies:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error getting message replies: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error getting message replies: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -605,7 +605,7 @@ export function setupChatTools(server: McpServer): void {
         .array(z.number())
         .optional()
         .describe('Array of user IDs to mention in the reply'),
-      attachments: z.array(z.string()).optional().describe('Array of attachment IDs to include')
+      attachments: z.array(z.string()).optional().describe('Array of attachment IDs to include'),
     },
     async args => {
       try {
@@ -616,19 +616,19 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Reply created successfully:\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Reply created successfully:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error creating reply: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error creating reply: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -643,7 +643,7 @@ export function setupChatTools(server: McpServer): void {
     'Retrieve all reactions on a specific message in a chat channel.',
     {
       channel_id: z.string().min(1).describe('The ID of the channel containing the message'),
-      message_id: z.string().min(1).describe('The ID of the message to get reactions for')
+      message_id: z.string().min(1).describe('The ID of the message to get reactions for'),
     },
     async args => {
       try {
@@ -653,19 +653,19 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Message reactions:\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Message reactions:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error getting message reactions: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error getting message reactions: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -677,7 +677,7 @@ export function setupChatTools(server: McpServer): void {
     {
       channel_id: z.string().min(1).describe('The ID of the channel containing the message'),
       message_id: z.string().min(1).describe('The ID of the message to react to'),
-      reaction: ReactionTypeSchema.describe('The type of reaction to add')
+      reaction: ReactionTypeSchema.describe('The type of reaction to add'),
     },
     async args => {
       try {
@@ -688,19 +688,19 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Reaction ${args.reaction} added to message ${args.message_id} successfully`
-            }
-          ]
+              text: `Reaction ${args.reaction} added to message ${args.message_id} successfully`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error creating reaction: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error creating reaction: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -712,7 +712,7 @@ export function setupChatTools(server: McpServer): void {
     {
       channel_id: z.string().min(1).describe('The ID of the channel containing the message'),
       message_id: z.string().min(1).describe('The ID of the message to remove reaction from'),
-      reaction: ReactionTypeSchema.describe('The type of reaction to remove')
+      reaction: ReactionTypeSchema.describe('The type of reaction to remove'),
     },
     async args => {
       try {
@@ -723,19 +723,19 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Reaction ${args.reaction} removed from message ${args.message_id} successfully`
-            }
-          ]
+              text: `Reaction ${args.reaction} removed from message ${args.message_id} successfully`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error deleting reaction: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error deleting reaction: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -750,7 +750,7 @@ export function setupChatTools(server: McpServer): void {
     'Retrieve all users tagged/mentioned in a specific message.',
     {
       channel_id: z.string().min(1).describe('The ID of the channel containing the message'),
-      message_id: z.string().min(1).describe('The ID of the message to get tagged users for')
+      message_id: z.string().min(1).describe('The ID of the message to get tagged users for'),
     },
     async args => {
       try {
@@ -760,19 +760,19 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Tagged users in message:\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Tagged users in message:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error getting tagged users: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error getting tagged users: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -783,7 +783,7 @@ export function setupChatTools(server: McpServer): void {
     'Search for chat channels by name within a workspace.',
     {
       workspace_id: z.string().min(1).describe('The ID of the workspace to search in'),
-      query: z.string().min(1).describe('The search query to match against channel names')
+      query: z.string().min(1).describe('The search query to match against channel names'),
     },
     async args => {
       try {
@@ -793,19 +793,19 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Found ${result.channels.length} channels matching "${args.query}":\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Found ${result.channels.length} channels matching "${args.query}":\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error searching channels: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error searching channels: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -815,7 +815,7 @@ export function setupChatTools(server: McpServer): void {
     'clickup_get_chat_channel_stats',
     'Get statistics for a chat channel including message count, member count, and last activity.',
     {
-      channel_id: z.string().min(1).describe('The ID of the channel to get statistics for')
+      channel_id: z.string().min(1).describe('The ID of the channel to get statistics for'),
     },
     async args => {
       try {
@@ -825,19 +825,19 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Channel statistics:\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Channel statistics:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error getting channel stats: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error getting channel stats: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -847,7 +847,7 @@ export function setupChatTools(server: McpServer): void {
     'clickup_mark_chat_channel_as_read',
     'Mark all messages in a chat channel as read for the current user.',
     {
-      channel_id: z.string().min(1).describe('The ID of the channel to mark as read')
+      channel_id: z.string().min(1).describe('The ID of the channel to mark as read'),
     },
     async args => {
       try {
@@ -857,19 +857,19 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Channel ${args.channel_id} marked as read successfully`
-            }
-          ]
+              text: `Channel ${args.channel_id} marked as read successfully`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error marking channel as read: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error marking channel as read: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -879,7 +879,7 @@ export function setupChatTools(server: McpServer): void {
     'clickup_get_chat_channel_unread_count',
     'Get the number of unread messages in a chat channel for the current user.',
     {
-      channel_id: z.string().min(1).describe('The ID of the channel to get unread count for')
+      channel_id: z.string().min(1).describe('The ID of the channel to get unread count for'),
     },
     async args => {
       try {
@@ -889,19 +889,19 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Unread messages in channel ${args.channel_id}: ${result.unread_count}`
-            }
-          ]
+              text: `Unread messages in channel ${args.channel_id}: ${result.unread_count}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error getting unread count: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error getting unread count: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }

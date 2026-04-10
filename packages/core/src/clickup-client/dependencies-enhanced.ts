@@ -9,7 +9,7 @@ import type {
   DependencyResponse,
   DependencyListResponse,
   DependencyGraphResponse,
-  DependencyConflictResponse
+  DependencyConflictResponse,
   // DependencyGraphNode
 } from '../schemas/dependencies-schemas.js';
 
@@ -25,7 +25,7 @@ export class DependenciesEnhancedClient extends ClickUpClient {
     const payload = {
       depends_on: request.depends_on,
       type: request.type,
-      link_id: request.link_id
+      link_id: request.link_id,
     };
 
     const response = await this.post<{ dependency: DependencyResponse }>(
@@ -99,7 +99,7 @@ export class DependenciesEnhancedClient extends ClickUpClient {
     check: DependencyConflictCheck
   ): Promise<DependencyConflictResponse> {
     const payload = {
-      proposed_dependencies: check.proposed_dependencies || []
+      proposed_dependencies: check.proposed_dependencies || [],
     };
 
     const response = await this.post<DependencyConflictResponse>(

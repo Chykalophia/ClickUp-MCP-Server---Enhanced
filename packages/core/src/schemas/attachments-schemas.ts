@@ -10,7 +10,7 @@ export const AttachmentTypeSchema = z.enum([
   'spreadsheet',
   'presentation',
   'archive',
-  'other'
+  'other',
 ]);
 
 // Upload source types
@@ -20,7 +20,7 @@ export const UploadSourceSchema = z.enum([
   'google_drive',
   'dropbox',
   'onedrive',
-  'box'
+  'box',
 ]);
 
 // Attachment parent types
@@ -35,7 +35,7 @@ export const UploadAttachmentSchema = z.object({
   file_url: z.string().url().optional().describe('URL to download file from'),
   source: UploadSourceSchema.default('local').describe('Source of the file upload'),
   description: z.string().optional().describe('Description of the attachment'),
-  tags: z.array(z.string()).optional().describe('Tags to associate with the attachment')
+  tags: z.array(z.string()).optional().describe('Tags to associate with the attachment'),
 });
 
 // Update attachment metadata schema
@@ -43,7 +43,7 @@ export const UpdateAttachmentMetadataSchema = z.object({
   attachment_id: z.string().min(1).describe('The ID of the attachment to update'),
   filename: z.string().optional().describe('New filename'),
   description: z.string().optional().describe('New description'),
-  tags: z.array(z.string()).optional().describe('New tags for the attachment')
+  tags: z.array(z.string()).optional().describe('New tags for the attachment'),
 });
 
 // Get attachments filter schema
@@ -62,7 +62,7 @@ export const GetAttachmentsFilterSchema = z.object({
     .optional()
     .describe('Filter attachments created before this date (Unix timestamp)'),
   limit: z.number().positive().optional().describe('Maximum number of attachments to return'),
-  offset: z.number().min(0).optional().describe('Number of attachments to skip for pagination')
+  offset: z.number().min(0).optional().describe('Number of attachments to skip for pagination'),
 });
 
 // Attachment sharing schema
@@ -73,7 +73,7 @@ export const AttachmentSharingSchema = z.object({
     .number()
     .optional()
     .describe('Expiration timestamp for public links (Unix timestamp)'),
-  password: z.string().optional().describe('Password protection for public links')
+  password: z.string().optional().describe('Password protection for public links'),
 });
 
 // Bulk attachment operations schema
@@ -86,7 +86,7 @@ export const BulkAttachmentOperationSchema = z.object({
   target_parent_type: AttachmentParentSchema.optional().describe(
     'Target parent type for move/copy operations'
   ),
-  tags: z.array(z.string()).optional().describe('Tags for bulk tag update operations')
+  tags: z.array(z.string()).optional().describe('Tags for bulk tag update operations'),
 });
 
 // Type exports
@@ -188,20 +188,20 @@ export const getAttachmentTypeFromMimetype = (mimetype: string): AttachmentType 
     'application/msword',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'text/plain',
-    'text/rtf'
+    'text/rtf',
   ];
   if (documentTypes.includes(mimetype)) return 'document';
 
   const spreadsheetTypes = [
     'application/vnd.ms-excel',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'text/csv'
+    'text/csv',
   ];
   if (spreadsheetTypes.includes(mimetype)) return 'spreadsheet';
 
   const presentationTypes = [
     'application/vnd.ms-powerpoint',
-    'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
   ];
   if (presentationTypes.includes(mimetype)) return 'presentation';
 
@@ -210,7 +210,7 @@ export const getAttachmentTypeFromMimetype = (mimetype: string): AttachmentType 
     'application/x-rar-compressed',
     'application/x-7z-compressed',
     'application/gzip',
-    'application/x-tar'
+    'application/x-tar',
   ];
   if (archiveTypes.includes(mimetype)) return 'archive';
 
@@ -318,7 +318,7 @@ export const validateFileUpload = (
 
   return {
     isValid: errors.length === 0,
-    errors
+    errors,
   };
 };
 
@@ -339,7 +339,7 @@ export const generateAttachmentPreview = (
     return {
       canPreview: true,
       previewType: 'image',
-      previewUrl: attachment.preview_url || attachment.url
+      previewUrl: attachment.preview_url || attachment.url,
     };
   }
 
@@ -347,7 +347,7 @@ export const generateAttachmentPreview = (
     return {
       canPreview: true,
       previewType: 'video',
-      previewUrl: attachment.preview_url || attachment.url
+      previewUrl: attachment.preview_url || attachment.url,
     };
   }
 
@@ -355,7 +355,7 @@ export const generateAttachmentPreview = (
     return {
       canPreview: true,
       previewType: 'audio',
-      previewUrl: attachment.url
+      previewUrl: attachment.url,
     };
   }
 
@@ -363,7 +363,7 @@ export const generateAttachmentPreview = (
     return {
       canPreview: true,
       previewType: 'document',
-      previewUrl: attachment.preview_url
+      previewUrl: attachment.preview_url,
     };
   }
 
@@ -371,12 +371,12 @@ export const generateAttachmentPreview = (
     return {
       canPreview: true,
       previewType: 'text',
-      previewUrl: attachment.url
+      previewUrl: attachment.url,
     };
   }
 
   return {
     canPreview: false,
-    previewType: 'none'
+    previewType: 'none',
   };
 };

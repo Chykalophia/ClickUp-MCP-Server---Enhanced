@@ -136,7 +136,7 @@ export function analyzeRequestContext(request: string): RequestContext {
     intent,
     target,
     urgency,
-    user_experience
+    user_experience,
   };
 }
 
@@ -154,7 +154,7 @@ export function getSmartSuggestions(request: string): SmartSuggestion {
     workflow_hint: '',
     confidence: 0,
     reasoning: [],
-    context_analysis: context
+    context_analysis: context,
   };
 
   // Chat-related suggestions
@@ -167,14 +167,14 @@ export function getSmartSuggestions(request: string): SmartSuggestion {
           efficiency_notes: [
             '🚀 Direct chat posting - most efficient approach',
             'No workspace navigation needed',
-            'Supports rich markdown formatting'
+            'Supports rich markdown formatting',
           ],
           workflow_hint: `create_chat_view_comment(view_id="${context.entities.view_id}", comment_text="your message")`,
           confidence: 0.95,
           reasoning: [
             'User has chat view ID - direct posting possible',
             'Create intent detected for chat target',
-            'Most efficient path available'
+            'Most efficient path available',
           ],
           context_analysis: context,
           quick_start_guide: `**Quick Start**: You have the chat view ID, so you can post directly:
@@ -183,7 +183,7 @@ create_chat_view_comment(
   view_id="${context.entities.view_id}",
   comment_text="Your message here"
 )
-\`\`\``
+\`\`\``,
         };
       } else {
         suggestion = {
@@ -192,7 +192,7 @@ create_chat_view_comment(
           efficiency_notes: [
             '🔍 Chat discovery needed first',
             'find_chat_channels is more efficient than workspace navigation',
-            'Then use create_chat_view_comment with discovered ID'
+            'Then use create_chat_view_comment with discovered ID',
           ],
           workflow_hint:
             'find_chat_channels() → create_chat_view_comment(view_id="discovered_id", comment_text="message")',
@@ -200,12 +200,12 @@ create_chat_view_comment(
           reasoning: [
             'No chat view ID provided - discovery needed',
             'find_chat_channels more efficient than hierarchical navigation',
-            'Two-step process required'
+            'Two-step process required',
           ],
           context_analysis: context,
           quick_start_guide: `**Quick Start**: First find chat channels, then post:
 1. \`find_chat_channels(channel_name="development")\` (optional: filter by name)
-2. \`create_chat_view_comment(view_id="found_id", comment_text="Your message")\``
+2. \`create_chat_view_comment(view_id="found_id", comment_text="Your message")\``,
         };
       }
     } else if (context.intent === 'read') {
@@ -217,7 +217,7 @@ create_chat_view_comment(
           workflow_hint: `get_chat_view_comments(view_id="${context.entities.view_id}")`,
           confidence: 0.95,
           reasoning: ['Direct access with known view ID'],
-          context_analysis: context
+          context_analysis: context,
         };
       } else {
         suggestion = {
@@ -227,7 +227,7 @@ create_chat_view_comment(
           workflow_hint: 'find_chat_channels() → get_chat_view_comments(view_id="found_id")',
           confidence: 0.8,
           reasoning: ['Chat discovery needed before reading'],
-          context_analysis: context
+          context_analysis: context,
         };
       }
     }
@@ -242,13 +242,13 @@ create_chat_view_comment(
         efficiency_notes: [
           '✅ Direct task creation',
           'Supports markdown descriptions',
-          'Can set assignees, dates, and priority'
+          'Can set assignees, dates, and priority',
         ],
         workflow_hint:
           'create_task(list_id="list_id", name="Task Name", description="Markdown description")',
         confidence: 0.9,
         reasoning: ['Clear task creation intent'],
-        context_analysis: context
+        context_analysis: context,
       };
     } else if (context.intent === 'read') {
       if (context.entities.task_id) {
@@ -257,12 +257,12 @@ create_chat_view_comment(
           alternative_tools: ['get_tasks'],
           efficiency_notes: [
             '🎯 Direct task access - most efficient',
-            'Complete task information in one call'
+            'Complete task information in one call',
           ],
           workflow_hint: `get_task_details(task_id="${context.entities.task_id}")`,
           confidence: 0.95,
           reasoning: ['Task ID available - direct access possible'],
-          context_analysis: context
+          context_analysis: context,
         };
       } else {
         suggestion = {
@@ -270,12 +270,12 @@ create_chat_view_comment(
           alternative_tools: ['get_view_tasks', 'search_tasks'],
           efficiency_notes: [
             '📋 List-based task retrieval',
-            'Consider search if looking for specific tasks'
+            'Consider search if looking for specific tasks',
           ],
           workflow_hint: 'get_tasks(list_id="list_id") or search for specific tasks',
           confidence: 0.75,
           reasoning: ['No task ID - need list or search approach'],
-          context_analysis: context
+          context_analysis: context,
         };
       }
     }
@@ -289,12 +289,12 @@ create_chat_view_comment(
         alternative_tools: ['get_docs_from_workspace'],
         efficiency_notes: [
           '🔍 Search is more efficient than browsing',
-          'Targeted results vs. full workspace scan'
+          'Targeted results vs. full workspace scan',
         ],
         workflow_hint: 'search_docs(workspace_id="workspace_id", query="search terms")',
         confidence: 0.9,
         reasoning: ['Search intent for documents - direct search most efficient'],
-        context_analysis: context
+        context_analysis: context,
       };
     }
   }
@@ -308,13 +308,13 @@ create_chat_view_comment(
         efficiency_notes: [
           '⚡ Single comprehensive call',
           'Efficient for experienced users',
-          'Complete workspace structure in one request'
+          'Complete workspace structure in one request',
         ],
         workflow_hint:
           'get_workspace_overview(workspace_id="workspace_id", include_chat_channels=true)',
         confidence: 0.85,
         reasoning: ['Expert user or high urgency - comprehensive overview preferred'],
-        context_analysis: context
+        context_analysis: context,
       };
     } else {
       suggestion = {
@@ -323,12 +323,12 @@ create_chat_view_comment(
         efficiency_notes: [
           '👋 Step-by-step exploration',
           'Good for learning workspace structure',
-          'Consider get_workspace_overview for faster results'
+          'Consider get_workspace_overview for faster results',
         ],
         workflow_hint: 'get_workspaces() → get_spaces(workspace_id) → explore further',
         confidence: 0.7,
         reasoning: ['Beginner user - step-by-step approach better for learning'],
-        context_analysis: context
+        context_analysis: context,
       };
     }
   }
@@ -340,12 +340,12 @@ create_chat_view_comment(
       alternative_tools: ['get_workspace_overview'],
       efficiency_notes: [
         '🤔 Request needs clarification',
-        'Use suggest_tools_for_task for specific guidance'
+        'Use suggest_tools_for_task for specific guidance',
       ],
       workflow_hint: `suggest_tools_for_task(request="${request}")`,
       confidence: 0.5,
       reasoning: ['Unclear request - need more specific tool suggestion'],
-      context_analysis: context
+      context_analysis: context,
     };
   }
 
@@ -438,6 +438,6 @@ export function optimizeWorkflow(
   return {
     optimized_tools,
     improvements,
-    efficiency_gain
+    efficiency_gain,
   };
 }

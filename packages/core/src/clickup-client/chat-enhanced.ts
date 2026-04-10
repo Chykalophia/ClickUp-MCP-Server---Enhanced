@@ -17,7 +17,7 @@ import type {
   ChatChannel,
   ChatMessage,
   ChatReaction,
-  ChatMember
+  ChatMember,
 } from '../schemas/chat-schemas.js';
 
 export interface ChatChannelsResponse {
@@ -283,7 +283,7 @@ export class ChatEnhancedClient {
    */
   async searchChannels(workspaceId: string, query: string): Promise<ChatChannelsResponse> {
     return this.client.get<ChatChannelsResponse>(`/team/${workspaceId}/chat/channels`, {
-      search: query
+      search: query,
     });
   }
 

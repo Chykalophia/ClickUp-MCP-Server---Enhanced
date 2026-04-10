@@ -4,7 +4,7 @@ import { z } from 'zod';
 export const DependencyTypeSchema = z.enum([
   'blocking', // Task A blocks Task B (A must finish before B can start)
   'waiting_on', // Task A is waiting on Task B (A cannot start until B finishes)
-  'linked' // Tasks are linked but not blocking
+  'linked', // Tasks are linked but not blocking
 ]);
 
 // Dependency status
@@ -15,14 +15,14 @@ export const CreateDependencySchema = z.object({
   task_id: z.string().min(1).describe('The ID of the task that depends on another'),
   depends_on: z.string().min(1).describe('The ID of the task that this task depends on'),
   type: DependencyTypeSchema.default('blocking').describe('The type of dependency relationship'),
-  link_id: z.string().optional().describe('Optional link ID for grouping related dependencies')
+  link_id: z.string().optional().describe('Optional link ID for grouping related dependencies'),
 });
 
 // Update dependency schema
 export const UpdateDependencySchema = z.object({
   dependency_id: z.string().min(1).describe('The ID of the dependency to update'),
   type: DependencyTypeSchema.optional().describe('New dependency type'),
-  status: DependencyStatusSchema.optional().describe('New dependency status')
+  status: DependencyStatusSchema.optional().describe('New dependency status'),
 });
 
 // Get dependencies filter schema
@@ -30,7 +30,7 @@ export const GetDependenciesFilterSchema = z.object({
   task_id: z.string().min(1).describe('The ID of the task to get dependencies for'),
   type: DependencyTypeSchema.optional().describe('Filter by dependency type'),
   status: DependencyStatusSchema.optional().describe('Filter by dependency status'),
-  include_resolved: z.boolean().default(false).describe('Whether to include resolved dependencies')
+  include_resolved: z.boolean().default(false).describe('Whether to include resolved dependencies'),
 });
 
 // Dependency graph options schema
@@ -42,7 +42,7 @@ export const DependencyGraphOptionsSchema = z.object({
     .default('both')
     .describe('Direction to traverse dependencies'),
   include_resolved: z.boolean().default(false).describe('Whether to include resolved dependencies'),
-  include_broken: z.boolean().default(true).describe('Whether to include broken dependencies')
+  include_broken: z.boolean().default(true).describe('Whether to include broken dependencies'),
 });
 
 // Dependency conflict check schema
@@ -52,11 +52,11 @@ export const DependencyConflictCheckSchema = z.object({
     .array(
       z.object({
         depends_on: z.string(),
-        type: DependencyTypeSchema
+        type: DependencyTypeSchema,
       })
     )
     .optional()
-    .describe('Proposed new dependencies to check for conflicts')
+    .describe('Proposed new dependencies to check for conflicts'),
 });
 
 // Bulk dependency operations schema
@@ -67,10 +67,10 @@ export const BulkDependencyOperationSchema = z.object({
       z.union([
         CreateDependencySchema,
         z.object({ dependency_id: z.string() }), // For delete operations
-        UpdateDependencySchema
+        UpdateDependencySchema,
       ])
     )
-    .describe('Array of dependency operations to perform')
+    .describe('Array of dependency operations to perform'),
 });
 
 // Type exports
@@ -193,27 +193,27 @@ export interface DependencyConflictResponse {
 // Utility functions
 export const getDependencyDirection = (type: DependencyType): 'forward' | 'backward' => {
   switch (type) {
-  case 'blocking':
-    return 'forward';
-  case 'waiting_on':
-    return 'backward';
-  case 'linked':
-    return 'forward';
-  default:
-    return 'forward';
+    case 'blocking':
+      return 'forward';
+    case 'waiting_on':
+      return 'backward';
+    case 'linked':
+      return 'forward';
+    default:
+      return 'forward';
   }
 };
 
 export const getOppositeDependencyType = (type: DependencyType): DependencyType => {
   switch (type) {
-  case 'blocking':
-    return 'waiting_on';
-  case 'waiting_on':
-    return 'blocking';
-  case 'linked':
-    return 'linked';
-  default:
-    return type;
+    case 'blocking':
+      return 'waiting_on';
+    case 'waiting_on':
+      return 'blocking';
+    case 'linked':
+      return 'linked';
+    default:
+      return type;
   }
 };
 
@@ -285,7 +285,7 @@ export const validateDependencyChain = (
   return {
     isValid: cycles.length === 0,
     cycles,
-    errors
+    errors,
   };
 };
 

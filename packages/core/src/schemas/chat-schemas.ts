@@ -12,7 +12,7 @@ export const CreateChannelSchema = z.object({
   description: z.string().optional(),
   type: ChannelTypeSchema.default('public'),
   members: z.array(z.number()).optional(),
-  is_private: z.boolean().optional()
+  is_private: z.boolean().optional(),
 });
 
 export const CreateChannelOnParentSchema = z.object({
@@ -22,26 +22,26 @@ export const CreateChannelOnParentSchema = z.object({
   description: z.string().optional(),
   type: ChannelTypeSchema.default('public'),
   members: z.array(z.number()).optional(),
-  is_private: z.boolean().optional()
+  is_private: z.boolean().optional(),
 });
 
 export const CreateDirectMessageSchema = z.object({
   workspace_id: z.string().min(1),
   members: z.array(z.number()).min(2),
-  name: z.string().optional()
+  name: z.string().optional(),
 });
 
 export const UpdateChannelSchema = z.object({
   channel_id: z.string().min(1),
   name: z.string().min(1).max(255).optional(),
   description: z.string().optional(),
-  is_private: z.boolean().optional()
+  is_private: z.boolean().optional(),
 });
 
 export const GetChannelsFilterSchema = z.object({
   workspace_id: z.string().min(1),
   archived: z.boolean().optional(),
-  type: ChannelTypeSchema.optional()
+  type: ChannelTypeSchema.optional(),
 });
 
 // ========================================
@@ -51,7 +51,7 @@ export const GetChannelsFilterSchema = z.object({
 export const MessageContentSchema = z.object({
   text: z.string().min(1),
   mentions: z.array(z.number()).optional(),
-  attachments: z.array(z.string()).optional()
+  attachments: z.array(z.string()).optional(),
 });
 
 export const SendMessageSchema = z.object({
@@ -59,14 +59,14 @@ export const SendMessageSchema = z.object({
   text: z.string().min(1),
   mentions: z.array(z.number()).optional(),
   attachments: z.array(z.string()).optional(),
-  reply_to: z.string().optional()
+  reply_to: z.string().optional(),
 });
 
 export const UpdateMessageSchema = z.object({
   channel_id: z.string().min(1),
   message_id: z.string().min(1),
   text: z.string().min(1),
-  mentions: z.array(z.number()).optional()
+  mentions: z.array(z.number()).optional(),
 });
 
 export const CreateReplySchema = z.object({
@@ -74,14 +74,14 @@ export const CreateReplySchema = z.object({
   message_id: z.string().min(1),
   text: z.string().min(1),
   mentions: z.array(z.number()).optional(),
-  attachments: z.array(z.string()).optional()
+  attachments: z.array(z.string()).optional(),
 });
 
 export const GetMessagesFilterSchema = z.object({
   channel_id: z.string().min(1),
   limit: z.number().min(1).max(100).optional(),
   before: z.string().optional(),
-  after: z.string().optional()
+  after: z.string().optional(),
 });
 
 export const GetRepliesFilterSchema = z.object({
@@ -89,7 +89,7 @@ export const GetRepliesFilterSchema = z.object({
   message_id: z.string().min(1),
   limit: z.number().min(1).max(100).optional(),
   before: z.string().optional(),
-  after: z.string().optional()
+  after: z.string().optional(),
 });
 
 // ========================================
@@ -110,19 +110,19 @@ export const ReactionTypeSchema = z.enum([
   'eyes',
   'thinking',
   'clap',
-  'pray'
+  'pray',
 ]);
 
 export const CreateReactionSchema = z.object({
   channel_id: z.string().min(1),
   message_id: z.string().min(1),
-  reaction: ReactionTypeSchema
+  reaction: ReactionTypeSchema,
 });
 
 export const DeleteReactionSchema = z.object({
   channel_id: z.string().min(1),
   message_id: z.string().min(1),
-  reaction: ReactionTypeSchema
+  reaction: ReactionTypeSchema,
 });
 
 // ========================================
@@ -131,12 +131,12 @@ export const DeleteReactionSchema = z.object({
 
 export const AddChannelMemberSchema = z.object({
   channel_id: z.string().min(1),
-  user_id: z.number()
+  user_id: z.number(),
 });
 
 export const RemoveChannelMemberSchema = z.object({
   channel_id: z.string().min(1),
-  user_id: z.number()
+  user_id: z.number(),
 });
 
 // ========================================
@@ -156,7 +156,7 @@ export const ChatChannelSchema = z.object({
   date_created: z.string(),
   date_updated: z.string(),
   member_count: z.number(),
-  unread_count: z.number().optional()
+  unread_count: z.number().optional(),
 });
 
 export const ChatMessageSchema = z.object({
@@ -168,7 +168,7 @@ export const ChatMessageSchema = z.object({
     username: z.string(),
     email: z.string(),
     color: z.string(),
-    profilePicture: z.string().optional()
+    profilePicture: z.string().optional(),
   }),
   date_created: z.string(),
   date_updated: z.string().optional(),
@@ -179,7 +179,7 @@ export const ChatMessageSchema = z.object({
       z.object({
         reaction: ReactionTypeSchema,
         users: z.array(z.number()),
-        count: z.number()
+        count: z.number(),
       })
     )
     .optional(),
@@ -189,10 +189,10 @@ export const ChatMessageSchema = z.object({
         id: z.string(),
         filename: z.string(),
         url: z.string(),
-        size: z.number()
+        size: z.number(),
       })
     )
-    .optional()
+    .optional(),
 });
 
 export const ChatReactionSchema = z.object({
@@ -203,10 +203,10 @@ export const ChatReactionSchema = z.object({
       username: z.string(),
       email: z.string(),
       color: z.string(),
-      profilePicture: z.string().optional()
+      profilePicture: z.string().optional(),
     })
   ),
-  count: z.number()
+  count: z.number(),
 });
 
 export const ChatMemberSchema = z.object({
@@ -216,7 +216,7 @@ export const ChatMemberSchema = z.object({
   color: z.string(),
   profilePicture: z.string().optional(),
   role: z.string().optional(),
-  date_joined: z.string()
+  date_joined: z.string(),
 });
 
 // ========================================

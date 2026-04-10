@@ -7,7 +7,7 @@ import type {
   UpdateWebhookRequest,
   WebhookFilter,
   ValidateWebhookSignatureRequest,
-  ProcessWebhookRequest
+  ProcessWebhookRequest,
 } from '../schemas/webhook-schemas.js';
 
 export interface WebhookResponse {
@@ -65,7 +65,7 @@ export class WebhooksEnhancedClient extends ClickUpClient {
       endpoint: request.endpoint,
       events: request.events,
       health_check_url: request.health_check_url,
-      secret: request.secret
+      secret: request.secret,
     });
     return response;
   }
@@ -192,7 +192,7 @@ export class WebhooksEnhancedClient extends ClickUpClient {
       const isValidSignature = this.validateWebhookSignature({
         payload: JSON.stringify(request.payload),
         signature: request.signature,
-        secret: request.secret
+        secret: request.secret,
       });
 
       if (!isValidSignature) {
@@ -205,7 +205,7 @@ export class WebhooksEnhancedClient extends ClickUpClient {
           userId: 0,
           timestamp: new Date(),
           changes: [],
-          relationships: []
+          relationships: [],
         };
       }
     }
@@ -214,7 +214,7 @@ export class WebhooksEnhancedClient extends ClickUpClient {
     const operationMap: Record<string, string> = {
       c: 'create',
       u: 'update',
-      d: 'delete'
+      d: 'delete',
     };
 
     return {
@@ -226,7 +226,7 @@ export class WebhooksEnhancedClient extends ClickUpClient {
       userId: payload.version.data.context.audit_context.userid,
       timestamp: new Date(payload.date),
       changes: payload.version.data.changes,
-      relationships: payload.version.data.relationships
+      relationships: payload.version.data.relationships,
     };
   }
 

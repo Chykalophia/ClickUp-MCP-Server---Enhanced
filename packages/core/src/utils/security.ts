@@ -16,7 +16,7 @@ export interface RateLimitConfig {
 export const DEFAULT_RATE_LIMITS: Record<string, RateLimitConfig> = {
   webhook: { windowMs: 60000, maxRequests: 100 }, // 100 requests per minute
   api: { windowMs: 60000, maxRequests: 1000 }, // 1000 requests per minute
-  upload: { windowMs: 60000, maxRequests: 10 } // 10 uploads per minute
+  upload: { windowMs: 60000, maxRequests: 10 }, // 10 uploads per minute
 };
 
 // Rate limiter implementation with memory leak prevention
@@ -28,10 +28,13 @@ class RateLimiter {
     // Only create cleanup interval in non-test environments
     if (process.env.NODE_ENV !== 'test') {
       // Cleanup old entries every 5 minutes to prevent memory leaks
-      this.cleanupInterval = setInterval(() => {
-        this.cleanup();
-      }, 5 * 60 * 1000);
-      
+      this.cleanupInterval = setInterval(
+        () => {
+          this.cleanup();
+        },
+        5 * 60 * 1000
+      );
+
       // Cleanup interval on process exit to prevent Jest hanging
       if (typeof process !== 'undefined') {
         process.on('exit', () => this.destroy());
@@ -103,13 +106,16 @@ export const OPERATION_RATE_LIMITS = {
   file_uploads: { windowMs: 60000, maxRequests: 5 }, // 5 per minute
   webhook_processing: { windowMs: 60000, maxRequests: 50 }, // 50 per minute
   search_operations: { windowMs: 60000, maxRequests: 30 }, // 30 per minute
-  default: { windowMs: 60000, maxRequests: 100 } // 100 per minute
+  default: { windowMs: 60000, maxRequests: 100 }, // 100 per minute
 } as const;
 
 /**
  * Check operation-specific rate limit
  */
-export const checkOperationRateLimit = (operation: keyof typeof OPERATION_RATE_LIMITS, identifier: string): boolean => {
+export const checkOperationRateLimit = (
+  operation: keyof typeof OPERATION_RATE_LIMITS,
+  identifier: string
+): boolean => {
   const limits = OPERATION_RATE_LIMITS[operation] || OPERATION_RATE_LIMITS.default;
   const key = `${operation}_${identifier}`;
   return rateLimiter.isAllowed(key, limits);
@@ -147,10 +153,13 @@ export const validateApiToken = (token: string): { isValid: boolean; error?: str
  * Remove control characters from string
  */
 const removeControlCharacters = (str: string): string => {
-  return str.split('').filter(char => {
-    const code = char.charCodeAt(0);
-    return !(code >= 0 && code <= 31) && !(code >= 127 && code <= 159);
-  }).join('');
+  return str
+    .split('')
+    .filter(char => {
+      const code = char.charCodeAt(0);
+      return !(code >= 0 && code <= 31) && !(code >= 127 && code <= 159);
+    })
+    .join('');
 };
 
 /**
@@ -187,10 +196,10 @@ export const sanitizeInput = (input: any): any => {
       .replace(/Function\s*\(/gi, '') // Remove Function constructor
       .trim()
       .substring(0, 10000); // Limit length to prevent DoS
-    
+
     // Remove control characters
     sanitized = removeControlCharacters(sanitized);
-    
+
     return sanitized;
   }
 
@@ -248,7 +257,7 @@ export const validateWebhookSignature = (
   } catch (error) {
     return {
       isValid: false,
-      error: `Signature validation error: ${error instanceof Error ? error.message : 'Unknown error'}`
+      error: `Signature validation error: ${error instanceof Error ? error.message : 'Unknown error'}`,
     };
   }
 };
@@ -290,7 +299,7 @@ export const validateFileUpload = (
       '.sh',
       '.ps1',
       '.py',
-      '.rb'
+      '.rb',
     ];
 
     const extension = filename.toLowerCase().split('.').pop();
@@ -337,7 +346,7 @@ export const validateFileUpload = (
       'video/webm',
       'audio/mp3',
       'audio/wav',
-      'audio/ogg'
+      'audio/ogg',
     ];
 
     if (!allowedMimetypes.includes(mimetype)) {
@@ -358,7 +367,7 @@ export const validateFileUpload = (
 
   return {
     isValid: errors.length === 0,
-    errors
+    errors,
   };
 };
 
@@ -439,7 +448,7 @@ export const validateEnvironment = (): { isValid: boolean; errors: string[] } =>
 
   return {
     isValid: errors.length === 0,
-    errors
+    errors,
   };
 };
 
@@ -453,7 +462,7 @@ export const getSecurityHeaders = (): Record<string, string> => {
     'X-XSS-Protection': '1; mode=block',
     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
     'Content-Security-Policy': "default-src 'self'",
-    'Referrer-Policy': 'strict-origin-when-cross-origin'
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
   };
 };
 
@@ -465,7 +474,7 @@ export const secureLog = (level: 'info' | 'warn' | 'error', message: string, dat
   let sanitizedMessage = message
     .replace(/[\r\n\t]/g, ' ') // Replace newlines/tabs with spaces
     .substring(0, 1000); // Limit length
-  
+
   // Remove control characters
   sanitizedMessage = removeControlCharacters(sanitizedMessage);
 
@@ -474,7 +483,7 @@ export const secureLog = (level: 'info' | 'warn' | 'error', message: string, dat
     timestamp,
     level,
     message: sanitizedMessage,
-    data: data ? sanitizeInput(data) : undefined
+    data: data ? sanitizeInput(data) : undefined,
   };
 
   // Use structured logging to prevent injection
@@ -494,7 +503,7 @@ export const logSecurityEvent = (
     timestamp,
     event: sanitizeInput(event),
     level,
-    details: sanitizeInput(details)
+    details: sanitizeInput(details),
   };
 
   // Use secure logging to prevent log injection
@@ -508,12 +517,12 @@ export const sanitizeObject = (obj: any): any => {
   if (obj === null || typeof obj !== 'object') {
     return obj;
   }
-  
+
   // Remove dangerous properties
   delete obj.__proto__;
   delete obj.constructor;
   delete obj.prototype;
-  
+
   // Recursively sanitize nested objects
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
@@ -524,7 +533,7 @@ export const sanitizeObject = (obj: any): any => {
       }
     }
   }
-  
+
   return obj;
 };
 
@@ -541,7 +550,7 @@ export const safeMerge = (target: any, source: any): any => {
  */
 export const sanitizeErrorMessage = (error: any): string => {
   const isProduction = process.env.NODE_ENV === 'production';
-  
+
   if (isProduction) {
     // Generic error messages in production
     if (error?.message?.includes('ENOTFOUND') || error?.message?.includes('ECONNREFUSED')) {
@@ -574,7 +583,7 @@ export const INPUT_LIMITS = {
   DESCRIPTION: 50000,
   JSON_PAYLOAD: 100000,
   URL: 2000,
-  GENERAL_TEXT: 1000
+  GENERAL_TEXT: 1000,
 } as const;
 
 /**
@@ -584,18 +593,24 @@ export const validateInputLength = (input: string, limit: number, fieldName: str
   if (typeof input !== 'string') {
     return; // Non-string inputs are handled elsewhere
   }
-  
+
   if (input.length > limit) {
-    throw new Error(`${fieldName} exceeds maximum length of ${limit} characters (got ${input.length})`);
+    throw new Error(
+      `${fieldName} exceeds maximum length of ${limit} characters (got ${input.length})`
+    );
   }
 };
 
 /**
  * Production-safe logging that prevents information disclosure
  */
-export const productionSafeLog = (level: 'info' | 'warn' | 'error', message: string, data?: any): void => {
+export const productionSafeLog = (
+  level: 'info' | 'warn' | 'error',
+  message: string,
+  data?: any
+): void => {
   const isProduction = process.env.NODE_ENV === 'production';
-  
+
   if (isProduction) {
     // Only log sanitized, non-sensitive information in production
     const sanitizedMessage = sanitizeInput(message).substring(0, 200);
@@ -614,21 +629,21 @@ export const safeJsonParse = (jsonString: string, maxLength = 100000): any => {
   if (typeof jsonString !== 'string') {
     throw new Error('Input must be a string');
   }
-  
+
   if (jsonString.length > maxLength) {
     throw new Error(`JSON payload too large (${jsonString.length} > ${maxLength})`);
   }
-  
+
   try {
     const parsed = JSON.parse(jsonString);
-    
+
     // Prevent prototype pollution
     if (parsed && typeof parsed === 'object') {
       delete parsed.__proto__;
       delete parsed.constructor;
       delete parsed.prototype;
     }
-    
+
     return parsed;
   } catch (error) {
     throw new Error('Invalid JSON format');
@@ -658,7 +673,7 @@ export const validateMcpParameters = (
 
     return {
       isValid: false,
-      errors: [`Validation error: ${error instanceof Error ? error.message : 'Unknown error'}`]
+      errors: [`Validation error: ${error instanceof Error ? error.message : 'Unknown error'}`],
     };
   }
 };

@@ -288,7 +288,7 @@ export class TasksClient {
         results.push({
           success: true,
           task_id: task.id,
-          index: i
+          index: i,
         });
         successCount++;
       } catch (error: any) {
@@ -296,7 +296,7 @@ export class TasksClient {
         results.push({
           success: false,
           error: errorMessage,
-          index: i
+          index: i,
         });
         errorCount++;
 
@@ -307,7 +307,7 @@ export class TasksClient {
             results.push({
               success: false,
               error: 'Skipped due to previous error',
-              index: j
+              index: j,
             });
             errorCount++;
           }
@@ -323,7 +323,7 @@ export class TasksClient {
       error_count: errorCount,
       total_count: tasks.length,
       results,
-      execution_time_ms: executionTime
+      execution_time_ms: executionTime,
     };
   }
 
@@ -366,7 +366,7 @@ export class TasksClient {
         results.push({
           success: true,
           task_id: task.id,
-          index: i
+          index: i,
         });
         successCount++;
       } catch (error: any) {
@@ -374,7 +374,7 @@ export class TasksClient {
         results.push({
           success: false,
           error: errorMessage,
-          index: i
+          index: i,
         });
         errorCount++;
 
@@ -385,7 +385,7 @@ export class TasksClient {
             results.push({
               success: false,
               error: 'Skipped due to previous error',
-              index: j
+              index: j,
             });
             errorCount++;
           }
@@ -401,7 +401,7 @@ export class TasksClient {
       error_count: errorCount,
       total_count: taskUpdates.length,
       results,
-      execution_time_ms: executionTime
+      execution_time_ms: executionTime,
     };
   }
 }

@@ -8,7 +8,7 @@ import {
   validateUrl,
   generateSecureToken,
   validateEnvironment,
-  rateLimiter
+  rateLimiter,
 } from '../utils/security.js';
 
 describe('Security Utilities', () => {
@@ -59,7 +59,7 @@ describe('Security Utilities', () => {
     it('should sanitize object input', () => {
       const input = {
         name: '<script>alert("xss")</script>',
-        description: ['javascript', 'alert("xss")'].join(':')
+        description: ['javascript', 'alert("xss")'].join(':'),
       };
       const result = sanitizeInput(input);
       expect(result.name).toBe('scriptalert(xss)/script');

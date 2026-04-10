@@ -9,7 +9,7 @@ import {
   WebhookFilterSchema,
   ValidateWebhookSignatureSchema,
   ProcessWebhookSchema,
-  WebhookPayloadSchema
+  WebhookPayloadSchema,
 } from '../schemas/webhook-schemas.js';
 
 // Create clients
@@ -55,7 +55,7 @@ export function setupWebhookTools(server: McpServer): void {
             'goalCreated',
             'goalUpdated',
             'goalDeleted',
-            'goalTargetUpdated'
+            'goalTargetUpdated',
           ])
         )
         .describe('Array of events to subscribe to'),
@@ -64,7 +64,7 @@ export function setupWebhookTools(server: McpServer): void {
         .url()
         .optional()
         .describe('Optional URL for webhook health checks'),
-      secret: z.string().optional().describe('Optional secret for HMAC signature validation')
+      secret: z.string().optional().describe('Optional secret for HMAC signature validation'),
     },
     async args => {
       try {
@@ -75,19 +75,19 @@ export function setupWebhookTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Webhook created successfully:\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Webhook created successfully:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error creating webhook: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error creating webhook: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -99,7 +99,7 @@ export function setupWebhookTools(server: McpServer): void {
     {
       workspace_id: z.string().min(1).describe('The ID of the workspace to get webhooks from'),
       status: z.enum(['active', 'inactive']).optional().describe('Filter webhooks by status'),
-      event_type: z.string().optional().describe('Filter webhooks by event type')
+      event_type: z.string().optional().describe('Filter webhooks by event type'),
     },
     async args => {
       try {
@@ -110,19 +110,19 @@ export function setupWebhookTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Webhooks for workspace ${args.workspace_id}:\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Webhooks for workspace ${args.workspace_id}:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error getting webhooks: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error getting webhooks: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -132,7 +132,7 @@ export function setupWebhookTools(server: McpServer): void {
     'clickup_get_webhook',
     'Get detailed information about a specific webhook by its ID.',
     {
-      webhook_id: z.string().min(1).describe('The ID of the webhook to get')
+      webhook_id: z.string().min(1).describe('The ID of the webhook to get'),
     },
     async args => {
       try {
@@ -142,19 +142,19 @@ export function setupWebhookTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Webhook details:\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Webhook details:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error getting webhook: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error getting webhook: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -195,14 +195,14 @@ export function setupWebhookTools(server: McpServer): void {
             'goalCreated',
             'goalUpdated',
             'goalDeleted',
-            'goalTargetUpdated'
+            'goalTargetUpdated',
           ])
         )
         .optional()
         .describe('New array of events to subscribe to'),
       health_check_url: z.string().url().optional().describe('New URL for webhook health checks'),
       secret: z.string().optional().describe('New secret for HMAC signature validation'),
-      status: z.enum(['active', 'inactive']).optional().describe('New status for the webhook')
+      status: z.enum(['active', 'inactive']).optional().describe('New status for the webhook'),
     },
     async args => {
       try {
@@ -213,19 +213,19 @@ export function setupWebhookTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Webhook updated successfully:\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Webhook updated successfully:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error updating webhook: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error updating webhook: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -235,7 +235,7 @@ export function setupWebhookTools(server: McpServer): void {
     'clickup_delete_webhook',
     'Delete a webhook from ClickUp. This will stop all notifications to the webhook endpoint.',
     {
-      webhook_id: z.string().min(1).describe('The ID of the webhook to delete')
+      webhook_id: z.string().min(1).describe('The ID of the webhook to delete'),
     },
     async args => {
       try {
@@ -245,19 +245,19 @@ export function setupWebhookTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Webhook deleted successfully: ${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Webhook deleted successfully: ${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error deleting webhook: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error deleting webhook: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -268,7 +268,7 @@ export function setupWebhookTools(server: McpServer): void {
     'Get the event history for a webhook including delivery status and response codes.',
     {
       webhook_id: z.string().min(1).describe('The ID of the webhook to get event history for'),
-      limit: z.number().positive().optional().describe('Maximum number of events to return')
+      limit: z.number().positive().optional().describe('Maximum number of events to return'),
     },
     async args => {
       try {
@@ -278,19 +278,19 @@ export function setupWebhookTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Webhook event history:\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Webhook event history:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error getting webhook event history: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error getting webhook event history: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -300,7 +300,7 @@ export function setupWebhookTools(server: McpServer): void {
     'clickup_ping_webhook',
     "Send a test ping to a webhook endpoint to verify it's working correctly.",
     {
-      webhook_id: z.string().min(1).describe('The ID of the webhook to ping')
+      webhook_id: z.string().min(1).describe('The ID of the webhook to ping'),
     },
     async args => {
       try {
@@ -310,19 +310,19 @@ export function setupWebhookTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Webhook ping result:\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Webhook ping result:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error pinging webhook: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error pinging webhook: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -334,7 +334,7 @@ export function setupWebhookTools(server: McpServer): void {
     {
       payload: z.string().describe('The raw webhook payload as a string'),
       signature: z.string().describe('The signature header from the webhook request'),
-      secret: z.string().describe('The webhook secret used for signature generation')
+      secret: z.string().describe('The webhook secret used for signature generation'),
     },
     async args => {
       try {
@@ -346,19 +346,19 @@ export function setupWebhookTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Webhook signature validation result:\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Webhook signature validation result:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error validating webhook signature: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error validating webhook signature: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -374,7 +374,7 @@ export function setupWebhookTools(server: McpServer): void {
         .default(true)
         .describe('Whether to validate the webhook signature'),
       signature: z.string().optional().describe('The signature header for validation'),
-      secret: z.string().optional().describe('The webhook secret for signature validation')
+      secret: z.string().optional().describe('The webhook secret for signature validation'),
     },
     async args => {
       try {
@@ -388,7 +388,7 @@ export function setupWebhookTools(server: McpServer): void {
         const parsedPayload = WebhookPayloadSchema.parse(payload);
         const request = ProcessWebhookSchema.parse({
           ...args,
-          payload: parsedPayload
+          payload: parsedPayload,
         });
         const result = await webhooksClient.processWebhook(request);
 
@@ -396,19 +396,19 @@ export function setupWebhookTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Webhook processing result:\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Webhook processing result:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error processing webhook: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error processing webhook: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -423,7 +423,7 @@ export function setupWebhookTools(server: McpServer): void {
         .number()
         .positive()
         .optional()
-        .describe('Number of days to include in statistics (default: 30)')
+        .describe('Number of days to include in statistics (default: 30)'),
     },
     async args => {
       try {
@@ -433,19 +433,19 @@ export function setupWebhookTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Webhook statistics:\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Webhook statistics:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error getting webhook statistics: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error getting webhook statistics: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }
@@ -461,7 +461,7 @@ export function setupWebhookTools(server: McpServer): void {
         .optional()
         .describe(
           'Optional array of specific event IDs to retry. If not provided, all failed events will be retried.'
-        )
+        ),
     },
     async args => {
       try {
@@ -471,19 +471,19 @@ export function setupWebhookTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Webhook events retry result:\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `Webhook events retry result:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error) {
         return {
           content: [
             {
               type: 'text',
-              text: `Error retrying webhook events: ${error instanceof Error ? error.message : 'Unknown error'}`
-            }
+              text: `Error retrying webhook events: ${error instanceof Error ? error.message : 'Unknown error'}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }

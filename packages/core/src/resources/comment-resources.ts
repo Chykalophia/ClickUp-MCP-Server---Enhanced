@@ -14,7 +14,7 @@ export function setupCommentResources(server: McpServer): void {
     new ResourceTemplate('clickup://task/{task_id}/comments', { list: undefined }),
     {
       description:
-        'Get comments for a ClickUp task, including text content, author information, and timestamps.'
+        'Get comments for a ClickUp task, including text content, author information, and timestamps.',
     },
     async (uri, params) => {
       try {
@@ -28,9 +28,9 @@ export function setupCommentResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(comments, null, 2)
-            }
-          ]
+              text: JSON.stringify(comments, null, 2),
+            },
+          ],
         };
       } catch (error: any) {
         console.error('[CommentResources] Error fetching task comments:', error);
@@ -45,7 +45,7 @@ export function setupCommentResources(server: McpServer): void {
     new ResourceTemplate('clickup://view/{view_id}/comments', { list: undefined }),
     {
       description:
-        'Get comments from a ClickUp chat view, with support for pagination and threaded discussions.'
+        'Get comments from a ClickUp chat view, with support for pagination and threaded discussions.',
     },
     async (uri, params) => {
       try {
@@ -59,9 +59,9 @@ export function setupCommentResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(comments, null, 2)
-            }
-          ]
+              text: JSON.stringify(comments, null, 2),
+            },
+          ],
         };
       } catch (error: any) {
         console.error('[CommentResources] Error fetching chat view comments:', error);
@@ -76,7 +76,7 @@ export function setupCommentResources(server: McpServer): void {
     new ResourceTemplate('clickup://list/{list_id}/comments', { list: undefined }),
     {
       description:
-        'Get comments for a ClickUp list, including text content, author information, and timestamps.'
+        'Get comments for a ClickUp list, including text content, author information, and timestamps.',
     },
     async (uri, params) => {
       try {
@@ -90,9 +90,9 @@ export function setupCommentResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(comments, null, 2)
-            }
-          ]
+              text: JSON.stringify(comments, null, 2),
+            },
+          ],
         };
       } catch (error: any) {
         console.error('[CommentResources] Error fetching list comments:', error);
@@ -107,7 +107,7 @@ export function setupCommentResources(server: McpServer): void {
     new ResourceTemplate('clickup://comment/{comment_id}/reply', { list: undefined }),
     {
       description:
-        'Get threaded replies to a specific comment, supporting nested discussions and pagination.'
+        'Get threaded replies to a specific comment, supporting nested discussions and pagination.',
     },
     async (uri, params) => {
       try {
@@ -121,9 +121,9 @@ export function setupCommentResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(comments, null, 2)
-            }
-          ]
+              text: JSON.stringify(comments, null, 2),
+            },
+          ],
         };
       } catch (error: any) {
         console.error('[CommentResources] Error fetching threaded comments:', error);
@@ -137,7 +137,7 @@ export function setupCommentResources(server: McpServer): void {
     'example-task-comments',
     'clickup://task/868czp2t3/comments',
     {
-      description: 'An example task comments resource demonstrating the comment data format.'
+      description: 'An example task comments resource demonstrating the comment data format.',
     },
     async uri => {
       try {
@@ -151,9 +151,9 @@ export function setupCommentResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(comments, null, 2)
-            }
-          ]
+              text: JSON.stringify(comments, null, 2),
+            },
+          ],
         };
       } catch (error: any) {
         console.error('[CommentResources] Error fetching example task comments:', error);
@@ -166,7 +166,7 @@ export function setupCommentResources(server: McpServer): void {
     'example-list-comments',
     'clickup://list/901109776097/comments',
     {
-      description: 'An example list comments resource demonstrating the comment data format.'
+      description: 'An example list comments resource demonstrating the comment data format.',
     },
     async uri => {
       try {
@@ -180,9 +180,9 @@ export function setupCommentResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(comments, null, 2)
-            }
-          ]
+              text: JSON.stringify(comments, null, 2),
+            },
+          ],
         };
       } catch (error: any) {
         console.error('[CommentResources] Error fetching example list comments:', error);

@@ -10,7 +10,7 @@ import TurndownService from 'turndown';
 // Configure marked for ClickUp-compatible HTML output
 marked.setOptions({
   gfm: true, // GitHub Flavored Markdown
-  breaks: true // Convert line breaks to <br>
+  breaks: true, // Convert line breaks to <br>
 });
 
 // Configure Turndown for ClickUp HTML to markdown conversion
@@ -21,23 +21,23 @@ const turndownService = new TurndownService({
   emDelimiter: '*', // Use * for emphasis
   strongDelimiter: '**', // Use ** for strong
   linkStyle: 'inlined', // Use [text](url) for links
-  linkReferenceStyle: 'full' // Use full reference links
+  linkReferenceStyle: 'full', // Use full reference links
 });
 
 // Add custom rules for ClickUp-specific elements
 turndownService.addRule('strikethrough', {
   filter: ['del', 's'],
-  replacement: content => `~~${content}~~`
+  replacement: content => `~~${content}~~`,
 });
 
 turndownService.addRule('underline', {
   filter: 'u',
-  replacement: content => `<u>${content}</u>` // Keep underline as HTML since markdown doesn't support it
+  replacement: content => `<u>${content}</u>`, // Keep underline as HTML since markdown doesn't support it
 });
 
 turndownService.addRule('highlight', {
   filter: 'mark',
-  replacement: content => `==${content}==` // Use highlight syntax
+  replacement: content => `==${content}==`, // Use highlight syntax
 });
 
 /**
@@ -134,7 +134,7 @@ export function isMarkdown(content: string): boolean {
     /^\s*\d+\.\s+/m, // Ordered lists
     /^\s*>\s+/m, // Blockquotes
     /~~.*?~~/, // Strikethrough
-    /==[^=]+==/ // Highlight
+    /==[^=]+==/, // Highlight
   ];
 
   return markdownPatterns.some(pattern => pattern.test(content));
@@ -173,23 +173,23 @@ export function formatContent(
   const isCurrentlyMarkdown = !isCurrentlyHtml && isMarkdown(content);
 
   switch (targetFormat) {
-  case 'html':
-    if (isCurrentlyHtml) return content;
-    if (isCurrentlyMarkdown) return markdownToHtml(content);
-    return content; // Plain text, return as-is
+    case 'html':
+      if (isCurrentlyHtml) return content;
+      if (isCurrentlyMarkdown) return markdownToHtml(content);
+      return content; // Plain text, return as-is
 
-  case 'markdown':
-    if (isCurrentlyMarkdown) return content;
-    if (isCurrentlyHtml) return htmlToMarkdown(content);
-    return content; // Plain text, return as-is
+    case 'markdown':
+      if (isCurrentlyMarkdown) return content;
+      if (isCurrentlyHtml) return htmlToMarkdown(content);
+      return content; // Plain text, return as-is
 
-  case 'plain':
-    if (isCurrentlyMarkdown) return markdownToPlainText(content);
-    if (isCurrentlyHtml) return htmlToMarkdown(content).replace(/[*_`#[\]()]/g, '');
-    return content; // Already plain text
+    case 'plain':
+      if (isCurrentlyMarkdown) return markdownToPlainText(content);
+      if (isCurrentlyHtml) return htmlToMarkdown(content).replace(/[*_`#[\]()]/g, '');
+      return content; // Already plain text
 
-  default:
-    return content;
+    default:
+      return content;
   }
 }
 
@@ -214,7 +214,7 @@ export function prepareContentForClickUp(content: string): {
 
     return {
       markdown_content: content, // Send raw markdown to ClickUp
-      text_content: plainText
+      text_content: plainText,
     };
   }
 
@@ -224,14 +224,14 @@ export function prepareContentForClickUp(content: string): {
 
     return {
       description: content, // Send HTML as-is
-      text_content: markdownToPlainText(plainText)
+      text_content: markdownToPlainText(plainText),
     };
   }
 
   // Plain text content - use description field
   return {
     description: content,
-    text_content: content
+    text_content: content,
   };
 }
 

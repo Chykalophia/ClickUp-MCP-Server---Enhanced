@@ -1,11 +1,10 @@
 /* eslint-disable no-console, max-len */
 import { ClickUpClient } from './index.js';
-import { secureLog } from '../utils/security.js';
 // import { processClickUpResponse } from '../utils/markdown.js';
 import {
   prepareCommentForClickUp,
   clickUpCommentToMarkdown,
-  ClickUpCommentBlock
+  ClickUpCommentBlock,
 } from '../utils/clickup-comment-formatter.js';
 
 export interface Comment {
@@ -186,20 +185,11 @@ export class CommentsEnhancedClient {
     // Exact match to ClickUp's official Node.js example
     const payload = {
       notify_all: false,
-      comment_text: commentText
+      comment_text: commentText,
     };
-
-    console.log('=== RAW API TEST ===');
-    console.log('URL:', `/task/${taskId}/comment`);
-    console.log('Payload:', JSON.stringify(payload, null, 2));
-    console.log('===================');
 
     // Send raw request without any processing
     const result = await this.client.post(`/task/${taskId}/comment`, payload);
-
-    secureLog('info', '=== RAW API RESPONSE ===');
-    secureLog('info', 'Response received from ClickUp API', { responseLength: JSON.stringify(result).length });
-    secureLog('info', '========================');
 
     // Return raw response without any processing
     return result;
@@ -212,21 +202,10 @@ export class CommentsEnhancedClient {
     const payload = {
       notify_all: params.notify_all || false,
       assignee: params.assignee,
-      ...structuredComment // This adds the 'comment' array, NOT comment_text
+      ...structuredComment, // This adds the 'comment' array, NOT comment_text
     };
 
-    // DEBUG: Log exactly what we're sending to ClickUp API
-    console.log('=== DEBUG: Sending to ClickUp API ===');
-    console.log('URL:', `/task/${taskId}/comment`);
-    console.log('Payload:', JSON.stringify(payload, null, 2));
-    console.log('=====================================');
-
     const result = await this.client.post(`/task/${taskId}/comment`, payload);
-
-    // DEBUG: Log what ClickUp returns
-    console.log('=== DEBUG: ClickUp API Response ===');
-    console.log('Raw Response:', JSON.stringify(result, null, 2));
-    console.log('===================================');
 
     return processCommentResponse(result);
   }
@@ -266,7 +245,7 @@ export class CommentsEnhancedClient {
 
     const payload = {
       notify_all: params.notify_all || false,
-      ...structuredComment // This adds the 'comment' array, NOT comment_text
+      ...structuredComment, // This adds the 'comment' array, NOT comment_text
     };
 
     const result = await this.client.post(`/view/${viewId}/comment`, payload);
@@ -306,7 +285,7 @@ export class CommentsEnhancedClient {
     const payload = {
       notify_all: params.notify_all || false,
       assignee: params.assignee,
-      ...structuredComment // This adds the 'comment' array, NOT comment_text
+      ...structuredComment, // This adds the 'comment' array, NOT comment_text
     };
 
     const result = await this.client.post(`/list/${listId}/comment`, payload);
@@ -326,7 +305,7 @@ export class CommentsEnhancedClient {
     const payload = {
       assignee: params.assignee,
       resolved: params.resolved,
-      ...structuredComment // This adds the 'comment' array, NOT comment_text
+      ...structuredComment, // This adds the 'comment' array, NOT comment_text
     };
 
     const result = await this.client.put(`/comment/${commentId}`, payload);
@@ -377,7 +356,7 @@ export class CommentsEnhancedClient {
 
     const payload = {
       notify_all: params.notify_all || false,
-      ...structuredComment // This adds the 'comment' array, NOT comment_text
+      ...structuredComment, // This adds the 'comment' array, NOT comment_text
     };
 
     const result = await this.client.post(`/comment/${commentId}/reply`, payload);

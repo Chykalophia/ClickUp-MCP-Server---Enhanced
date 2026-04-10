@@ -327,7 +327,7 @@ export class EnhancedCustomFieldsClient {
     return {
       Authorization: this.apiToken,
       Accept: 'application/json',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     };
   }
 
@@ -346,7 +346,7 @@ export class EnhancedCustomFieldsClient {
       const url = `https://api.clickup.com/api/v2/list/${listId}/field`;
       const response = await axios.get(url, {
         headers: this.getHeaders(),
-        params
+        params,
       });
       return response.data.fields || [];
     } catch (error) {
@@ -366,7 +366,7 @@ export class EnhancedCustomFieldsClient {
       const url = `https://api.clickup.com/api/v2/folder/${folderId}/field`;
       const response = await axios.get(url, {
         headers: this.getHeaders(),
-        params
+        params,
       });
       return response.data.fields || [];
     } catch (error) {
@@ -386,7 +386,7 @@ export class EnhancedCustomFieldsClient {
       const url = `https://api.clickup.com/api/v2/space/${spaceId}/field`;
       const response = await axios.get(url, {
         headers: this.getHeaders(),
-        params
+        params,
       });
       return response.data.fields || [];
     } catch (error) {
@@ -405,7 +405,7 @@ export class EnhancedCustomFieldsClient {
     try {
       const url = `https://api.clickup.com/api/v2/list/${listId}/field`;
       const response = await axios.post(url, params, {
-        headers: this.getHeaders()
+        headers: this.getHeaders(),
       });
       return response.data;
     } catch (error) {
@@ -424,7 +424,7 @@ export class EnhancedCustomFieldsClient {
     try {
       const url = `https://api.clickup.com/api/v2/folder/${folderId}/field`;
       const response = await axios.post(url, params, {
-        headers: this.getHeaders()
+        headers: this.getHeaders(),
       });
       return response.data;
     } catch (error) {
@@ -443,7 +443,7 @@ export class EnhancedCustomFieldsClient {
     try {
       const url = `https://api.clickup.com/api/v2/space/${spaceId}/field`;
       const response = await axios.post(url, params, {
-        headers: this.getHeaders()
+        headers: this.getHeaders(),
       });
       return response.data;
     } catch (error) {
@@ -459,7 +459,7 @@ export class EnhancedCustomFieldsClient {
     try {
       const url = `https://api.clickup.com/api/v2/field/${fieldId}`;
       const response = await axios.put(url, params, {
-        headers: this.getHeaders()
+        headers: this.getHeaders(),
       });
       return response.data;
     } catch (error) {
@@ -475,7 +475,7 @@ export class EnhancedCustomFieldsClient {
     try {
       const url = `https://api.clickup.com/api/v2/field/${fieldId}`;
       await axios.delete(url, {
-        headers: this.getHeaders()
+        headers: this.getHeaders(),
       });
     } catch (error) {
       console.error('Error deleting custom field:', error);
@@ -497,7 +497,7 @@ export class EnhancedCustomFieldsClient {
         url,
         { value },
         {
-          headers: this.getHeaders()
+          headers: this.getHeaders(),
         }
       );
     } catch (error) {
@@ -516,7 +516,7 @@ export class EnhancedCustomFieldsClient {
     try {
       const url = `https://api.clickup.com/api/v2/task/${taskId}/field/${fieldId}`;
       await axios.delete(url, {
-        headers: this.getHeaders()
+        headers: this.getHeaders(),
       });
     } catch (error) {
       console.error('Error removing custom field value:', error);
@@ -535,7 +535,7 @@ export class EnhancedCustomFieldsClient {
       // Get task details which includes custom field values
       const taskUrl = `https://api.clickup.com/api/v2/task/${taskId}`;
       const response = await axios.get(taskUrl, {
-        headers: this.getHeaders()
+        headers: this.getHeaders(),
       });
 
       const task = response.data;
@@ -550,7 +550,7 @@ export class EnhancedCustomFieldsClient {
         field_name: customField.name,
         field_type: customField.type,
         value: customField.value,
-        type_config: customField.type_config
+        type_config: customField.type_config,
       };
     } catch (error) {
       console.error('Error getting custom field value:', error);
@@ -568,7 +568,7 @@ export class EnhancedCustomFieldsClient {
     try {
       const taskUrl = `https://api.clickup.com/api/v2/task/${taskId}`;
       const response = await axios.get(taskUrl, {
-        headers: this.getHeaders()
+        headers: this.getHeaders(),
       });
 
       const task = response.data;
@@ -580,7 +580,7 @@ export class EnhancedCustomFieldsClient {
           value: field.value,
           type_config: field.type_config,
           required: field.required,
-          hide_from_guests: field.hide_from_guests
+          hide_from_guests: field.hide_from_guests,
         })) || []
       );
     } catch (error) {
@@ -607,14 +607,14 @@ export class EnhancedCustomFieldsClient {
           results.push({
             field_id,
             value,
-            status: 'success'
+            status: 'success',
           });
         } catch (error: any) {
           results.push({
             field_id,
             value,
             status: 'error',
-            error: error.message
+            error: error.message,
           });
         }
       }
@@ -635,54 +635,54 @@ export class EnhancedCustomFieldsClient {
    */
   validateFieldValue(field: CustomField, value: any): boolean {
     switch (field.type) {
-    case 'text':
-    case 'textarea':
-      return typeof value === 'string';
+      case 'text':
+      case 'textarea':
+        return typeof value === 'string';
 
-    case 'number':
-    case 'currency':
-      return typeof value === 'number' && !isNaN(value);
+      case 'number':
+      case 'currency':
+        return typeof value === 'number' && !isNaN(value);
 
-    case 'date':
-      return typeof value === 'number' && value > 0;
+      case 'date':
+        return typeof value === 'number' && value > 0;
 
-    case 'checkbox':
-      return typeof value === 'boolean';
+      case 'checkbox':
+        return typeof value === 'boolean';
 
-    case 'url':
-      return typeof value === 'string' && this.isValidURL(value);
+      case 'url':
+        return typeof value === 'string' && this.isValidURL(value);
 
-    case 'email':
-      return typeof value === 'string' && this.isValidEmail(value);
+      case 'email':
+        return typeof value === 'string' && this.isValidEmail(value);
 
-    case 'phone':
-      return typeof value === 'string' && value.length > 0;
+      case 'phone':
+        return typeof value === 'string' && value.length > 0;
 
-    case 'drop_down':
-      return field.type_config.options?.some((opt: DropdownOption) => opt.id === value);
+      case 'drop_down':
+        return field.type_config.options?.some((opt: DropdownOption) => opt.id === value);
 
-    case 'labels':
-      return (
-        Array.isArray(value) &&
+      case 'labels':
+        return (
+          Array.isArray(value) &&
           value.every(v => field.type_config.options?.some((opt: DropdownOption) => opt.id === v))
-      );
+        );
 
-    case 'rating':
-      return typeof value === 'number' && value >= 0 && value <= (field.type_config.count || 5);
+      case 'rating':
+        return typeof value === 'number' && value >= 0 && value <= (field.type_config.count || 5);
 
-    case 'progress': {
-      const { start = 0, end = 100 } = field.type_config;
-      return typeof value === 'number' && value >= start && value <= end;
-    }
-
-    case 'task_relationship':
-      if (field.type_config.multiple) {
-        return Array.isArray(value) && value.every(v => typeof v === 'string');
+      case 'progress': {
+        const { start = 0, end = 100 } = field.type_config;
+        return typeof value === 'number' && value >= start && value <= end;
       }
-      return typeof value === 'string';
 
-    default:
-      return true;
+      case 'task_relationship':
+        if (field.type_config.multiple) {
+          return Array.isArray(value) && value.every(v => typeof v === 'string');
+        }
+        return typeof value === 'string';
+
+      default:
+        return true;
     }
   }
 
@@ -691,69 +691,69 @@ export class EnhancedCustomFieldsClient {
    */
   getFieldTypeTemplate(type: CustomFieldType): Record<string, any> {
     switch (type) {
-    case 'text':
-    case 'textarea':
-      return {
-        default: '',
-        placeholder: ''
-      };
+      case 'text':
+      case 'textarea':
+        return {
+          default: '',
+          placeholder: '',
+        };
 
-    case 'number':
-      return {
-        default: 0,
-        precision: 0
-      };
+      case 'number':
+        return {
+          default: 0,
+          precision: 0,
+        };
 
-    case 'currency':
-      return {
-        default: 0,
-        precision: 2,
-        currency_type: 'USD'
-      };
+      case 'currency':
+        return {
+          default: 0,
+          precision: 2,
+          currency_type: 'USD',
+        };
 
-    case 'date':
-      return {
-        include_time: false
-      };
+      case 'date':
+        return {
+          include_time: false,
+        };
 
-    case 'drop_down':
-    case 'labels':
-      return {
-        options: []
-      };
+      case 'drop_down':
+      case 'labels':
+        return {
+          options: [],
+        };
 
-    case 'checkbox':
-      return {
-        default: false
-      };
+      case 'checkbox':
+        return {
+          default: false,
+        };
 
-    case 'url':
-    case 'email':
-    case 'phone':
-      return {
-        placeholder: ''
-      };
+      case 'url':
+      case 'email':
+      case 'phone':
+        return {
+          placeholder: '',
+        };
 
-    case 'rating':
-      return {
-        count: 5,
-        default: 0
-      };
+      case 'rating':
+        return {
+          count: 5,
+          default: 0,
+        };
 
-    case 'progress':
-      return {
-        start: 0,
-        end: 100,
-        unit: '%'
-      };
+      case 'progress':
+        return {
+          start: 0,
+          end: 100,
+          unit: '%',
+        };
 
-    case 'task_relationship':
-      return {
-        multiple: false
-      };
+      case 'task_relationship':
+        return {
+          multiple: false,
+        };
 
-    default:
-      return {};
+      default:
+        return {};
     }
   }
 
@@ -781,20 +781,20 @@ export class EnhancedCustomFieldsClient {
       const message = error.response?.data?.message || error.message;
 
       switch (status) {
-      case 400:
-        return new Error(`${context}: Invalid request - ${message}`);
-      case 401:
-        return new Error(`${context}: Authentication failed - check API token`);
-      case 403:
-        return new Error(`${context}: Permission denied - insufficient access rights`);
-      case 404:
-        return new Error(`${context}: Resource not found - ${message}`);
-      case 429:
-        return new Error(`${context}: Rate limit exceeded - please retry later`);
-      case 500:
-        return new Error(`${context}: Server error - please try again`);
-      default:
-        return new Error(`${context}: ${message}`);
+        case 400:
+          return new Error(`${context}: Invalid request - ${message}`);
+        case 401:
+          return new Error(`${context}: Authentication failed - check API token`);
+        case 403:
+          return new Error(`${context}: Permission denied - insufficient access rights`);
+        case 404:
+          return new Error(`${context}: Resource not found - ${message}`);
+        case 429:
+          return new Error(`${context}: Rate limit exceeded - please retry later`);
+        case 500:
+          return new Error(`${context}: Server error - please try again`);
+        default:
+          return new Error(`${context}: ${message}`);
       }
     }
 

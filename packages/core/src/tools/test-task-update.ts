@@ -25,7 +25,7 @@ export function setupTestTaskUpdateTool(server: McpServer): void {
       clear_description: z
         .boolean()
         .optional()
-        .describe('Whether to clear existing description first')
+        .describe('Whether to clear existing description first'),
     },
     async ({ task_id, test_content, clear_description }) => {
       try {
@@ -68,7 +68,7 @@ console.log('Task update test successful!');
         // eslint-disable-next-line no-console
         console.log('[TEST] Performing task update...');
         const updateParams: any = {
-          description: markdownContent
+          description: markdownContent,
         };
 
         if (clear_description) {
@@ -104,17 +104,17 @@ console.log('Task update test successful!');
             'Task update completed successfully',
             'Markdown content was processed correctly',
             'Description field contains the processed content',
-            'Text content field contains plain text version'
-          ]
+            'Text content field contains plain text version',
+          ],
         };
 
         return {
           content: [
             {
               type: 'text',
-              text: `✅ TASK UPDATE TEST SUCCESSFUL!\n\n${JSON.stringify(result, null, 2)}`
-            }
-          ]
+              text: `✅ TASK UPDATE TEST SUCCESSFUL!\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
         };
       } catch (error: any) {
         console.error('[TEST] Task update test failed:', error);
@@ -129,18 +129,18 @@ console.log('Task update test successful!');
             'Verify the task ID exists and is accessible',
             'Check that the API token has write permissions',
             'Ensure the task is not in a read-only state',
-            'Verify network connectivity to ClickUp API'
-          ]
+            'Verify network connectivity to ClickUp API',
+          ],
         };
 
         return {
           content: [
             {
               type: 'text',
-              text: `❌ TASK UPDATE TEST FAILED!\n\n${JSON.stringify(errorResult, null, 2)}`
-            }
+              text: `❌ TASK UPDATE TEST FAILED!\n\n${JSON.stringify(errorResult, null, 2)}`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     }

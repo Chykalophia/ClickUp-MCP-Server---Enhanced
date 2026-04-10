@@ -33,11 +33,11 @@ export const BulkCreateTaskItemSchema = z.object({
     .array(
       z.object({
         id: z.string().describe('The ID of the custom field'),
-        value: z.any().describe('The value to set')
+        value: z.any().describe('The value to set'),
       })
     )
     .optional()
-    .describe('Custom field values to set')
+    .describe('Custom field values to set'),
 });
 
 /**
@@ -65,7 +65,7 @@ export const BulkUpdateTaskItemSchema = z.object({
     .describe('The new time estimate for the task (in milliseconds)'),
   start_date: z.number().optional().describe('The new start date of the task (Unix timestamp)'),
   start_date_time: z.boolean().optional().describe('Whether the start date includes a time'),
-  notify_all: z.boolean().optional().describe('Whether to notify all assignees')
+  notify_all: z.boolean().optional().describe('Whether to notify all assignees'),
 });
 
 /**
@@ -81,7 +81,7 @@ export const BulkCreateTasksSchema = z.object({
   continue_on_error: z
     .boolean()
     .default(false)
-    .describe('Whether to continue creating remaining tasks if one fails')
+    .describe('Whether to continue creating remaining tasks if one fails'),
 });
 
 /**
@@ -96,7 +96,7 @@ export const BulkUpdateTasksSchema = z.object({
   continue_on_error: z
     .boolean()
     .default(false)
-    .describe('Whether to continue updating remaining tasks if one fails')
+    .describe('Whether to continue updating remaining tasks if one fails'),
 });
 
 /**
@@ -115,11 +115,11 @@ export const BulkTaskResultSchema = z.object({
           .optional()
           .describe('The ID of the created/updated task (if successful)'),
         error: z.string().optional().describe('Error message (if failed)'),
-        index: z.number().describe('Index of the task in the original request array')
+        index: z.number().describe('Index of the task in the original request array'),
       })
     )
     .describe('Detailed results for each task operation'),
-  execution_time_ms: z.number().describe('Total execution time in milliseconds')
+  execution_time_ms: z.number().describe('Total execution time in milliseconds'),
 });
 
 export type BulkCreateTaskItem = z.infer<typeof BulkCreateTaskItemSchema>;

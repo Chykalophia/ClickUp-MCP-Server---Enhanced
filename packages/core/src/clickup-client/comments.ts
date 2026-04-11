@@ -4,7 +4,7 @@ import { processClickUpResponse } from '../utils/markdown.js';
 import {
   prepareCommentForClickUp,
   clickUpCommentToMarkdown,
-  ClickUpCommentBlock,
+  ClickUpCommentBlock
 } from '../utils/clickup-comment-formatter.js';
 
 export interface Comment {
@@ -116,7 +116,7 @@ export class CommentsClient {
     taskId: string,
     params?: GetTaskCommentsParams
   ): Promise<{ comments: Comment[] }> {
-    const result = await this.client.get(`/task/${taskId}/comment`, params);
+    const result = await this.client.get<{ comments: any[] }>(`/task/${taskId}/comment`, params);
 
     // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
@@ -227,7 +227,7 @@ export class CommentsClient {
     viewId: string,
     params?: GetChatViewCommentsParams
   ): Promise<{ comments: Comment[] }> {
-    const result = await this.client.get(`/view/${viewId}/comment`, params);
+    const result = await this.client.get<{ comments: any[] }>(`/view/${viewId}/comment`, params);
 
     // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
@@ -302,7 +302,7 @@ export class CommentsClient {
     listId: string,
     params?: GetListCommentsParams
   ): Promise<{ comments: Comment[] }> {
-    const result = await this.client.get(`/list/${listId}/comment`, params);
+    const result = await this.client.get<{ comments: any[] }>(`/list/${listId}/comment`, params);
 
     // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
@@ -422,7 +422,7 @@ export class CommentsClient {
     commentId: string,
     params?: GetThreadedCommentsParams
   ): Promise<{ comments: Comment[] }> {
-    const result = await this.client.get(`/comment/${commentId}/reply`, params);
+    const result = await this.client.get<{ comments: any[] }>(`/comment/${commentId}/reply`, params);
 
     // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {

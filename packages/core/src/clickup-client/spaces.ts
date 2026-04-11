@@ -56,7 +56,7 @@ export class SpacesClient {
    */
   async getSpacesFromWorkspace(workspaceId: string): Promise<Space[]> {
     // Use the v2 API endpoint for spaces
-    const response = await this.client.get(`/team/${workspaceId}/space`);
+    const response = await this.client.get<{ spaces: Space[] }>(`/team/${workspaceId}/space`);
     return response.spaces;
   }
 
@@ -66,7 +66,7 @@ export class SpacesClient {
    * @returns The space details
    */
   async getSpace(spaceId: string): Promise<Space> {
-    const response = await this.client.get(`/space/${spaceId}`);
+    const response = await this.client.get<Space>(`/space/${spaceId}`);
     return response;
   }
 }

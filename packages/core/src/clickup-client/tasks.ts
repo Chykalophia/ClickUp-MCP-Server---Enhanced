@@ -131,7 +131,7 @@ export class TasksClient {
    * @returns A list of tasks with processed content
    */
   async getTasksFromList(listId: string, params?: GetTasksParams): Promise<{ tasks: Task[] }> {
-    const result = await this.client.get(`/list/${listId}/task`, params);
+    const result = await this.client.get<{ tasks: any[] }>(`/list/${listId}/task`, params);
 
     // Process each task's content
     if (result.tasks && Array.isArray(result.tasks)) {
@@ -330,7 +330,7 @@ export class TasksClient {
       error_count: errorCount,
       total_count: tasks.length,
       results,
-      execution_time_ms: executionTime,
+      execution_time_ms: executionTime
     };
   }
 
@@ -418,7 +418,7 @@ export class TasksClient {
       error_count: errorCount,
       total_count: taskUpdates.length,
       results,
-      execution_time_ms: executionTime,
+      execution_time_ms: executionTime
     };
   }
 }

@@ -1,10 +1,4 @@
 #!/usr/bin/env node
-/**
- * Basic entry point - delegates to the enhanced entry point.
- *
- * The enhanced entry point (index-enhanced.ts) is the canonical server
- * implementation. This file exists to support the "clickup-mcp-server-basic"
- * bin alias and the "dev" npm script, both of which reference index.ts.
- */
-export * from './index-enhanced.js';
+// Thin entry point — delegates to index-enhanced.ts which is the canonical server.
+// This file exists so the "basic" bin alias still works.
 import './index-enhanced.js';

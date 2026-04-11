@@ -3,6 +3,9 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { setupTaskTools } from './tools/task-tools.js';
+import { setupWorkspaceTools } from './tools/workspace-tools.js';
+import { setupListFolderTools } from './tools/list-folder-tools.js';
+import { setupBulkTaskTools } from './tools/bulk-task-tools.js';
 import { setupEnhancedDocTools } from './tools/doc-tools-enhanced.js';
 import { setupCustomFieldTools } from './tools/custom-field-tools.js';
 import { setupTimeTrackingTools } from './tools/time-tracking-tools.js';
@@ -14,6 +17,7 @@ import { setupAttachmentsTools } from './tools/attachments-tools-setup.js';
 import { setupSpaceTools } from './tools/space-tools.js';
 import { setupChecklistTools } from './tools/checklist-tools.js';
 import { setupCommentTools } from './tools/comment-tools.js';
+import { setupChatTools } from './tools/chat-tools.js';
 import { setupTaskResources } from './resources/task-resources.js';
 import { setupDocResources } from './resources/doc-resources.js';
 import { setupChecklistResources } from './resources/checklist-resources.js';
@@ -31,7 +35,7 @@ class ClickUpServer {
   constructor() {
     this.server = new McpServer({
       name: 'clickup-mcp-server',
-      version: '3.4.0', // Updated version for namespaced tool names to prevent conflicts
+      version: '3.4.0' // Updated version for namespaced tool names to prevent conflicts
     });
 
     // Handle process termination
@@ -48,6 +52,9 @@ class ClickUpServer {
   private setupTools() {
     // Set up all tools
     setupTaskTools(this.server);
+    setupWorkspaceTools(this.server); // Workspace and auth tools
+    setupListFolderTools(this.server); // List and folder management
+    setupBulkTaskTools(this.server); // Bulk task operations
     setupEnhancedDocTools(this.server); // Using enhanced document tools
     setupCustomFieldTools(this.server); // Custom fields management
     setupTimeTrackingTools(this.server); // Time tracking and timer management
@@ -59,6 +66,7 @@ class ClickUpServer {
     setupSpaceTools(this.server);
     setupChecklistTools(this.server);
     setupCommentTools(this.server);
+    setupChatTools(this.server); // Chat messaging and channels
   }
 
   private setupResources() {

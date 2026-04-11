@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { ClickUpClient } from './index.js';
 import axios from 'axios';
+import { validateResponse, TimeEntriesResponseSchema, TimeEntryResponseSchema } from '../schemas/response-schemas.js';
 
 // ========================================
 // TIME TRACKING TYPE DEFINITIONS
@@ -167,7 +168,8 @@ export class EnhancedTimeTrackingClient {
       const endpoint = `/team/${teamId}/time_entries?${queryParams.toString()}`;
       const response = await this.getAxiosInstance().get(endpoint);
 
-      return response.data.data || [];
+      const validated = validateResponse(TimeEntriesResponseSchema, response.data, 'getTimeEntries');
+      return (validated.data as unknown as TimeEntry[]) || [];
     } catch (error) {
       console.error('Error getting time entries:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to get time entries for team ${teamId}`);
@@ -182,7 +184,8 @@ export class EnhancedTimeTrackingClient {
       const endpoint = `/team/${teamId}/time_entries`;
       const response = await this.getAxiosInstance().post(endpoint, params);
 
-      return response.data.data;
+      const validated = validateResponse(TimeEntryResponseSchema, response.data, 'createTimeEntry');
+      return validated.data as unknown as TimeEntry;
     } catch (error) {
       console.error('Error creating time entry:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to create time entry for team ${teamId}`);
@@ -201,7 +204,8 @@ export class EnhancedTimeTrackingClient {
       const endpoint = `/team/${teamId}/time_entries/${timerId}`;
       const response = await this.getAxiosInstance().put(endpoint, params);
 
-      return response.data.data;
+      const validated = validateResponse(TimeEntryResponseSchema, response.data, 'updateTimeEntry');
+      return validated.data as unknown as TimeEntry;
     } catch (error) {
       console.error('Error updating time entry:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to update time entry ${timerId} for team ${teamId}`);
@@ -236,7 +240,8 @@ export class EnhancedTimeTrackingClient {
       const endpoint = `/team/${teamId}/time_entries/current?${queryParams.toString()}`;
       const response = await this.getAxiosInstance().get(endpoint);
 
-      return response.data.data || [];
+      const validated = validateResponse(TimeEntriesResponseSchema, response.data, 'getRunningTimers');
+      return (validated.data as unknown as RunningTimer[]) || [];
     } catch (error) {
       console.error('Error getting running timers:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to get running timers for team ${teamId}`);
@@ -309,7 +314,7 @@ export class EnhancedTimeTrackingClient {
             duration: 0,
             billable_duration: 0,
             entries_count: 0,
-            user_info: entry.user,
+            user_info: entry.user
           };
         }
         byUser[userId].duration += duration;
@@ -326,7 +331,7 @@ export class EnhancedTimeTrackingClient {
               duration: 0,
               billable_duration: 0,
               entries_count: 0,
-              task_info: entry.task,
+              task_info: entry.task
             };
           }
           byTask[taskId].duration += duration;
@@ -343,7 +348,7 @@ export class EnhancedTimeTrackingClient {
         non_billable_duration: nonBillableDuration,
         entries_count: timeEntries.length,
         by_user: byUser,
-        by_task: byTask,
+        by_task: byTask
       };
     } catch (error) {
       console.error('Error getting time summary:', error instanceof Error ? error.message : error);
@@ -379,16 +384,16 @@ export class EnhancedTimeTrackingClient {
     format: 'milliseconds' | 'seconds' | 'minutes' | 'hours'
   ): number {
     switch (format) {
-      case 'milliseconds':
-        return milliseconds;
-      case 'seconds':
-        return Math.floor(milliseconds / 1000);
-      case 'minutes':
-        return Math.floor(milliseconds / (1000 * 60));
-      case 'hours':
-        return Math.floor(milliseconds / (1000 * 60 * 60));
-      default:
-        return milliseconds;
+    case 'milliseconds':
+      return milliseconds;
+    case 'seconds':
+      return Math.floor(milliseconds / 1000);
+    case 'minutes':
+      return Math.floor(milliseconds / (1000 * 60));
+    case 'hours':
+      return Math.floor(milliseconds / (1000 * 60 * 60));
+    default:
+      return milliseconds;
     }
   }
 
@@ -417,20 +422,20 @@ export class EnhancedTimeTrackingClient {
       const message = error.response?.data?.message || error.message;
 
       switch (status) {
-        case 400:
-          return new Error(`${context}: Invalid request - ${message}`);
-        case 401:
-          return new Error(`${context}: Authentication failed - check API token`);
-        case 403:
-          return new Error(`${context}: Permission denied - insufficient access rights`);
-        case 404:
-          return new Error(`${context}: Resource not found - ${message}`);
-        case 429:
-          return new Error(`${context}: Rate limit exceeded - please retry later`);
-        case 500:
-          return new Error(`${context}: Server error - please try again`);
-        default:
-          return new Error(`${context}: ${message}`);
+      case 400:
+        return new Error(`${context}: Invalid request - ${message}`);
+      case 401:
+        return new Error(`${context}: Authentication failed - check API token`);
+      case 403:
+        return new Error(`${context}: Permission denied - insufficient access rights`);
+      case 404:
+        return new Error(`${context}: Resource not found - ${message}`);
+      case 429:
+        return new Error(`${context}: Rate limit exceeded - please retry later`);
+      case 500:
+        return new Error(`${context}: Server error - please try again`);
+      default:
+        return new Error(`${context}: ${message}`);
       }
     }
 

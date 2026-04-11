@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { ClickUpClient } from './index.js';
 import { prepareContentForClickUp, processClickUpResponse } from '../utils/markdown.js';
+import { validateResponse, TasksResponseSchema } from '../schemas/response-schemas.js';
 
 export interface Task {
   id: string;
@@ -131,14 +132,15 @@ export class TasksClient {
    * @returns A list of tasks with processed content
    */
   async getTasksFromList(listId: string, params?: GetTasksParams): Promise<{ tasks: Task[] }> {
-    const result = await this.client.get<{ tasks: any[] }>(`/list/${listId}/task`, params);
+    const raw = await this.client.get<unknown>(`/list/${listId}/task`, params);
+    const result = validateResponse(TasksResponseSchema, raw, 'getTasksFromList');
 
     // Process each task's content
     if (result.tasks && Array.isArray(result.tasks)) {
-      result.tasks = result.tasks.map((task: any) => processClickUpResponse(task));
+      (result as any).tasks = (result.tasks as any[]).map((task: any) => processClickUpResponse(task));
     }
 
-    return result;
+    return result as { tasks: Task[] };
   }
 
   // Removed pseudo endpoints for getting tasks from spaces and folders

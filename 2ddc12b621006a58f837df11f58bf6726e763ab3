@@ -1,0 +1,27 @@
+packages/core/src/clickup-client/comments.ts
+  7d7837a3461811e9 9,120-121,232-233,308-309,429-430
+packages/core/src/clickup-client/spaces.ts
+  7d7837a3461811e9 2,60-62
+packages/core/src/clickup-client/tasks.ts
+  7d7837a3461811e9 4,135-136,140,143
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "2ddc12b621006a58f837df11f58bf6726e763ab3",
+  "prompts": {
+    "7d7837a3461811e9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "12cf0107-9a71-4d2e-9439-06b336b84f41",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Peter Krzyzek",
+      "messages": [],
+      "total_additions": 18,
+      "total_deletions": 1014,
+      "accepted_lines": 18,
+      "overriden_lines": 0
+    }
+  }
+}

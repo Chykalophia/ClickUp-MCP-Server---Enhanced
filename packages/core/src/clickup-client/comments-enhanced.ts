@@ -4,7 +4,7 @@ import { ClickUpClient } from './index.js';
 import {
   prepareCommentForClickUp,
   clickUpCommentToMarkdown,
-  ClickUpCommentBlock,
+  ClickUpCommentBlock
 } from '../utils/clickup-comment-formatter.js';
 
 export interface Comment {
@@ -162,7 +162,7 @@ export class CommentsEnhancedClient {
     taskId: string,
     params?: GetTaskCommentsParams
   ): Promise<{ comments: Comment[] }> {
-    const result = await this.client.get(`/task/${taskId}/comment`, params);
+    const result = await this.client.get<{ comments: any[] }>(`/task/${taskId}/comment`, params);
 
     // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
@@ -185,7 +185,7 @@ export class CommentsEnhancedClient {
     // Exact match to ClickUp's official Node.js example
     const payload = {
       notify_all: false,
-      comment_text: commentText,
+      comment_text: commentText
     };
 
     // Send raw request without any processing
@@ -202,7 +202,7 @@ export class CommentsEnhancedClient {
     const payload = {
       notify_all: params.notify_all || false,
       assignee: params.assignee,
-      ...structuredComment, // This adds the 'comment' array, NOT comment_text
+      ...structuredComment // This adds the 'comment' array, NOT comment_text
     };
 
     const result = await this.client.post(`/task/${taskId}/comment`, payload);
@@ -220,7 +220,7 @@ export class CommentsEnhancedClient {
     viewId: string,
     params?: GetChatViewCommentsParams
   ): Promise<{ comments: Comment[] }> {
-    const result = await this.client.get(`/view/${viewId}/comment`, params);
+    const result = await this.client.get<{ comments: any[] }>(`/view/${viewId}/comment`, params);
 
     // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
@@ -245,7 +245,7 @@ export class CommentsEnhancedClient {
 
     const payload = {
       notify_all: params.notify_all || false,
-      ...structuredComment, // This adds the 'comment' array, NOT comment_text
+      ...structuredComment // This adds the 'comment' array, NOT comment_text
     };
 
     const result = await this.client.post(`/view/${viewId}/comment`, payload);
@@ -262,7 +262,7 @@ export class CommentsEnhancedClient {
     listId: string,
     params?: GetListCommentsParams
   ): Promise<{ comments: Comment[] }> {
-    const result = await this.client.get(`/list/${listId}/comment`, params);
+    const result = await this.client.get<{ comments: any[] }>(`/list/${listId}/comment`, params);
 
     // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
@@ -285,7 +285,7 @@ export class CommentsEnhancedClient {
     const payload = {
       notify_all: params.notify_all || false,
       assignee: params.assignee,
-      ...structuredComment, // This adds the 'comment' array, NOT comment_text
+      ...structuredComment // This adds the 'comment' array, NOT comment_text
     };
 
     const result = await this.client.post(`/list/${listId}/comment`, payload);
@@ -305,7 +305,7 @@ export class CommentsEnhancedClient {
     const payload = {
       assignee: params.assignee,
       resolved: params.resolved,
-      ...structuredComment, // This adds the 'comment' array, NOT comment_text
+      ...structuredComment // This adds the 'comment' array, NOT comment_text
     };
 
     const result = await this.client.put(`/comment/${commentId}`, payload);
@@ -331,7 +331,7 @@ export class CommentsEnhancedClient {
     commentId: string,
     params?: GetThreadedCommentsParams
   ): Promise<{ comments: Comment[] }> {
-    const result = await this.client.get(`/comment/${commentId}/reply`, params);
+    const result = await this.client.get<{ comments: any[] }>(`/comment/${commentId}/reply`, params);
 
     // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
@@ -356,7 +356,7 @@ export class CommentsEnhancedClient {
 
     const payload = {
       notify_all: params.notify_all || false,
-      ...structuredComment, // This adds the 'comment' array, NOT comment_text
+      ...structuredComment // This adds the 'comment' array, NOT comment_text
     };
 
     const result = await this.client.post(`/comment/${commentId}/reply`, payload);

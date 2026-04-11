@@ -22,8 +22,8 @@ export class ClickUpClient {
       headers: {
         accept: 'application/json',
         'content-type': 'application/json',
-        Authorization: config.apiToken,
-      },
+        Authorization: config.apiToken
+      }
     });
 
     // Add response interceptor for error handling
@@ -48,29 +48,33 @@ export class ClickUpClient {
   }
 
   // Basic API methods that can be used directly
-  async get<T = any>(endpoint: string, params?: any): Promise<T> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async get<T = unknown>(endpoint: string, params?: any): Promise<T> {
     const response = await this.axiosInstance.get(endpoint, { params });
-    return response.data;
+    return response.data as T;
   }
 
-  async post<T = any>(endpoint: string, data?: any): Promise<T> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async post<T = unknown>(endpoint: string, data?: any): Promise<T> {
     const response = await this.axiosInstance.post(endpoint, data);
-    return response.data;
+    return response.data as T;
   }
 
-  async put<T = any>(endpoint: string, data?: any): Promise<T> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async put<T = unknown>(endpoint: string, data?: any): Promise<T> {
     const response = await this.axiosInstance.put(endpoint, data);
-    return response.data;
+    return response.data as T;
   }
 
-  async patch<T = any>(endpoint: string, data?: any): Promise<T> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async patch<T = unknown>(endpoint: string, data?: any): Promise<T> {
     const response = await this.axiosInstance.patch(endpoint, data);
-    return response.data;
+    return response.data as T;
   }
 
-  async delete<T = any>(endpoint: string): Promise<T> {
+  async delete<T = unknown>(endpoint: string): Promise<T> {
     const response = await this.axiosInstance.delete(endpoint);
-    return response.data;
+    return response.data as T;
   }
 }
 

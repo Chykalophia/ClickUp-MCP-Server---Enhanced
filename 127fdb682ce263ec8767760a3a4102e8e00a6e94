@@ -1,0 +1,33 @@
+packages/core/src/tools/bulk-task-tools.ts
+  7d7837a3461811e9 1-414
+packages/core/src/tools/workspace-tools.ts
+  7d7837a3461811e9 1-44
+packages/core/src/tools/task-tools.ts
+  7d7837a3461811e9 25,31,47,53,95,107,147,159,168-169,171,174,176,183-184,186,190-192,199-202,205,215,221,234,240
+packages/core/src/index-enhanced.ts
+  7d7837a3461811e9 6-8,20,38,55-57,69
+packages/core/src/index.ts
+  7d7837a3461811e9 2-10
+packages/core/src/tools/list-folder-tools.ts
+  7d7837a3461811e9 1-292
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "127fdb682ce263ec8767760a3a4102e8e00a6e94",
+  "prompts": {
+    "7d7837a3461811e9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "12cf0107-9a71-4d2e-9439-06b336b84f41",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Peter Krzyzek",
+      "messages": [],
+      "total_additions": 1183,
+      "total_deletions": 92,
+      "accepted_lines": 804,
+      "overriden_lines": 0
+    }
+  }
+}

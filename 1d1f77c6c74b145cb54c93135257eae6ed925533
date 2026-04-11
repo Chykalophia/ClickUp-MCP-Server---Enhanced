@@ -1,0 +1,41 @@
+packages/core/src/clickup-client/goals-enhanced.ts
+  7d7837a3461811e9 4,139-140,155-156,171-172,200-201,220-221,240-241,312,327,354-362,374,446-459
+packages/core/src/clickup-client/views-enhanced.ts
+  7d7837a3461811e9 2,14,112,119,121,141-143,150-152,186,198,210,222,238-239,262-263,265,273,284-291,302,310-311,321,324
+packages/core/src/clickup-client/lists.ts
+  7d7837a3461811e9 2,38-39,49-50
+packages/core/src/clickup-client/comments.ts
+  7d7837a3461811e9 7,9,120-121,232-233,308-309,429-430
+packages/core/src/clickup-client/folders.ts
+  7d7837a3461811e9 2,41-42
+packages/core/src/schemas/response-schemas.ts
+  7d7837a3461811e9 1-183
+packages/core/src/clickup-client/spaces.ts
+  7d7837a3461811e9 2,60-62
+packages/core/src/clickup-client/time-tracking-enhanced.ts
+  7d7837a3461811e9 4,171-172,187-188,207-208,243-244,317,334,351,387-396,425-438
+packages/core/src/clickup-client/webhooks-enhanced.ts
+  7d7837a3461811e9 4,11,69,89-91,197,210,219,231
+packages/core/src/clickup-client/tasks.ts
+  7d7837a3461811e9 4,135-136,140,143,335,423
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "1d1f77c6c74b145cb54c93135257eae6ed925533",
+  "prompts": {
+    "7d7837a3461811e9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "12cf0107-9a71-4d2e-9439-06b336b84f41",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Peter Krzyzek",
+      "messages": [],
+      "total_additions": 449,
+      "total_deletions": 3219,
+      "accepted_lines": 331,
+      "overriden_lines": 0
+    }
+  }
+}

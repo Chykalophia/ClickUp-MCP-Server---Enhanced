@@ -1,4 +1,5 @@
 import { ClickUpClient } from './index.js';
+import { validateResponse, FoldersResponseSchema } from '../schemas/response-schemas.js';
 
 export interface Folder {
   id: string;
@@ -37,7 +38,8 @@ export class FoldersClient {
     spaceId: string,
     params?: GetFoldersParams
   ): Promise<{ folders: Folder[] }> {
-    return this.client.get(`/space/${spaceId}/folder`, params);
+    const raw = await this.client.get(`/space/${spaceId}/folder`, params);
+    return validateResponse(FoldersResponseSchema, raw, 'getFoldersFromSpace') as { folders: Folder[] };
   }
 
   /**

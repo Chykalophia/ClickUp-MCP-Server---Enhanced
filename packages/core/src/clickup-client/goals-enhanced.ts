@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { ClickUpClient } from './index.js';
 import axios from 'axios';
+import { validateResponse, GoalsResponseSchema, GoalResponseSchema, GoalTargetResponseSchema } from '../schemas/response-schemas.js';
 
 // ========================================
 // GOALS TYPE DEFINITIONS
@@ -135,7 +136,8 @@ export class EnhancedGoalsClient {
       const endpoint = `/team/${teamId}/goal?${queryParams.toString()}`;
       const response = await this.getAxiosInstance().get(endpoint);
 
-      return response.data.goals || [];
+      const validated = validateResponse(GoalsResponseSchema, response.data, 'getGoals');
+      return validated.goals as unknown as Goal[] || [];
     } catch (error) {
       console.error('Error getting goals:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to get goals for team ${teamId}`);
@@ -150,7 +152,8 @@ export class EnhancedGoalsClient {
       const endpoint = `/team/${teamId}/goal`;
       const response = await this.getAxiosInstance().post(endpoint, params);
 
-      return response.data.goal;
+      const validated = validateResponse(GoalResponseSchema, response.data, 'createGoal');
+      return validated.goal as unknown as Goal;
     } catch (error) {
       console.error('Error creating goal:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to create goal for team ${teamId}`);
@@ -165,7 +168,8 @@ export class EnhancedGoalsClient {
       const endpoint = `/goal/${goalId}`;
       const response = await this.getAxiosInstance().put(endpoint, params);
 
-      return response.data.goal;
+      const validated = validateResponse(GoalResponseSchema, response.data, 'updateGoal');
+      return validated.goal as unknown as Goal;
     } catch (error) {
       console.error('Error updating goal:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to update goal ${goalId}`);
@@ -193,7 +197,8 @@ export class EnhancedGoalsClient {
       const endpoint = `/goal/${goalId}`;
       const response = await this.getAxiosInstance().get(endpoint);
 
-      return response.data.goal;
+      const validated = validateResponse(GoalResponseSchema, response.data, 'getGoal');
+      return validated.goal as unknown as Goal;
     } catch (error) {
       console.error('Error getting goal:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to get goal ${goalId}`);
@@ -212,7 +217,8 @@ export class EnhancedGoalsClient {
       const endpoint = `/goal/${goalId}/target`;
       const response = await this.getAxiosInstance().post(endpoint, params);
 
-      return response.data.target;
+      const validated = validateResponse(GoalTargetResponseSchema, response.data, 'createGoalTarget');
+      return validated.target as unknown as GoalTarget;
     } catch (error) {
       console.error('Error creating goal target:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to create target for goal ${goalId}`);
@@ -231,7 +237,8 @@ export class EnhancedGoalsClient {
       const endpoint = `/goal/${goalId}/target/${targetId}`;
       const response = await this.getAxiosInstance().put(endpoint, params);
 
-      return response.data.target;
+      const validated = validateResponse(GoalTargetResponseSchema, response.data, 'updateGoalTarget');
+      return validated.target as unknown as GoalTarget;
     } catch (error) {
       console.error('Error updating goal target:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to update target ${targetId} for goal ${goalId}`);
@@ -302,7 +309,7 @@ export class EnhancedGoalsClient {
             goal_id: goal.id,
             name: goal.name,
             due_date: goal.due_date,
-            days_remaining: daysRemaining,
+            days_remaining: daysRemaining
           });
         }
       }
@@ -317,7 +324,7 @@ export class EnhancedGoalsClient {
         overdue_goals: overdueGoals,
         average_progress: totalGoals > 0 ? Math.round(totalProgress / totalGoals) : 0,
         goals_by_status: goalsByStatus,
-        upcoming_deadlines: upcomingDeadlines,
+        upcoming_deadlines: upcomingDeadlines
       };
     } catch (error) {
       console.error('Error getting goal summary:', error instanceof Error ? error.message : error);
@@ -344,15 +351,15 @@ export class EnhancedGoalsClient {
    */
   isTargetCompleted(currentValue: number, targetValue: number, type: string): boolean {
     switch (type) {
-      case 'boolean':
-        return currentValue >= 1;
-      case 'number':
-      case 'currency':
-      case 'task':
-      case 'list':
-        return currentValue >= targetValue;
-      default:
-        return false;
+    case 'boolean':
+      return currentValue >= 1;
+    case 'number':
+    case 'currency':
+    case 'task':
+    case 'list':
+      return currentValue >= targetValue;
+    default:
+      return false;
     }
   }
 
@@ -364,7 +371,7 @@ export class EnhancedGoalsClient {
       style: 'currency',
       currency: unit.toUpperCase(),
       minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
+      maximumFractionDigits: 2
     });
 
     try {
@@ -436,20 +443,20 @@ export class EnhancedGoalsClient {
       const message = error.response?.data?.message || error.message;
 
       switch (status) {
-        case 400:
-          return new Error(`${context}: Invalid request - ${message}`);
-        case 401:
-          return new Error(`${context}: Authentication failed - check API token`);
-        case 403:
-          return new Error(`${context}: Permission denied - insufficient access rights`);
-        case 404:
-          return new Error(`${context}: Resource not found - ${message}`);
-        case 429:
-          return new Error(`${context}: Rate limit exceeded - please retry later`);
-        case 500:
-          return new Error(`${context}: Server error - please try again`);
-        default:
-          return new Error(`${context}: ${message}`);
+      case 400:
+        return new Error(`${context}: Invalid request - ${message}`);
+      case 401:
+        return new Error(`${context}: Authentication failed - check API token`);
+      case 403:
+        return new Error(`${context}: Permission denied - insufficient access rights`);
+      case 404:
+        return new Error(`${context}: Resource not found - ${message}`);
+      case 429:
+        return new Error(`${context}: Rate limit exceeded - please retry later`);
+      case 500:
+        return new Error(`${context}: Server error - please try again`);
+      default:
+        return new Error(`${context}: ${message}`);
       }
     }
 

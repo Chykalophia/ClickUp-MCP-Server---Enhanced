@@ -4,8 +4,9 @@ import { processClickUpResponse } from '../utils/markdown.js';
 import {
   prepareCommentForClickUp,
   clickUpCommentToMarkdown,
-  ClickUpCommentBlock,
+  ClickUpCommentBlock
 } from '../utils/clickup-comment-formatter.js';
+import { validateResponse, CommentsResponseSchema } from '../schemas/response-schemas.js';
 
 export interface Comment {
   id: string;
@@ -116,7 +117,8 @@ export class CommentsClient {
     taskId: string,
     params?: GetTaskCommentsParams
   ): Promise<{ comments: Comment[] }> {
-    const result = await this.client.get(`/task/${taskId}/comment`, params);
+    const raw = await this.client.get(`/task/${taskId}/comment`, params);
+    const result = validateResponse(CommentsResponseSchema, raw, 'getTaskComments') as any;
 
     // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
@@ -227,7 +229,8 @@ export class CommentsClient {
     viewId: string,
     params?: GetChatViewCommentsParams
   ): Promise<{ comments: Comment[] }> {
-    const result = await this.client.get(`/view/${viewId}/comment`, params);
+    const raw = await this.client.get(`/view/${viewId}/comment`, params);
+    const result = validateResponse(CommentsResponseSchema, raw, 'getChatViewComments') as any;
 
     // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
@@ -302,7 +305,8 @@ export class CommentsClient {
     listId: string,
     params?: GetListCommentsParams
   ): Promise<{ comments: Comment[] }> {
-    const result = await this.client.get(`/list/${listId}/comment`, params);
+    const raw = await this.client.get(`/list/${listId}/comment`, params);
+    const result = validateResponse(CommentsResponseSchema, raw, 'getListComments') as any;
 
     // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
@@ -422,7 +426,8 @@ export class CommentsClient {
     commentId: string,
     params?: GetThreadedCommentsParams
   ): Promise<{ comments: Comment[] }> {
-    const result = await this.client.get(`/comment/${commentId}/reply`, params);
+    const raw = await this.client.get(`/comment/${commentId}/reply`, params);
+    const result = validateResponse(CommentsResponseSchema, raw, 'getThreadedComments') as any;
 
     // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {

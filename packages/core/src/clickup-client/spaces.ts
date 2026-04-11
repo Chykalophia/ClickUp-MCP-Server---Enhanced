@@ -1,4 +1,5 @@
 import { ClickUpClient } from './index.js';
+import { validateResponse, SpacesResponseSchema } from '../schemas/response-schemas.js';
 
 // Space interface based on ClickUp API response
 export interface Space {
@@ -56,8 +57,9 @@ export class SpacesClient {
    */
   async getSpacesFromWorkspace(workspaceId: string): Promise<Space[]> {
     // Use the v2 API endpoint for spaces
-    const response = await this.client.get(`/team/${workspaceId}/space`);
-    return response.spaces;
+    const raw = await this.client.get(`/team/${workspaceId}/space`);
+    const response = validateResponse(SpacesResponseSchema, raw, 'getSpacesFromWorkspace');
+    return response.spaces as Space[];
   }
 
   /**

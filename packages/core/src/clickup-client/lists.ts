@@ -1,4 +1,5 @@
 import { ClickUpClient } from './index.js';
+import { validateResponse, ListsResponseSchema } from '../schemas/response-schemas.js';
 
 export interface List {
   id: string;
@@ -34,7 +35,8 @@ export class ListsClient {
    * @returns A list of lists
    */
   async getListsFromSpace(spaceId: string, params?: GetListsParams): Promise<{ lists: List[] }> {
-    return this.client.get(`/space/${spaceId}/list`, params);
+    const raw = await this.client.get(`/space/${spaceId}/list`, params);
+    return validateResponse(ListsResponseSchema, raw, 'getListsFromSpace') as { lists: List[] };
   }
 
   /**
@@ -44,7 +46,8 @@ export class ListsClient {
    * @returns A list of lists
    */
   async getListsFromFolder(folderId: string, params?: GetListsParams): Promise<{ lists: List[] }> {
-    return this.client.get(`/folder/${folderId}/list`, params);
+    const raw = await this.client.get(`/folder/${folderId}/list`, params);
+    return validateResponse(ListsResponseSchema, raw, 'getListsFromFolder') as { lists: List[] };
   }
 
   /**

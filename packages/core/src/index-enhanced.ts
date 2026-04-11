@@ -14,6 +14,7 @@ import { setupAttachmentsTools } from './tools/attachments-tools-setup.js';
 import { setupSpaceTools } from './tools/space-tools.js';
 import { setupChecklistTools } from './tools/checklist-tools.js';
 import { setupCommentTools } from './tools/comment-tools.js';
+import { setupChatTools } from './tools/chat-tools.js';
 import { setupTaskResources } from './resources/task-resources.js';
 import { setupDocResources } from './resources/doc-resources.js';
 import { setupChecklistResources } from './resources/checklist-resources.js';
@@ -59,6 +60,7 @@ class ClickUpServer {
     setupSpaceTools(this.server);
     setupChecklistTools(this.server);
     setupCommentTools(this.server);
+    setupChatTools(this.server);
   }
 
   private setupResources() {

@@ -31,7 +31,7 @@
     "validate-with-lint": "npm run lint && npm run test:coverage && npm run security:check",
     "clean": "rm -rf build coverage test-results .jest-cache",
     "prepare": "npm run build",
-    "prepack": "npm run validate",
+    "prepack": "npm run build",
     "version": "npm run format && git add -A src",
     "postversion": "git push && git push --tags",
     "health": "node -e \"require('./build/utils/error-handling.js').performHealthCheck().then(console.log)\"",

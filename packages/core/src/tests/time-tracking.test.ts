@@ -124,6 +124,7 @@ describe('Time Tracking', () => {
         description: 'Test',
         start: 1774983600000,
         billable: false,
+        duration: 3600000,
         task_id: 'task-abc'
       });
 

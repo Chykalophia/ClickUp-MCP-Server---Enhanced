@@ -1,0 +1,29 @@
+packages/core/package.json
+  7d7837a3461811e9 3
+package.json
+  7d7837a3461811e9 3
+packages/intelligence/package.json
+  7d7837a3461811e9 3,68
+RELEASE_NOTES.md
+  7d7837a3461811e9 3-99
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "3aaeba1d413af372e1f90766a446f45749048921",
+  "prompts": {
+    "7d7837a3461811e9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "12cf0107-9a71-4d2e-9439-06b336b84f41",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Peter Krzyzek",
+      "messages": [],
+      "total_additions": 361,
+      "total_deletions": 93,
+      "accepted_lines": 361,
+      "overriden_lines": 0
+    }
+  }
+}

@@ -27,7 +27,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
         .enum(['markdown', 'html', 'text/md', 'text/plain', 'text/html'])
         .optional()
         .default('text/md')
-        .describe('The format to return the content in'),
+        .describe('The format to return the content in')
     },
     async ({ doc_id, workspace_id, content_format }) => {
       try {
@@ -43,7 +43,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
         }
 
         return {
-          content: [{ type: 'text', text: combinedContent || 'No content found in this doc.' }],
+          content: [{ type: 'text', text: combinedContent || 'No content found in this doc.' }]
         };
       } catch (error: unknown) {
         return mcpError('getting doc content', error);
@@ -57,13 +57,13 @@ export function setupEnhancedDocTools(server: McpServer): void {
     {
       workspace_id: z.string().min(1).describe('The ID of the workspace to search in'),
       query: z.string().min(1).describe('The search query'),
-      cursor: z.string().optional().describe('Cursor for pagination'),
+      cursor: z.string().optional().describe('Cursor for pagination')
     },
     async ({ workspace_id, query, cursor }) => {
       try {
         const result = await enhancedDocsClient.searchDocs(workspace_id, { query, cursor });
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
         };
       } catch (error: unknown) {
         return mcpError('searching docs', error);
@@ -85,7 +85,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
         .max(100)
         .optional()
         .default(25)
-        .describe('The maximum number of docs to return'),
+        .describe('The maximum number of docs to return')
     },
     async ({ workspace_id, cursor, deleted, archived, limit }) => {
       try {
@@ -93,11 +93,11 @@ export function setupEnhancedDocTools(server: McpServer): void {
           cursor,
           deleted,
           archived,
-          limit,
+          limit
         });
 
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
         };
       } catch (error: unknown) {
         return mcpError('getting docs from workspace', error);
@@ -115,13 +115,13 @@ export function setupEnhancedDocTools(server: McpServer): void {
         .enum(['markdown', 'html', 'text/md', 'text/plain', 'text/html'])
         .optional()
         .default('text/md')
-        .describe('The format to return the content in'),
+        .describe('The format to return the content in')
     },
     async ({ doc_id, workspace_id, content_format }) => {
       try {
         const pages = await enhancedDocsClient.getDocPages(workspace_id, doc_id, content_format);
         return {
-          content: [{ type: 'text', text: JSON.stringify(pages, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(pages, null, 2) }]
         };
       } catch (error: unknown) {
         return mcpError('getting doc pages', error);
@@ -153,7 +153,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
         .optional()
         .default(false)
         .describe('Whether the document should be publicly accessible'),
-      template_id: z.string().optional().describe('ID of template to create document from'),
+      template_id: z.string().optional().describe('ID of template to create document from')
     },
     async ({ workspace_id, space_id, folder_id, name, content, public: isPublic, template_id }) => {
       try {
@@ -161,9 +161,9 @@ export function setupEnhancedDocTools(server: McpServer): void {
         if (!workspace_id && !space_id && !folder_id) {
           return {
             content: [
-              { type: 'text', text: 'Error: Must specify workspace_id, space_id, or folder_id' },
+              { type: 'text', text: 'Error: Must specify workspace_id, space_id, or folder_id' }
             ],
-            isError: true,
+            isError: true
           };
         }
 
@@ -174,16 +174,16 @@ export function setupEnhancedDocTools(server: McpServer): void {
           name,
           content,
           public: isPublic,
-          template_id,
+          template_id
         });
 
         return {
           content: [
             {
               type: 'text',
-              text: `Document created successfully!\n\n${JSON.stringify(doc, null, 2)}`,
-            },
-          ],
+              text: `Document created successfully!\n\n${JSON.stringify(doc, null, 2)}`
+            }
+          ]
         };
       } catch (error: unknown) {
         return mcpError('creating document', error);
@@ -195,12 +195,13 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'clickup_update_doc',
     'Update an existing ClickUp document. Can update name, content, and sharing settings.',
     {
+      workspace_id: z.string().min(1).describe('The ID of the workspace containing the document'),
       doc_id: z.string().min(1).describe('The ID of the document to update'),
       name: z.string().min(1).max(255).optional().describe('New name for the document'),
       content: z.string().optional().describe('New content for the document (markdown or HTML)'),
-      public: z.boolean().optional().describe('Update public sharing setting'),
+      public: z.boolean().optional().describe('Update public sharing setting')
     },
-    async ({ doc_id, name, content, public: isPublic }) => {
+    async ({ workspace_id, doc_id, name, content, public: isPublic }) => {
       try {
         // Validate that at least one field is being updated
         if (name === undefined && content === undefined && isPublic === undefined) {
@@ -208,26 +209,26 @@ export function setupEnhancedDocTools(server: McpServer): void {
             content: [
               {
                 type: 'text',
-                text: 'Error: Must specify at least one field to update (name, content, or public)',
-              },
+                text: 'Error: Must specify at least one field to update (name, content, or public)'
+              }
             ],
-            isError: true,
+            isError: true
           };
         }
 
-        const updatedDoc = await enhancedDocsClient.updateDoc(doc_id, {
+        const updatedDoc = await enhancedDocsClient.updateDoc(workspace_id, doc_id, {
           name,
           content,
-          public: isPublic,
+          public: isPublic
         });
 
         return {
           content: [
             {
               type: 'text',
-              text: `Document updated successfully!\n\n${JSON.stringify(updatedDoc, null, 2)}`,
-            },
-          ],
+              text: `Document updated successfully!\n\n${JSON.stringify(updatedDoc, null, 2)}`
+            }
+          ]
         };
       } catch (error: unknown) {
         return mcpError('updating document', error);
@@ -239,34 +240,35 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'clickup_delete_doc',
     '⚠️ DESTRUCTIVE: Delete a ClickUp document. This action cannot be undone and will permanently remove the document and all its content.',
     {
+      workspace_id: z.string().min(1).describe('The ID of the workspace containing the document'),
       doc_id: z.string().min(1).describe('The ID of the document to delete'),
       confirm_deletion: z
         .boolean()
-        .describe('Confirmation that you want to permanently delete this document (must be true)'),
+        .describe('Confirmation that you want to permanently delete this document (must be true)')
     },
-    async ({ doc_id, confirm_deletion }) => {
+    async ({ workspace_id, doc_id, confirm_deletion }) => {
       try {
         if (!confirm_deletion) {
           return {
             content: [
               {
                 type: 'text',
-                text: '❌ Document deletion cancelled. You must set confirm_deletion to true to proceed with this destructive operation.',
-              },
+                text: '❌ Document deletion cancelled. You must set confirm_deletion to true to proceed with this destructive operation.'
+              }
             ],
-            isError: true,
+            isError: true
           };
         }
 
         // Try to get document name for confirmation, but don't block deletion if read fails
         let docName = doc_id;
         try {
-          const docDetails = await enhancedDocsClient.getDoc(doc_id);
+          const docDetails = await enhancedDocsClient.getDoc(workspace_id, doc_id);
           docName = docDetails?.name || doc_id;
         } catch {
           // Proceed with deletion even if we can't read doc details
         }
-        await enhancedDocsClient.deleteDoc(doc_id);
+        await enhancedDocsClient.deleteDoc(workspace_id, doc_id);
 
         return {
           content: [
@@ -274,9 +276,9 @@ export function setupEnhancedDocTools(server: McpServer): void {
               type: 'text',
               text:
                 `Document "${docName}" (ID: ${doc_id}) has been permanently deleted.\n\n` +
-                'This action cannot be undone.',
-            },
-          ],
+                'This action cannot be undone.'
+            }
+          ]
         };
       } catch (error: unknown) {
         return mcpError('deleting document', error);
@@ -288,19 +290,20 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'clickup_get_doc',
     'Get detailed information about a specific ClickUp document including metadata and sharing settings.',
     {
-      doc_id: z.string().min(1).describe('The ID of the document to get'),
+      workspace_id: z.string().min(1).describe('The ID of the workspace containing the document'),
+      doc_id: z.string().min(1).describe('The ID of the document to get')
     },
-    async ({ doc_id }) => {
+    async ({ workspace_id, doc_id }) => {
       try {
-        const doc = await enhancedDocsClient.getDoc(doc_id);
+        const doc = await enhancedDocsClient.getDoc(workspace_id, doc_id);
 
         return {
           content: [
             {
               type: 'text',
-              text: JSON.stringify(doc, null, 2),
-            },
-          ],
+              text: JSON.stringify(doc, null, 2)
+            }
+          ]
         };
       } catch (error: unknown) {
         return mcpError('getting document', error);
@@ -316,6 +319,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'clickup_create_doc_page',
     'Create a new page in a ClickUp document. Supports markdown and HTML content formats.',
     {
+      workspace_id: z.string().min(1).describe('The ID of the workspace containing the document'),
       doc_id: z.string().min(1).describe('The ID of the document to create the page in'),
       name: z.string().min(1).max(255).describe('The name/title of the page'),
       content: z.string().min(1).describe('The content of the page'),
@@ -325,25 +329,25 @@ export function setupEnhancedDocTools(server: McpServer): void {
         .default('markdown')
         .describe('The format of the content'),
       parent_page_id: z.string().optional().describe('ID of parent page for nesting'),
-      position: z.number().int().min(0).optional().describe('Position of the page in the document'),
+      position: z.number().int().min(0).optional().describe('Position of the page in the document')
     },
-    async ({ doc_id, name, content, content_format, parent_page_id, position }) => {
+    async ({ workspace_id, doc_id, name, content, content_format, parent_page_id, position }) => {
       try {
-        const page = await enhancedDocsClient.createPage(doc_id, {
+        const page = await enhancedDocsClient.createPage(workspace_id, doc_id, {
           name,
           content,
           content_format,
           parent_page_id,
-          position,
+          position
         });
 
         return {
           content: [
             {
               type: 'text',
-              text: `Page created successfully!\n\n${JSON.stringify(page, null, 2)}`,
-            },
-          ],
+              text: `Page created successfully!\n\n${JSON.stringify(page, null, 2)}`
+            }
+          ]
         };
       } catch (error: unknown) {
         return mcpError('creating page', error);
@@ -355,6 +359,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'clickup_update_doc_page',
     'Update an existing page in a ClickUp document. Can update name, content, format, and position.',
     {
+      workspace_id: z.string().min(1).describe('The ID of the workspace containing the document'),
       doc_id: z.string().min(1).describe('The ID of the document containing the page'),
       page_id: z.string().min(1).describe('The ID of the page to update'),
       name: z.string().min(1).max(255).optional().describe('New name/title for the page'),
@@ -368,9 +373,9 @@ export function setupEnhancedDocTools(server: McpServer): void {
         .int()
         .min(0)
         .optional()
-        .describe('New position of the page in the document'),
+        .describe('New position of the page in the document')
     },
-    async ({ doc_id, page_id, name, content, content_format, position }) => {
+    async ({ workspace_id, doc_id, page_id, name, content, content_format, position }) => {
       try {
         // Validate that at least one field is being updated
         if (
@@ -383,27 +388,27 @@ export function setupEnhancedDocTools(server: McpServer): void {
             content: [
               {
                 type: 'text',
-                text: 'Error: Must specify at least one field to update (name, content, content_format, or position)',
-              },
+                text: 'Error: Must specify at least one field to update (name, content, content_format, or position)'
+              }
             ],
-            isError: true,
+            isError: true
           };
         }
 
-        const updatedPage = await enhancedDocsClient.updatePage(doc_id, page_id, {
+        const updatedPage = await enhancedDocsClient.updatePage(workspace_id, doc_id, page_id, {
           name,
           content,
           content_format,
-          position,
+          position
         });
 
         return {
           content: [
             {
               type: 'text',
-              text: `Page updated successfully!\n\n${JSON.stringify(updatedPage, null, 2)}`,
-            },
-          ],
+              text: `Page updated successfully!\n\n${JSON.stringify(updatedPage, null, 2)}`
+            }
+          ]
         };
       } catch (error: unknown) {
         return mcpError('updating page', error);
@@ -415,20 +420,21 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'clickup_delete_doc_page',
     'Delete a page from a ClickUp document. This action cannot be undone.',
     {
+      workspace_id: z.string().min(1).describe('The ID of the workspace containing the document'),
       doc_id: z.string().min(1).describe('The ID of the document containing the page'),
-      page_id: z.string().min(1).describe('The ID of the page to delete'),
+      page_id: z.string().min(1).describe('The ID of the page to delete')
     },
-    async ({ doc_id, page_id }) => {
+    async ({ workspace_id, doc_id, page_id }) => {
       try {
-        await enhancedDocsClient.deletePage(doc_id, page_id);
+        await enhancedDocsClient.deletePage(workspace_id, doc_id, page_id);
 
         return {
           content: [
             {
               type: 'text',
-              text: `Page ${page_id} deleted successfully from document ${doc_id}.`,
-            },
-          ],
+              text: `Page ${page_id} deleted successfully from document ${doc_id}.`
+            }
+          ]
         };
       } catch (error: unknown) {
         return mcpError('deleting page', error);
@@ -444,19 +450,20 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'clickup_get_doc_sharing',
     'Get the sharing settings for a ClickUp document.',
     {
-      doc_id: z.string().min(1).describe('The ID of the document to get sharing settings for'),
+      workspace_id: z.string().min(1).describe('The ID of the workspace containing the document'),
+      doc_id: z.string().min(1).describe('The ID of the document to get sharing settings for')
     },
-    async ({ doc_id }) => {
+    async ({ workspace_id, doc_id }) => {
       try {
-        const sharing = await enhancedDocsClient.getDocSharing(doc_id);
+        const sharing = await enhancedDocsClient.getDocSharing(workspace_id, doc_id);
 
         return {
           content: [
             {
               type: 'text',
-              text: JSON.stringify(sharing, null, 2),
-            },
-          ],
+              text: JSON.stringify(sharing, null, 2)
+            }
+          ]
         };
       } catch (error: unknown) {
         return mcpError('getting document sharing', error);
@@ -468,6 +475,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'clickup_update_doc_sharing',
     'Update the sharing settings for a ClickUp document.',
     {
+      workspace_id: z.string().min(1).describe('The ID of the workspace containing the document'),
       doc_id: z.string().min(1).describe('The ID of the document to update sharing settings for'),
       public: z.boolean().optional().describe('Whether the document should be publicly accessible'),
       public_share_expires_on: z
@@ -478,15 +486,16 @@ export function setupEnhancedDocTools(server: McpServer): void {
         .describe('Expiration timestamp for public sharing'),
       public_fields: z.array(z.string()).optional().describe('Fields visible in public sharing'),
       team_sharing: z.boolean().optional().describe('Whether to enable team-wide sharing'),
-      guest_sharing: z.boolean().optional().describe('Whether to enable guest access'),
+      guest_sharing: z.boolean().optional().describe('Whether to enable guest access')
     },
     async ({
+      workspace_id,
       doc_id,
       public: isPublic,
       public_share_expires_on,
       public_fields,
       team_sharing,
-      guest_sharing,
+      guest_sharing
     }) => {
       try {
         // Validate that at least one sharing setting is being updated
@@ -499,27 +508,27 @@ export function setupEnhancedDocTools(server: McpServer): void {
         ) {
           return {
             content: [
-              { type: 'text', text: 'Error: Must specify at least one sharing setting to update' },
+              { type: 'text', text: 'Error: Must specify at least one sharing setting to update' }
             ],
-            isError: true,
+            isError: true
           };
         }
 
-        const updatedSharing = await enhancedDocsClient.updateDocSharing(doc_id, {
+        const updatedSharing = await enhancedDocsClient.updateDocSharing(workspace_id, doc_id, {
           public: isPublic,
           public_share_expires_on,
           public_fields,
           team_sharing,
-          guest_sharing,
+          guest_sharing
         });
 
         return {
           content: [
             {
               type: 'text',
-              text: `Document sharing updated successfully!\n\n${JSON.stringify(updatedSharing, null, 2)}`,
-            },
-          ],
+              text: `Document sharing updated successfully!\n\n${JSON.stringify(updatedSharing, null, 2)}`
+            }
+          ]
         };
       } catch (error: unknown) {
         return mcpError('updating document sharing', error);
@@ -546,7 +555,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
       template_variables: z
         .record(z.any())
         .optional()
-        .describe('Variables to substitute in the template'),
+        .describe('Variables to substitute in the template')
     },
     async ({ template_id, workspace_id, space_id, folder_id, name, template_variables }) => {
       try {
@@ -554,9 +563,9 @@ export function setupEnhancedDocTools(server: McpServer): void {
         if (!workspace_id && !space_id && !folder_id) {
           return {
             content: [
-              { type: 'text', text: 'Error: Must specify workspace_id, space_id, or folder_id' },
+              { type: 'text', text: 'Error: Must specify workspace_id, space_id, or folder_id' }
             ],
-            isError: true,
+            isError: true
           };
         }
 
@@ -565,16 +574,16 @@ export function setupEnhancedDocTools(server: McpServer): void {
           space_id,
           folder_id,
           name,
-          template_variables,
+          template_variables
         });
 
         return {
           content: [
             {
               type: 'text',
-              text: `Document created from template successfully!\n\n${JSON.stringify(doc, null, 2)}`,
-            },
-          ],
+              text: `Document created from template successfully!\n\n${JSON.stringify(doc, null, 2)}`
+            }
+          ]
         };
       } catch (error: unknown) {
         return mcpError('creating document from template', error);

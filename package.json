@@ -1,6 +1,6 @@
 {
   "name": "clickup-mcp-monorepo",
-  "version": "4.0.7",
+  "version": "5.0.0",
   "description": "ClickUp MCP Server monorepo - Core server with 177+ tools and Intelligence server with AI-powered project management features",
   "private": true,
   "workspaces": [

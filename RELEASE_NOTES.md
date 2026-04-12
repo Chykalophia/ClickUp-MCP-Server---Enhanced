@@ -1,5 +1,102 @@
 # Release Notes - ClickUp MCP Server Suite
 
+## Version 5.0.0 - Code Quality, Security & Reliability Overhaul
+
+**Release Date**: April 12, 2026
+**Status**: Production Ready
+
+### ⚠️ Breaking Changes
+
+- **Doc CRUD tools now require `workspace_id`** (fixes #4 — these endpoints were returning 404 without it).
+  Affected tools: `clickup_get_doc`, `clickup_update_doc`, `clickup_delete_doc`, `clickup_create_doc_page`,
+  `clickup_update_doc_page`, `clickup_delete_doc_page`, `clickup_get_doc_sharing`, `clickup_update_doc_sharing`.
+- **`ClickUpClient` HTTP method generics** changed from `<T = any>` to `<T = unknown>`. Callers must
+  now specify a type parameter or accept `unknown` (which requires explicit narrowing).
+
+### 🔒 Security
+
+- **API token leak prevention**: 56 `console.error` calls in client files now log only `error.message`,
+  preventing axios error objects (which include the `Authorization` header) from being logged.
+- **Request timeout**: Added 30s timeout to base `ClickUpClient` to prevent indefinite hangs.
+- **Singleton client**: `createClickUpClient()` now returns a cached singleton (was creating duplicate
+  axios instances per tool file).
+- **`getApiToken()` helper**: Replaces unsafe `process.env.CLICKUP_API_TOKEN!` non-null assertions
+  across all enhanced clients.
+- **Sanitized error responses**: Added `mcpError()` and `resourceError()` helpers; standardized 200+
+  catch blocks to use them. Error messages no longer expose raw axios error objects.
+- **minimatch ReDoS** vulnerability fixed via npm audit (and ongoing dependabot updates).
+- **0 npm audit vulnerabilities**, **0 semgrep findings**.
+
+### 🐛 Bug Fixes
+
+- **#4** — Doc CRUD endpoints (`updateDoc`, `deleteDoc`, `getDoc`, page operations, sharing) were
+  returning 404 because they were missing `/workspaces/{workspaceId}` in the URL path.
+- **`getGoalStatus`** progress calculation was always showing ~100% (was dividing raw timestamps).
+- **`getSubtasks`** silently returned `[]` on API errors. Now propagates errors to the caller.
+- **`updateWebhook`** and **`updateAttachmentMetadata`** were dropping falsy-but-valid values
+  (e.g., couldn't clear `secret` to empty string). Now use `!== undefined` checks.
+- **`validateGoalDate`** was comparing seconds-based timestamps against `Date.now()` in milliseconds.
+- **`bulkSetCustomFieldValues`** partial failures were reported as success in tool output.
+- **`create_time_entry`** now validates that either `duration` or `stop` is provided.
+- **`create_timer_entry`** no longer creates a phantom 1ms time entry before starting the timer.
+- **`delete_doc`** no longer fails when the user has delete but not read permission (pre-fetch is
+  now optional).
+- **`hasMarkdown`** regex was matching any string containing `-`, `()`, or `[]` as markdown. Now
+  uses proper markdown patterns.
+- **Bulk task description destructuring** — `const { ...rest } = task` was a no-op; now properly
+  excludes `description` when `markdown_content` is provided.
+
+### ⚡ Performance
+
+- **Bulk operations parallelized** with concurrency-limited `Promise.allSettled` (concurrency 5):
+  - `bulkCreateTasks`, `bulkUpdateTasks`, `bulkSetCustomFieldValues`
+  - 50-task bulk operations are roughly 5–10× faster.
+- **Singleton ClickUpClient** eliminates 10+ duplicate axios instances across tool files.
+- **`EnhancedDocsClient`** and **`EnhancedCustomFieldsClient`** now use the shared `ClickUpClient`
+  axios instance (was bypassing it with raw `axios` calls — losing timeouts, interceptors, and
+  retry logic).
+
+### 🛡️ Type Safety & Validation
+
+- **API response validation** with Zod schemas via new `validateResponse()` utility. Validates the
+  envelope shape of 20+ client methods (tasks, comments, spaces, lists, folders, goals, time
+  entries, views, webhooks). API contract changes now fail fast with descriptive errors instead
+  of silent `undefined` access.
+- **Standardized error handling**: ~150 catch blocks across 14 tool files migrated from
+  `catch (error: any)` to `catch (error: unknown)` + `mcpError(operation, error)`.
+- **Resource error handling**: New `resourceError()` helper for MCP resource handlers (which
+  must throw, not return error objects).
+
+### 🧹 Refactoring & Cleanup
+
+- **Deleted ~3,500 lines of dead code**:
+  - `helper-tools.ts`, `context-aware-suggestions.ts` — never registered
+  - `webhook-tools.ts` (old) — superseded by `webhook-tools-setup.ts`
+  - `test-task-update.ts` — debug tool
+  - 4 empty stub files (`app.ts`, `lists.service.ts`, `lists.controller.ts`, `lists.routes.ts`)
+- **Split `task-tools.ts`** (1,106 lines) into 4 focused modules:
+  - `workspace-tools.ts` (workspace + auth)
+  - `list-folder-tools.ts` (list/folder CRUD)
+  - `bulk-task-tools.ts` (bulk + merge operations)
+  - `task-tools.ts` (core task CRUD)
+- **Consolidated entry points** — `index-enhanced.ts` is now the canonical server; `index.ts` is
+  a thin re-export. Added missing `setupChatTools` to `index-enhanced.ts`.
+- **Doc tool naming consistency** — added `clickup_` prefix to 4 tools in `doc-tools.ts`.
+
+### 📊 Audit Results
+
+- **TypeScript**: 0 errors
+- **Semgrep**: 0 findings
+- **ESLint**: 0 errors, 0 warnings
+- **npm audit**: 0 vulnerabilities
+
+### 📈 Diff Stats
+
+Roughly **-3,000 net lines** across 30+ commits, while adding response validation, error handling,
+and bug fixes.
+
+---
+
 ## Version 4.1.0 - Documentation & Intelligence Release
 
 **Release Date**: September 1, 2025  

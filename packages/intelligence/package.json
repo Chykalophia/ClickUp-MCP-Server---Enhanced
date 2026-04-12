@@ -1,6 +1,6 @@
 {
   "name": "@chykalophia/clickup-intelligence-mcp-server",
-  "version": "4.2.7",
+  "version": "5.0.0",
   "description": "Advanced project management intelligence and workflow optimization for ClickUp - AI-powered analytics, smart planning, and automation",
   "main": "build/index.js",
   "bin": {
@@ -65,7 +65,7 @@
     "zod": "^3.22.4"
   },
   "peerDependencies": {
-    "@chykalophia/clickup-mcp-server": "^4.1.0"
+    "@chykalophia/clickup-mcp-server": "^5.0.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",

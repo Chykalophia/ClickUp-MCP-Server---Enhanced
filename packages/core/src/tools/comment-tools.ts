@@ -102,45 +102,86 @@ export function setupCommentTools(server: McpServer): void {
   // Register create_task_comment tool
   server.tool(
     'clickup_create_task_comment',
-    'Create a new comment on a ClickUp task using structured array format. Supports optional assignee and notification settings.',
+    'Create a new comment on a ClickUp task using structured array format. Supports optional assignee and notification settings. Supports @mentions via tag blocks ({type:"tag", user:{id}} or {type:"tag", text:"@Full Name"}).',
     {
       task_id: z.string().describe('The ID of the task to comment on'),
       comment: z
         .array(
-          z.object({
-            text: z.string().describe('The text content of this block'),
-            attributes: z
-              .object({
-                bold: z.boolean().optional().describe('Whether text is bold'),
-                italic: z.boolean().optional().describe('Whether text is italic'),
-                underline: z.boolean().optional().describe('Whether text is underlined'),
-                strikethrough: z.boolean().optional().describe('Whether text is strikethrough'),
-                code: z.boolean().optional().describe('Whether text is code'),
-                color: z.string().optional().describe('Text color'),
-                background_color: z.string().optional().describe('Background color'),
-                link: z
-                  .object({
-                    url: z.string().describe('Link URL'),
-                  })
-                  .optional()
-                  .describe('Link attributes'),
-                'code-block': z
-                  .object({
-                    'code-block': z
-                      .string()
-                      .describe(
-                        'Programming language for syntax highlighting (e.g., "javascript", "python", "bash", "plain")'
-                      ),
-                  })
-                  .optional()
-                  .describe('Code block attributes for multi-line code with syntax highlighting'),
-              })
-              .optional()
-              .describe('Text formatting attributes'),
-          })
+          z
+            .object({
+              text: z
+                .string()
+                .optional()
+                .describe(
+                  'The text content of this block. Optional for tag/emoticon blocks that reference a user/emoji by id.'
+                ),
+              type: z
+                .string()
+                .optional()
+                .describe(
+                  'Block type. Use "tag" for @mentions, "emoticon" for emoji blocks. Omit for plain/formatted text blocks.'
+                ),
+              user: z
+                .object({
+                  id: z
+                    .number()
+                    .int()
+                    .positive()
+                    .describe('Numeric ClickUp user ID being mentioned'),
+                })
+                .passthrough()
+                .optional()
+                .describe(
+                  'User reference for tag (mention) blocks. Canonical, fully-supported shape per ClickUp API: {"type":"tag","user":{"id":<userId>}}. This form reliably triggers native @mention notifications.'
+                ),
+              emoticon: z
+                .object({
+                  code: z.string().describe('Emoticon code, e.g. "1f600"'),
+                })
+                .passthrough()
+                .optional()
+                .describe('Emoticon reference for emoticon blocks.'),
+              attributes: z
+                .object({
+                  bold: z.boolean().optional().describe('Whether text is bold'),
+                  italic: z.boolean().optional().describe('Whether text is italic'),
+                  underline: z.boolean().optional().describe('Whether text is underlined'),
+                  strikethrough: z.boolean().optional().describe('Whether text is strikethrough'),
+                  code: z.boolean().optional().describe('Whether text is code'),
+                  color: z.string().optional().describe('Text color'),
+                  background_color: z.string().optional().describe('Background color'),
+                  link: z
+                    .object({
+                      url: z.string().describe('Link URL'),
+                    })
+                    .optional()
+                    .describe('Link attributes'),
+                  'code-block': z
+                    .object({
+                      'code-block': z
+                        .string()
+                        .describe(
+                          'Programming language for syntax highlighting (e.g., "javascript", "python", "bash", "plain")'
+                        ),
+                    })
+                    .optional()
+                    .describe('Code block attributes for multi-line code with syntax highlighting'),
+                })
+                .passthrough()
+                .optional()
+                .describe('Text formatting attributes'),
+            })
+            .passthrough()
         )
-        .describe('Array of comment blocks with text and formatting'),
-      assignee: z.number().optional().describe('The ID of the user to assign to the comment'),
+        .describe(
+          'Array of comment blocks. Plain/formatted text uses {text, attributes}. @mentions use {type:"tag", user:{id}} (canonical, recommended — reliably triggers native mention notifications) or {type:"tag", text:"@Full Name"} (UI fallback shape; notification behavior may be less reliable). Unknown keys pass through to the ClickUp API.'
+        ),
+      assignee: z
+        .number()
+        .int()
+        .positive()
+        .optional()
+        .describe('The ID of the user to assign to the comment'),
       notify_all: z.boolean().optional().describe('Whether to notify all assignees'),
     },
     async ({ task_id, comment, ...commentParams }) => {

@@ -1,5 +1,54 @@
 # Release Notes - ClickUp MCP Server Suite
 
+## Version 5.0.1 - Fix @mention Support in Task Comments
+
+**Release Date**: May 10, 2026
+**Status**: Production Ready
+**Affects**: `@chykalophia/clickup-mcp-server` (core)
+
+### 🐛 Bug Fixes
+
+- **`clickup_create_task_comment` now supports `@mentions`.** The Zod schema for comment blocks
+  declared only `text` and `attributes`, so Zod's default-strip behavior silently dropped
+  `type` and `user` fields before the request reached ClickUp's API. As a result, every
+  `{type:"tag", user:{id}}` block was reduced to plain text and rendered as literal `@Name`
+  in the UI, never as a clickable mention. The schema now explicitly supports both
+  ClickUp-documented mention shapes and uses `.passthrough()` for forward compatibility:
+  - **Canonical (recommended):** `{type:"tag", user:{id:<userId>}}` — reliably triggers
+    native ClickUp mention notifications.
+  - **UI fallback:** `{type:"tag", text:"@Full Name"}` — accepted but notification behavior
+    may be less reliable.
+  - **Combined:** `{type:"tag", text:"@Full Name", user:{id:<userId>}}` — most defensive.
+  - **Emoticon:** `{type:"emoticon", emoticon:{code:"1f389"}}`.
+- **Tag/emoticon blocks no longer have synthesized `attributes:{}`** injected by
+  `processCommentBlocks` / `ensureCodeBlockSeparation`. Per ClickUp's spec, these block
+  types don't carry attributes — round-trip now matches the official shape exactly.
+
+### 🔒 Validation Tightening
+
+- `comment.user.id` and `assignee` parameters on `clickup_create_task_comment` now enforce
+  `z.number().int().positive()` — rejecting floats and non-positive values at the boundary
+  rather than letting ClickUp 400 later.
+
+### 📦 Dependencies
+
+- `axios` 1.15.0 → 1.16.0
+- `hono` 4.12.12 → 4.12.18
+- `fast-uri` 3.1.0 → 3.1.2
+- `ip-address`, `express-rate-limit`, `uuid`, `jest-junit` bumped via dependabot
+
+### ✅ Tests
+
+- 6 new regression tests in `clickup-comment-formatter.test.ts` lock in:
+  - UI-shape tag pass-through
+  - API-docs-shape tag pass-through (with explicit `not.toHaveProperty('attributes')`)
+  - Combined tag pass-through
+  - Emoticon block pass-through
+  - Empty-input no-op
+  - Forward-compat unknown-key pass-through
+
+---
+
 ## Version 5.0.0 - Code Quality, Security & Reliability Overhaul
 
 **Release Date**: April 12, 2026

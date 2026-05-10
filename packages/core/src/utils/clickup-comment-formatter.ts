@@ -8,7 +8,16 @@
 import { validateUrl } from './security.js';
 
 export interface ClickUpCommentBlock {
-  text: string;
+  text?: string;
+  type?: string;
+  user?: {
+    id: number;
+    [key: string]: unknown;
+  };
+  emoticon?: {
+    code: string;
+    [key: string]: unknown;
+  };
   attributes?: {
     bold?: boolean;
     italic?: boolean;
@@ -23,7 +32,9 @@ export interface ClickUpCommentBlock {
     'code-block'?: {
       'code-block': string;
     };
+    [key: string]: unknown;
   };
+  [key: string]: unknown;
 }
 
 export interface ClickUpCommentFormat {
@@ -548,6 +559,11 @@ export function ensureCodeBlockSeparation(blocks: ClickUpCommentBlock[]): ClickU
     return blocks;
   }
 
+  // Tag and emoticon blocks reference users/emojis by id and should not carry
+  // an `attributes` field per ClickUp's spec — preserve their shape exactly.
+  const shouldKeepShape = (block: ClickUpCommentBlock): boolean =>
+    block.type === 'tag' || block.type === 'emoticon';
+
   const processedBlocks: ClickUpCommentBlock[] = [];
 
   for (let i = 0; i < blocks.length; i++) {
@@ -566,12 +582,9 @@ export function ensureCodeBlockSeparation(blocks: ClickUpCommentBlock[]): ClickU
       const endsWithNewline = previousText.endsWith('\n');
 
       if (!endsWithNewline) {
-        // Add newline to the previous block's text
-        const updatedPreviousBlock = {
-          ...previousBlock,
-          text: `${previousText}\n`,
-          attributes: previousBlock.attributes || {},
-        };
+        const updatedPreviousBlock: ClickUpCommentBlock = shouldKeepShape(previousBlock)
+          ? { ...previousBlock, text: `${previousText}\n` }
+          : { ...previousBlock, text: `${previousText}\n`, attributes: previousBlock.attributes || {} };
 
         // Replace the previous block in our processed array
         if (processedBlocks.length > 0) {
@@ -580,10 +593,11 @@ export function ensureCodeBlockSeparation(blocks: ClickUpCommentBlock[]): ClickU
       }
     }
 
-    processedBlocks.push({
-      ...currentBlock,
-      attributes: currentBlock.attributes || {},
-    });
+    processedBlocks.push(
+      shouldKeepShape(currentBlock)
+        ? { ...currentBlock }
+        : { ...currentBlock, attributes: currentBlock.attributes || {} }
+    );
   }
 
   return processedBlocks;
@@ -631,11 +645,13 @@ export function processCommentBlocks(blocks: ClickUpCommentBlock[]): ClickUpComm
     return blocks;
   }
 
-  // First, ensure all blocks have attributes (even if empty)
-  const normalizedBlocks = blocks.map(block => ({
-    ...block,
-    attributes: block.attributes || {},
-  }));
+  // Normalize attributes for plain/formatted text blocks. Tag and emoticon
+  // blocks are preserved as-sent — they don't carry attributes per the API spec.
+  const normalizedBlocks = blocks.map(block =>
+    block.type === 'tag' || block.type === 'emoticon'
+      ? { ...block }
+      : { ...block, attributes: block.attributes || {} }
+  );
 
   return ensureCodeBlockSeparation(normalizedBlocks);
 }

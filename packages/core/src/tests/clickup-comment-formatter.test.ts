@@ -10,6 +10,7 @@ import {
   createCodeComment,
   createLinkComment,
   combineCommentBlocks,
+  processCommentBlocks,
   ClickUpCommentBlock,
   ClickUpCommentFormat
 } from '../utils/clickup-comment-formatter';
@@ -470,6 +471,97 @@ Visit [ClickUp](https://clickup.com) for more info.`;
       expect(convertedMarkdown).toContain('*italic*');
       expect(convertedMarkdown).toContain('`code`');
       expect(convertedMarkdown).toContain('[link](https://example.com)');
+    });
+  });
+
+  describe('processCommentBlocks — mention/tag pass-through', () => {
+    it('preserves UI-shape tag block ({type:"tag", text:"@Name"})', () => {
+      const blocks: ClickUpCommentBlock[] = [
+        { text: 'Hey ' },
+        { type: 'tag', text: '@Peter Krzyzek' },
+        { text: ' quick check' }
+      ];
+
+      const processed = processCommentBlocks(blocks);
+
+      expect(processed).toHaveLength(3);
+      expect(processed[1]).toMatchObject({ type: 'tag', text: '@Peter Krzyzek' });
+    });
+
+    it('preserves API-docs-shape tag block ({type:"tag", user:{id}}) without injecting attributes', () => {
+      const blocks: ClickUpCommentBlock[] = [
+        { text: 'I need someone to look at this. Maybe ' },
+        { type: 'tag', user: { id: 38366580 } },
+        { text: ' — thanks' }
+      ];
+
+      const processed = processCommentBlocks(blocks);
+
+      // Lock exact shape — no synthesized attributes:{} on tag blocks
+      expect(processed[1]).toEqual({ type: 'tag', user: { id: 38366580 } });
+      expect(processed[1]).not.toHaveProperty('attributes');
+      expect(processed[1]).not.toHaveProperty('text');
+    });
+
+    it('preserves combined tag block ({type, text, user}) without injecting attributes', () => {
+      const blocks: ClickUpCommentBlock[] = [
+        { type: 'tag', text: '@Peter Krzyzek', user: { id: 38366580 } }
+      ];
+
+      const processed = processCommentBlocks(blocks);
+
+      expect(processed[0]).toEqual({
+        type: 'tag',
+        text: '@Peter Krzyzek',
+        user: { id: 38366580 }
+      });
+      expect(processed[0]).not.toHaveProperty('attributes');
+    });
+
+    it('preserves emoticon blocks without injecting attributes', () => {
+      const blocks: ClickUpCommentBlock[] = [
+        { text: 'Done ' },
+        { type: 'emoticon', emoticon: { code: '1f389' } }
+      ];
+
+      const processed = processCommentBlocks(blocks);
+
+      expect(processed[1]).toEqual({
+        type: 'emoticon',
+        emoticon: { code: '1f389' }
+      });
+      expect(processed[1]).not.toHaveProperty('attributes');
+    });
+
+    it('returns empty input unchanged', () => {
+      expect(processCommentBlocks([])).toEqual([]);
+    });
+
+    it('does not regress existing attributes round-trip', () => {
+      const blocks: ClickUpCommentBlock[] = [
+        { text: 'This is ' },
+        { text: 'important', attributes: { bold: true } },
+        { text: ' — link ' },
+        { text: 'here', attributes: { link: { url: 'https://example.com' } } }
+      ];
+
+      const processed = processCommentBlocks(blocks);
+
+      expect(processed[1]).toMatchObject({ text: 'important', attributes: { bold: true } });
+      expect(processed[3]).toMatchObject({
+        text: 'here',
+        attributes: { link: { url: 'https://example.com' } }
+      });
+    });
+
+    it('passes through unknown forward-compat keys without dropping them', () => {
+      const blocks: ClickUpCommentBlock[] = [
+        { text: 'hi', someFutureKey: { foo: 'bar' } } as ClickUpCommentBlock
+      ];
+
+      const processed = processCommentBlocks(blocks);
+
+      expect(processed[0].someFutureKey).toEqual({ foo: 'bar' });
     });
   });
 });

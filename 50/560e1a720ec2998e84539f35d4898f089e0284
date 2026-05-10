@@ -1,0 +1,30 @@
+RELEASE_NOTES.md
+  s_d8b339f20b8b8e::t_39aa90320fca43 3-51
+packages/core/src/tests/clickup-comment-formatter.test.ts
+  s_d8b339f20b8b8e::t_9523adc0d270d4 13,476-564
+  s_d8b339f20b8b8e::t_39d9f7fa52a2c8 565-566
+package.json
+  s_d8b339f20b8b8e::t_588743cb268e90 3
+packages/core/package.json
+  s_d8b339f20b8b8e::t_e61fc2dc0c2317 3
+packages/core/src/utils/clickup-comment-formatter.ts
+  s_d8b339f20b8b8e::t_9523adc0d270d4 11-20,35,37,562-566,585-587,596-600,648-654
+packages/core/src/tools/comment-tools.ts
+  s_d8b339f20b8b8e::t_9523adc0d270d4 105,110-174,176-184
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "50560e1a720ec2998e84539f35d4898f089e0284",
+  "prompts": {},
+  "sessions": {
+    "s_d8b339f20b8b8e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "93b857f2-6ce7-4da8-a951-b18f7077fe55",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}

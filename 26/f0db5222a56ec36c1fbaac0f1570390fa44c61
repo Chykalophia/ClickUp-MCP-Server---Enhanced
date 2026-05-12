@@ -1,0 +1,30 @@
+package.json
+  s_950a4b63eb6f49::t_746dee42c45af0 3
+packages/core/src/tests/update-task-assignees.test.ts
+  s_950a4b63eb6f49::t_fd890f8cf21c1f 2-11
+  s_950a4b63eb6f49::t_05075396a4e227 1,12-126
+packages/core/src/clickup-client/tasks.ts
+  s_950a4b63eb6f49::t_b64ec6521240b3 89-90
+  s_950a4b63eb6f49::t_81370bcc1aa317 205,224-241
+packages/core/package.json
+  s_950a4b63eb6f49::t_6823e499ea2cc9 3
+RELEASE_NOTES.md
+  s_950a4b63eb6f49::t_5966295d700f2d 3-46,48-50
+  s_950a4b63eb6f49::t_3019e119c0fba5 47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "26f0db5222a56ec36c1fbaac0f1570390fa44c61",
+  "prompts": {},
+  "sessions": {
+    "s_950a4b63eb6f49": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "477de69e-8b33-4063-a157-a7dd3c8ea5ec",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}

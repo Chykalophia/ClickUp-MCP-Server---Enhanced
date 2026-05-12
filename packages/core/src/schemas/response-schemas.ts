@@ -89,6 +89,54 @@ export const GoalTargetResponseSchema = z.object({
 }).passthrough();
 
 // ========================================
+// TIME IN STATUS
+// ========================================
+
+/**
+ * A single status_history entry. ClickUp's API legitimately omits `orderindex`
+ * on some entries (observed across many tasks in real workspaces). All fields
+ * are optional to surface partial data rather than rejecting the whole response.
+ */
+const StatusHistoryEntrySchema = z.object({
+  status: z.string().optional(),
+  color: z.string().optional(),
+  type: z.string().optional(),
+  total_time: z.object({
+    by_minute: z.number().optional(),
+    since: z.string().optional()
+  }).passthrough().optional(),
+  orderindex: z.union([z.number(), z.string()]).optional(),
+  // ClickUp may emit additional fields per status (e.g., custom-status edges)
+}).passthrough();
+
+const CurrentStatusSchema = z.object({
+  status: z.string().optional(),
+  color: z.string().optional(),
+  total_time: z.object({
+    by_minute: z.number().optional(),
+    since: z.string().optional()
+  }).passthrough().optional()
+}).passthrough();
+
+/** Response shape for GET /task/{task_id}/time_in_status */
+export const TaskTimeInStatusResponseSchema = z.object({
+  current_status: CurrentStatusSchema.optional(),
+  status_history: z.array(StatusHistoryEntrySchema).optional()
+}).passthrough();
+
+/**
+ * Response shape for GET /task/bulk_time_in_status/task_ids
+ * Maps task_id -> { current_status, status_history }.
+ * Each task entry uses the same lenient schema.
+ */
+export const BulkTasksTimeInStatusResponseSchema = z.record(
+  z.object({
+    current_status: CurrentStatusSchema.optional(),
+    status_history: z.array(StatusHistoryEntrySchema).optional()
+  }).passthrough()
+);
+
+// ========================================
 // TIME TRACKING
 // ========================================
 

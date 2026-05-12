@@ -244,4 +244,66 @@ export function setupTaskTools(server: McpServer): void {
       }
     }
   );
+
+  server.tool(
+    'clickup_get_task_time_in_status',
+    "Get a ClickUp task's time-in-status data: current status (with elapsed time) plus the full status_history. Requires the workspace's \"Total time in Status\" ClickApp to be enabled. Response fields (including status_history[*].orderindex) may be omitted by ClickUp on some entries and are tolerated rather than rejected.",
+    {
+      task_id: z.string().describe('The ID of the task'),
+      custom_task_ids: z
+        .boolean()
+        .optional()
+        .describe('Set true when task_id is a custom task ID (also requires team_id)'),
+      team_id: z
+        .string()
+        .optional()
+        .describe('Workspace (team) ID — required when custom_task_ids is true')
+    },
+    async ({ task_id, custom_task_ids, team_id }) => {
+      try {
+        const result = await tasksClient.getTaskTimeInStatus(task_id, {
+          custom_task_ids,
+          team_id
+        });
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+        };
+      } catch (error: unknown) {
+        return mcpError('getting task time in status', error);
+      }
+    }
+  );
+
+  server.tool(
+    'clickup_get_bulk_tasks_time_in_status',
+    'Get time-in-status data for multiple ClickUp tasks in one call (2–100 task IDs). Returns an object keyed by task_id with { current_status, status_history }. Requires the workspace\'s "Total time in Status" ClickApp to be enabled. Schema is lenient: per-entry fields like orderindex are optional and partial responses are surfaced rather than rejected.',
+    {
+      task_ids: z
+        .array(z.string())
+        .min(2)
+        .max(100)
+        .describe('2 to 100 task IDs (ClickUp API constraints)'),
+      custom_task_ids: z
+        .boolean()
+        .optional()
+        .describe('Set true when task_ids are custom task IDs (also requires team_id)'),
+      team_id: z
+        .string()
+        .optional()
+        .describe('Workspace (team) ID — required when custom_task_ids is true')
+    },
+    async ({ task_ids, custom_task_ids, team_id }) => {
+      try {
+        const result = await tasksClient.getBulkTasksTimeInStatus(task_ids, {
+          custom_task_ids,
+          team_id
+        });
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+        };
+      } catch (error: unknown) {
+        return mcpError('getting bulk tasks time in status', error);
+      }
+    }
+  );
 }

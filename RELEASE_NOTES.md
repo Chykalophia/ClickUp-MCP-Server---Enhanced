@@ -1,5 +1,61 @@
 # Release Notes - ClickUp MCP Server Suite
 
+## Version 5.0.2 - Add Time-in-Status Endpoints (lenient schema)
+
+**Release Date**: May 11, 2026
+**Status**: Production Ready
+**Affects**: `@chykalophia/clickup-mcp-server` (core)
+
+### ✨ New Tools
+
+- **`clickup_get_task_time_in_status`** — fetch a single task's current status
+  (with elapsed time) plus full `status_history`. Wraps
+  `GET /task/{task_id}/time_in_status`.
+- **`clickup_get_bulk_tasks_time_in_status`** — fetch time-in-status for 2–100
+  tasks in one call. Wraps `GET /task/bulk_time_in_status/task_ids`.
+  - Builds the query string with `URLSearchParams` so repeated `task_ids` params
+    are emitted in the form ClickUp accepts (`?task_ids=a&task_ids=b`); axios's
+    default `task_ids[]=…` serialization would be rejected.
+
+Both tools require the workspace's **"Total time in Status" ClickApp** to be
+enabled; otherwise ClickUp returns an error which is surfaced to the caller.
+
+### 🐛 Schema Bug Fix
+
+The most common reason peer MCP wrappers failed against these endpoints was a
+schema that marked `status_history[i].orderindex` as **required**. ClickUp's
+API legitimately omits `orderindex` on some history entries (observed across
+many tasks in production workspaces), causing the wrapper to reject otherwise
+valid 200 responses with `MCP error -32602: Output validation error`.
+
+This release lands the endpoints with a deliberately **lenient response
+schema**:
+
+- `status_history[i].orderindex` is **optional** and accepts both `number`
+  and `string` (ClickUp emits both).
+- `current_status`, `total_time.by_minute`, `total_time.since`, and every
+  per-entry field are optional.
+- Top-level and per-entry `passthrough()` preserves forward-compat fields
+  rather than dropping or rejecting them.
+
+Validation tightening is reserved for the request side — output validation
+treats the ClickUp API contract as ground truth.
+
+### ✅ Tests
+
+- 8 new regression tests in `time-in-status.test.ts` covering:
+  - Fully-populated single-task response
+  - Single-task response with no `orderindex` on a history row (the bug case)
+  - `orderindex` as both `number` and `string`
+  - Missing `current_status` / empty `status_history`
+  - Forward-compat unknown-field pass-through
+  - Bulk map shape with `orderindex` and without (per-row mixed)
+  - Empty bulk response
+
+162/162 unit tests pass. 0 npm audit vulnerabilities.
+
+---
+
 ## Version 5.0.1 - Fix @mention Support in Task Comments
 
 **Release Date**: May 10, 2026

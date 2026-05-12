@@ -1,7 +1,12 @@
 /* eslint-disable no-console */
 import { ClickUpClient } from './index.js';
 import { prepareContentForClickUp, processClickUpResponse } from '../utils/markdown.js';
-import { validateResponse, TasksResponseSchema } from '../schemas/response-schemas.js';
+import {
+  validateResponse,
+  TasksResponseSchema,
+  TaskTimeInStatusResponseSchema,
+  BulkTasksTimeInStatusResponseSchema
+} from '../schemas/response-schemas.js';
 
 export interface Task {
   id: string;
@@ -225,6 +230,88 @@ export class TasksClient {
    */
   async deleteTask(taskId: string): Promise<{ success: boolean }> {
     return this.client.delete(`/task/${taskId}`);
+  }
+
+  /**
+   * Get time-in-status data for a single task.
+   *
+   * Calls GET /task/{task_id}/time_in_status. Requires the "Total time in Status"
+   * ClickApp to be enabled on the workspace; otherwise ClickUp returns an error
+   * which is surfaced to the caller.
+   *
+   * Response schema is lenient: `orderindex` (and other per-entry fields) are
+   * optional because ClickUp legitimately omits them on some history rows.
+   */
+  async getTaskTimeInStatus(
+    taskId: string,
+    params?: { custom_task_ids?: boolean; team_id?: string }
+  ): Promise<{
+    current_status?: Record<string, unknown>;
+    status_history?: Array<Record<string, unknown>>;
+  }> {
+    const raw = await this.client.get<unknown>(`/task/${taskId}/time_in_status`, params);
+    return validateResponse(
+      TaskTimeInStatusResponseSchema,
+      raw,
+      'getTaskTimeInStatus'
+    ) as {
+      current_status?: Record<string, unknown>;
+      status_history?: Array<Record<string, unknown>>;
+    };
+  }
+
+  /**
+   * Get time-in-status data for multiple tasks in one call.
+   *
+   * Calls GET /task/bulk_time_in_status/task_ids?task_ids=...
+   * ClickUp's underlying endpoint accepts up to 100 task IDs per call.
+   * Returns an object keyed by task_id; missing tasks are simply absent.
+   */
+  async getBulkTasksTimeInStatus(
+    taskIds: string[],
+    params?: { custom_task_ids?: boolean; team_id?: string }
+  ): Promise<Record<string, {
+    current_status?: Record<string, unknown>;
+    status_history?: Array<Record<string, unknown>>;
+  }>> {
+    if (!taskIds || taskIds.length < 2) {
+      throw new Error(
+        'getBulkTasksTimeInStatus requires at least 2 task IDs (ClickUp API constraint). ' +
+          'For a single task, call getTaskTimeInStatus instead.'
+      );
+    }
+    if (taskIds.length > 100) {
+      throw new Error(
+        `getBulkTasksTimeInStatus accepts at most 100 task IDs per call (received ${taskIds.length}).`
+      );
+    }
+
+    // ClickUp's bulk endpoint expects repeated `task_ids` query params (e.g.,
+    // `?task_ids=a&task_ids=b`). Axios's default array serializer emits
+    // `task_ids[]=a&task_ids[]=b` which ClickUp rejects — build the query
+    // string manually with URLSearchParams instead.
+    const search = new URLSearchParams();
+    for (const id of taskIds) {
+      search.append('task_ids', id);
+    }
+    if (params?.custom_task_ids !== undefined) {
+      search.set('custom_task_ids', String(params.custom_task_ids));
+    }
+    if (params?.team_id !== undefined) {
+      search.set('team_id', params.team_id);
+    }
+    const raw = await this.client.get<unknown>(
+      `/task/bulk_time_in_status/task_ids?${search.toString()}`
+    );
+
+    return validateResponse(
+      BulkTasksTimeInStatusResponseSchema,
+      raw,
+      'getBulkTasksTimeInStatus'
+    ) as Record<string, {
+      current_status?: Record<string, unknown>;
+      status_history?: Array<Record<string, unknown>>;
+    }>;
   }
 
   /**

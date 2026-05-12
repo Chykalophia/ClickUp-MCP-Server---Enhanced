@@ -1,0 +1,33 @@
+packages/core/src/schemas/response-schemas.ts
+  s_d145b253d32f96::t_dd2f1406be1a9f 92-138
+packages/core/src/clickup-client/tasks.ts
+  s_d145b253d32f96::t_d913f3c523826c 236-288,306-316
+  s_d145b253d32f96::t_2b2d8dcc2ab603 4-9
+  s_d145b253d32f96::t_ffebe4fb08cf66 289-305
+packages/core/src/tools/task-tools.ts
+  s_d145b253d32f96::t_00bcc271a58023 247-308
+packages/core/package.json
+  s_d145b253d32f96::t_f82aa40c036511 3
+packages/core/src/tests/time-in-status.test.ts
+  s_d145b253d32f96::t_2701b6bdc8183e 1-125
+package.json
+  s_d145b253d32f96::t_1e4f668070989a 3
+RELEASE_NOTES.md
+  s_d145b253d32f96::t_bacee5f8b25f86 3-58
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "9917de8e46b86010b270c1ed3bb0039e426ad3a8",
+  "prompts": {},
+  "sessions": {
+    "s_d145b253d32f96": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f4d1b3f2-51ba-485d-8ac3-1624fd086995",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}

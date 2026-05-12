@@ -1,5 +1,53 @@
 # Release Notes - ClickUp MCP Server Suite
 
+## Version 5.0.3 - Fix `clickup_update_task` Assignees (silent watcher bug)
+
+**Release Date**: May 12, 2026
+**Status**: Production Ready
+**Affects**: `@chykalophia/clickup-mcp-server` (core)
+
+### 🐛 Bug Fix
+
+`clickup_update_task` previously sent `assignees` as a flat array of user IDs
+on `PUT /task/{task_id}`. ClickUp's Update Task endpoint expects a delta
+envelope (`{ "add": [...], "rem": [...] }`), not a flat array — Create Task is
+the only endpoint that takes a flat array.
+
+ClickUp accepted the malformed body with HTTP 200 and silently routed the
+target users into the task's **watcher list** instead of assigning them. No
+error was surfaced; downstream sprint-board "My Tasks" filters, assignee
+notifications, automations, and reporting all broke quietly.
+
+### 🔧 Change
+
+`TasksClient.updateTask` now:
+
+1. Reads the task's current assignees with `GET /task/{task_id}`.
+2. Diffs against the desired set passed in `params.assignees`.
+3. Sends `assignees: { add, rem }` only when the delta is non-empty.
+4. Omits the field entirely when the caller doesn't pass `assignees`, so
+   pure name/status/etc. updates skip the read-before-write entirely.
+
+The public schema of `clickup_update_task` is unchanged — callers still pass
+`assignees: number[]` (the desired set). The translation to ClickUp's delta
+envelope is internal.
+
+### ✅ Tests
+
+7 regression tests in `update-task-assignees.test.ts` pin the PUT body shape:
+
+- Adding a user to a task with no assignees → `{ add: [X], rem: [] }`
+- Adding while preserving existing → `{ add: [Y], rem: [] }`
+- Replacing assignees → `{ add: [Y], rem: [X] }`
+- Empty array → unassigns everyone (`{ add: [], rem: [X] }`)
+- Idempotent re-apply → no `assignees` field in PUT body
+- `assignees` omitted → no read-before-write, no `assignees` in PUT body
+- Pin: never sends a flat array (the regression that caused the bug)
+
+Full suite: **171 → 178 tests, all passing.**
+
+---
+
 ## Version 5.0.2 - Add Time-in-Status Endpoints (lenient schema)
 
 **Release Date**: May 11, 2026

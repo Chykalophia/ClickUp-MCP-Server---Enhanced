@@ -86,6 +86,8 @@ export interface UpdateTaskParams {
   name?: string;
   description?: string;
   markdown_content?: string; // Add support for markdown_content field
+  // Desired set of assignee user IDs. Translated to ClickUp's `{add, rem}`
+  // delta envelope inside updateTask — see comment there for why.
   assignees?: number[];
   status?: string;
   priority?: number;
@@ -200,7 +202,7 @@ export class TasksClient {
    */
   async updateTask(taskId: string, params: UpdateTaskParams): Promise<Task> {
     // Process description for markdown support
-    const processedParams = { ...params };
+    const processedParams: Record<string, unknown> = { ...params };
 
     // Handle description field - check if it contains markdown
     if (params.description) {
@@ -217,6 +219,26 @@ export class TasksClient {
       }
 
       // Note: ClickUp API doesn't accept text_content on update, it generates it
+    }
+
+    // ClickUp's Update Task endpoint takes assignees as a `{add, rem}` delta
+    // envelope, NOT a flat array like Create Task does. Sending a flat array
+    // returns HTTP 200 but silently routes the IDs into the watcher list
+    // instead of assigning them. Translate the desired-set input into a delta
+    // by diffing against current state.
+    if (params.assignees !== undefined) {
+      const current = await this.getTask(taskId);
+      const currentIds = (current.assignees ?? []).map(a => a.id);
+      const desiredIds = params.assignees;
+      const add = desiredIds.filter(id => !currentIds.includes(id));
+      const rem = currentIds.filter(id => !desiredIds.includes(id));
+
+      if (add.length === 0 && rem.length === 0) {
+        // Idempotent no-op — don't send an empty envelope.
+        delete processedParams.assignees;
+      } else {
+        processedParams.assignees = { add, rem };
+      }
     }
 
     const result = await this.client.put(`/task/${taskId}`, processedParams);

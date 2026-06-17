@@ -317,7 +317,7 @@ export class ViewsEnhancedClient extends ClickUpClient {
       op: 'AND',
       fields: filters.map(filter => ({
         field: filter.field,
-        operator: filter.operator,
+        op: filter.operator,
         value: filter.value || filter.values
       })),
       search: '',

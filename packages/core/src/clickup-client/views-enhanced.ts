@@ -10,10 +10,24 @@ import type {
   UpdateViewSettingsRequest,
   ViewSharingRequest,
   ViewFilter,
+  FilterOperator,
   ViewGrouping,
   ViewSorting
   // ViewSettings
 } from '../schemas/views-schemas.js';
+
+const CLICKUP_FILTER_OPERATOR_MAP: Partial<Record<FilterOperator, string>> = {
+  equals: 'EQ',
+  not_equals: 'NOT',
+  greater_than: 'GT',
+  less_than: 'LT',
+  greater_than_or_equal: 'GTE',
+  less_than_or_equal: 'LTE',
+  in: 'ANY',
+  not_in: 'NOT ANY',
+  is_set: 'IS SET',
+  is_not_set: 'IS NOT SET'
+};
 
 export interface ViewResponse {
   id: string;
@@ -317,12 +331,28 @@ export class ViewsEnhancedClient extends ClickUpClient {
       op: 'AND',
       fields: filters.map(filter => ({
         field: filter.field,
-        operator: filter.operator,
-        value: filter.value || filter.values
+        op: CLICKUP_FILTER_OPERATOR_MAP[filter.operator] ?? filter.operator,
+        values: this.formatFilterValues(filter)
       })),
       search: '',
       show_closed: false
     };
+  }
+
+  private formatFilterValues(filter: ViewFilter): Array<string | number | null> {
+    if (filter.values !== undefined) {
+      return filter.values;
+    }
+
+    if (Array.isArray(filter.value)) {
+      return filter.value;
+    }
+
+    if (filter.operator === 'is_set' || filter.operator === 'is_not_set') {
+      return [null];
+    }
+
+    return filter.value !== undefined ? [filter.value] : [];
   }
 
   /**

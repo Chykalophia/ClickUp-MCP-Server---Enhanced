@@ -1,5 +1,6 @@
 import { ClickUpClient } from './index.js';
 import { validateResponse, ViewsResponseSchema, ViewResponseSchema, TasksResponseSchema } from '../schemas/response-schemas.js';
+import { normalizeViewType } from '../schemas/views-schemas.js';
 import type {
   CreateViewRequest,
   UpdateViewRequest,
@@ -8,11 +9,12 @@ import type {
   SetViewGroupingRequest,
   SetViewSortingRequest,
   UpdateViewSettingsRequest,
-  ViewSharingRequest,
+  DuplicateViewRequest,
   ViewFilter,
   ViewGrouping,
-  ViewSorting
-  // ViewSettings
+  ViewDivide,
+  ViewSorting,
+  ViewColumn
 } from '../schemas/views-schemas.js';
 
 export interface ViewResponse {
@@ -21,17 +23,18 @@ export interface ViewResponse {
   type: string;
   parent: {
     id: string;
-    type: string;
+    type: number;
   };
   grouping: {
     field: string;
     dir: number;
-    collapsed: boolean;
+    collapsed: string[];
+    ignore: boolean;
   };
   divide: {
-    field: string;
-    dir: number;
-    collapsed: boolean;
+    field: string | null;
+    dir: number | null;
+    collapsed: string[] | null;
   };
   sorting: {
     fields: Array<{
@@ -43,20 +46,19 @@ export interface ViewResponse {
     op: string;
     fields: Array<{
       field: string;
-      operator: string;
-      value: any;
+      op: string;
+      values: any[];
     }>;
     search: string;
     show_closed: boolean;
   };
-  columns: Array<{
-    id: string;
-    name: string;
-    type: string;
-    type_config: any;
-    date_created: string;
-    hide_from_guests: boolean;
-  }>;
+  columns: {
+    fields: Array<{
+      field: string;
+      hidden?: boolean;
+      width?: number;
+    }>;
+  };
   team_sidebar: {
     assignees: any[];
     assigned_comments: boolean;
@@ -69,24 +71,16 @@ export interface ViewResponse {
     show_closed_subtasks: boolean;
     show_assignees: boolean;
     show_images: boolean;
-    collapse_empty_columns: boolean;
-    show_task_description: boolean;
-    show_task_checklists: boolean;
-    show_task_attachments: boolean;
+    collapse_empty_columns: any;
+    me_comments: boolean;
+    me_subtasks: boolean;
+    me_checklists: boolean;
   };
   creator: number;
   date_created: string;
-  date_protected: string;
-  orderindex: string;
+  orderindex: number;
   protected: boolean;
-  override_statuses: boolean;
-  required_custom_fields: any[];
-  visibility: {
-    access: string;
-    password_protected: boolean;
-    password: string;
-    expires: string;
-  };
+  visibility: string;
 }
 
 export interface ViewListResponse {
@@ -99,26 +93,24 @@ export class ViewsEnhancedClient extends ClickUpClient {
   }
 
   /**
-   * Create a new view
+   * Create a new view.
+   * The API accepts only name, type, and the optional grouping/divide/sorting/
+   * filters/columns/team_sidebar/settings objects; the parent is derived from
+   * the URL path.
    */
   async createView(request: CreateViewRequest): Promise<ViewResponse> {
     const endpoint = this.getParentEndpoint(request.parent_type, request.parent_id);
 
     const payload = {
       name: request.name,
-      type: request.type,
-      parent: {
-        id: request.parent_id,
-        type: request.parent_type
-      },
+      type: normalizeViewType(request.type),
       grouping: request.grouping ? this.formatGrouping(request.grouping) : undefined,
+      divide: request.divide ? this.formatDivide(request.divide) : undefined,
       sorting: request.sorting ? this.formatSorting(request.sorting) : undefined,
       filters: request.filters ? this.formatFilters(request.filters) : undefined,
-      settings: request.settings || {},
-      visibility: {
-        access: request.access || 'private'
-      },
-      description: request.description
+      columns: request.columns ? this.formatColumns(request.columns) : undefined,
+      team_sidebar: request.team_sidebar,
+      settings: request.settings
     };
 
     const response = await this.post<{ view: ViewResponse }>(`${endpoint}/view`, payload);
@@ -126,21 +118,23 @@ export class ViewsEnhancedClient extends ClickUpClient {
   }
 
   /**
-   * Get views for a parent (space, folder, or list)
+   * Get views for a parent (team/Workspace, space, folder, or list).
+   * The Get Views endpoints accept no query parameters, so any type filter
+   * is applied client-side.
    */
   async getViews(filter: GetViewsFilter): Promise<ViewListResponse> {
     const endpoint = this.getParentEndpoint(filter.parent_type, filter.parent_id);
 
-    const params = new URLSearchParams();
-    if (filter.type) params.append('type', filter.type);
-    if (filter.access) params.append('access', filter.access);
-
-    const queryString = params.toString();
-    const fullEndpoint = `${endpoint}/view${queryString ? `?${queryString}` : ''}`;
-
-    const response = await this.get<unknown>(fullEndpoint);
+    const response = await this.get<unknown>(`${endpoint}/view`);
     const validated = validateResponse(ViewsResponseSchema, response, 'getViews');
-    return validated as unknown as ViewListResponse;
+    const result = validated as unknown as ViewListResponse;
+
+    if (filter.type) {
+      const wantedType = normalizeViewType(filter.type);
+      return { ...result, views: result.views.filter(view => view.type === wantedType) };
+    }
+
+    return result;
   }
 
   /**
@@ -153,21 +147,23 @@ export class ViewsEnhancedClient extends ClickUpClient {
   }
 
   /**
-   * Update an existing view
+   * Update an existing view.
+   * The Update View endpoint requires the FULL view object, so the current
+   * view is fetched, the requested changes are merged in, and the complete
+   * body is PUT back.
    */
   async updateView(request: UpdateViewRequest): Promise<ViewResponse> {
-    const updateData: Record<string, any> = {};
-
-    if (request.name) updateData.name = request.name;
-    if (request.access) updateData.visibility = { access: request.access };
-    if (request.grouping) updateData.grouping = this.formatGrouping(request.grouping);
-    if (request.sorting) updateData.sorting = this.formatSorting(request.sorting);
-    if (request.filters) updateData.filters = this.formatFilters(request.filters);
-    if (request.settings) updateData.settings = request.settings;
-    if (request.description) updateData.description = request.description;
-
-    const response = await this.put<{ view: ViewResponse }>(`/view/${request.view_id}`, updateData);
-    return response.view;
+    return this.putFullView(request.view_id, current => ({
+      ...(request.name !== undefined && { name: request.name }),
+      ...(request.type !== undefined && { type: normalizeViewType(request.type) }),
+      ...(request.grouping && { grouping: this.formatGrouping(request.grouping) }),
+      ...(request.divide && { divide: this.formatDivide(request.divide) }),
+      ...(request.sorting && { sorting: this.formatSorting(request.sorting) }),
+      ...(request.filters && { filters: this.formatFilters(request.filters) }),
+      ...(request.columns && { columns: this.formatColumns(request.columns) }),
+      ...(request.team_sidebar && { team_sidebar: request.team_sidebar }),
+      ...(request.settings && { settings: { ...current.settings, ...request.settings } })
+    }));
   }
 
   /**
@@ -179,85 +175,56 @@ export class ViewsEnhancedClient extends ClickUpClient {
   }
 
   /**
-   * Set view filters
+   * Set view filters (fetches the view and PUTs the full merged object)
    */
   async setViewFilters(request: SetViewFiltersRequest): Promise<ViewResponse> {
-    const payload = {
+    return this.putFullView(request.view_id, () => ({
       filters: this.formatFilters(request.filters)
-    };
-
-    const response = await this.put<{ view: ViewResponse }>(`/view/${request.view_id}`, payload);
-    return response.view;
+    }));
   }
 
   /**
-   * Set view grouping
+   * Set view grouping (fetches the view and PUTs the full merged object)
    */
   async setViewGrouping(request: SetViewGroupingRequest): Promise<ViewResponse> {
-    const payload = {
+    return this.putFullView(request.view_id, () => ({
       grouping: this.formatGrouping(request.grouping)
-    };
-
-    const response = await this.put<{ view: ViewResponse }>(`/view/${request.view_id}`, payload);
-    return response.view;
+    }));
   }
 
   /**
-   * Set view sorting
+   * Set view sorting (fetches the view and PUTs the full merged object)
    */
   async setViewSorting(request: SetViewSortingRequest): Promise<ViewResponse> {
-    const payload = {
+    return this.putFullView(request.view_id, () => ({
       sorting: this.formatSorting(request.sorting)
-    };
-
-    const response = await this.put<{ view: ViewResponse }>(`/view/${request.view_id}`, payload);
-    return response.view;
+    }));
   }
 
   /**
-   * Update view settings
+   * Update view settings (fetches the view and PUTs the full merged object)
    */
   async updateViewSettings(request: UpdateViewSettingsRequest): Promise<ViewResponse> {
-    const payload = {
-      settings: request.settings
-    };
-
-    const response = await this.put<{ view: ViewResponse }>(`/view/${request.view_id}`, payload);
-    return response.view;
+    return this.putFullView(request.view_id, current => ({
+      settings: { ...current.settings, ...request.settings }
+    }));
   }
 
   /**
-   * Update view sharing settings
-   */
-  async updateViewSharing(request: ViewSharingRequest): Promise<ViewResponse> {
-    const payload = {
-      visibility: {
-        access: request.access,
-        password_protected: !!request.password,
-        password: request.password,
-        expires: request.expires_at ? new Date(request.expires_at * 1000).toISOString() : undefined
-      }
-    };
-
-    const response = await this.put<{ view: ViewResponse }>(`/view/${request.view_id}`, payload);
-    return response.view;
-  }
-
-  /**
-   * Get view tasks (tasks visible in the view)
+   * Get view tasks (tasks visible in the view).
+   * Pagination is 0-indexed and the page parameter is always sent.
    */
   async getViewTasks(
     viewId: string,
-    page?: number
+    page = 0
   ): Promise<{
     tasks: any[];
     last_page: boolean;
   }> {
     const params = new URLSearchParams();
-    if (page) params.append('page', page.toString());
+    params.append('page', page.toString());
 
-    const queryString = params.toString();
-    const endpoint = `/view/${viewId}/task${queryString ? `?${queryString}` : ''}`;
+    const endpoint = `/view/${viewId}/task?${params.toString()}`;
 
     const response = await this.get<unknown>(endpoint);
     const validated = validateResponse(TasksResponseSchema, response, 'getViewTasks');
@@ -266,14 +233,30 @@ export class ViewsEnhancedClient extends ClickUpClient {
   }
 
   /**
-   * Duplicate a view
+   * Duplicate a view.
+   * The API has no duplicate endpoint, so this is implemented client-side:
+   * GET the source view, strip identifying fields, and POST the view
+   * configuration to the destination parent's create-view endpoint.
    */
-  async duplicateView(viewId: string, name: string): Promise<ViewResponse> {
+  async duplicateView(request: DuplicateViewRequest): Promise<ViewResponse> {
+    const source = await this.getView(request.view_id);
+    const endpoint = this.getParentEndpoint(request.parent_type, request.parent_id);
+
+    // Copy only the view configuration; ids, creator, dates, and parent are
+    // stripped by construction.
     const payload = {
-      name
+      name: request.name,
+      type: source.type,
+      grouping: source.grouping,
+      divide: source.divide,
+      sorting: source.sorting,
+      filters: source.filters,
+      columns: source.columns,
+      team_sidebar: source.team_sidebar,
+      settings: source.settings
     };
 
-    const response = await this.post<{ view: ViewResponse }>(`/view/${viewId}/duplicate`, payload);
+    const response = await this.post<{ view: ViewResponse }>(`${endpoint}/view`, payload);
     return response.view;
   }
 
@@ -281,6 +264,8 @@ export class ViewsEnhancedClient extends ClickUpClient {
 
   private getParentEndpoint(parentType: string, parentId: string): string {
     switch (parentType) {
+    case 'team':
+      return `/team/${parentId}`;
     case 'space':
       return `/space/${parentId}`;
     case 'folder':
@@ -292,14 +277,48 @@ export class ViewsEnhancedClient extends ClickUpClient {
     }
   }
 
-  private formatGrouping(grouping: ViewGrouping[]): any {
-    if (grouping.length === 0) return {};
+  /**
+   * Update View requires the complete view object: GET the current view,
+   * merge the overrides, and PUT the full body back.
+   */
+  private async putFullView(
+    viewId: string,
+    makeOverrides: (current: ViewResponse) => Record<string, any>
+  ): Promise<ViewResponse> {
+    const current = await this.getView(viewId);
 
-    const primary = grouping[0];
+    const body = {
+      name: current.name,
+      type: current.type,
+      parent: current.parent,
+      grouping: current.grouping,
+      divide: current.divide,
+      sorting: current.sorting,
+      filters: current.filters,
+      columns: current.columns,
+      team_sidebar: current.team_sidebar,
+      settings: current.settings,
+      ...makeOverrides(current)
+    };
+
+    const response = await this.put<{ view: ViewResponse }>(`/view/${viewId}`, body);
+    return response.view;
+  }
+
+  private formatGrouping(grouping: ViewGrouping): any {
     return {
-      field: primary.field,
-      dir: primary.order === 'asc' ? 1 : -1,
-      collapsed: primary.collapsed
+      field: grouping.field,
+      dir: grouping.order === 'asc' ? 1 : -1,
+      collapsed: grouping.collapsed ?? [],
+      ignore: grouping.ignore ?? false
+    };
+  }
+
+  private formatDivide(divide: ViewDivide): any {
+    return {
+      field: divide.field,
+      dir: divide.order === 'asc' ? 1 : -1,
+      collapsed: divide.collapsed ?? []
     };
   }
 
@@ -317,16 +336,29 @@ export class ViewsEnhancedClient extends ClickUpClient {
       op: 'AND',
       fields: filters.map(filter => ({
         field: filter.field,
-        operator: filter.operator,
-        value: filter.value || filter.values
+        op: filter.op,
+        values: filter.values ?? []
       })),
       search: '',
       show_closed: false
     };
   }
 
+  private formatColumns(columns: ViewColumn[]): any {
+    return {
+      fields: columns.map(column => ({
+        field: column.field,
+        ...(column.hidden !== undefined && { hidden: column.hidden }),
+        ...(column.width !== undefined && { width: column.width })
+      }))
+    };
+  }
+
   /**
-   * Get available view fields for a parent
+   * Get accessible Custom Fields for a parent (team, space, folder, or list).
+   * Note: this is ClickUp's Get Accessible Custom Fields endpoint — it
+   * returns Custom Fields only, not built-in view fields such as status,
+   * assignee, dueDate, or priority.
    */
   async getViewFields(
     parentType: string,

@@ -20,6 +20,10 @@ export function setupTaskTools(server: McpServer): void {
       list_id: z.string().describe('The ID of the list to get tasks from'),
       include_closed: z.boolean().optional().describe('Whether to include closed tasks'),
       subtasks: z.boolean().optional().describe('Whether to include subtasks in the results'),
+      include_markdown_description: z
+        .boolean()
+        .optional()
+        .describe('Whether to return task descriptions in Markdown format'),
       page: z.number().optional().describe('The page number to get'),
       order_by: z.string().optional().describe('The field to order by'),
       reverse: z.boolean().optional().describe('Whether to reverse the order')
@@ -44,11 +48,28 @@ export function setupTaskTools(server: McpServer): void {
       include_subtasks: z
         .boolean()
         .optional()
-        .describe('Whether to include subtasks in the task details')
+        .describe('Whether to include subtasks in the task details'),
+      include_markdown_description: z
+        .boolean()
+        .optional()
+        .describe('Whether to return the task description in Markdown format'),
+      custom_task_ids: z
+        .boolean()
+        .optional()
+        .describe('Set true when task_id is a custom task ID (also requires team_id)'),
+      team_id: z
+        .string()
+        .optional()
+        .describe('Workspace (team) ID — required when custom_task_ids is true')
     },
-    async ({ task_id, include_subtasks }) => {
+    async ({ task_id, include_subtasks, include_markdown_description, custom_task_ids, team_id }) => {
       try {
-        const task = await tasksClient.getTask(task_id, { include_subtasks });
+        const task = await tasksClient.getTask(task_id, {
+          include_subtasks,
+          include_markdown_description,
+          custom_task_ids,
+          team_id
+        });
         return {
           content: [{ type: 'text', text: JSON.stringify(task, null, 2) }]
         };
@@ -92,9 +113,17 @@ export function setupTaskTools(server: McpServer): void {
       start_date: z.number().optional().describe('The start date of the task (Unix timestamp)'),
       start_date_time: z.boolean().optional().describe('Whether the start date includes a time'),
       notify_all: z.boolean().optional().describe('Whether to notify all assignees'),
-      parent: z.string().optional().describe('The ID of the parent task')
+      parent: z.string().optional().describe('The ID of the parent task'),
+      custom_task_ids: z
+        .boolean()
+        .optional()
+        .describe('Set true when parent/links_to reference custom task IDs (also requires team_id)'),
+      team_id: z
+        .string()
+        .optional()
+        .describe('Workspace (team) ID — required when custom_task_ids is true')
     },
-    async ({ list_id, ...taskParams }) => {
+    async ({ list_id, custom_task_ids, team_id, ...taskParams }) => {
       try {
         // If both description and markdown_content are provided, prefer markdown_content
         if (taskParams.markdown_content && taskParams.description) {
@@ -102,7 +131,10 @@ export function setupTaskTools(server: McpServer): void {
           delete taskParams.description;
         }
 
-        const result = await tasksClient.createTask(list_id, taskParams as CreateTaskParams);
+        const result = await tasksClient.createTask(list_id, taskParams as CreateTaskParams, {
+          custom_task_ids,
+          team_id
+        });
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
         };
@@ -144,9 +176,16 @@ export function setupTaskTools(server: McpServer): void {
         .describe('The new time estimate for the task (in milliseconds)'),
       start_date: z.number().optional().describe('The new start date of the task (Unix timestamp)'),
       start_date_time: z.boolean().optional().describe('Whether the start date includes a time'),
-      notify_all: z.boolean().optional().describe('Whether to notify all assignees')
+      custom_task_ids: z
+        .boolean()
+        .optional()
+        .describe('Set true when task_id is a custom task ID (also requires team_id)'),
+      team_id: z
+        .string()
+        .optional()
+        .describe('Workspace (team) ID — required when custom_task_ids is true')
     },
-    async ({ task_id, ...taskParams }) => {
+    async ({ task_id, custom_task_ids, team_id, ...taskParams }) => {
       try {
         // If both description and markdown_content are provided, prefer markdown_content
         if (taskParams.markdown_content && taskParams.description) {
@@ -154,7 +193,10 @@ export function setupTaskTools(server: McpServer): void {
           delete taskParams.description;
         }
 
-        const result = await tasksClient.updateTask(task_id, taskParams as UpdateTaskParams);
+        const result = await tasksClient.updateTask(task_id, taskParams as UpdateTaskParams, {
+          custom_task_ids,
+          team_id
+        });
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
         };
@@ -171,9 +213,17 @@ export function setupTaskTools(server: McpServer): void {
       task_id: z.string().min(1).describe('The ID of the task to delete'),
       confirm_deletion: z
         .boolean()
-        .describe('Confirmation that you want to permanently delete this task (must be true)')
+        .describe('Confirmation that you want to permanently delete this task (must be true)'),
+      custom_task_ids: z
+        .boolean()
+        .optional()
+        .describe('Set true when task_id is a custom task ID (also requires team_id)'),
+      team_id: z
+        .string()
+        .optional()
+        .describe('Workspace (team) ID — required when custom_task_ids is true')
     },
-    async ({ task_id, confirm_deletion }) => {
+    async ({ task_id, confirm_deletion, custom_task_ids, team_id }) => {
       try {
         if (!confirm_deletion) {
           return {
@@ -188,8 +238,8 @@ export function setupTaskTools(server: McpServer): void {
         }
 
         // Get task details first for confirmation message
-        const taskDetails = await tasksClient.getTask(task_id);
-        await tasksClient.deleteTask(task_id);
+        const taskDetails = await tasksClient.getTask(task_id, { custom_task_ids, team_id });
+        await tasksClient.deleteTask(task_id, { custom_task_ids, team_id });
 
         return {
           content: [
@@ -303,6 +353,124 @@ export function setupTaskTools(server: McpServer): void {
         };
       } catch (error: unknown) {
         return mcpError('getting bulk tasks time in status', error);
+      }
+    }
+  );
+
+  server.tool(
+    'clickup_get_filtered_team_tasks',
+    'Search tasks across an entire ClickUp workspace (team) with filters for statuses, assignees, tags, lists, spaces, and date ranges. Results are paginated (100 tasks per page).',
+    {
+      team_id: z.string().describe('The ID of the workspace (team) to search'),
+      page: z.number().optional().describe('The page number to get (starts at 0)'),
+      order_by: z.string().optional().describe('The field to order by (id, created, updated, due_date)'),
+      reverse: z.boolean().optional().describe('Whether to reverse the order'),
+      subtasks: z.boolean().optional().describe('Whether to include subtasks in the results'),
+      space_ids: z.array(z.string()).optional().describe('Filter by space IDs'),
+      project_ids: z.array(z.string()).optional().describe('Filter by folder (project) IDs'),
+      list_ids: z.array(z.string()).optional().describe('Filter by list IDs'),
+      statuses: z.array(z.string()).optional().describe('Filter by status names'),
+      include_closed: z.boolean().optional().describe('Whether to include closed tasks'),
+      include_markdown_description: z
+        .boolean()
+        .optional()
+        .describe('Whether to return task descriptions in Markdown format'),
+      assignees: z.array(z.string()).optional().describe('Filter by assignee user IDs'),
+      tags: z.array(z.string()).optional().describe('Filter by tag names'),
+      due_date_gt: z.number().optional().describe('Filter by due date greater than (Unix timestamp in ms)'),
+      due_date_lt: z.number().optional().describe('Filter by due date less than (Unix timestamp in ms)'),
+      date_created_gt: z.number().optional().describe('Filter by created date greater than (Unix timestamp in ms)'),
+      date_created_lt: z.number().optional().describe('Filter by created date less than (Unix timestamp in ms)'),
+      date_updated_gt: z.number().optional().describe('Filter by updated date greater than (Unix timestamp in ms)'),
+      date_updated_lt: z.number().optional().describe('Filter by updated date less than (Unix timestamp in ms)'),
+      parent: z.string().optional().describe('Filter by parent task ID')
+    },
+    async ({ team_id, ...params }) => {
+      try {
+        const result = await tasksClient.getFilteredTeamTasks(team_id, params);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+        };
+      } catch (error: unknown) {
+        return mcpError('getting filtered team tasks', error);
+      }
+    }
+  );
+
+  server.tool(
+    'clickup_add_tag_to_task',
+    'Add a tag to an existing ClickUp task. The tag must already exist in the space.',
+    {
+      task_id: z.string().describe('The ID of the task to tag'),
+      tag_name: z.string().describe('The name of the tag to add'),
+      custom_task_ids: z
+        .boolean()
+        .optional()
+        .describe('Set true when task_id is a custom task ID (also requires team_id)'),
+      team_id: z
+        .string()
+        .optional()
+        .describe('Workspace (team) ID — required when custom_task_ids is true')
+    },
+    async ({ task_id, tag_name, custom_task_ids, team_id }) => {
+      try {
+        await tasksClient.addTagToTask(task_id, tag_name, { custom_task_ids, team_id });
+        return {
+          content: [
+            { type: 'text', text: `✅ Tag "${tag_name}" added to task ${task_id}.` }
+          ]
+        };
+      } catch (error: unknown) {
+        return mcpError('adding tag to task', error);
+      }
+    }
+  );
+
+  server.tool(
+    'clickup_remove_tag_from_task',
+    'Remove a tag from a ClickUp task without deleting the tag itself.',
+    {
+      task_id: z.string().describe('The ID of the task to remove the tag from'),
+      tag_name: z.string().describe('The name of the tag to remove'),
+      custom_task_ids: z
+        .boolean()
+        .optional()
+        .describe('Set true when task_id is a custom task ID (also requires team_id)'),
+      team_id: z
+        .string()
+        .optional()
+        .describe('Workspace (team) ID — required when custom_task_ids is true')
+    },
+    async ({ task_id, tag_name, custom_task_ids, team_id }) => {
+      try {
+        await tasksClient.removeTagFromTask(task_id, tag_name, { custom_task_ids, team_id });
+        return {
+          content: [
+            { type: 'text', text: `✅ Tag "${tag_name}" removed from task ${task_id}.` }
+          ]
+        };
+      } catch (error: unknown) {
+        return mcpError('removing tag from task', error);
+      }
+    }
+  );
+
+  server.tool(
+    'clickup_create_task_from_template',
+    'Create a new task in a ClickUp list from a saved task template. Template contents such as checklists and subtasks are included.',
+    {
+      list_id: z.string().describe('The ID of the list to create the task in'),
+      template_id: z.string().describe('The ID of the task template to instantiate'),
+      name: z.string().describe('The name of the new task')
+    },
+    async ({ list_id, template_id, name }) => {
+      try {
+        const result = await tasksClient.createTaskFromTemplate(list_id, template_id, { name });
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+        };
+      } catch (error: unknown) {
+        return mcpError('creating task from template', error);
       }
     }
   );

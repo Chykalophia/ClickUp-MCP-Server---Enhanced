@@ -8,17 +8,34 @@ export interface List {
 }
 
 export interface GetListsParams {
-  // ...parameters for getting lists...
+  archived?: boolean;
 }
 
 export interface CreateListParams {
   name: string;
-  // ...other parameters for creating a list...
+  content?: string;
+  due_date?: number;
+  due_date_time?: boolean;
+  priority?: number;
+  assignee?: number;
+  status?: string;
 }
 
 export interface UpdateListParams {
   name?: string;
-  // ...other parameters for updating a list...
+  content?: string;
+  due_date?: number;
+  due_date_time?: boolean;
+  priority?: number;
+  assignee?: number | null;
+  unset_status?: boolean;
+}
+
+export interface ListMember {
+  id: number;
+  username?: string;
+  email?: string;
+  // ...other member properties...
 }
 
 export class ListsClient {
@@ -92,9 +109,9 @@ export class ListsClient {
   /**
    * Delete a list
    * @param listId The ID of the list to delete
-   * @returns Success message
+   * @returns An empty object on success (ClickUp returns {})
    */
-  async deleteList(listId: string): Promise<{ success: boolean }> {
+  async deleteList(listId: string): Promise<Record<string, never>> {
     return this.client.delete(`/list/${listId}`);
   }
 
@@ -102,9 +119,9 @@ export class ListsClient {
    * Add a task to a list
    * @param listId The ID of the list to add the task to
    * @param taskId The ID of the task to add
-   * @returns Success message
+   * @returns An empty object on success (ClickUp returns {})
    */
-  async addTaskToList(listId: string, taskId: string): Promise<{ success: boolean }> {
+  async addTaskToList(listId: string, taskId: string): Promise<Record<string, never>> {
     return this.client.post(`/list/${listId}/task/${taskId}`);
   }
 
@@ -112,10 +129,19 @@ export class ListsClient {
    * Remove a task from a list
    * @param listId The ID of the list to remove the task from
    * @param taskId The ID of the task to remove
-   * @returns Success message
+   * @returns An empty object on success (ClickUp returns {})
    */
-  async removeTaskFromList(listId: string, taskId: string): Promise<{ success: boolean }> {
+  async removeTaskFromList(listId: string, taskId: string): Promise<Record<string, never>> {
     return this.client.delete(`/list/${listId}/task/${taskId}`);
+  }
+
+  /**
+   * Get the members with access to a specific list
+   * @param listId The ID of the list to get members from
+   * @returns The list members
+   */
+  async getListMembers(listId: string): Promise<{ members: ListMember[] }> {
+    return this.client.get(`/list/${listId}/member`);
   }
 
   /**
@@ -130,7 +156,7 @@ export class ListsClient {
     templateId: string,
     params: CreateListParams
   ): Promise<List> {
-    return this.client.post(`/folder/${folderId}/list/template/${templateId}`, params);
+    return this.client.post(`/folder/${folderId}/list_template/${templateId}`, params);
   }
 
   /**
@@ -145,7 +171,7 @@ export class ListsClient {
     templateId: string,
     params: CreateListParams
   ): Promise<List> {
-    return this.client.post(`/space/${spaceId}/list/template/${templateId}`, params);
+    return this.client.post(`/space/${spaceId}/list_template/${templateId}`, params);
   }
 }
 

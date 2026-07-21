@@ -279,7 +279,7 @@ export function setupBulkTaskTools(server: McpServer): void {
 
   server.tool(
     'clickup_merge_tasks',
-    'Merge multiple tasks into a single task. The primary task will retain all data, and secondary tasks will be deleted after merging their content.',
+    "Merge multiple tasks into a single task using ClickUp's native merge. Content from the secondary tasks (comments, attachments, and other data) is migrated into the primary task server-side. Custom Task IDs are not supported.",
     {
       primary_task_id: z
         .string()
@@ -292,101 +292,35 @@ export function setupBulkTaskTools(server: McpServer): void {
         .min(1)
         .max(10)
         .describe(
-          'Array of task IDs to merge into the primary task (maximum 10 tasks, will be deleted after merge)'
+          'Array of task IDs to merge into the primary task (maximum 10 tasks)'
         ),
-      merge_descriptions: z
-        .boolean()
-        .default(true)
-        .describe('Whether to merge task descriptions into the primary task'),
-      merge_comments: z
-        .boolean()
-        .default(true)
-        .describe('Whether to merge comments from secondary tasks'),
-      merge_attachments: z
-        .boolean()
-        .default(true)
-        .describe('Whether to merge attachments from secondary tasks'),
-      merge_time_tracking: z
-        .boolean()
-        .default(true)
-        .describe('Whether to merge time tracking data'),
       confirm_merge: z
         .boolean()
         .describe(
-          'Confirmation that you want to merge these tasks (secondary tasks will be deleted)'
+          'Confirmation that you want to merge these tasks (secondary tasks are absorbed into the primary task)'
         )
     },
-    async ({
-      primary_task_id,
-      secondary_task_ids,
-      merge_descriptions,
-      merge_comments: _merge_comments,
-      merge_attachments: _merge_attachments,
-      merge_time_tracking: _merge_time_tracking,
-      confirm_merge
-    }) => {
+    async ({ primary_task_id, secondary_task_ids, confirm_merge }) => {
       try {
         if (!confirm_merge) {
           return {
             content: [
               {
                 type: 'text',
-                text: '❌ Task merge cancelled. You must set confirm_merge to true to proceed. Secondary tasks will be deleted after merging.'
+                text: '❌ Task merge cancelled. You must set confirm_merge to true to proceed. Secondary tasks will be merged into the primary task.'
               }
             ],
             isError: true
           };
         }
 
-        // Get all task details first
+        // Get task details first for the confirmation message
         const primaryTask = await tasksClient.getTask(primary_task_id);
         const secondaryTasks = await Promise.all(
           secondary_task_ids.map(id => tasksClient.getTask(id))
         );
 
-        let mergedDescription = primaryTask.description || '';
-        const mergeResults = {
-          primary_task: primaryTask.name,
-          merged_tasks: [] as string[],
-          merged_content: {
-            descriptions: 0,
-            comments: 0,
-            attachments: 0,
-            time_entries: 0
-          }
-        };
-
-        // Merge descriptions
-        if (merge_descriptions) {
-          for (const task of secondaryTasks) {
-            if (task.description) {
-              mergedDescription += `\n\n---\n**Merged from "${task.name}":**\n${task.description}`;
-              mergeResults.merged_content.descriptions++;
-            }
-            mergeResults.merged_tasks.push(task.name);
-          }
-        }
-
-        // Update primary task with merged description
-        if (merge_descriptions && mergedDescription !== primaryTask.description) {
-          await tasksClient.updateTask(primary_task_id, {
-            description: mergedDescription
-          });
-        }
-
-        // TODO: Implement comment, attachment, and time tracking merging
-        // This would require additional API calls to get and move these items
-
-        // Delete secondary tasks
-        const deletionResults = [];
-        for (const taskId of secondary_task_ids) {
-          try {
-            await tasksClient.deleteTask(taskId);
-            deletionResults.push({ task_id: taskId, deleted: true });
-          } catch (error: any) {
-            deletionResults.push({ task_id: taskId, deleted: false, error: error.message });
-          }
-        }
+        const mergedTask = await tasksClient.mergeTasks(primary_task_id, secondary_task_ids);
 
         return {
           content: [
@@ -395,14 +329,9 @@ export function setupBulkTaskTools(server: McpServer): void {
               text:
                 '✅ Task merge completed!\n\n' +
                 `Primary Task: "${primaryTask.name}" (${primary_task_id})\n` +
-                `Merged Tasks: ${mergeResults.merged_tasks.join(', ')}\n\n` +
-                'Merged Content:\n' +
-                `- Descriptions: ${mergeResults.merged_content.descriptions}\n` +
-                `- Comments: ${mergeResults.merged_content.comments} (not yet implemented)\n` +
-                `- Attachments: ${mergeResults.merged_content.attachments} (not yet implemented)\n` +
-                `- Time Entries: ${mergeResults.merged_content.time_entries} (not yet implemented)\n\n` +
-                `Deletion Results:\n${JSON.stringify(deletionResults, null, 2)}\n\n` +
-                '⚠️ Secondary tasks have been permanently deleted and cannot be recovered.'
+                `Merged Tasks: ${secondaryTasks.map(task => task.name).join(', ')}\n\n` +
+                'Comments, attachments, and other content were migrated into the primary task by ClickUp.\n\n' +
+                `Merged Task:\n${JSON.stringify(mergedTask, null, 2)}`
             }
           ]
         };

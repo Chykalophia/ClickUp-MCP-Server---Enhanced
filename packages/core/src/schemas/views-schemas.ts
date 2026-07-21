@@ -1,59 +1,67 @@
 import { z } from 'zod';
 
-// Base view types
+// Base view types that can be created via the public API.
+// Note: the API token for Chat views is 'conversation'; 'chat' is accepted
+// as an input alias and normalized before sending. Form and Embed views
+// cannot be created via the public API.
 export const ViewTypeSchema = z.enum([
   'list',
   'board',
   'calendar',
-  'gantt',
-  'timeline',
   'table',
-  'form',
-  'chat',
+  'timeline',
   'workload',
   'activity',
   'map',
-  'embed',
+  'conversation',
+  'gantt',
+  'chat', // alias for 'conversation'
 ]);
 
-// View access levels
-export const ViewAccessSchema = z.enum(['private', 'shared', 'public']);
+// Normalize input aliases to the API's actual view type tokens
+export const normalizeViewType = (type: ViewType): string =>
+  type === 'chat' ? 'conversation' : type;
 
-// Filter operators
+// Parent containers that support views (team = Workspace / 'Everything' level)
+export const ViewParentTypeSchema = z.enum(['team', 'space', 'folder', 'list']);
+
+// Filter operators (ClickUp API operator tokens)
 export const FilterOperatorSchema = z.enum([
-  'equals',
-  'not_equals',
-  'contains',
-  'not_contains',
-  'starts_with',
-  'ends_with',
-  'is_empty',
-  'is_not_empty',
-  'greater_than',
-  'less_than',
-  'greater_than_or_equal',
-  'less_than_or_equal',
-  'between',
-  'not_between',
-  'in',
-  'not_in',
-  'is_set',
-  'is_not_set',
+  'EQ',
+  'NOT',
+  'ANY',
+  'NOT ANY',
+  'ALL',
+  'NOT ALL',
+  'GT',
+  'GTE',
+  'LT',
+  'LTE',
+  'IS NULL',
+  'IS NOT NULL',
+  'RANGE',
 ]);
 
-// View filter schema
+// View filter condition schema: {field, op, values}
 export const ViewFilterSchema = z.object({
   field: z.string(),
-  operator: FilterOperatorSchema,
-  value: z.union([z.string(), z.number(), z.array(z.string()), z.array(z.number())]).optional(),
-  values: z.array(z.union([z.string(), z.number()])).optional(),
+  op: FilterOperatorSchema,
+  values: z.array(z.union([z.string(), z.number()])).default([]),
 });
 
-// View grouping schema
+// View grouping schema (a view has a single grouping configuration)
 export const ViewGroupingSchema = z.object({
   field: z.string(),
-  collapsed: z.boolean().default(false),
   order: z.enum(['asc', 'desc']).default('asc'),
+  collapsed: z.array(z.string()).optional(), // IDs of collapsed groups
+  ignore: z.boolean().optional(),
+});
+
+// View divide (board swimlane) schema
+export const ViewDivideSchema = z.object({
+  field: z.string(),
+  order: z.enum(['asc', 'desc']).default('asc'),
+  collapsed: z.array(z.string()).optional(), // IDs of collapsed divisions
 });
 
 // View sorting schema
@@ -62,98 +70,68 @@ export const ViewSortingSchema = z.object({
   order: z.enum(['asc', 'desc']).default('asc'),
 });
 
-// Board view specific settings
-export const BoardViewSettingsSchema = z.object({
-  columns: z
-    .array(
-      z.object({
-        id: z.string(),
-        name: z.string(),
-        color: z.string().optional(),
-        orderindex: z.number().optional(),
-      })
-    )
-    .optional(),
-  swimlanes: z
-    .object({
-      field: z.string(),
-      collapsed: z.boolean().default(false),
-    })
-    .optional(),
-  card_size: z.enum(['small', 'medium', 'large']).default('medium'),
+// View column schema (table/list views)
+export const ViewColumnSchema = z.object({
+  field: z.string(),
+  hidden: z.boolean().optional(),
+  width: z.number().int().optional(),
 });
 
-// Calendar view specific settings
-export const CalendarViewSettingsSchema = z.object({
-  date_field: z.string(),
-  view_mode: z.enum(['month', 'week', 'day']).default('month'),
-  show_weekends: z.boolean().default(true),
-  start_day: z.enum(['sunday', 'monday']).default('sunday'),
+// Team sidebar schema
+export const TeamSidebarSchema = z.object({
+  assignees: z.array(z.union([z.string(), z.number()])).optional(),
+  assigned_comments: z.boolean().optional(),
+  unassigned_tasks: z.boolean().optional(),
 });
 
-// Gantt view specific settings
-export const GanttViewSettingsSchema = z.object({
-  start_date_field: z.string(),
-  due_date_field: z.string(),
-  show_dependencies: z.boolean().default(true),
-  show_critical_path: z.boolean().default(false),
-  zoom_level: z.enum(['hours', 'days', 'weeks', 'months']).default('days'),
+// View display settings (the documented API 'settings' object)
+export const ViewSettingsSchema = z.object({
+  show_task_locations: z.boolean().optional(),
+  show_subtasks: z.number().int().optional(), // subtask display mode
+  show_subtask_parent_names: z.boolean().optional(),
+  show_closed_subtasks: z.boolean().optional(),
+  show_assignees: z.boolean().optional(),
+  show_images: z.boolean().optional(),
+  collapse_empty_columns: z.union([z.boolean(), z.string()]).nullable().optional(),
+  me_comments: z.boolean().optional(),
+  me_subtasks: z.boolean().optional(),
+  me_checklists: z.boolean().optional(),
 });
-
-// Table view specific settings
-export const TableViewSettingsSchema = z.object({
-  columns: z.array(
-    z.object({
-      field: z.string(),
-      width: z.number().optional(),
-      visible: z.boolean().default(true),
-      orderindex: z.number().optional(),
-    })
-  ),
-  row_height: z.enum(['compact', 'comfortable', 'spacious']).default('comfortable'),
-});
-
-// View settings union
-export const ViewSettingsSchema = z.union([
-  BoardViewSettingsSchema,
-  CalendarViewSettingsSchema,
-  GanttViewSettingsSchema,
-  TableViewSettingsSchema,
-  z.object({}), // For other view types without specific settings
-]);
 
 // Create view schema
 export const CreateViewSchema = z.object({
   parent_id: z.string(),
-  parent_type: z.enum(['space', 'folder', 'list']),
+  parent_type: ViewParentTypeSchema,
   name: z.string().min(1),
   type: ViewTypeSchema,
-  access: ViewAccessSchema.default('private'),
   filters: z.array(ViewFilterSchema).optional(),
-  grouping: z.array(ViewGroupingSchema).optional(),
+  grouping: ViewGroupingSchema.optional(),
+  divide: ViewDivideSchema.optional(),
   sorting: z.array(ViewSortingSchema).optional(),
+  columns: z.array(ViewColumnSchema).optional(),
+  team_sidebar: TeamSidebarSchema.optional(),
   settings: ViewSettingsSchema.optional(),
-  description: z.string().optional(),
 });
 
 // Update view schema
 export const UpdateViewSchema = z.object({
   view_id: z.string(),
   name: z.string().optional(),
-  access: ViewAccessSchema.optional(),
+  type: ViewTypeSchema.optional(),
   filters: z.array(ViewFilterSchema).optional(),
-  grouping: z.array(ViewGroupingSchema).optional(),
+  grouping: ViewGroupingSchema.optional(),
+  divide: ViewDivideSchema.optional(),
   sorting: z.array(ViewSortingSchema).optional(),
+  columns: z.array(ViewColumnSchema).optional(),
+  team_sidebar: TeamSidebarSchema.optional(),
   settings: ViewSettingsSchema.optional(),
-  description: z.string().optional(),
 });
 
-// Get views filter schema
+// Get views filter schema (the API has no query params; type is filtered client-side)
 export const GetViewsFilterSchema = z.object({
   parent_id: z.string(),
-  parent_type: z.enum(['space', 'folder', 'list']),
+  parent_type: ViewParentTypeSchema,
   type: ViewTypeSchema.optional(),
-  access: ViewAccessSchema.optional(),
 });
 
 // Set view filters schema
@@ -165,7 +143,7 @@ export const SetViewFiltersSchema = z.object({
 // Set view grouping schema
 export const SetViewGroupingSchema = z.object({
   view_id: z.string(),
-  grouping: z.array(ViewGroupingSchema),
+  grouping: ViewGroupingSchema,
 });
 
 // Set view sorting schema
@@ -180,25 +158,24 @@ export const UpdateViewSettingsSchema = z.object({
   settings: ViewSettingsSchema,
 });
 
-// View sharing schema
-export const ViewSharingSchema = z.object({
+// Duplicate view schema (client-side duplication: GET view + POST to parent)
+export const DuplicateViewSchema = z.object({
   view_id: z.string(),
-  access: ViewAccessSchema,
-  password: z.string().optional(),
-  expires_at: z.number().optional(), // Unix timestamp
+  name: z.string().min(1),
+  parent_id: z.string(),
+  parent_type: ViewParentTypeSchema,
 });
 
 // Type exports
 export type ViewType = z.infer<typeof ViewTypeSchema>;
-export type ViewAccess = z.infer<typeof ViewAccessSchema>;
+export type ViewParentType = z.infer<typeof ViewParentTypeSchema>;
 export type FilterOperator = z.infer<typeof FilterOperatorSchema>;
 export type ViewFilter = z.infer<typeof ViewFilterSchema>;
 export type ViewGrouping = z.infer<typeof ViewGroupingSchema>;
+export type ViewDivide = z.infer<typeof ViewDivideSchema>;
 export type ViewSorting = z.infer<typeof ViewSortingSchema>;
-export type BoardViewSettings = z.infer<typeof BoardViewSettingsSchema>;
-export type CalendarViewSettings = z.infer<typeof CalendarViewSettingsSchema>;
-export type GanttViewSettings = z.infer<typeof GanttViewSettingsSchema>;
-export type TableViewSettings = z.infer<typeof TableViewSettingsSchema>;
+export type ViewColumn = z.infer<typeof ViewColumnSchema>;
+export type TeamSidebar = z.infer<typeof TeamSidebarSchema>;
 export type ViewSettings = z.infer<typeof ViewSettingsSchema>;
 export type CreateViewRequest = z.infer<typeof CreateViewSchema>;
 export type UpdateViewRequest = z.infer<typeof UpdateViewSchema>;
@@ -207,67 +184,4 @@ export type SetViewFiltersRequest = z.infer<typeof SetViewFiltersSchema>;
 export type SetViewGroupingRequest = z.infer<typeof SetViewGroupingSchema>;
 export type SetViewSortingRequest = z.infer<typeof SetViewSortingSchema>;
 export type UpdateViewSettingsRequest = z.infer<typeof UpdateViewSettingsSchema>;
-export type ViewSharingRequest = z.infer<typeof ViewSharingSchema>;
-
-// Utility functions
-export const createDefaultBoardSettings = (): BoardViewSettings => ({
-  card_size: 'medium',
-});
-
-export const createDefaultCalendarSettings = (dateField: string): CalendarViewSettings => ({
-  date_field: dateField,
-  view_mode: 'month',
-  show_weekends: true,
-  start_day: 'sunday',
-});
-
-export const createDefaultGanttSettings = (
-  startField: string,
-  dueField: string
-): GanttViewSettings => ({
-  start_date_field: startField,
-  due_date_field: dueField,
-  show_dependencies: true,
-  show_critical_path: false,
-  zoom_level: 'days',
-});
-
-export const createDefaultTableSettings = (fields: string[]): TableViewSettings => ({
-  columns: fields.map((field, index) => ({
-    field,
-    visible: true,
-    orderindex: index,
-  })),
-  row_height: 'comfortable',
-});
-
-// Filter validation helpers
-export const validateFilterValue = (operator: FilterOperator, value: any): boolean => {
-  switch (operator) {
-    case 'between':
-    case 'not_between':
-      return Array.isArray(value) && value.length === 2;
-    case 'in':
-    case 'not_in':
-      return Array.isArray(value);
-    case 'is_empty':
-    case 'is_not_empty':
-    case 'is_set':
-    case 'is_not_set':
-      return value === undefined;
-    default:
-      return value !== undefined;
-  }
-};
-
-export const getRequiredFilterFields = (viewType: ViewType): string[] => {
-  switch (viewType) {
-    case 'calendar':
-      return ['date_field'];
-    case 'gantt':
-    case 'timeline':
-      return ['start_date_field', 'due_date_field'];
-    default:
-      return [];
-  }
-};
+export type DuplicateViewRequest = z.infer<typeof DuplicateViewSchema>;

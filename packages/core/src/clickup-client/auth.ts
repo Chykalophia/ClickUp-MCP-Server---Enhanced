@@ -40,7 +40,9 @@ export class AuthClient {
    */
   async getAuthorizedUser(): Promise<AuthorizedUser> {
     try {
-      return await this.client.get('/user');
+      // The API wraps the payload in a { user: {...} } envelope
+      const response = await this.client.get<{ user: AuthorizedUser }>('/user');
+      return response.user;
     } catch (error) {
       console.error('Error getting authorized user:', error instanceof Error ? error.message : error);
       throw error;
@@ -295,19 +297,109 @@ export class AuthClient {
    * @returns Seats information including used, total, and available seats
    */
   async getWorkspaceSeats(workspaceId: string): Promise<{
-    members: object;
-    filled_members_seats: number;
-    total_member_seats: number;
-    empty_member_seats: number;
-    guests: object;
-    filled_guest_seats: number;
-    total_guest_seats: number;
-    empty_guest_seats: number;
+    members: {
+      filled_member_seats: number;
+      total_member_seats: number;
+      empty_member_seats: number;
+    };
+    guests: {
+      filled_guest_seats: number;
+      total_guest_seats: number;
+      empty_guest_seats: number;
+    };
   }> {
     try {
       return await this.client.get(`/team/${workspaceId}/seats`);
     } catch (error) {
       console.error('Error getting workspace seats:', error instanceof Error ? error.message : error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get the User Groups (ClickUp "Teams" feature) in a workspace
+   * @param workspaceId The ID of the workspace to get user groups for
+   * @param groupIds Optional comma-separated group IDs to filter by
+   * @returns A list of user groups
+   */
+  async getUserGroups(workspaceId: string, groupIds?: string): Promise<{
+    groups: Array<{
+      id: string;
+      team_id: string;
+      userid: number;
+      name: string;
+      handle: string;
+      date_created: string;
+      initials: string;
+      members: Array<{
+        id: number;
+        username: string;
+        email: string;
+        color: string;
+        initials: string;
+        profilePicture: string | null;
+      }>;
+      avatar: {
+        attachment_id: string | null;
+        color: string | null;
+        source: string | null;
+        icon: string | null;
+      };
+    }>;
+  }> {
+    try {
+      const params: Record<string, string> = { team_id: workspaceId };
+      if (groupIds) {
+        params.group_ids = groupIds;
+      }
+      return await this.client.get('/group', params);
+    } catch (error) {
+      console.error('Error getting user groups:', error instanceof Error ? error.message : error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get the pricing plan of a workspace
+   * @param workspaceId The ID of the workspace to get the plan for
+   * @returns The workspace's current pricing plan id and name
+   */
+  async getWorkspacePlan(workspaceId: string): Promise<{
+    plan_id: number;
+    plan_name: string;
+  }> {
+    try {
+      return await this.client.get(`/team/${workspaceId}/plan`);
+    } catch (error) {
+      console.error('Error getting workspace plan:', error instanceof Error ? error.message : error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get the Custom Roles defined in a workspace
+   * @param workspaceId The ID of the workspace to get custom roles for
+   * @param includeMembers Whether to include the members assigned to each role
+   * @returns A list of custom roles
+   */
+  async getCustomRoles(workspaceId: string, includeMembers?: boolean): Promise<{
+    custom_roles: Array<{
+      id: number;
+      team_id: string;
+      name: string;
+      inherited_role: number;
+      date_created: string;
+      members?: number[];
+    }>;
+  }> {
+    try {
+      const params: Record<string, boolean> = {};
+      if (includeMembers !== undefined) {
+        params.include_members = includeMembers;
+      }
+      return await this.client.get(`/team/${workspaceId}/customroles`, params);
+    } catch (error) {
+      console.error('Error getting custom roles:', error instanceof Error ? error.message : error);
       throw error;
     }
   }

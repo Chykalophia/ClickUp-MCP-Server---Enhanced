@@ -29,32 +29,57 @@ export const TimeEntryTagSchema = z.object({
   creator: z.number().optional(),
 });
 
-// Create time entry schema
-export const CreateTimeEntrySchema = z.object({
-  team_id: TeamIdSchema,
-  description: z.string().min(1, 'Description is required'),
-  start: z.number().positive('Start time must be a positive Unix timestamp'),
-  billable: z.boolean().default(false),
-  end: z.number().positive().optional(),
-  task_id: z.string().optional(),
-  assignee: UserIdSchema.optional(),
-  tags: z.array(TimeEntryTagSchema).optional(),
-});
+// Create time entry schema.
+// The API requires 'start' plus a length: either 'duration' (milliseconds) or
+// 'stop' (end timestamp, from which duration is derived) — exactly one of them.
+export const CreateTimeEntrySchema = z
+  .object({
+    team_id: TeamIdSchema,
+    description: z.string().min(1, 'Description is required'),
+    start: z.number().positive('Start time must be a positive Unix timestamp in milliseconds'),
+    billable: z.boolean().default(false),
+    duration: z.number().positive().optional(),
+    stop: z.number().positive().optional(),
+    task_id: z.string().optional(),
+    custom_task_ids: z.boolean().optional(),
+    assignee: UserIdSchema.optional(),
+    tags: z.array(TimeEntryTagSchema).optional(),
+  })
+  .refine((data) => (data.duration === undefined) !== (data.stop === undefined), {
+    message: 'Provide either duration or stop, not both',
+  });
 
-// Update time entry schema
+// Update time entry schema.
+// 'stop' is mapped to the API's 'end' body field (the update endpoint has no
+// 'stop' field); 'tag_action' says what to do with the supplied tags.
 export const UpdateTimeEntrySchema = z.object({
   team_id: TeamIdSchema,
   timer_id: TimerIdSchema,
   description: z.string().min(1).optional(),
   start: z.number().positive().optional(),
-  end: z.number().positive().optional(),
+  duration: z.number().positive().optional(),
+  stop: z.number().positive().optional(),
   billable: z.boolean().optional(),
   task_id: z.string().optional(),
+  custom_task_ids: z.boolean().optional(),
   tags: z.array(TimeEntryTagSchema).optional(),
+  tag_action: z.enum(['add', 'remove']).optional(),
 });
 
 // Delete time entry schema
 export const DeleteTimeEntrySchema = z.object({
+  team_id: TeamIdSchema,
+  timer_id: TimerIdSchema,
+});
+
+// Get single time entry schema
+export const GetTimeEntrySchema = z.object({
+  team_id: TeamIdSchema,
+  timer_id: TimerIdSchema,
+});
+
+// Get time entry history schema
+export const GetTimeEntryHistorySchema = z.object({
   team_id: TeamIdSchema,
   timer_id: TimerIdSchema,
 });
@@ -64,31 +89,50 @@ export const GetTimeEntriesSchema = z.object({
   team_id: TeamIdSchema,
   start_date: z.number().positive().optional(),
   end_date: z.number().positive().optional(),
-  assignee: UserIdSchema.optional(),
+  // Single user ID, or a comma-separated list of user IDs (e.g. '1234,9876')
+  assignee: z.union([UserIdSchema, z.string().min(1)]).optional(),
   include_task_tags: z.boolean().optional().default(false),
   include_location_names: z.boolean().optional().default(false),
   space_id: z.string().optional(),
   folder_id: z.string().optional(),
   list_id: z.string().optional(),
   task_id: z.string().optional(),
+  custom_task_ids: z.boolean().optional(),
 });
 
 // ========================================
 // TIMER OPERATION SCHEMAS
 // ========================================
 
-// Start timer schema
+// Start timer schema (POST /team/{team_id}/time_entries/start takes no timer_id)
 export const StartTimerSchema = z.object({
   team_id: TeamIdSchema,
-  timer_id: TimerIdSchema,
-  start: z.number().positive().optional(),
+  task_id: z.string().optional(),
+  custom_task_ids: z.boolean().optional(),
+  description: z.string().optional(),
+  billable: z.boolean().optional(),
+  tags: z.array(TimeEntryTagSchema).optional(),
 });
 
-// Stop timer schema
+// Stop timer schema (stops the authenticated user's running timer; no timer_id)
 export const StopTimerSchema = z.object({
   team_id: TeamIdSchema,
-  timer_id: TimerIdSchema,
-  end: z.number().positive().optional(),
+});
+
+// ========================================
+// TIME ENTRY TAG SCHEMAS
+// ========================================
+
+// Get all time entry tags schema
+export const GetTimeEntryTagsSchema = z.object({
+  team_id: TeamIdSchema,
+});
+
+// Bulk add tags to time entries schema
+export const AddTagsToTimeEntriesSchema = z.object({
+  team_id: TeamIdSchema,
+  time_entry_ids: z.array(z.string().min(1)).min(1),
+  tags: z.array(TimeEntryTagSchema).min(1),
 });
 
 // Get running timers schema
@@ -254,7 +298,13 @@ export const TimeTrackingToolSchemas = {
   createTimeEntry: CreateTimeEntrySchema,
   updateTimeEntry: UpdateTimeEntrySchema,
   deleteTimeEntry: DeleteTimeEntrySchema,
+  getTimeEntry: GetTimeEntrySchema,
+  getTimeEntryHistory: GetTimeEntryHistorySchema,
   getTimeEntries: GetTimeEntriesSchema,
+
+  // Time entry tags
+  getTimeEntryTags: GetTimeEntryTagsSchema,
+  addTagsToTimeEntries: AddTagsToTimeEntriesSchema,
 
   // Timer operations
   startTimer: StartTimerSchema,

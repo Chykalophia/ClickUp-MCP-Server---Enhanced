@@ -11,17 +11,16 @@ import {
   SetViewGroupingSchema,
   SetViewSortingSchema,
   UpdateViewSettingsSchema,
-  ViewSharingSchema,
+  DuplicateViewSchema,
   ViewTypeSchema,
-  ViewAccessSchema,
-  // FilterOperatorSchema,
+  ViewParentTypeSchema,
   ViewFilterSchema,
   ViewGroupingSchema,
+  ViewDivideSchema,
   ViewSortingSchema,
-  BoardViewSettingsSchema,
-  CalendarViewSettingsSchema,
-  GanttViewSettingsSchema,
-  TableViewSettingsSchema,
+  ViewColumnSchema,
+  TeamSidebarSchema,
+  ViewSettingsSchema,
 } from '../schemas/views-schemas.js';
 import { mcpError } from '../utils/error-handling.js';
 
@@ -35,30 +34,19 @@ export function setupViewsTools(server: McpServer): void {
 
   server.tool(
     'clickup_create_view',
-    'Create a new view in a ClickUp space, folder, or list. Supports all view types including list, board, calendar, gantt, and more.',
+    'Create a new view in a ClickUp Workspace (team), space, folder, or list. Supports the API view types: list, board, calendar, table, timeline, workload, activity, map, conversation (chat), and gantt.',
     {
-      parent_id: z.string().min(1).describe('The ID of the parent (space, folder, or list)'),
-      parent_type: z.enum(['space', 'folder', 'list']).describe('The type of parent container'),
+      parent_id: z.string().min(1).describe('The ID of the parent (Workspace/team, space, folder, or list)'),
+      parent_type: ViewParentTypeSchema.describe('The type of parent container (team = Workspace/Everything level)'),
       name: z.string().min(1).describe('The name of the view'),
       type: ViewTypeSchema.describe('The type of view to create'),
-      access: ViewAccessSchema.default('private').describe('Access level for the view'),
-      filters: z.array(ViewFilterSchema).optional().describe('Initial filters for the view'),
-      grouping: z
-        .array(ViewGroupingSchema)
-        .optional()
-        .describe('Grouping configuration for the view'),
+      filters: z.array(ViewFilterSchema).optional().describe('Initial filter conditions ({field, op, values}) for the view'),
+      grouping: ViewGroupingSchema.optional().describe('Grouping configuration for the view'),
+      divide: ViewDivideSchema.optional().describe('Divide (board swimlane) configuration for the view'),
       sorting: z.array(ViewSortingSchema).optional().describe('Sorting configuration for the view'),
-      settings: z
-        .union([
-          BoardViewSettingsSchema,
-          CalendarViewSettingsSchema,
-          GanttViewSettingsSchema,
-          TableViewSettingsSchema,
-          z.object({}),
-        ])
-        .optional()
-        .describe('View-specific settings'),
-      description: z.string().optional().describe('Description of the view'),
+      columns: z.array(ViewColumnSchema).optional().describe('Column configuration for table and list views'),
+      team_sidebar: TeamSidebarSchema.optional().describe('Team sidebar configuration for the view'),
+      settings: ViewSettingsSchema.optional().describe('View display settings (show_task_locations, show_subtasks, show_assignees, etc.)'),
     },
     async args => {
       try {
@@ -81,12 +69,11 @@ export function setupViewsTools(server: McpServer): void {
 
   server.tool(
     'clickup_get_views',
-    'Get all views for a space, folder, or list with optional filtering by type and access level.',
+    'Get all views for a Workspace (team), space, folder, or list. The API returns all views; the optional type filter is applied client-side.',
     {
-      parent_id: z.string().min(1).describe('The ID of the parent (space, folder, or list)'),
-      parent_type: z.enum(['space', 'folder', 'list']).describe('The type of parent container'),
-      type: ViewTypeSchema.optional().describe('Filter views by type'),
-      access: ViewAccessSchema.optional().describe('Filter views by access level'),
+      parent_id: z.string().min(1).describe('The ID of the parent (Workspace/team, space, folder, or list)'),
+      parent_type: ViewParentTypeSchema.describe('The type of parent container (team = Workspace/Everything level)'),
+      type: ViewTypeSchema.optional().describe('Filter views by type (applied client-side)'),
     },
     async args => {
       try {
@@ -133,25 +120,18 @@ export function setupViewsTools(server: McpServer): void {
 
   server.tool(
     'clickup_update_view',
-    "Update an existing view's properties including name, access, filters, grouping, sorting, and settings.",
+    "Update an existing view's properties including name, type, filters, grouping, divide, sorting, columns, team sidebar, and settings. The current view is fetched and merged with your changes because the API requires the full view object.",
     {
       view_id: z.string().min(1).describe('The ID of the view to update'),
       name: z.string().optional().describe('New name for the view'),
-      access: ViewAccessSchema.optional().describe('New access level for the view'),
-      filters: z.array(ViewFilterSchema).optional().describe('New filters for the view'),
-      grouping: z.array(ViewGroupingSchema).optional().describe('New grouping configuration'),
+      type: ViewTypeSchema.optional().describe('New type for the view'),
+      filters: z.array(ViewFilterSchema).optional().describe('New filter conditions ({field, op, values}) for the view'),
+      grouping: ViewGroupingSchema.optional().describe('New grouping configuration'),
+      divide: ViewDivideSchema.optional().describe('New divide (board swimlane) configuration'),
       sorting: z.array(ViewSortingSchema).optional().describe('New sorting configuration'),
-      settings: z
-        .union([
-          BoardViewSettingsSchema,
-          CalendarViewSettingsSchema,
-          GanttViewSettingsSchema,
-          TableViewSettingsSchema,
-          z.object({}),
-        ])
-        .optional()
-        .describe('New view-specific settings'),
-      description: z.string().optional().describe('New description for the view'),
+      columns: z.array(ViewColumnSchema).optional().describe('New column configuration for table and list views'),
+      team_sidebar: TeamSidebarSchema.optional().describe('New team sidebar configuration'),
+      settings: ViewSettingsSchema.optional().describe('New view display settings (merged with the current settings)'),
     },
     async args => {
       try {
@@ -198,10 +178,10 @@ export function setupViewsTools(server: McpServer): void {
 
   server.tool(
     'clickup_set_view_filters',
-    'Set or update filters for a view. Filters determine which tasks are visible in the view.',
+    'Set or update filters for a view. Filters determine which tasks are visible in the view. Each condition uses {field, op, values} with ClickUp operator tokens (EQ, ANY, ALL, NOT ANY, ...).',
     {
       view_id: z.string().min(1).describe('The ID of the view to update'),
-      filters: z.array(ViewFilterSchema).describe('Array of filters to apply to the view'),
+      filters: z.array(ViewFilterSchema).describe('Array of filter conditions ({field, op, values}) to apply to the view'),
     },
     async args => {
       try {
@@ -224,10 +204,10 @@ export function setupViewsTools(server: McpServer): void {
 
   server.tool(
     'clickup_set_view_grouping',
-    'Set or update grouping configuration for a view. Grouping organizes tasks into sections.',
+    'Set or update the grouping configuration for a view. Grouping organizes tasks into sections; collapsed is an array of collapsed group IDs.',
     {
       view_id: z.string().min(1).describe('The ID of the view to update'),
-      grouping: z.array(ViewGroupingSchema).describe('Array of grouping configurations'),
+      grouping: ViewGroupingSchema.describe('Grouping configuration ({field, order, collapsed group IDs, ignore})'),
     },
     async args => {
       try {
@@ -276,18 +256,10 @@ export function setupViewsTools(server: McpServer): void {
 
   server.tool(
     'clickup_update_view_settings',
-    'Update view-specific settings such as board columns, calendar date fields, or table configurations.',
+    'Update view display settings such as show_task_locations, show_subtasks, show_assignees, show_images, collapse_empty_columns, and the me_* filters. Provided settings are merged with the current ones.',
     {
       view_id: z.string().min(1).describe('The ID of the view to update'),
-      settings: z
-        .union([
-          BoardViewSettingsSchema,
-          CalendarViewSettingsSchema,
-          GanttViewSettingsSchema,
-          TableViewSettingsSchema,
-          z.object({}),
-        ])
-        .describe('View-specific settings object'),
+      settings: ViewSettingsSchema.describe('View display settings object'),
     },
     async args => {
       try {
@@ -314,10 +286,10 @@ export function setupViewsTools(server: McpServer): void {
 
   server.tool(
     'clickup_get_view_tasks',
-    "Get tasks that are visible in a specific view, respecting the view's filters and settings.",
+    "Get tasks that are visible in a specific view, respecting the view's filters and settings. Pagination is 0-indexed (page 0 is the first page).",
     {
       view_id: z.string().min(1).describe('The ID of the view to get tasks from'),
-      page: z.number().positive().optional().describe('Page number for pagination'),
+      page: z.number().int().min(0).optional().describe('Page number for pagination, starting at 0 (default 0)'),
     },
     async args => {
       try {
@@ -339,14 +311,17 @@ export function setupViewsTools(server: McpServer): void {
 
   server.tool(
     'clickup_duplicate_view',
-    'Create a duplicate of an existing view with a new name.',
+    "Create a duplicate of an existing view with a new name. The API has no duplicate endpoint, so the source view's configuration is fetched and a new view is created in the specified parent (use the source view's parent to duplicate in place).",
     {
       view_id: z.string().min(1).describe('The ID of the view to duplicate'),
       name: z.string().min(1).describe('Name for the duplicated view'),
+      parent_id: z.string().min(1).describe('The ID of the parent (Workspace/team, space, folder, or list) to create the duplicate in'),
+      parent_type: ViewParentTypeSchema.describe('The type of parent container to create the duplicate in'),
     },
     async args => {
       try {
-        const result = await viewsClient.duplicateView(args.view_id, args.name);
+        const request = DuplicateViewSchema.parse(args);
+        const result = await viewsClient.duplicateView(request);
 
         return {
           content: [
@@ -363,39 +338,11 @@ export function setupViewsTools(server: McpServer): void {
   );
 
   server.tool(
-    'clickup_update_view_sharing',
-    'Update sharing settings for a view including access level, password protection, and expiration.',
-    {
-      view_id: z.string().min(1).describe('The ID of the view to update sharing for'),
-      access: ViewAccessSchema.describe('Access level for the view'),
-      password: z.string().optional().describe('Password for password-protected views'),
-      expires_at: z.number().optional().describe('Expiration timestamp (Unix timestamp)'),
-    },
-    async args => {
-      try {
-        const request = ViewSharingSchema.parse(args);
-        const result = await viewsClient.updateViewSharing(request);
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `View sharing updated successfully:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        return mcpError('updating view sharing', error);
-      }
-    }
-  );
-
-  server.tool(
     'clickup_get_view_fields',
-    'Get available fields that can be used for filtering, grouping, and sorting in views for a specific parent.',
+    'Get the Custom Fields accessible in a Workspace (team), space, folder, or list (Get Accessible Custom Fields endpoint). Note: built-in fields such as status, assignee, dueDate, and priority are not included.',
     {
-      parent_id: z.string().min(1).describe('The ID of the parent (space, folder, or list)'),
-      parent_type: z.enum(['space', 'folder', 'list']).describe('The type of parent container'),
+      parent_id: z.string().min(1).describe('The ID of the parent (Workspace/team, space, folder, or list)'),
+      parent_type: ViewParentTypeSchema.describe('The type of parent container'),
     },
     async args => {
       try {
@@ -405,7 +352,7 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Available fields for ${args.parent_type} ${args.parent_id}:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Accessible Custom Fields for ${args.parent_type} ${args.parent_id}:\n\n${JSON.stringify(result, null, 2)}`,
             },
           ],
         };

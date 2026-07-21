@@ -195,25 +195,25 @@ export function formatContent(
 
 /**
  * Prepare content for ClickUp API submission
- * Uses markdown_content field for markdown, description for HTML/plain text
+ * Uses markdown_description field for markdown, description for HTML/plain text
  * @param content The content to prepare (markdown, HTML, or plain text)
  * @returns Object with appropriate field for ClickUp API
  */
 export function prepareContentForClickUp(content: string): {
   description?: string; // For HTML or plain text content
-  markdown_content?: string; // For markdown content
+  markdown_description?: string; // For markdown content
   text_content?: string; // Plain text version for compatibility
 } {
   if (!content || typeof content !== 'string') {
     return { description: '' };
   }
 
-  // If content looks like markdown, use markdown_content field
+  // If content looks like markdown, use markdown_description field
   if (isMarkdown(content)) {
     const plainText = markdownToPlainText(content);
 
     return {
-      markdown_content: content, // Send raw markdown to ClickUp
+      markdown_description: content, // Send raw markdown to ClickUp
       text_content: plainText,
     };
   }

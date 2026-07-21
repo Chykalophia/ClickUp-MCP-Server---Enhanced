@@ -46,7 +46,7 @@ export function setupDocTools(server: McpServer): void {
   // Register search_docs tool
   server.tool(
     'clickup_search_docs',
-    'Search for docs in a ClickUp workspace using a query string. Returns matching docs with their metadata.',
+    'Search for docs in a ClickUp workspace by name (matched client-side; the ClickUp API has no full-text doc search). Use "space:{spaceId}" as the query to list docs in a space. Returns matching docs with their metadata.',
     {
       workspace_id: z.string().describe('The ID of the workspace to search in'),
       query: z.string().describe('The search query'),

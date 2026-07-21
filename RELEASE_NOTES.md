@@ -1,5 +1,65 @@
 # Release Notes - ClickUp MCP Server Suite
 
+## Version 5.1.0 - Full API Routes Overhaul (audit against current ClickUp API)
+
+**Release Date**: July 21, 2026
+**Status**: Production Ready
+**Affects**: `@chykalophia/clickup-mcp-server` (core)
+
+### Overview
+
+Every route and tool in the core server was audited against the current ClickUp
+REST API (v2 + v3 OpenAPI specs, May 2026) with independent adversarial
+verification of each finding (186 confirmed of ~192 reported). All confirmed
+request/response mismatches were fixed, ~40 tools that called endpoints that do
+not exist in the ClickUp API were removed, and documented endpoints that were
+missing from the server were added. The server now registers 157 tools, all
+backed by real, documented ClickUp endpoints.
+
+### Critical fixes
+
+- **Task descriptions**: markdown was sent as `markdown_content`; the API field
+  is `markdown_description`. Markdown descriptions were silently dropped by
+  ClickUp on every create/update (including bulk).
+- **Chat rewritten for API v3**: previous paths (`/team/{id}/chat/...`) never
+  existed. All chat tools now use `/api/v3/workspaces/{workspace_id}/chat/...`
+  with correct bodies, `{data, next_cursor}` envelopes, and cursor pagination.
+- **List-from-template**: `/list/template/` -> `/list_template/` (was a
+  guaranteed 404 for both folder and space variants).
+- **Goals key results**: correct `key_result` endpoints, `steps_*` fields,
+  response envelope, and type enum (`percentage`/`automatic`).
+- **Webhooks**: real event enum (27 events + `*`), location scoping, full-body
+  updates, real delivery payload schema, raw-body HMAC verification.
+- **Views**: real filter grammar (`op`/`values`), full-object PUT semantics,
+  real settings/divide/columns fields, 0-indexed page, team-level views.
+- **Attachments**: rebuilt on the two real endpoints (v2 multipart upload with
+  the `attachment` form field; v3 parent-entity attachment listing).
+- **Custom fields**: removed create/update/delete field-definition tools (no
+  such API), real type vocabulary, `value_options`, workspace-level listing.
+- **Dependencies**: correct `depends_on`/`dependency_of` semantics (direction
+  was inverted), query-param delete, reads via task `dependencies` arrays.
+- **Docs v3**: correct create-doc body (`parent`, `visibility`, `create_page`),
+  `next_cursor` pagination, real `content_format` values, `content_edit_mode`
+  append/prepend, `pageListing`; removed unsupported update/delete/sharing/
+  template tools.
+- **Time tracking**: single-object running-timer response, `end` field on
+  update, `tag_action`, required `duration`, start-timer body params.
+- **Client/auth**: OAuth `Bearer` vs raw `pk_` token handling, `Retry-After`
+  honored as a minimum wait, `ECODE` surfaced in errors, 429 retry.
+
+### New tools (documented endpoints previously missing)
+
+Workspace-wide task search, native task merge, task tags add/remove,
+task-from-template, get folder, folder-from-template, list members, space
+create/update/delete + space tag CRUD, Everything-level (team) views,
+workspace custom fields, single time entry + time-entry tags, doc pageListing,
+whoami, user groups, workspace plan, and custom roles.
+
+### Verification
+
+150/150 jest tests pass; strict typecheck of the client/schema/util layers is
+clean; live MCP handshake registers all 157 tools.
+
 ## Version 5.0.3 - Fix `clickup_update_task` Assignees (silent watcher bug)
 
 **Release Date**: May 12, 2026

@@ -2,55 +2,45 @@
 import crypto from 'crypto';
 import { ClickUpClient } from './index.js';
 import { validateResponse, WebhooksResponseSchema } from '../schemas/response-schemas.js';
-import type {
-  // WebhookPayload,
-  CreateWebhookRequest,
-  UpdateWebhookRequest,
-  WebhookFilter,
-  ValidateWebhookSignatureRequest,
-  ProcessWebhookRequest
+import { safeJsonParse } from '../utils/security.js';
+import {
+  WebhookPayloadSchema,
+  type WebhookHistoryItem,
+  type CreateWebhookRequest,
+  type UpdateWebhookRequest,
+  type WebhookFilter,
+  type ValidateWebhookSignatureRequest,
+  type ProcessWebhookRequest
 } from '../schemas/webhook-schemas.js';
+
+// Webhook object as returned by the ClickUp API
+export interface Webhook {
+  id: string;
+  userid: number;
+  team_id: number;
+  endpoint: string;
+  client_id: string | null;
+  events: string[];
+  task_id: string | null;
+  list_id: number | null;
+  folder_id: number | null;
+  space_id: number | null;
+  health?: {
+    status: string;
+    fail_count: number;
+  };
+  // The shared secret for HMAC-SHA256 signature verification.
+  // Only returned when the webhook is first created — store it; it cannot be retrieved later.
+  secret?: string;
+}
 
 export interface WebhookResponse {
   id: string;
-  webhook: {
-    id: string;
-    userid: number;
-    team_id: number;
-    endpoint: string;
-    client_id: string;
-    events: string[];
-    task_events: string[];
-    list_events: string[];
-    folder_events: string[];
-    space_events: string[];
-    goal_events: string[];
-    health_check_url?: string;
-    secret?: string;
-    status: 'active' | 'inactive';
-    date_created: string;
-    date_updated: string;
-  };
+  webhook: Webhook;
 }
 
 export interface WebhookListResponse {
-  webhooks: WebhookResponse['webhook'][];
-}
-
-export interface WebhookEventHistory {
-  id: string;
-  webhook_id: string;
-  event_type: string;
-  status: 'success' | 'failed' | 'pending';
-  response_code?: number;
-  response_body?: string;
-  attempts: number;
-  date_created: string;
-  date_updated: string;
-}
-
-export interface WebhookEventHistoryResponse {
-  events: WebhookEventHistory[];
+  webhooks: Webhook[];
 }
 
 export class WebhooksEnhancedClient extends ClickUpClient {
@@ -59,57 +49,76 @@ export class WebhooksEnhancedClient extends ClickUpClient {
   }
 
   /**
-   * Create a new webhook
+   * Create a new webhook.
+   * The response's webhook.secret (returned only at creation) must be stored
+   * by the caller and used later for signature verification.
    */
   async createWebhook(request: CreateWebhookRequest): Promise<WebhookResponse> {
-    const response = await this.post<WebhookResponse>(`/team/${request.workspace_id}/webhook`, {
+    const body: Record<string, any> = {
       endpoint: request.endpoint,
-      events: request.events,
-      health_check_url: request.health_check_url,
-      secret: request.secret
-    });
+      events: request.events
+    };
+    if (request.space_id !== undefined) body.space_id = request.space_id;
+    if (request.folder_id !== undefined) body.folder_id = request.folder_id;
+    if (request.list_id !== undefined) body.list_id = request.list_id;
+    if (request.task_id !== undefined) body.task_id = request.task_id;
+
+    const response = await this.post<WebhookResponse>(`/team/${request.workspace_id}/webhook`, body);
     return response;
   }
 
   /**
-   * Get all webhooks for a workspace
+   * Get all webhooks for a workspace.
+   * The Get Webhooks endpoint takes no query parameters, so the optional
+   * status/event_type filters are applied client-side.
    */
   async getWebhooks(filter: WebhookFilter): Promise<WebhookListResponse> {
-    const params = new URLSearchParams();
+    const response = await this.get<unknown>(`/team/${filter.workspace_id}/webhook`);
+    const validated = validateResponse(WebhooksResponseSchema, response, 'getWebhooks');
+    let webhooks = (validated as unknown as WebhookListResponse).webhooks;
+
     if (filter.status) {
-      params.append('status', filter.status);
+      webhooks = webhooks.filter(webhook => webhook.health?.status === filter.status);
     }
     if (filter.event_type) {
-      params.append('event_type', filter.event_type);
+      const eventType = filter.event_type;
+      webhooks = webhooks.filter(
+        webhook => webhook.events.includes(eventType) || webhook.events.includes('*')
+      );
     }
 
-    const queryString = params.toString();
-    const endpoint = `/team/${filter.workspace_id}/webhook${queryString ? `?${queryString}` : ''}`;
-
-    const response = await this.get<unknown>(endpoint);
-    const validated = validateResponse(WebhooksResponseSchema, response, 'getWebhooks');
-    return validated as unknown as WebhookListResponse;
+    return { webhooks };
   }
 
   /**
-   * Get a specific webhook by ID
+   * Get a specific webhook by ID.
+   * The ClickUp API has no single-webhook read endpoint, so this lists the
+   * workspace's webhooks and finds the matching one.
    */
-  async getWebhook(webhookId: string): Promise<WebhookResponse> {
-    const response = await this.get<WebhookResponse>(`/webhook/${webhookId}`);
-    return response;
+  async getWebhook(workspaceId: string, webhookId: string): Promise<Webhook> {
+    const { webhooks } = await this.getWebhooks({ workspace_id: workspaceId });
+    const webhook = webhooks.find(item => item.id === webhookId);
+    if (!webhook) {
+      throw new Error(`Webhook ${webhookId} not found in workspace ${workspaceId}`);
+    }
+    return webhook;
   }
 
   /**
-   * Update an existing webhook
+   * Update an existing webhook.
+   * ClickUp requires the full { endpoint, events, status } body, so the current
+   * webhook is fetched from the workspace list and merged with the caller's changes.
    */
   async updateWebhook(request: UpdateWebhookRequest): Promise<WebhookResponse> {
-    const updateData: Record<string, any> = {};
+    const current = await this.getWebhook(request.workspace_id, request.webhook_id);
 
-    if (request.endpoint !== undefined) updateData.endpoint = request.endpoint;
-    if (request.events !== undefined) updateData.events = request.events;
-    if (request.health_check_url !== undefined) updateData.health_check_url = request.health_check_url;
-    if (request.secret !== undefined) updateData.secret = request.secret;
-    if (request.status !== undefined) updateData.status = request.status;
+    const updateData = {
+      endpoint: request.endpoint ?? current.endpoint,
+      events: request.events ?? current.events,
+      // The list response does not include a status field; default to 'active'
+      // when the caller does not specify one.
+      status: request.status ?? 'active'
+    };
 
     const response = await this.put<WebhookResponse>(`/webhook/${request.webhook_id}`, updateData);
     return response;
@@ -124,36 +133,9 @@ export class WebhooksEnhancedClient extends ClickUpClient {
   }
 
   /**
-   * Get webhook event history
-   */
-  async getWebhookEventHistory(
-    webhookId: string,
-    limit?: number
-  ): Promise<WebhookEventHistoryResponse> {
-    const params = new URLSearchParams();
-    if (limit) {
-      params.append('limit', limit.toString());
-    }
-
-    const queryString = params.toString();
-    const endpoint = `/webhook/${webhookId}/events${queryString ? `?${queryString}` : ''}`;
-
-    const response = await this.get<WebhookEventHistoryResponse>(endpoint);
-    return response;
-  }
-
-  /**
-   * Ping a webhook (test endpoint)
-   */
-  async pingWebhook(webhookId: string): Promise<{ success: boolean; response_code?: number }> {
-    const response = await this.post<{ success: boolean; response_code?: number }>(
-      `/webhook/${webhookId}/ping`
-    );
-    return response;
-  }
-
-  /**
-   * Validate webhook signature using HMAC-SHA256
+   * Validate webhook signature using HMAC-SHA256.
+   * request.payload must be the raw request body string exactly as received —
+   * re-serialized JSON is not byte-identical and will fail verification.
    */
   validateWebhookSignature(request: ValidateWebhookSignatureRequest): boolean {
     try {
@@ -162,7 +144,8 @@ export class WebhooksEnhancedClient extends ClickUpClient {
         .update(request.payload)
         .digest('hex');
 
-      // ClickUp sends signature as 'sha256=<hash>'
+      // ClickUp's X-Signature header is the bare lowercase hex HMAC-SHA256 digest.
+      // Strip a 'sha256=' prefix defensively in case a caller forwards one.
       const receivedSignature = request.signature.replace('sha256=', '');
 
       return crypto.timingSafeEqual(
@@ -176,23 +159,21 @@ export class WebhooksEnhancedClient extends ClickUpClient {
   }
 
   /**
-   * Process incoming webhook payload
+   * Process an incoming webhook delivery.
+   * The signature is verified against the raw body string before parsing,
+   * since ClickUp signs the exact bytes it sends.
    */
   async processWebhook(request: ProcessWebhookRequest): Promise<{
     valid: boolean;
-    objectType: string;
-    objectId: string | number;
-    operation: string;
-    workspaceId: number;
-    userId: number;
-    timestamp: Date;
-    changes: Array<{ field: string; before?: any; after?: any }>;
-    relationships: Array<{ type: string; object_type: string; object_id: string | number }>;
+    webhookId: string;
+    event: string;
+    taskId?: string;
+    historyItems: WebhookHistoryItem[];
   }> {
-    // Validate signature if required
+    // Validate signature over the raw body before parsing it
     if (request.validate_signature && request.signature && request.secret) {
       const isValidSignature = this.validateWebhookSignature({
-        payload: JSON.stringify(request.payload),
+        payload: request.body,
         signature: request.signature,
         secret: request.secret
       });
@@ -200,81 +181,21 @@ export class WebhooksEnhancedClient extends ClickUpClient {
       if (!isValidSignature) {
         return {
           valid: false,
-          objectType: '',
-          objectId: '',
-          operation: '',
-          workspaceId: 0,
-          userId: 0,
-          timestamp: new Date(),
-          changes: [],
-          relationships: []
+          webhookId: '',
+          event: '',
+          historyItems: []
         };
       }
     }
 
-    const payload = request.payload;
-    const operationMap: Record<string, string> = {
-      c: 'create',
-      u: 'update',
-      d: 'delete'
-    };
+    const payload = WebhookPayloadSchema.parse(safeJsonParse(request.body));
 
     return {
       valid: true,
-      objectType: payload.version.object_type,
-      objectId: payload.version.object_id,
-      operation: operationMap[payload.version.operation] || payload.version.operation,
-      workspaceId: payload.version.workspace_id,
-      userId: payload.version.data.context.audit_context.userid,
-      timestamp: new Date(payload.date),
-      changes: payload.version.data.changes,
-      relationships: payload.version.data.relationships
+      webhookId: payload.webhook_id,
+      event: payload.event,
+      taskId: payload.task_id,
+      historyItems: payload.history_items ?? []
     };
-  }
-
-  /**
-   * Get webhook statistics
-   */
-  async getWebhookStats(
-    webhookId: string,
-    days?: number
-  ): Promise<{
-    total_events: number;
-    successful_events: number;
-    failed_events: number;
-    success_rate: number;
-    average_response_time: number;
-  }> {
-    const params = new URLSearchParams();
-    if (days) {
-      params.append('days', days.toString());
-    }
-
-    const queryString = params.toString();
-    const endpoint = `/webhook/${webhookId}/stats${queryString ? `?${queryString}` : ''}`;
-
-    const response = await this.get<{
-      total_events: number;
-      successful_events: number;
-      failed_events: number;
-      success_rate: number;
-      average_response_time: number;
-    }>(endpoint);
-
-    return response;
-  }
-
-  /**
-   * Retry failed webhook events
-   */
-  async retryWebhookEvents(
-    webhookId: string,
-    eventIds?: string[]
-  ): Promise<{ success: boolean; retried_count: number }> {
-    const response = await this.post<{ success: boolean; retried_count: number }>(
-      `/webhook/${webhookId}/retry`,
-      eventIds ? { event_ids: eventIds } : {}
-    );
-    return response;
   }
 }

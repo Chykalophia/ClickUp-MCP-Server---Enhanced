@@ -57,7 +57,7 @@ whoami, user groups, workspace plan, and custom roles.
 
 ### Verification
 
-150/150 jest tests pass; strict typecheck of the client/schema/util layers is
+178/178 jest tests pass; strict typecheck of the client/schema/util layers is
 clean; live MCP handshake registers all 157 tools.
 
 ## Version 5.0.3 - Fix `clickup_update_task` Assignees (silent watcher bug)

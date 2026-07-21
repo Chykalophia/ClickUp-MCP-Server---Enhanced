@@ -170,7 +170,11 @@ export class WebhooksEnhancedClient extends ClickUpClient {
     taskId?: string;
     historyItems: WebhookHistoryItem[];
   }> {
-    // Validate signature over the raw body before parsing it
+    // Validate signature over the raw body before parsing it. Fail closed:
+    // requesting validation without the credentials to perform it is an error.
+    if (request.validate_signature && (!request.signature || !request.secret)) {
+      throw new Error('signature and secret are required when validate_signature is true');
+    }
     if (request.validate_signature && request.signature && request.secret) {
       const isValidSignature = this.validateWebhookSignature({
         payload: request.body,

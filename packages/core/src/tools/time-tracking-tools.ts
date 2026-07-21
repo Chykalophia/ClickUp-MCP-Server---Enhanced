@@ -227,9 +227,9 @@ export function setupTimeTrackingTools(server: McpServer): void {
         .optional()
         .describe('Tags to add to or remove from the time entry (see tag_action)'),
       tag_action: z
-        .enum(['add', 'remove'])
+        .enum(['replace', 'add', 'remove'])
         .optional()
-        .describe('Whether to add or remove the supplied tags. Defaults to "add" when tags are provided.'),
+        .describe('Whether to replace, add, or remove the supplied tags. Defaults to "add" when tags are provided.'),
     },
     async ({
       team_id,

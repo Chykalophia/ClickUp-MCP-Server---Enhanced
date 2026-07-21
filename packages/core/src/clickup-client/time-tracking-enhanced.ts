@@ -57,10 +57,10 @@ export interface UpdateTimeEntryParams {
   tid?: string;
   tags?: TimeEntryTag[];
   /**
-   * What to do with the supplied tags: 'add' or 'remove'.
+   * What to do with the supplied tags: 'replace', 'add', or 'remove'.
    * Defaults to 'add' when tags are provided without a tag_action.
    */
-  tag_action?: 'add' | 'remove';
+  tag_action?: 'replace' | 'add' | 'remove';
   /** If true, the tid parameter is treated as a custom task ID (sent as a query param). */
   custom_task_ids?: boolean;
 }
@@ -314,10 +314,16 @@ export class EnhancedTimeTrackingClient {
         body.end = stop;
       }
 
-      // 'end' must be accompanied by 'start'; fall back to the entry's current start
+      // 'start' and 'end' must be sent as a pair; fall back to the entry's
+      // current value for whichever side the caller omitted.
       if (body.end !== undefined && body.start === undefined) {
         const currentEntry = await this.getTimeEntry(teamId, timerId);
         body.start = parseInt(currentEntry.start, 10);
+      } else if (body.start !== undefined && body.end === undefined && body.duration === undefined) {
+        const currentEntry = await this.getTimeEntry(teamId, timerId);
+        if (currentEntry.end) {
+          body.end = parseInt(currentEntry.end, 10);
+        }
       }
 
       // 'tags' must be accompanied by a tag_action telling ClickUp what to do

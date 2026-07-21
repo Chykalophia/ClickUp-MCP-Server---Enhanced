@@ -95,7 +95,6 @@ export const SendMessageSchema = z.object({
   assignee: z.string().optional(),
   group_assignee: z.string().optional(),
   followers: z.array(z.string()).optional(),
-  reactions: z.array(z.string()).optional(),
   post_data: z.record(z.any()).optional(),
 });
 
@@ -127,7 +126,6 @@ export const CreateReplySchema = z.object({
   assignee: z.string().optional(),
   group_assignee: z.string().optional(),
   followers: z.array(z.string()).optional(),
-  reactions: z.array(z.string()).optional(),
   post_data: z.record(z.any()).optional(),
 });
 

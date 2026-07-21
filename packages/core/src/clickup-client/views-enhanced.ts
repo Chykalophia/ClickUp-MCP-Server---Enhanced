@@ -240,6 +240,19 @@ export class ViewsEnhancedClient extends ClickUpClient {
    */
   async duplicateView(request: DuplicateViewRequest): Promise<ViewResponse> {
     const source = await this.getView(request.view_id);
+
+    // Views of types the Create View endpoint does not accept (e.g. form,
+    // embed, doc) cannot be duplicated via the API.
+    const creatableTypes = [
+      'list', 'board', 'calendar', 'table', 'timeline',
+      'workload', 'activity', 'map', 'chat', 'conversation', 'gantt'
+    ];
+    if (!creatableTypes.includes(source.type)) {
+      throw new Error(
+        `Views of type '${source.type}' cannot be duplicated via the ClickUp API`
+      );
+    }
+
     const endpoint = this.getParentEndpoint(request.parent_type, request.parent_id);
 
     // Copy only the view configuration; ids, creator, dates, and parent are
@@ -283,7 +296,7 @@ export class ViewsEnhancedClient extends ClickUpClient {
    */
   private async putFullView(
     viewId: string,
-    makeOverrides: (current: ViewResponse) => Record<string, any>
+    makeOverrides: (_current: ViewResponse) => Record<string, any>
   ): Promise<ViewResponse> {
     const current = await this.getView(viewId);
 

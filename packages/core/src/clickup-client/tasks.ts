@@ -175,6 +175,9 @@ export class TasksClient {
    * for endpoints reached via post/put/delete (which take no query params).
    */
   private buildCustomIdQuery(params?: CustomTaskIdParams): string {
+    if (params?.custom_task_ids && !params.team_id) {
+      throw new Error('team_id is required when custom_task_ids is true');
+    }
     const search = new URLSearchParams();
     if (params?.custom_task_ids !== undefined) {
       search.set('custom_task_ids', String(params.custom_task_ids));

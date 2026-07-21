@@ -114,7 +114,7 @@ export class FoldersClient {
     templateId: string,
     params: CreateFolderFromTemplateParams
   ): Promise<Folder> {
-    return this.client.post(`/space/${spaceId}/folder_template/${templateId}`, params);
+    return this.client.post(`/space/${encodeURIComponent(spaceId)}/folder_template/${encodeURIComponent(templateId)}`, params);
   }
 
   /**
@@ -123,7 +123,7 @@ export class FoldersClient {
    * @returns The available folder templates
    */
   async getFolderTemplates(teamId: string): Promise<Record<string, unknown>> {
-    return this.client.get(`/team/${teamId}/folder_template`);
+    return this.client.get(`/team/${encodeURIComponent(teamId)}/folder_template`);
   }
 }
 

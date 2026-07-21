@@ -25,10 +25,13 @@ const spaceFeaturesSchema = z
     time_estimates: z.object({ enabled: z.boolean().optional() }).optional(),
     checklists: z.object({ enabled: z.boolean().optional() }).optional(),
     custom_fields: z.object({ enabled: z.boolean().optional() }).optional(),
+    remap_dependencies: z.object({ enabled: z.boolean().optional() }).optional(),
+    dependency_warning: z.object({ enabled: z.boolean().optional() }).optional(),
+    portfolios: z.object({ enabled: z.boolean().optional() }).optional(),
   })
   .optional()
   .describe(
-    'Features to enable for the space (due_dates, time_tracking, tags, time_estimates, checklists, custom_fields)'
+    'Features to enable for the space (due_dates, time_tracking, tags, time_estimates, checklists, custom_fields, remap_dependencies, dependency_warning, portfolios)'
   );
 
 export function setupSpaceTools(server: McpServer): void {

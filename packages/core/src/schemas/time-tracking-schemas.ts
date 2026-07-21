@@ -45,9 +45,12 @@ export const CreateTimeEntrySchema = z
     assignee: UserIdSchema.optional(),
     tags: z.array(TimeEntryTagSchema).optional(),
   })
-  .refine((data) => (data.duration === undefined) !== (data.stop === undefined), {
-    message: 'Provide either duration or stop, not both',
-  });
+  .refine(
+    (data) =>
+      (data.duration === undefined) !== (data.stop === undefined) &&
+      (data.stop === undefined || data.stop > data.start),
+    { message: 'Provide either a positive duration or a stop time after start' }
+  );
 
 // Update time entry schema.
 // 'stop' is mapped to the API's 'end' body field (the update endpoint has no
@@ -63,7 +66,9 @@ export const UpdateTimeEntrySchema = z.object({
   task_id: z.string().optional(),
   custom_task_ids: z.boolean().optional(),
   tags: z.array(TimeEntryTagSchema).optional(),
-  tag_action: z.enum(['add', 'remove']).optional(),
+  tag_action: z.enum(['replace', 'add', 'remove']).optional(),
+}).refine((data) => data.duration === undefined || data.stop === undefined, {
+  message: 'Provide either duration or stop on update, not both',
 });
 
 // Delete time entry schema

@@ -87,10 +87,11 @@ export const UpdateWebhookSchema = z.object({
 });
 
 // Filter options for listing webhooks. The Get Webhooks endpoint accepts no
-// query parameters, so status/event_type are applied client-side.
+// query parameters, so status/event_type are applied client-side. The status
+// filter matches ClickUp's webhook health states.
 export const WebhookFilterSchema = z.object({
   workspace_id: z.string(),
-  status: z.enum(['active', 'inactive']).optional(),
+  status: z.enum(['active', 'failing', 'suspended']).optional(),
   event_type: WebhookEventSchema.optional(),
 });
 
@@ -110,7 +111,10 @@ export const ProcessWebhookSchema = z.object({
   validate_signature: z.boolean().default(true),
   signature: z.string().optional(),
   secret: z.string().optional(),
-});
+}).refine(
+  data => !data.validate_signature || (!!data.signature && !!data.secret),
+  { message: 'signature and secret are required when validate_signature is true' }
+);
 
 // Type exports
 export type WebhookPayload = z.infer<typeof WebhookPayloadSchema>;

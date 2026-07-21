@@ -49,13 +49,24 @@ export class ClickUpClient {
           const retryCount = requestConfig._retryCount ?? 0;
           if (retryCount < MAX_RATE_LIMIT_RETRIES) {
             requestConfig._retryCount = retryCount + 1;
-            const retryAfterSeconds = parseInt(error.response.headers?.['retry-after'], 10);
-            const delayMs = Math.min(
-              (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0 ? retryAfterSeconds : 1) * 1000,
-              MAX_RETRY_AFTER_MS
-            );
-            await new Promise(resolve => setTimeout(resolve, delayMs));
-            return this.axiosInstance.request(requestConfig);
+            // Retry-After may be delta-seconds or an HTTP-date (RFC 9110); the
+            // computed wait is a minimum. Give up instead of retrying early
+            // when the server asks for longer than we are willing to wait.
+            const retryAfterRaw = error.response.headers?.['retry-after'];
+            let retryAfterMs = 1000;
+            const retryAfterSeconds = parseInt(retryAfterRaw, 10);
+            if (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0) {
+              retryAfterMs = retryAfterSeconds * 1000;
+            } else if (retryAfterRaw) {
+              const retryAfterDate = Date.parse(retryAfterRaw);
+              if (!Number.isNaN(retryAfterDate)) {
+                retryAfterMs = Math.max(retryAfterDate - Date.now(), 1000);
+              }
+            }
+            if (retryAfterMs <= MAX_RETRY_AFTER_MS) {
+              await new Promise(resolve => setTimeout(resolve, retryAfterMs));
+              return this.axiosInstance.request(requestConfig);
+            }
           }
         }
 

@@ -24,7 +24,13 @@ export const UploadAttachmentSchema = z.object({
     .string()
     .optional()
     .describe('Workspace ID (required when custom_task_ids is true)'),
-});
+}).refine(
+  d => [d.file_data, d.file_path, d.file_url].filter(v => v !== undefined).length === 1,
+  { message: 'Provide exactly one of file_data, file_path, or file_url' }
+).refine(
+  d => !d.custom_task_ids || !!d.team_id,
+  { message: 'team_id is required when custom_task_ids is true' }
+);
 
 // Get attachments schema
 // (GET /api/v3/workspaces/{workspace_id}/{entity_type}/{entity_id}/attachments)

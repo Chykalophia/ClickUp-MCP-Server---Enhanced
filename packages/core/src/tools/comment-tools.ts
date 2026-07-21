@@ -284,6 +284,9 @@ export function setupCommentTools(server: McpServer): void {
     },
     async ({ view_id, comment, ...commentParams }) => {
       try {
+        if (!comment && !commentParams.comment_text) {
+          throw new Error('Provide comment_text or comment blocks');
+        }
         const params: CreateChatViewCommentParams = {
           ...commentParams,
           ...(comment ? { comment: processCommentBlocks(comment) } : {}),
@@ -341,6 +344,9 @@ export function setupCommentTools(server: McpServer): void {
     },
     async ({ list_id, comment, ...commentParams }) => {
       try {
+        if (!comment && !commentParams.comment_text) {
+          throw new Error('Provide comment_text or comment blocks');
+        }
         const params: CreateListCommentParams = {
           ...commentParams,
           ...(comment ? { comment: processCommentBlocks(comment) } : {}),
@@ -377,6 +383,9 @@ export function setupCommentTools(server: McpServer): void {
     },
     async ({ comment_id, comment, ...commentParams }) => {
       try {
+        if (!comment && !commentParams.comment_text) {
+          throw new Error('Provide comment_text or comment blocks');
+        }
         const params: UpdateCommentParams = {
           ...commentParams,
           ...(comment ? { comment: processCommentBlocks(comment) } : {}),

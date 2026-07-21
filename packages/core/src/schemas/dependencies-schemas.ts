@@ -19,10 +19,19 @@ const customTaskIdFields = {
     .optional()
     .describe('Set true when the task IDs are custom task IDs (also requires team_id)'),
   team_id: z
-    .string()
+    .union([z.string(), z.number()])
     .optional()
+    .transform(v => (v === undefined ? undefined : String(v)))
     .describe('Workspace (team) ID — required when custom_task_ids is true'),
 };
+
+// custom_task_ids=true is invalid without the workspace ID (API requirement)
+const requiresTeamIdWithCustomIds = (data: {
+  custom_task_ids?: boolean;
+  team_id?: string;
+}): boolean => !data.custom_task_ids || !!data.team_id;
+
+const TEAM_ID_ERROR = 'team_id is required when custom_task_ids is true';
 
 // Exactly one of depends_on / dependency_of must be provided (API requirement)
 const exactlyOneDirection = (data: { depends_on?: string; dependency_of?: string }): boolean =>
@@ -46,7 +55,8 @@ export const CreateDependencySchema = z
       .describe('ID of the task this task is BLOCKING (cannot start until this task finishes)'),
     ...customTaskIdFields,
   })
-  .refine(exactlyOneDirection, { message: DIRECTION_ERROR });
+  .refine(exactlyOneDirection, { message: DIRECTION_ERROR })
+  .refine(requiresTeamIdWithCustomIds, { message: TEAM_ID_ERROR });
 
 // Delete dependency schema (DELETE /task/{task_id}/dependency, query params)
 export const DeleteDependencySchema = z
@@ -64,26 +74,33 @@ export const DeleteDependencySchema = z
       .describe('ID of the "blocking" task in the dependency to remove'),
     ...customTaskIdFields,
   })
-  .refine(exactlyOneDirection, { message: DIRECTION_ERROR });
+  .refine(exactlyOneDirection, { message: DIRECTION_ERROR })
+  .refine(requiresTeamIdWithCustomIds, { message: TEAM_ID_ERROR });
 
 // Get task dependencies schema (reads GET /task/{task_id} embedded arrays)
-export const GetTaskDependenciesSchema = z.object({
-  task_id: z.string().min(1).describe('The ID of the task to get dependencies and links for'),
-  ...customTaskIdFields,
-});
+export const GetTaskDependenciesSchema = z
+  .object({
+    task_id: z.string().min(1).describe('The ID of the task to get dependencies and links for'),
+    ...customTaskIdFields,
+  })
+  .refine(requiresTeamIdWithCustomIds, { message: TEAM_ID_ERROR });
 
 // Task link schemas (POST/DELETE /task/{task_id}/link/{links_to})
-export const AddTaskLinkSchema = z.object({
-  task_id: z.string().min(1).describe('The ID of the task to add the link to'),
-  links_to: z.string().min(1).describe('The ID of the task to link to'),
-  ...customTaskIdFields,
-});
+export const AddTaskLinkSchema = z
+  .object({
+    task_id: z.string().min(1).describe('The ID of the task to add the link to'),
+    links_to: z.string().min(1).describe('The ID of the task to link to'),
+    ...customTaskIdFields,
+  })
+  .refine(requiresTeamIdWithCustomIds, { message: TEAM_ID_ERROR });
 
-export const DeleteTaskLinkSchema = z.object({
-  task_id: z.string().min(1).describe('The ID of the task to remove the link from'),
-  links_to: z.string().min(1).describe('The ID of the linked task to unlink'),
-  ...customTaskIdFields,
-});
+export const DeleteTaskLinkSchema = z
+  .object({
+    task_id: z.string().min(1).describe('The ID of the task to remove the link from'),
+    links_to: z.string().min(1).describe('The ID of the linked task to unlink'),
+    ...customTaskIdFields,
+  })
+  .refine(requiresTeamIdWithCustomIds, { message: TEAM_ID_ERROR });
 
 // Dependency graph options schema (client-side traversal of Get Task data)
 export const DependencyGraphOptionsSchema = z.object({

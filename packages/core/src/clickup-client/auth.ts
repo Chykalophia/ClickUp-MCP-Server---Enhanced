@@ -348,11 +348,15 @@ export class AuthClient {
     }>;
   }> {
     try {
-      const params: Record<string, string> = { team_id: workspaceId };
+      // group_ids must be sent as repeated query parameters, not one
+      // comma-joined value, so build the query string explicitly.
+      const search = new URLSearchParams({ team_id: workspaceId });
       if (groupIds) {
-        params.group_ids = groupIds;
+        for (const id of groupIds.split(',').map(part => part.trim()).filter(Boolean)) {
+          search.append('group_ids', id);
+        }
       }
-      return await this.client.get('/group', params);
+      return await this.client.get(`/group?${search.toString()}`);
     } catch (error) {
       console.error('Error getting user groups:', error instanceof Error ? error.message : error);
       throw error;
@@ -369,7 +373,7 @@ export class AuthClient {
     plan_name: string;
   }> {
     try {
-      return await this.client.get(`/team/${workspaceId}/plan`);
+      return await this.client.get(`/team/${encodeURIComponent(workspaceId)}/plan`);
     } catch (error) {
       console.error('Error getting workspace plan:', error instanceof Error ? error.message : error);
       throw error;
@@ -397,7 +401,7 @@ export class AuthClient {
       if (includeMembers !== undefined) {
         params.include_members = includeMembers;
       }
-      return await this.client.get(`/team/${workspaceId}/customroles`, params);
+      return await this.client.get(`/team/${encodeURIComponent(workspaceId)}/customroles`, params);
     } catch (error) {
       console.error('Error getting custom roles:', error instanceof Error ? error.message : error);
       throw error;

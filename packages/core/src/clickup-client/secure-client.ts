@@ -117,9 +117,14 @@ export class SecureClickUpClient {
   /**
    * Wait until the per-token rate limit window allows another request.
    */
-  private async waitForRateLimit(): Promise<void> {
+  private async waitForRateLimit(maxWaitMs = 60000): Promise<void> {
+    const deadline = Date.now() + maxWaitMs;
     while (!rateLimiter.isAllowed(this.rateLimitKey, CLICKUP_TOKEN_RATE_LIMIT)) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (Date.now() >= deadline) {
+        throw new Error('Rate limit wait exceeded maximum duration');
+      }
+      // Jitter avoids synchronized polling across queued requests.
+      await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 250));
     }
   }
 
@@ -397,8 +402,9 @@ export class SecureClickUpClient {
     // Clear any pending requests
     this.axiosInstance.defaults.timeout = 1;
 
-    // Reset rate limiter
-    rateLimiter.reset();
+    // Reset only this client's rate-limit bucket; a global reset would wipe
+    // history for other live clients sharing the process.
+    rateLimiter.reset(this.rateLimitKey);
   }
 }
 

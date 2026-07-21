@@ -120,6 +120,9 @@ export function setupCustomFieldTools(server: McpServer): void {
     },
     async ({ task_id, field_id, value, value_options, custom_task_ids, team_id }) => {
       try {
+        if (custom_task_ids && !team_id) {
+          throw new Error('team_id is required when custom_task_ids is true');
+        }
         await customFieldsClient.setCustomFieldValue(task_id, field_id, value, {
           valueOptions: value_options,
           customTaskIds: custom_task_ids,
@@ -160,6 +163,9 @@ export function setupCustomFieldTools(server: McpServer): void {
     },
     async ({ task_id, field_id, custom_task_ids, team_id }) => {
       try {
+        if (custom_task_ids && !team_id) {
+          throw new Error('team_id is required when custom_task_ids is true');
+        }
         await customFieldsClient.removeCustomFieldValue(task_id, field_id, {
           customTaskIds: custom_task_ids,
           teamId: team_id,
@@ -196,6 +202,9 @@ export function setupCustomFieldTools(server: McpServer): void {
     },
     async ({ task_id, field_id, custom_task_ids, team_id }) => {
       try {
+        if (custom_task_ids && !team_id) {
+          throw new Error('team_id is required when custom_task_ids is true');
+        }
         const value = await customFieldsClient.getCustomFieldValue(task_id, field_id, {
           customTaskIds: custom_task_ids,
           teamId: team_id,
@@ -253,6 +262,9 @@ export function setupCustomFieldTools(server: McpServer): void {
     },
     async ({ task_id, field_values, custom_task_ids, team_id }) => {
       try {
+        if (custom_task_ids && !team_id) {
+          throw new Error('team_id is required when custom_task_ids is true');
+        }
         // Ensure all field_values have the required properties
         const validatedFieldValues = field_values.map(fv => ({
           field_id: fv.field_id,
@@ -306,6 +318,9 @@ export function setupCustomFieldTools(server: McpServer): void {
     },
     async ({ task_id, custom_task_ids, team_id }) => {
       try {
+        if (custom_task_ids && !team_id) {
+          throw new Error('team_id is required when custom_task_ids is true');
+        }
         const values = await customFieldsClient.getTaskCustomFieldValues(task_id, {
           customTaskIds: custom_task_ids,
           teamId: team_id,

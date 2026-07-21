@@ -34,6 +34,9 @@ export function setupChecklistTools(server: McpServer): void {
     },
     async ({ task_id, name, custom_task_ids, team_id }) => {
       try {
+        if (custom_task_ids && !team_id) {
+          throw new Error('team_id is required when custom_task_ids is true');
+        }
         const checklist = await checklistsClient.createChecklist(
           task_id,
           { name } as CreateChecklistParams,

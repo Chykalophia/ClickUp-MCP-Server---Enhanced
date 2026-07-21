@@ -154,8 +154,10 @@ export const LabelsValueSchema = z
 // Emoji (rating) value schema — integer within the configured count range
 export const EmojiValueSchema = z.number().int().min(0).max(10);
 
-// Manual progress value schema
-export const ManualProgressValueSchema = z.number();
+// Manual progress value schema — ClickUp expects { "current": <number> }
+export const ManualProgressValueSchema = z.object({
+  current: z.number(),
+});
 
 // Users/tasks value schema — { add: [ids], rem: [ids] }
 export const AddRemValueSchema = z
@@ -168,13 +170,13 @@ export const AddRemValueSchema = z
     path: ['add'],
   });
 
-// Location value schema — { location: { lat, lng }, formatted_address? }
+// Location value schema — ClickUp requires formatted_address alongside lat/lng
 export const LocationValueSchema = z.object({
   location: z.object({
     lat: z.number(),
     lng: z.number(),
   }),
-  formatted_address: z.string().optional(),
+  formatted_address: z.string(),
 });
 
 // value_options schema (sibling of value in the Set Custom Field Value body)

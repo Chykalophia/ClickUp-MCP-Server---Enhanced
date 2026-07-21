@@ -156,7 +156,7 @@ export class ListsClient {
     templateId: string,
     params: CreateListParams
   ): Promise<List> {
-    return this.client.post(`/folder/${folderId}/list_template/${templateId}`, params);
+    return this.client.post(`/folder/${encodeURIComponent(folderId)}/list_template/${encodeURIComponent(templateId)}`, params);
   }
 
   /**
@@ -171,7 +171,7 @@ export class ListsClient {
     templateId: string,
     params: CreateListParams
   ): Promise<List> {
-    return this.client.post(`/space/${spaceId}/list_template/${templateId}`, params);
+    return this.client.post(`/space/${encodeURIComponent(spaceId)}/list_template/${encodeURIComponent(templateId)}`, params);
   }
 }
 

@@ -115,9 +115,9 @@ export class WebhooksEnhancedClient extends ClickUpClient {
     const updateData = {
       endpoint: request.endpoint ?? current.endpoint,
       events: request.events ?? current.events,
-      // The list response does not include a status field; default to 'active'
-      // when the caller does not specify one.
-      status: request.status ?? 'active'
+      // Preserve the webhook's effective state on partial updates: a suspended
+      // webhook must only be reactivated when the caller explicitly asks.
+      status: request.status ?? (current.health?.status === 'suspended' ? 'inactive' : 'active')
     };
 
     const response = await this.put<WebhookResponse>(`/webhook/${request.webhook_id}`, updateData);

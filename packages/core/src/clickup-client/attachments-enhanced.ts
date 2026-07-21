@@ -1,4 +1,5 @@
-import { readFile } from 'fs/promises';
+import { readFile, stat } from 'fs/promises';
+import { resolve, sep } from 'path';
 import { ClickUpClient } from './index.js';
 import type {
   UploadAttachmentRequest,
@@ -12,6 +13,9 @@ import type {
 // is bound to the v2 base URL, so v3 calls use absolute URLs (axios ignores
 // baseURL when the request URL is absolute).
 const V3_API_BASE_URL = 'https://api.clickup.com/api/v3';
+
+// ClickUp's documented attachment limit is 1 GB; cap below it to bound memory use.
+const MAX_UPLOAD_SIZE_BYTES = 512 * 1024 * 1024;
 
 // Maps our entity types to the v3 endpoint's path segment values
 const ENTITY_TYPE_PATH_SEGMENTS: Record<AttachmentEntityType, string> = {
@@ -47,8 +51,9 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
         params,
         // Clear the instance-level 'application/json' default so axios
         // serializes the FormData and sets the multipart/form-data
-        // content type with the correct boundary.
-        headers: { 'Content-Type': undefined },
+        // content type with the correct boundary. Axios treats `false`
+        // as an explicit opt-out; `undefined` can leave the default.
+        headers: { 'Content-Type': false },
       }
     );
     return response.data;
@@ -76,20 +81,88 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
 
   private async resolveFileBytes(request: UploadAttachmentRequest): Promise<Buffer> {
     if (request.file_data) {
-      return Buffer.from(request.file_data, 'base64');
+      const bytes = Buffer.from(request.file_data, 'base64');
+      this.assertWithinSizeLimit(bytes.length);
+      return bytes;
     }
     if (request.file_path) {
-      return readFile(request.file_path);
+      const resolvedPath = this.resolveAllowedFilePath(request.file_path);
+      const stats = await stat(resolvedPath);
+      if (!stats.isFile()) {
+        throw new Error(`Not a regular file: ${request.file_path}`);
+      }
+      this.assertWithinSizeLimit(stats.size);
+      return readFile(resolvedPath);
     }
     if (request.file_url) {
+      this.assertAllowedUploadUrl(request.file_url);
       const response = await fetch(request.file_url);
       if (!response.ok) {
         throw new Error(
           `Failed to fetch file from URL (${response.status} ${response.statusText})`
         );
       }
-      return Buffer.from(await response.arrayBuffer());
+      const contentLength = Number(response.headers.get('content-length'));
+      if (Number.isFinite(contentLength) && contentLength > 0) {
+        this.assertWithinSizeLimit(contentLength);
+      }
+      const bytes = Buffer.from(await response.arrayBuffer());
+      this.assertWithinSizeLimit(bytes.length);
+      return bytes;
     }
     throw new Error('One of file_data, file_path, or file_url must be provided');
+  }
+
+  /** ClickUp caps attachments at 1 GB; a lower cap avoids exhausting process memory. */
+  private assertWithinSizeLimit(sizeBytes: number): void {
+    if (sizeBytes > MAX_UPLOAD_SIZE_BYTES) {
+      throw new Error(
+        `File exceeds the maximum upload size of ${Math.floor(MAX_UPLOAD_SIZE_BYTES / (1024 * 1024))} MB`
+      );
+    }
+  }
+
+  /**
+   * When CLICKUP_UPLOAD_DIR is set, restrict file_path uploads to that
+   * directory (rejecting traversal). Without it, any path readable by this
+   * process is allowed — the MCP caller already runs with these privileges.
+   */
+  private resolveAllowedFilePath(filePath: string): string {
+    if (filePath.includes('\0')) {
+      throw new Error('Invalid file path');
+    }
+    const resolved = resolve(filePath);
+    const uploadRoot = process.env.CLICKUP_UPLOAD_DIR;
+    if (uploadRoot) {
+      const root = resolve(uploadRoot);
+      if (resolved !== root && !resolved.startsWith(root + sep)) {
+        throw new Error('file_path is outside the configured CLICKUP_UPLOAD_DIR upload root');
+      }
+    }
+    return resolved;
+  }
+
+  /** Basic SSRF guard: only http(s) URLs to public hosts may be fetched. */
+  private assertAllowedUploadUrl(fileUrl: string): void {
+    let parsed: URL;
+    try {
+      parsed = new URL(fileUrl);
+    } catch {
+      throw new Error('Invalid file_url');
+    }
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      throw new Error('file_url must use http or https');
+    }
+    const host = parsed.hostname.toLowerCase();
+    const isPrivateIpv4 =
+      /^127\./.test(host) ||
+      /^10\./.test(host) ||
+      /^192\.168\./.test(host) ||
+      /^172\.(1[6-9]|2\d|3[01])\./.test(host) ||
+      /^169\.254\./.test(host) ||
+      host === '0.0.0.0';
+    if (host === 'localhost' || host === '::1' || host === '[::1]' || isPrivateIpv4) {
+      throw new Error('file_url must not point to a private or loopback address');
+    }
   }
 }

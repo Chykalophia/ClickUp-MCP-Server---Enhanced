@@ -254,6 +254,9 @@ export function setupEnhancedDocTools(server: McpServer): void {
     },
     async ({ workspace_id, name, space_id, folder_id, parent_id, parent_type, content, content_format, public: isPublic, create_page }) => {
       try {
+        if ((parent_id === undefined) !== (parent_type === undefined)) {
+          throw new Error('parent_id and parent_type must be provided together');
+        }
         const parent =
           parent_id && parent_type !== undefined ? { id: parent_id, type: parent_type } : undefined;
 

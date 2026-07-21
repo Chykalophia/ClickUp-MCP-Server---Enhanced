@@ -324,7 +324,6 @@ export function setupChatTools(server: McpServer): void {
       assignee: z.string().optional().describe('User ID to assign the message to'),
       group_assignee: z.string().optional().describe('Group ID to assign the message to'),
       followers: z.array(z.string()).optional().describe('User IDs (as strings) to add as followers of the message'),
-      reactions: z.array(z.string()).optional().describe('Emoji names to add as initial reactions'),
       post_data: z.record(z.any()).optional().describe("Post metadata (title, subtype id) when type is 'post'"),
     },
     async args => {
@@ -448,7 +447,6 @@ export function setupChatTools(server: McpServer): void {
       assignee: z.string().optional().describe('User ID to assign the reply to'),
       group_assignee: z.string().optional().describe('Group ID to assign the reply to'),
       followers: z.array(z.string()).optional().describe('User IDs (as strings) to add as followers of the reply'),
-      reactions: z.array(z.string()).optional().describe('Emoji names to add as initial reactions'),
       post_data: z.record(z.any()).optional().describe("Post metadata (title, subtype id) when type is 'post'"),
     },
     async args => {

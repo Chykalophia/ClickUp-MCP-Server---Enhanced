@@ -273,13 +273,12 @@ export function getGoalStatus(
   if (percentCompleted >= 100) return 'completed';
   if (now > due) return 'overdue';
 
-  // Calculate if on track (simple heuristic: progress should match time elapsed)
-  const timeElapsed = now;
-  const totalTime = due;
-  const expectedProgress = (timeElapsed / totalTime) * 100;
-
-  if (percentCompleted >= expectedProgress * 0.8) return 'on_track';
-  return 'at_risk';
+  // Simple heuristic: a goal is at risk when the deadline is near (< 7 days)
+  // and completion is still low. Without a start date, elapsed-time ratios
+  // against a bare epoch timestamp are meaningless.
+  const daysLeft = (due - now) / (1000 * 60 * 60 * 24);
+  if (daysLeft < 7 && percentCompleted < 80) return 'at_risk';
+  return 'on_track';
 }
 
 // ========================================

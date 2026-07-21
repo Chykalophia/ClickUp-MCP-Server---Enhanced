@@ -1,6 +1,6 @@
 # Release Notes - ClickUp MCP Server Suite
 
-## Version 5.1.0 - Full API Routes Overhaul (audit against current ClickUp API)
+## Version 6.0.0 - Full API Routes Overhaul (audit against current ClickUp API)
 
 **Release Date**: July 21, 2026
 **Status**: Production Ready

@@ -75,7 +75,7 @@ export function setupWebhookTools(server: McpServer): void {
     {
       workspace_id: z.string().min(1).describe('The ID of the workspace to get webhooks from'),
       status: z
-        .enum(['active', 'inactive'])
+        .enum(['active', 'failing', 'suspended'])
         .optional()
         .describe('Filter webhooks by health status (applied client-side)'),
       event_type: z

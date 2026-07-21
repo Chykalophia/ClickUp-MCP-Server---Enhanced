@@ -22,9 +22,9 @@ export interface Webhook {
   client_id: string | null;
   events: string[];
   task_id: string | null;
-  list_id: number | null;
-  folder_id: number | null;
-  space_id: number | null;
+  list_id: string | null;
+  folder_id: string | null;
+  space_id: string | null;
   health?: {
     status: string;
     fail_count: number;

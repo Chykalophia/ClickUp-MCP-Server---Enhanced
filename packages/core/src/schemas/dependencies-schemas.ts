@@ -134,10 +134,13 @@ export const BulkDependencyOperationSchema = z.object({
           task_id: z.string().min(1),
           depends_on: z.string().min(1).optional(),
           dependency_of: z.string().min(1).optional(),
+          ...customTaskIdFields,
         })
         .refine(exactlyOneDirection, { message: DIRECTION_ERROR })
+        .refine(requiresTeamIdWithCustomIds, { message: TEAM_ID_ERROR })
     )
     .min(1)
+    .max(100, 'Bulk dependency operations are limited to 100 items per call')
     .describe('Array of dependencies to create or delete'),
 });
 

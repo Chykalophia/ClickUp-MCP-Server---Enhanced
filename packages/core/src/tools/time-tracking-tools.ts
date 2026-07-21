@@ -37,7 +37,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
         .optional()
         .describe('Filter by end date (Unix timestamp in milliseconds)'),
       assignee: z
-        .union([z.number().positive(), z.string().min(1)])
+        .union([z.number().positive(), z.string().regex(/^\d+(,\d+)*$/, 'Comma-separated numeric user IDs')])
         .optional()
         .describe(
           'Filter by user ID. For multiple users, pass a comma-separated string of user IDs (e.g. "1234,9876")'
@@ -560,7 +560,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
         .optional()
         .describe('Filter by end date (Unix timestamp in milliseconds)'),
       assignee: z
-        .union([z.number().positive(), z.string().min(1)])
+        .union([z.number().positive(), z.string().regex(/^\d+(,\d+)*$/, 'Comma-separated numeric user IDs')])
         .optional()
         .describe(
           'Filter by user ID. For multiple users, pass a comma-separated string of user IDs (e.g. "1234,9876")'

@@ -304,8 +304,9 @@ export class AuthClient {
     };
     guests: {
       filled_guest_seats: number;
-      total_guest_seats: number;
-      empty_guest_seats: number;
+      // Unlimited-guest plans return the string 'Infinity'
+      total_guest_seats: number | 'Infinity';
+      empty_guest_seats: number | 'Infinity';
     };
   }> {
     try {

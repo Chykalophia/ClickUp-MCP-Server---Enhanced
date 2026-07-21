@@ -1,4 +1,5 @@
 import { readFile, stat } from 'fs/promises';
+import { realpathSync } from 'fs';
 import { resolve, sep } from 'path';
 import { ClickUpClient } from './index.js';
 import type {
@@ -81,6 +82,8 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
 
   private async resolveFileBytes(request: UploadAttachmentRequest): Promise<Buffer> {
     if (request.file_data) {
+      // Estimate the decoded size before allocating (4 base64 chars -> 3 bytes)
+      this.assertWithinSizeLimit(Math.floor(request.file_data.length * 0.75));
       const bytes = Buffer.from(request.file_data, 'base64');
       this.assertWithinSizeLimit(bytes.length);
       return bytes;
@@ -106,9 +109,24 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
       if (Number.isFinite(contentLength) && contentLength > 0) {
         this.assertWithinSizeLimit(contentLength);
       }
-      const bytes = Buffer.from(await response.arrayBuffer());
-      this.assertWithinSizeLimit(bytes.length);
-      return bytes;
+      // Stream with a running byte limit: Content-Length is advisory and may
+      // be absent or wrong, so never buffer the whole response unchecked.
+      const chunks: Buffer[] = [];
+      let received = 0;
+      if (response.body) {
+        const reader = response.body.getReader();
+        for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          received += value.byteLength;
+          if (received > MAX_UPLOAD_SIZE_BYTES) {
+            await reader.cancel();
+            this.assertWithinSizeLimit(received);
+          }
+          chunks.push(Buffer.from(value));
+        }
+      }
+      return Buffer.concat(chunks);
     }
     throw new Error('One of file_data, file_path, or file_url must be provided');
   }
@@ -134,10 +152,13 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
     const resolved = resolve(filePath);
     const uploadRoot = process.env.CLICKUP_UPLOAD_DIR;
     if (uploadRoot) {
-      const root = resolve(uploadRoot);
-      if (resolved !== root && !resolved.startsWith(root + sep)) {
+      // Canonicalize both sides so symlinks inside the root cannot escape it
+      const canonicalTarget = realpathSync(resolved);
+      const canonicalRoot = realpathSync(resolve(uploadRoot));
+      if (canonicalTarget !== canonicalRoot && !canonicalTarget.startsWith(canonicalRoot + sep)) {
         throw new Error('file_path is outside the configured CLICKUP_UPLOAD_DIR upload root');
       }
+      return canonicalTarget;
     }
     return resolved;
   }

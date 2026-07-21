@@ -295,7 +295,7 @@ export class TasksClient {
     }
 
     // markdown_content is a tool-level alias; the API field is markdown_description
-    if (processedParams.markdown_content) {
+    if (processedParams.markdown_content !== undefined) {
       processedParams.markdown_description = processedParams.markdown_content;
       delete processedParams.markdown_content;
     }
@@ -339,7 +339,7 @@ export class TasksClient {
     }
 
     // markdown_content is a tool-level alias; the API field is markdown_description
-    if (processedParams.markdown_content) {
+    if (processedParams.markdown_content !== undefined) {
       processedParams.markdown_description = processedParams.markdown_content;
       delete processedParams.markdown_content;
     }

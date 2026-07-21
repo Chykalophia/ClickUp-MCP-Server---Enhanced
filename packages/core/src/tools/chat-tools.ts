@@ -40,6 +40,7 @@ export function setupChatTools(server: McpServer): void {
     'Retrieve chat channels in a workspace with cursor pagination and optional filtering by channel type, follower status, and activity.',
     {
       workspace_id: z.string().min(1).describe('The ID of the workspace to get channels from'),
+      description_format: z.enum(['text/md', 'text/plain']).optional().describe('Format for channel descriptions in the response'),
       cursor: z.string().optional().describe('Pagination cursor from a previous response (next_cursor)'),
       limit: z.number().min(1).max(100).optional().describe('Maximum number of channels to return (1-100)'),
       is_follower: z.boolean().optional().describe('Only return channels the authenticated user follows'),
@@ -324,7 +325,14 @@ export function setupChatTools(server: McpServer): void {
       assignee: z.string().optional().describe('User ID to assign the message to'),
       group_assignee: z.string().optional().describe('Group ID to assign the message to'),
       followers: z.array(z.string()).optional().describe('User IDs (as strings) to add as followers of the message'),
-      post_data: z.record(z.any()).optional().describe("Post metadata (title, subtype id) when type is 'post'"),
+      post_data: z
+        .object({
+          title: z.string().max(255).describe('Post title'),
+          subtype: z.object({ id: z.string() }).passthrough().optional().describe('Post subtype (id from Get Post Subtype IDs)'),
+        })
+        .passthrough()
+        .optional()
+        .describe("Post metadata (title, subtype id) when type is 'post'"),
     },
     async args => {
       try {
@@ -356,7 +364,14 @@ export function setupChatTools(server: McpServer): void {
       assignee: z.string().optional().describe('User ID to assign the message to'),
       group_assignee: z.string().optional().describe('Group ID to assign the message to'),
       resolved: z.boolean().optional().describe('Mark the message as resolved or unresolved'),
-      post_data: z.record(z.any()).optional().describe('Updated post metadata for post-type messages'),
+      post_data: z
+        .object({
+          title: z.string().max(255).describe('Post title'),
+          subtype: z.object({ id: z.string() }).passthrough().optional().describe('Post subtype (id from Get Post Subtype IDs)'),
+        })
+        .passthrough()
+        .optional()
+        .describe('Updated post metadata for post-type messages'),
     },
     async args => {
       try {
@@ -447,7 +462,14 @@ export function setupChatTools(server: McpServer): void {
       assignee: z.string().optional().describe('User ID to assign the reply to'),
       group_assignee: z.string().optional().describe('Group ID to assign the reply to'),
       followers: z.array(z.string()).optional().describe('User IDs (as strings) to add as followers of the reply'),
-      post_data: z.record(z.any()).optional().describe("Post metadata (title, subtype id) when type is 'post'"),
+      post_data: z
+        .object({
+          title: z.string().max(255).describe('Post title'),
+          subtype: z.object({ id: z.string() }).passthrough().optional().describe('Post subtype (id from Get Post Subtype IDs)'),
+        })
+        .passthrough()
+        .optional()
+        .describe("Post metadata (title, subtype id) when type is 'post'"),
     },
     async args => {
       try {

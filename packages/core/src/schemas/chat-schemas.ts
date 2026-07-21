@@ -20,6 +20,7 @@ export const MessageTypeSchema = z.enum(['message', 'post']);
 
 export const GetChannelsFilterSchema = z.object({
   workspace_id: z.string().min(1),
+  description_format: z.enum(['text/md', 'text/plain']).optional(),
   cursor: z.string().optional(),
   limit: z.number().min(1).max(100).optional(),
   is_follower: z.boolean().optional(),
@@ -95,7 +96,13 @@ export const SendMessageSchema = z.object({
   assignee: z.string().optional(),
   group_assignee: z.string().optional(),
   followers: z.array(z.string()).optional(),
-  post_data: z.record(z.any()).optional(),
+  post_data: z
+    .object({
+      title: z.string().max(255),
+      subtype: z.object({ id: z.string() }).passthrough().optional(),
+    })
+    .passthrough()
+    .optional(),
 });
 
 export const UpdateMessageSchema = z.object({
@@ -106,7 +113,13 @@ export const UpdateMessageSchema = z.object({
   assignee: z.string().optional(),
   group_assignee: z.string().optional(),
   resolved: z.boolean().optional(),
-  post_data: z.record(z.any()).optional(),
+  post_data: z
+    .object({
+      title: z.string().max(255),
+      subtype: z.object({ id: z.string() }).passthrough().optional(),
+    })
+    .passthrough()
+    .optional(),
 });
 
 export const GetRepliesFilterSchema = z.object({
@@ -126,7 +139,13 @@ export const CreateReplySchema = z.object({
   assignee: z.string().optional(),
   group_assignee: z.string().optional(),
   followers: z.array(z.string()).optional(),
-  post_data: z.record(z.any()).optional(),
+  post_data: z
+    .object({
+      title: z.string().max(255),
+      subtype: z.object({ id: z.string() }).passthrough().optional(),
+    })
+    .passthrough()
+    .optional(),
 });
 
 // ========================================
@@ -216,7 +235,13 @@ export const ChatMessageSchema = z
     replies_count: z.number().optional(),
     assignee: z.string().nullable().optional(),
     group_assignee: z.string().nullable().optional(),
-    post_data: z.record(z.any()).optional(),
+    post_data: z
+    .object({
+      title: z.string().max(255),
+      subtype: z.object({ id: z.string() }).passthrough().optional(),
+    })
+    .passthrough()
+    .optional(),
     links: z.record(z.any()).optional(),
   })
   .passthrough();

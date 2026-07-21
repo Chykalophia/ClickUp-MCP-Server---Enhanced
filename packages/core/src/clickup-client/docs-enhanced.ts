@@ -269,6 +269,13 @@ export class EnhancedDocsClient {
     try {
       const url = `https://api.clickup.com/api/v3/workspaces/${params.workspace_id}/docs`;
 
+      const placements = [params.parent, params.space_id, params.folder_id].filter(
+        value => value !== undefined
+      );
+      if (placements.length > 1) {
+        throw new Error('Provide at most one of parent, space_id, or folder_id');
+      }
+
       let parent = params.parent;
       if (!parent && params.space_id) {
         parent = { id: params.space_id, type: 4 };
@@ -292,13 +299,23 @@ export class EnhancedDocsClient {
       const response = await this.http.post(url, requestBody);
       const doc: Doc = response.data;
 
-      // The create endpoint does not accept content; add it as the first page
+      // The create endpoint does not accept content; add it as the first page.
+      // The doc already exists at this point, so a page failure must not be
+      // reported as a failed creation (a retry would duplicate the doc).
       if (params.content && doc?.id) {
-        await this.createPage(params.workspace_id, doc.id, {
-          name: params.name,
-          content: params.content,
-          content_format: params.content_format || 'text/md'
-        });
+        try {
+          await this.createPage(params.workspace_id, doc.id, {
+            name: params.name,
+            content: params.content,
+            content_format: params.content_format || 'text/md'
+          });
+        } catch (pageError) {
+          const message = pageError instanceof Error ? pageError.message : String(pageError);
+          return {
+            ...doc,
+            warning: `Document created (id: ${doc.id}) but the initial content page failed: ${message}. Add the content with clickup_create_doc_page instead of retrying the creation.`
+          } as Doc;
+        }
       }
 
       return doc;

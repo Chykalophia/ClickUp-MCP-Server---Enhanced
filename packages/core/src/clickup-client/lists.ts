@@ -154,7 +154,7 @@ export class ListsClient {
   async createListFromTemplateInFolder(
     folderId: string,
     templateId: string,
-    params: CreateListParams
+    params: CreateListParams & { options?: { return_immediately?: boolean } }
   ): Promise<List> {
     return this.client.post(`/folder/${encodeURIComponent(folderId)}/list_template/${encodeURIComponent(templateId)}`, params);
   }
@@ -169,7 +169,7 @@ export class ListsClient {
   async createListFromTemplateInSpace(
     spaceId: string,
     templateId: string,
-    params: CreateListParams
+    params: CreateListParams & { options?: { return_immediately?: boolean } }
   ): Promise<List> {
     return this.client.post(`/space/${encodeURIComponent(spaceId)}/list_template/${encodeURIComponent(templateId)}`, params);
   }

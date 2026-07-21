@@ -319,10 +319,15 @@ export class EnhancedTimeTrackingClient {
       if (body.end !== undefined && body.start === undefined) {
         const currentEntry = await this.getTimeEntry(teamId, timerId);
         body.start = parseInt(currentEntry.start, 10);
-      } else if (body.start !== undefined && body.end === undefined && body.duration === undefined) {
-        const currentEntry = await this.getTimeEntry(teamId, timerId);
-        if (currentEntry.end) {
-          body.end = parseInt(currentEntry.end, 10);
+      } else if (body.start !== undefined && body.end === undefined) {
+        if (body.duration !== undefined) {
+          // start and end must be sent as a pair; derive end from the duration
+          body.end = body.start + body.duration;
+        } else {
+          const currentEntry = await this.getTimeEntry(teamId, timerId);
+          if (currentEntry.end) {
+            body.end = parseInt(currentEntry.end, 10);
+          }
         }
       }
 

@@ -405,12 +405,17 @@ export function setupListFolderTools(server: McpServer): void {
     {
       folder_id: z.string().describe('The ID of the folder to create the list in'),
       template_id: z.string().describe('The ID of the template to use'),
-      name: z.string().describe('The name of the list')
+      name: z.string().describe('The name of the list'),
+      return_immediately: z
+        .boolean()
+        .optional()
+        .describe('Return immediately with the future List ID instead of waiting for the template to finish')
     },
-    async ({ folder_id, template_id, name }) => {
+    async ({ folder_id, template_id, name, return_immediately }) => {
       try {
         const result = await listsClient.createListFromTemplateInFolder(folder_id, template_id, {
-          name
+          name,
+          ...(return_immediately === undefined ? {} : { options: { return_immediately } })
         });
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
@@ -427,12 +432,17 @@ export function setupListFolderTools(server: McpServer): void {
     {
       space_id: z.string().describe('The ID of the space to create the list in'),
       template_id: z.string().describe('The ID of the template to use'),
-      name: z.string().describe('The name of the list')
+      name: z.string().describe('The name of the list'),
+      return_immediately: z
+        .boolean()
+        .optional()
+        .describe('Return immediately with the future List ID instead of waiting for the template to finish')
     },
-    async ({ space_id, template_id, name }) => {
+    async ({ space_id, template_id, name, return_immediately }) => {
       try {
         const result = await listsClient.createListFromTemplateInSpace(space_id, template_id, {
-          name
+          name,
+          ...(return_immediately === undefined ? {} : { options: { return_immediately } })
         });
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]

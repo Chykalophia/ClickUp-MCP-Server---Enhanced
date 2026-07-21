@@ -152,7 +152,7 @@ export const LabelsValueSchema = z
   .min(1, 'Must select at least one label');
 
 // Emoji (rating) value schema — integer within the configured count range
-export const EmojiValueSchema = z.number().int().min(0).max(10);
+export const EmojiValueSchema = z.number().int().min(0).max(5);
 
 // Manual progress value schema — ClickUp expects { "current": <number> }
 export const ManualProgressValueSchema = z.object({
@@ -224,6 +224,8 @@ export const SetCustomFieldValueSchema = z.object({
   value_options: ValueOptionsSchema.optional(),
   custom_task_ids: z.boolean().optional(),
   team_id: z.string().optional(),
+}).refine(d => !d.custom_task_ids || !!d.team_id, {
+  message: 'team_id is required when custom_task_ids is true',
 });
 
 // Remove custom field value schema

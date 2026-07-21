@@ -84,13 +84,16 @@ const commentBlocksSchema = z.array(
         .describe('Text formatting attributes'),
     })
     .passthrough()
-);
+).min(1);
 
 /**
  * Build the query string for task-comment endpoints that support
  * custom task IDs (custom_task_ids + team_id).
  */
 function buildTaskQueryString(params: { custom_task_ids?: boolean; team_id?: number }): string {
+  if (params.custom_task_ids && params.team_id === undefined) {
+    throw new Error('team_id is required when custom_task_ids is true');
+  }
   const query = new URLSearchParams();
   if (params.custom_task_ids) {
     query.set('custom_task_ids', 'true');
@@ -284,12 +287,12 @@ export function setupCommentTools(server: McpServer): void {
     },
     async ({ view_id, comment, ...commentParams }) => {
       try {
-        if (!comment && !commentParams.comment_text) {
+        if (!comment?.length && !commentParams.comment_text) {
           throw new Error('Provide comment_text or comment blocks');
         }
         const params: CreateChatViewCommentParams = {
           ...commentParams,
-          ...(comment ? { comment: processCommentBlocks(comment), comment_text: undefined } : {}),
+          ...(comment?.length ? { comment: processCommentBlocks(comment), comment_text: undefined } : {}),
         };
         const result = await commentsClient.createChatViewComment(view_id, params);
         return {
@@ -344,12 +347,12 @@ export function setupCommentTools(server: McpServer): void {
     },
     async ({ list_id, comment, ...commentParams }) => {
       try {
-        if (!comment && !commentParams.comment_text) {
+        if (!comment?.length && !commentParams.comment_text) {
           throw new Error('Provide comment_text or comment blocks');
         }
         const params: CreateListCommentParams = {
           ...commentParams,
-          ...(comment ? { comment: processCommentBlocks(comment), comment_text: undefined } : {}),
+          ...(comment?.length ? { comment: processCommentBlocks(comment), comment_text: undefined } : {}),
         };
         const result = await commentsClient.createListComment(list_id, params);
         return {
@@ -386,7 +389,7 @@ export function setupCommentTools(server: McpServer): void {
         // Resolve-only / assign-only updates are valid without a new body,
         // but reject calls that update nothing at all.
         if (
-          !comment &&
+          !comment?.length &&
           commentParams.comment_text === undefined &&
           commentParams.assignee === undefined &&
           commentParams.resolved === undefined
@@ -397,7 +400,7 @@ export function setupCommentTools(server: McpServer): void {
           ...commentParams,
           // Structured blocks take precedence: drop comment_text so the
           // client does not prefer it over the supplied blocks.
-          ...(comment ? { comment: processCommentBlocks(comment), comment_text: undefined } : {}),
+          ...(comment?.length ? { comment: processCommentBlocks(comment), comment_text: undefined } : {}),
         };
         const result = await commentsClient.updateComment(comment_id, params);
         return {
@@ -470,12 +473,12 @@ export function setupCommentTools(server: McpServer): void {
     },
     async ({ comment_id, comment, ...commentParams }) => {
       try {
-        if (!comment && !commentParams.comment_text) {
+        if (!comment?.length && !commentParams.comment_text) {
           throw new Error('Provide comment_text or comment blocks');
         }
         const params: CreateThreadedCommentParams = {
           ...commentParams,
-          ...(comment ? { comment: processCommentBlocks(comment), comment_text: undefined } : {}),
+          ...(comment?.length ? { comment: processCommentBlocks(comment), comment_text: undefined } : {}),
         };
         const result = await commentsClient.createThreadedComment(comment_id, params);
         return {

@@ -69,6 +69,8 @@ export const UpdateTimeEntrySchema = z.object({
   tag_action: z.enum(['replace', 'add', 'remove']).optional(),
 }).refine((data) => data.duration === undefined || data.stop === undefined, {
   message: 'Provide either duration or stop on update, not both',
+}).refine((data) => data.start === undefined || data.stop === undefined || data.stop > data.start, {
+  message: 'Stop time must be after start time',
 });
 
 // Delete time entry schema

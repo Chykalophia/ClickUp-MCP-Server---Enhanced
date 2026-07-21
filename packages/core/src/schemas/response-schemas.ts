@@ -85,7 +85,7 @@ export const GoalResponseSchema = z.object({
 }).passthrough();
 
 export const GoalTargetResponseSchema = z.object({
-  target: z.record(z.unknown())
+  key_result: z.record(z.unknown())
 }).passthrough();
 
 // ========================================
@@ -149,6 +149,15 @@ export const TimeEntryResponseSchema = z.object({
     z.array(z.unknown()).min(1),
     z.record(z.unknown())
   ])
+}).passthrough();
+
+/**
+ * Response shape for GET /team/{team_id}/time_entries/current.
+ * Returns { data: <TimeEntry object> } when a timer is running,
+ * or { data: null } when no timer is running (a single entry, never an array).
+ */
+export const CurrentTimeEntryResponseSchema = z.object({
+  data: z.record(z.unknown()).nullable().optional()
 }).passthrough();
 
 // ========================================

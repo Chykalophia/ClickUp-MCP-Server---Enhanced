@@ -84,7 +84,7 @@ class EfficiencyEnhancedClickUpServer {
 
           for (const workspace of workspaces.teams || workspaces) {
             try {
-              const spaces = await this.client.get(`/space?team_id=${workspace.id}`);
+              const spaces = await this.client.get(`/team/${workspace.id}/space`);
 
               for (const space of spaces.spaces || []) {
                 try {
@@ -226,7 +226,7 @@ This tool is **3x more efficient** than using:
             this.client
               .get('/team')
               .then((teams: any) => teams.teams?.find((w: any) => w.id === args.workspace_id)),
-            this.client.get(`/space?team_id=${args.workspace_id}`),
+            this.client.get(`/team/${args.workspace_id}/space`),
           ]);
 
           if (!workspaceData) {

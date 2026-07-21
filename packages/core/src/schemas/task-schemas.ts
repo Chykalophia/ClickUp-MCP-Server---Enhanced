@@ -65,7 +65,6 @@ export const BulkUpdateTaskItemSchema = z.object({
     .describe('The new time estimate for the task (in milliseconds)'),
   start_date: z.number().optional().describe('The new start date of the task (Unix timestamp)'),
   start_date_time: z.boolean().optional().describe('Whether the start date includes a time'),
-  notify_all: z.boolean().optional().describe('Whether to notify all assignees'),
 });
 
 /**

@@ -4,12 +4,12 @@ import { z } from 'zod';
 import { getApiToken } from '../clickup-client/index.js';
 import { WebhooksEnhancedClient } from '../clickup-client/webhooks-enhanced.js';
 import {
+  WEBHOOK_EVENTS,
   CreateWebhookSchema,
   UpdateWebhookSchema,
   WebhookFilterSchema,
   ValidateWebhookSignatureSchema,
   ProcessWebhookSchema,
-  WebhookPayloadSchema,
 } from '../schemas/webhook-schemas.js';
 import { mcpError } from '../utils/error-handling.js';
 
@@ -23,7 +23,7 @@ export function setupWebhookTools(server: McpServer): void {
 
   server.tool(
     'clickup_create_webhook',
-    'Create a new webhook in a ClickUp workspace. Webhooks allow real-time notifications when events occur.',
+    'Create a new webhook in a ClickUp workspace. Webhooks allow real-time notifications when events occur. The response includes the webhook secret (returned only at creation) — store it for signature verification.',
     {
       workspace_id: z.string().min(1).describe('The ID of the workspace to create the webhook in'),
       endpoint: z
@@ -31,40 +31,24 @@ export function setupWebhookTools(server: McpServer): void {
         .url()
         .describe('The URL endpoint that will receive webhook notifications'),
       events: z
-        .array(
-          z.enum([
-            'taskCreated',
-            'taskUpdated',
-            'taskDeleted',
-            'taskStatusUpdated',
-            'taskAssigneeUpdated',
-            'taskDueDateUpdated',
-            'taskCommentPosted',
-            'taskCommentUpdated',
-            'taskTimeTracked',
-            'taskTimeUpdated',
-            'listCreated',
-            'listUpdated',
-            'listDeleted',
-            'folderCreated',
-            'folderUpdated',
-            'folderDeleted',
-            'spaceCreated',
-            'spaceUpdated',
-            'spaceDeleted',
-            'goalCreated',
-            'goalUpdated',
-            'goalDeleted',
-            'goalTargetUpdated',
-          ])
-        )
-        .describe('Array of events to subscribe to'),
-      health_check_url: z
-        .string()
-        .url()
+        .array(z.enum(WEBHOOK_EVENTS))
+        .describe("Array of events to subscribe to. Use '*' to subscribe to all events"),
+      space_id: z
+        .number()
         .optional()
-        .describe('Optional URL for webhook health checks'),
-      secret: z.string().optional().describe('Optional secret for HMAC signature validation'),
+        .describe('Optional space ID to scope webhook events to a specific space'),
+      folder_id: z
+        .number()
+        .optional()
+        .describe('Optional folder ID to scope webhook events to a specific folder'),
+      list_id: z
+        .number()
+        .optional()
+        .describe('Optional list ID to scope webhook events to a specific list'),
+      task_id: z
+        .string()
+        .optional()
+        .describe('Optional task ID to scope webhook events to a specific task'),
     },
     async args => {
       try {
@@ -75,7 +59,7 @@ export function setupWebhookTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Webhook created successfully:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Webhook created successfully. Store the returned secret — it is only returned at creation and is required for signature verification:\n\n${JSON.stringify(result, null, 2)}`,
             },
           ],
         };
@@ -87,11 +71,17 @@ export function setupWebhookTools(server: McpServer): void {
 
   server.tool(
     'clickup_get_webhooks',
-    'Get all webhooks for a workspace with optional filtering by status or event type.',
+    'Get all webhooks for a workspace, including per-webhook health info (status, fail_count). Optional status/event type filters are applied client-side (the ClickUp API does not support filtering).',
     {
       workspace_id: z.string().min(1).describe('The ID of the workspace to get webhooks from'),
-      status: z.enum(['active', 'inactive']).optional().describe('Filter webhooks by status'),
-      event_type: z.string().optional().describe('Filter webhooks by event type'),
+      status: z
+        .enum(['active', 'failing', 'suspended'])
+        .optional()
+        .describe('Filter webhooks by health status (applied client-side)'),
+      event_type: z
+        .enum(WEBHOOK_EVENTS)
+        .optional()
+        .describe('Filter webhooks by subscribed event type (applied client-side)'),
     },
     async args => {
       try {
@@ -114,13 +104,14 @@ export function setupWebhookTools(server: McpServer): void {
 
   server.tool(
     'clickup_get_webhook',
-    'Get detailed information about a specific webhook by its ID.',
+    'Get detailed information about a specific webhook by its ID, including health info (status, fail_count). The ClickUp API has no single-webhook endpoint, so this looks the webhook up in the workspace list.',
     {
+      workspace_id: z.string().min(1).describe('The ID of the workspace the webhook belongs to'),
       webhook_id: z.string().min(1).describe('The ID of the webhook to get'),
     },
     async args => {
       try {
-        const result = await webhooksClient.getWebhook(args.webhook_id);
+        const result = await webhooksClient.getWebhook(args.workspace_id, args.webhook_id);
 
         return {
           content: [
@@ -138,46 +129,22 @@ export function setupWebhookTools(server: McpServer): void {
 
   server.tool(
     'clickup_update_webhook',
-    "Update an existing webhook's configuration including endpoint, events, and status.",
+    "Update an existing webhook's configuration including endpoint, events, and status. ClickUp requires the full endpoint/events/status body, so unspecified fields are filled in from the webhook's current configuration.",
     {
       webhook_id: z.string().min(1).describe('The ID of the webhook to update'),
+      workspace_id: z
+        .string()
+        .min(1)
+        .describe("The ID of the workspace the webhook belongs to (used to fetch the webhook's current configuration)"),
       endpoint: z
         .string()
         .url()
         .optional()
         .describe('The new URL endpoint for webhook notifications'),
       events: z
-        .array(
-          z.enum([
-            'taskCreated',
-            'taskUpdated',
-            'taskDeleted',
-            'taskStatusUpdated',
-            'taskAssigneeUpdated',
-            'taskDueDateUpdated',
-            'taskCommentPosted',
-            'taskCommentUpdated',
-            'taskTimeTracked',
-            'taskTimeUpdated',
-            'listCreated',
-            'listUpdated',
-            'listDeleted',
-            'folderCreated',
-            'folderUpdated',
-            'folderDeleted',
-            'spaceCreated',
-            'spaceUpdated',
-            'spaceDeleted',
-            'goalCreated',
-            'goalUpdated',
-            'goalDeleted',
-            'goalTargetUpdated',
-          ])
-        )
+        .array(z.enum(WEBHOOK_EVENTS))
         .optional()
-        .describe('New array of events to subscribe to'),
-      health_check_url: z.string().url().optional().describe('New URL for webhook health checks'),
-      secret: z.string().optional().describe('New secret for HMAC signature validation'),
+        .describe("New array of events to subscribe to. Use '*' to subscribe to all events"),
       status: z.enum(['active', 'inactive']).optional().describe('New status for the webhook'),
     },
     async args => {
@@ -224,61 +191,16 @@ export function setupWebhookTools(server: McpServer): void {
   );
 
   server.tool(
-    'clickup_get_webhook_event_history',
-    'Get the event history for a webhook including delivery status and response codes.',
-    {
-      webhook_id: z.string().min(1).describe('The ID of the webhook to get event history for'),
-      limit: z.number().positive().optional().describe('Maximum number of events to return'),
-    },
-    async args => {
-      try {
-        const result = await webhooksClient.getWebhookEventHistory(args.webhook_id, args.limit);
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Webhook event history:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        return mcpError('getting webhook event history', error);
-      }
-    }
-  );
-
-  server.tool(
-    'clickup_ping_webhook',
-    "Send a test ping to a webhook endpoint to verify it's working correctly.",
-    {
-      webhook_id: z.string().min(1).describe('The ID of the webhook to ping'),
-    },
-    async args => {
-      try {
-        const result = await webhooksClient.pingWebhook(args.webhook_id);
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Webhook ping result:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        return mcpError('pinging webhook', error);
-      }
-    }
-  );
-
-  server.tool(
     'clickup_validate_webhook_signature',
-    'Validate the HMAC signature of a webhook payload to ensure authenticity.',
+    "Validate the HMAC-SHA256 signature of a webhook payload to ensure authenticity. The payload must be the raw request body string exactly as received; the signature is the bare hex digest from ClickUp's X-Signature header.",
     {
-      payload: z.string().describe('The raw webhook payload as a string'),
-      signature: z.string().describe('The signature header from the webhook request'),
-      secret: z.string().describe('The webhook secret used for signature generation'),
+      payload: z.string().describe('The raw webhook request body as a string, exactly as received'),
+      signature: z
+        .string()
+        .describe('The X-Signature header value from the webhook request (bare hex HMAC-SHA256 digest)'),
+      secret: z
+        .string()
+        .describe('The webhook secret returned by ClickUp when the webhook was created'),
     },
     async args => {
       try {
@@ -302,30 +224,27 @@ export function setupWebhookTools(server: McpServer): void {
 
   server.tool(
     'clickup_process_webhook',
-    'Process an incoming webhook payload and extract structured information about the event.',
+    'Process an incoming ClickUp webhook delivery ({webhook_id, event, task_id, history_items}) and extract structured information about the event. The signature is verified against the raw body string before parsing.',
     {
-      payload: z.any().describe('The webhook payload object'),
+      body: z
+        .string()
+        .describe('The raw webhook request body as a string, exactly as received (required for signature verification)'),
       validate_signature: z
         .boolean()
         .default(true)
         .describe('Whether to validate the webhook signature'),
-      signature: z.string().optional().describe('The signature header for validation'),
-      secret: z.string().optional().describe('The webhook secret for signature validation'),
+      signature: z
+        .string()
+        .optional()
+        .describe('The X-Signature header value from the webhook request'),
+      secret: z
+        .string()
+        .optional()
+        .describe('The webhook secret returned by ClickUp when the webhook was created'),
     },
     async args => {
       try {
-        // Parse the payload if it's a string using safe parsing
-        let payload = args.payload;
-        if (typeof payload === 'string') {
-          const { safeJsonParse } = await import('../utils/security.js');
-          payload = safeJsonParse(payload);
-        }
-
-        const parsedPayload = WebhookPayloadSchema.parse(payload);
-        const request = ProcessWebhookSchema.parse({
-          ...args,
-          payload: parsedPayload,
-        });
+        const request = ProcessWebhookSchema.parse(args);
         const result = await webhooksClient.processWebhook(request);
 
         return {
@@ -338,65 +257,6 @@ export function setupWebhookTools(server: McpServer): void {
         };
       } catch (error: unknown) {
         return mcpError('processing webhook', error);
-      }
-    }
-  );
-
-  server.tool(
-    'clickup_get_webhook_stats',
-    'Get statistics about webhook performance including success rate and response times.',
-    {
-      webhook_id: z.string().min(1).describe('The ID of the webhook to get statistics for'),
-      days: z
-        .number()
-        .positive()
-        .optional()
-        .describe('Number of days to include in statistics (default: 30)'),
-    },
-    async args => {
-      try {
-        const result = await webhooksClient.getWebhookStats(args.webhook_id, args.days);
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Webhook statistics:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        return mcpError('getting webhook statistics', error);
-      }
-    }
-  );
-
-  server.tool(
-    'clickup_retry_webhook_events',
-    'Retry failed webhook events for a specific webhook.',
-    {
-      webhook_id: z.string().min(1).describe('The ID of the webhook to retry events for'),
-      event_ids: z
-        .array(z.string())
-        .optional()
-        .describe(
-          'Optional array of specific event IDs to retry. If not provided, all failed events will be retried.'
-        ),
-    },
-    async args => {
-      try {
-        const result = await webhooksClient.retryWebhookEvents(args.webhook_id, args.event_ids);
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Webhook events retry result:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        return mcpError('retrying webhook events', error);
       }
     }
   );

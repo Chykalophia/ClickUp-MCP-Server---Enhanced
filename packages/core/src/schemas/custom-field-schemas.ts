@@ -4,28 +4,35 @@ import { z } from 'zod';
 // CUSTOM FIELD TYPE VALIDATION
 // ========================================
 
+// Real ClickUp custom field type strings as returned by the API.
+// NOTE: The ClickUp public API has NO endpoints to create, update, or delete
+// custom field DEFINITIONS — fields must be created in the ClickUp UI, so
+// there are no field-creation schemas here; only listing and value schemas.
 export const CustomFieldTypeSchema = z.enum([
-  'text',
-  'textarea',
-  'number',
-  'currency',
-  'date',
-  'drop_down',
-  'labels',
-  'checkbox',
   'url',
+  'drop_down',
   'email',
   'phone',
-  'rating',
-  'progress',
-  'task_relationship',
+  'date',
+  'text',
+  'checkbox',
+  'number',
+  'currency',
+  'tasks',
+  'users',
+  'emoji',
+  'labels',
+  'automatic_progress',
+  'manual_progress',
+  'short_text',
+  'location',
 ]);
 
 // ========================================
 // FIELD CONFIGURATION SCHEMAS
 // ========================================
 
-// Text field configurations
+// Text field configurations ('text' = long text, 'short_text' = single line)
 export const TextFieldConfigSchema = z.object({
   default: z.string().optional(),
   placeholder: z.string().optional(),
@@ -79,175 +86,50 @@ export const ContactFieldConfigSchema = z.object({
   placeholder: z.string().optional(),
 });
 
-// Rating field configurations
-export const RatingFieldConfigSchema = z.object({
-  default: z.number().min(0).optional().default(0),
+// Emoji (rating) field configurations
+export const EmojiFieldConfigSchema = z.object({
+  code_point: z.string().optional(),
   count: z.number().min(1).max(10).default(5),
 });
 
-// Progress field configurations
-export const ProgressFieldConfigSchema = z
+// Manual progress field configurations
+export const ManualProgressFieldConfigSchema = z
   .object({
-    default: z.number().optional(),
     start: z.number().optional().default(0),
     end: z.number().optional().default(100),
-    unit: z.string().optional().default('%'),
+    current: z.number().optional(),
   })
   .refine(data => (data.start || 0) < (data.end || 100), {
     message: 'Start value must be less than end value',
     path: ['start'],
   });
 
-// Task relationship field configurations
-export const TaskRelationshipFieldConfigSchema = z.object({
-  multiple: z.boolean().optional().default(false),
+// Automatic progress field configurations (computed by ClickUp)
+export const AutomaticProgressFieldConfigSchema = z.object({
+  tracking: z.record(z.any()).optional(),
+  complete_on: z.number().optional(),
 });
 
-// ========================================
-// FIELD CREATION SCHEMAS
-// ========================================
-
-// Base field creation schema
-const BaseCreateFieldSchema = z.object({
-  name: z.string().min(1, 'Field name is required').max(255, 'Field name too long'),
-  required: z.boolean().optional().default(false),
-  hide_from_guests: z.boolean().optional().default(false),
+// Users (people) field configurations
+export const UsersFieldConfigSchema = z.object({
+  single_user: z.boolean().optional(),
+  include_groups: z.boolean().optional(),
+  include_guests: z.boolean().optional(),
+  include_team_members: z.boolean().optional(),
 });
-
-// Text field creation
-export const CreateTextFieldSchema = BaseCreateFieldSchema.extend({
-  type: z.literal('text'),
-  type_config: TextFieldConfigSchema.optional(),
-});
-
-// Textarea field creation
-export const CreateTextareaFieldSchema = BaseCreateFieldSchema.extend({
-  type: z.literal('textarea'),
-  type_config: TextFieldConfigSchema.optional(),
-});
-
-// Number field creation
-export const CreateNumberFieldSchema = BaseCreateFieldSchema.extend({
-  type: z.literal('number'),
-  type_config: NumberFieldConfigSchema.optional(),
-});
-
-// Currency field creation
-export const CreateCurrencyFieldSchema = BaseCreateFieldSchema.extend({
-  type: z.literal('currency'),
-  type_config: CurrencyFieldConfigSchema.optional(),
-});
-
-// Date field creation
-export const CreateDateFieldSchema = BaseCreateFieldSchema.extend({
-  type: z.literal('date'),
-  type_config: DateFieldConfigSchema.optional(),
-});
-
-// Dropdown field creation
-export const CreateDropdownFieldSchema = BaseCreateFieldSchema.extend({
-  type: z.literal('drop_down'),
-  type_config: DropdownFieldConfigSchema,
-});
-
-// Labels field creation
-export const CreateLabelsFieldSchema = BaseCreateFieldSchema.extend({
-  type: z.literal('labels'),
-  type_config: LabelsFieldConfigSchema,
-});
-
-// Checkbox field creation
-export const CreateCheckboxFieldSchema = BaseCreateFieldSchema.extend({
-  type: z.literal('checkbox'),
-  type_config: CheckboxFieldConfigSchema.optional(),
-});
-
-// URL field creation
-export const CreateURLFieldSchema = BaseCreateFieldSchema.extend({
-  type: z.literal('url'),
-  type_config: ContactFieldConfigSchema.optional(),
-});
-
-// Email field creation
-export const CreateEmailFieldSchema = BaseCreateFieldSchema.extend({
-  type: z.literal('email'),
-  type_config: ContactFieldConfigSchema.optional(),
-});
-
-// Phone field creation
-export const CreatePhoneFieldSchema = BaseCreateFieldSchema.extend({
-  type: z.literal('phone'),
-  type_config: ContactFieldConfigSchema.optional(),
-});
-
-// Rating field creation
-export const CreateRatingFieldSchema = BaseCreateFieldSchema.extend({
-  type: z.literal('rating'),
-  type_config: RatingFieldConfigSchema.optional(),
-});
-
-// Progress field creation
-export const CreateProgressFieldSchema = BaseCreateFieldSchema.extend({
-  type: z.literal('progress'),
-  type_config: ProgressFieldConfigSchema.optional(),
-});
-
-// Task relationship field creation
-export const CreateTaskRelationshipFieldSchema = BaseCreateFieldSchema.extend({
-  type: z.literal('task_relationship'),
-  type_config: TaskRelationshipFieldConfigSchema.optional(),
-});
-
-// Union schema for all field creation types
-export const CreateCustomFieldSchema = z.discriminatedUnion('type', [
-  CreateTextFieldSchema,
-  CreateTextareaFieldSchema,
-  CreateNumberFieldSchema,
-  CreateCurrencyFieldSchema,
-  CreateDateFieldSchema,
-  CreateDropdownFieldSchema,
-  CreateLabelsFieldSchema,
-  CreateCheckboxFieldSchema,
-  CreateURLFieldSchema,
-  CreateEmailFieldSchema,
-  CreatePhoneFieldSchema,
-  CreateRatingFieldSchema,
-  CreateProgressFieldSchema,
-  CreateTaskRelationshipFieldSchema,
-]);
-
-// ========================================
-// FIELD UPDATE SCHEMAS
-// ========================================
-
-export const UpdateCustomFieldSchema = z
-  .object({
-    name: z
-      .string()
-      .min(1, 'Field name cannot be empty')
-      .max(255, 'Field name too long')
-      .optional(),
-    type_config: z.record(z.any()).optional(),
-    required: z.boolean().optional(),
-    hide_from_guests: z.boolean().optional(),
-  })
-  .refine(data => Object.keys(data).length > 0, {
-    message: 'Must specify at least one field to update',
-    path: ['name'],
-  });
 
 // ========================================
 // FIELD VALUE VALIDATION SCHEMAS
 // ========================================
 
-// Text value schema
+// Text value schema (text / short_text)
 export const TextValueSchema = z.string();
 
-// Number value schema
+// Number value schema (number / currency)
 export const NumberValueSchema = z.number().finite();
 
-// Date value schema
-export const DateValueSchema = z.number().positive();
+// Date value schema — Unix timestamp in MILLISECONDS
+export const DateValueSchema = z.number().int().positive();
 
 // Boolean value schema
 export const BooleanValueSchema = z.boolean();
@@ -261,25 +143,46 @@ export const EmailValueSchema = z.string().email('Must be a valid email address'
 // Phone value schema
 export const PhoneValueSchema = z.string().min(1, 'Phone number cannot be empty');
 
-// Dropdown value schema (option ID)
+// Dropdown value schema (option UUID from type_config.options[].id)
 export const DropdownValueSchema = z.string().min(1, 'Must select a valid option');
 
-// Labels value schema (array of option IDs)
+// Labels value schema (array of label option UUIDs)
 export const LabelsValueSchema = z
   .array(z.string().min(1))
   .min(1, 'Must select at least one label');
 
-// Rating value schema
-export const RatingValueSchema = z.number().min(0).max(10);
+// Emoji (rating) value schema — integer within the configured count range
+export const EmojiValueSchema = z.number().int().min(0).max(5);
 
-// Progress value schema
-export const ProgressValueSchema = z.number();
+// Manual progress value schema — ClickUp expects { "current": <number> }
+export const ManualProgressValueSchema = z.object({
+  current: z.number(),
+});
 
-// Task relationship value schema
-export const TaskRelationshipValueSchema = z.union([
-  z.string().min(1), // Single task ID
-  z.array(z.string().min(1)).min(1), // Multiple task IDs
-]);
+// Users/tasks value schema — { add: [ids], rem: [ids] }
+export const AddRemValueSchema = z
+  .object({
+    add: z.array(z.union([z.string().min(1), z.number()])).optional(),
+    rem: z.array(z.union([z.string().min(1), z.number()])).optional(),
+  })
+  .refine(data => data.add !== undefined || data.rem !== undefined, {
+    message: 'Must specify add and/or rem',
+    path: ['add'],
+  });
+
+// Location value schema — ClickUp requires formatted_address alongside lat/lng
+export const LocationValueSchema = z.object({
+  location: z.object({
+    lat: z.number(),
+    lng: z.number(),
+  }),
+  formatted_address: z.string(),
+});
+
+// value_options schema (sibling of value in the Set Custom Field Value body)
+export const ValueOptionsSchema = z.object({
+  time: z.boolean().optional(),
+});
 
 // ========================================
 // CONTAINER VALIDATION SCHEMAS
@@ -288,6 +191,7 @@ export const TaskRelationshipValueSchema = z.union([
 export const ListIdSchema = z.string().min(1, 'List ID is required');
 export const FolderIdSchema = z.string().min(1, 'Folder ID is required');
 export const SpaceIdSchema = z.string().min(1, 'Space ID is required');
+export const TeamIdSchema = z.string().min(1, 'Team ID is required');
 export const FieldIdSchema = z.string().min(1, 'Field ID is required');
 export const TaskIdSchema = z.string().min(1, 'Task ID is required');
 
@@ -298,59 +202,18 @@ export const TaskIdSchema = z.string().min(1, 'Task ID is required');
 // Get custom fields schemas
 export const GetListCustomFieldsSchema = z.object({
   list_id: ListIdSchema,
-  include_deleted: z.boolean().optional().default(false),
 });
 
 export const GetFolderCustomFieldsSchema = z.object({
   folder_id: FolderIdSchema,
-  include_deleted: z.boolean().optional().default(false),
 });
 
 export const GetSpaceCustomFieldsSchema = z.object({
   space_id: SpaceIdSchema,
-  include_deleted: z.boolean().optional().default(false),
 });
 
-// Create custom field schemas
-export const CreateListCustomFieldSchema = z.object({
-  list_id: ListIdSchema,
-  name: z.string().min(1).max(255),
-  type: CustomFieldTypeSchema,
-  type_config: z.record(z.any()).optional(),
-  required: z.boolean().optional().default(false),
-  hide_from_guests: z.boolean().optional().default(false),
-});
-
-export const CreateFolderCustomFieldSchema = z.object({
-  folder_id: FolderIdSchema,
-  name: z.string().min(1).max(255),
-  type: CustomFieldTypeSchema,
-  type_config: z.record(z.any()).optional(),
-  required: z.boolean().optional().default(false),
-  hide_from_guests: z.boolean().optional().default(false),
-});
-
-export const CreateSpaceCustomFieldSchema = z.object({
-  space_id: SpaceIdSchema,
-  name: z.string().min(1).max(255),
-  type: CustomFieldTypeSchema,
-  type_config: z.record(z.any()).optional(),
-  required: z.boolean().optional().default(false),
-  hide_from_guests: z.boolean().optional().default(false),
-});
-
-// Update custom field schema
-export const UpdateCustomFieldToolSchema = z.object({
-  field_id: FieldIdSchema,
-  name: z.string().min(1).max(255).optional(),
-  type_config: z.record(z.any()).optional(),
-  required: z.boolean().optional(),
-  hide_from_guests: z.boolean().optional(),
-});
-
-// Delete custom field schema
-export const DeleteCustomFieldSchema = z.object({
-  field_id: FieldIdSchema,
+export const GetTeamCustomFieldsSchema = z.object({
+  team_id: TeamIdSchema,
 });
 
 // Set custom field value schema
@@ -358,12 +221,19 @@ export const SetCustomFieldValueSchema = z.object({
   task_id: TaskIdSchema,
   field_id: FieldIdSchema,
   value: z.any(), // Will be validated based on field type
+  value_options: ValueOptionsSchema.optional(),
+  custom_task_ids: z.boolean().optional(),
+  team_id: z.string().optional(),
+}).refine(d => !d.custom_task_ids || !!d.team_id, {
+  message: 'team_id is required when custom_task_ids is true',
 });
 
 // Remove custom field value schema
 export const RemoveCustomFieldValueSchema = z.object({
   task_id: TaskIdSchema,
   field_id: FieldIdSchema,
+  custom_task_ids: z.boolean().optional(),
+  team_id: z.string().optional(),
 });
 
 // ========================================
@@ -375,17 +245,7 @@ export const CustomFieldToolSchemas = {
   getListCustomFields: GetListCustomFieldsSchema,
   getFolderCustomFields: GetFolderCustomFieldsSchema,
   getSpaceCustomFields: GetSpaceCustomFieldsSchema,
-
-  // Create operations
-  createListCustomField: CreateListCustomFieldSchema,
-  createFolderCustomField: CreateFolderCustomFieldSchema,
-  createSpaceCustomField: CreateSpaceCustomFieldSchema,
-
-  // Update operations
-  updateCustomField: UpdateCustomFieldToolSchema,
-
-  // Delete operations
-  deleteCustomField: DeleteCustomFieldSchema,
+  getTeamCustomFields: GetTeamCustomFieldsSchema,
 
   // Value operations
   setCustomFieldValue: SetCustomFieldValueSchema,
@@ -402,7 +262,7 @@ export const CustomFieldToolSchemas = {
 export function validateFieldValueByType(fieldType: string, _value: any): z.ZodSchema {
   switch (fieldType) {
     case 'text':
-    case 'textarea':
+    case 'short_text':
       return TextValueSchema;
 
     case 'number':
@@ -430,14 +290,22 @@ export function validateFieldValueByType(fieldType: string, _value: any): z.ZodS
     case 'labels':
       return LabelsValueSchema;
 
-    case 'rating':
-      return RatingValueSchema;
+    case 'emoji':
+      return EmojiValueSchema;
 
-    case 'progress':
-      return ProgressValueSchema;
+    case 'manual_progress':
+      return ManualProgressValueSchema;
 
-    case 'task_relationship':
-      return TaskRelationshipValueSchema;
+    case 'automatic_progress':
+      // Computed by ClickUp — cannot be set via the API
+      return z.never();
+
+    case 'users':
+    case 'tasks':
+      return AddRemValueSchema;
+
+    case 'location':
+      return LocationValueSchema;
 
     default:
       return z.any();
@@ -450,7 +318,7 @@ export function validateFieldValueByType(fieldType: string, _value: any): z.ZodS
 export function getFieldTypeConfigSchema(fieldType: string): z.ZodSchema {
   switch (fieldType) {
     case 'text':
-    case 'textarea':
+    case 'short_text':
       return TextFieldConfigSchema;
 
     case 'number':
@@ -476,14 +344,17 @@ export function getFieldTypeConfigSchema(fieldType: string): z.ZodSchema {
     case 'phone':
       return ContactFieldConfigSchema;
 
-    case 'rating':
-      return RatingFieldConfigSchema;
+    case 'emoji':
+      return EmojiFieldConfigSchema;
 
-    case 'progress':
-      return ProgressFieldConfigSchema;
+    case 'manual_progress':
+      return ManualProgressFieldConfigSchema;
 
-    case 'task_relationship':
-      return TaskRelationshipFieldConfigSchema;
+    case 'automatic_progress':
+      return AutomaticProgressFieldConfigSchema;
+
+    case 'users':
+      return UsersFieldConfigSchema;
 
     default:
       return z.record(z.any());

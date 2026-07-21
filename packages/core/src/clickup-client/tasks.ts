@@ -62,7 +62,8 @@ export interface Task {
 export interface CreateTaskParams {
   name: string;
   description?: string;
-  markdown_content?: string; // Add support for markdown_content field
+  markdown_description?: string; // Markdown description sent to the API
+  markdown_content?: string; // Accepted as an alias; translated to markdown_description before the request
   assignees?: number[];
   tags?: string[];
   status?: string;
@@ -85,7 +86,8 @@ export interface CreateTaskParams {
 export interface UpdateTaskParams {
   name?: string;
   description?: string;
-  markdown_content?: string; // Add support for markdown_content field
+  markdown_description?: string; // Markdown description sent to the API
+  markdown_content?: string; // Accepted as an alias; translated to markdown_description before the request
   // Desired set of assignee user IDs. Translated to ClickUp's `{add, rem}`
   // delta envelope inside updateTask — see comment there for why.
   assignees?: number[];
@@ -96,8 +98,9 @@ export interface UpdateTaskParams {
   time_estimate?: number;
   start_date?: number;
   start_date_time?: boolean;
-  notify_all?: boolean;
   parent?: string;
+  // The Update Task endpoint does not accept custom_fields in the body;
+  // these are applied via Set Custom Field Value calls after the PUT.
   custom_fields?: Array<{
     id: string;
     value: any;
@@ -111,6 +114,7 @@ export interface GetTasksParams {
   subtasks?: boolean;
   statuses?: string[];
   include_closed?: boolean;
+  include_markdown_description?: boolean;
   assignees?: number[];
   due_date_gt?: number;
   due_date_lt?: number;
@@ -125,6 +129,40 @@ export interface GetTasksParams {
   }>;
 }
 
+export interface GetFilteredTeamTasksParams {
+  page?: number;
+  order_by?: string;
+  reverse?: boolean;
+  subtasks?: boolean;
+  space_ids?: string[];
+  project_ids?: string[];
+  list_ids?: string[];
+  statuses?: string[];
+  include_closed?: boolean;
+  include_markdown_description?: boolean;
+  assignees?: string[];
+  tags?: string[];
+  due_date_gt?: number;
+  due_date_lt?: number;
+  date_created_gt?: number;
+  date_created_lt?: number;
+  date_updated_gt?: number;
+  date_updated_lt?: number;
+  date_done_gt?: number;
+  date_done_lt?: number;
+  parent?: string;
+  custom_fields?: Array<{
+    field_id: string;
+    operator: string;
+    value: any;
+  }>;
+}
+
+export interface CustomTaskIdParams {
+  custom_task_ids?: boolean;
+  team_id?: string;
+}
+
 export class TasksClient {
   private client: ClickUpClient;
 
@@ -133,13 +171,41 @@ export class TasksClient {
   }
 
   /**
+   * Build a query-string suffix for custom_task_ids/team_id addressing,
+   * for endpoints reached via post/put/delete (which take no query params).
+   */
+  private buildCustomIdQuery(params?: CustomTaskIdParams): string {
+    if (params?.custom_task_ids && !params.team_id) {
+      throw new Error('team_id is required when custom_task_ids is true');
+    }
+    const search = new URLSearchParams();
+    if (params?.custom_task_ids !== undefined) {
+      search.set('custom_task_ids', String(params.custom_task_ids));
+    }
+    if (params?.team_id !== undefined) {
+      search.set('team_id', params.team_id);
+    }
+    const queryString = search.toString();
+    return queryString ? `?${queryString}` : '';
+  }
+
+  /**
    * Get tasks from a specific list
    * @param listId The ID of the list to get tasks from
    * @param params Optional parameters for filtering tasks
    * @returns A list of tasks with processed content
    */
-  async getTasksFromList(listId: string, params?: GetTasksParams): Promise<{ tasks: Task[] }> {
-    const raw = await this.client.get<unknown>(`/list/${listId}/task`, params);
+  async getTasksFromList(listId: string, params?: GetTasksParams): Promise<{ tasks: Task[]; last_page?: boolean }> {
+    const queryParams: Record<string, unknown> = { ...params };
+
+    // ClickUp expects the custom_fields filter as a single JSON-encoded string
+    // query param; axios's default serializer would emit bracketed key/value
+    // pairs for an array of objects, which ClickUp cannot parse.
+    if (params?.custom_fields) {
+      queryParams.custom_fields = JSON.stringify(params.custom_fields);
+    }
+
+    const raw = await this.client.get<unknown>(`/list/${listId}/task`, queryParams);
     const result = validateResponse(TasksResponseSchema, raw, 'getTasksFromList');
 
     // Process each task's content
@@ -147,7 +213,35 @@ export class TasksClient {
       (result as any).tasks = (result.tasks as any[]).map((task: any) => processClickUpResponse(task));
     }
 
-    return result as { tasks: Task[] };
+    return result as unknown as { tasks: Task[]; last_page?: boolean };
+  }
+
+  /**
+   * Get tasks across an entire workspace (team) with filtering
+   * @param teamId The ID of the workspace (team) to search
+   * @param params Optional parameters for filtering tasks
+   * @returns A list of tasks with processed content
+   */
+  async getFilteredTeamTasks(
+    teamId: string,
+    params?: GetFilteredTeamTasksParams
+  ): Promise<{ tasks: Task[]; last_page?: boolean }> {
+    const queryParams: Record<string, unknown> = { ...params };
+
+    // Same JSON-encoded string requirement as getTasksFromList.
+    if (params?.custom_fields) {
+      queryParams.custom_fields = JSON.stringify(params.custom_fields);
+    }
+
+    const raw = await this.client.get<unknown>(`/team/${teamId}/task`, queryParams);
+    const result = validateResponse(TasksResponseSchema, raw, 'getFilteredTeamTasks');
+
+    // Process each task's content
+    if (result.tasks && Array.isArray(result.tasks)) {
+      (result as any).tasks = (result.tasks as any[]).map((task: any) => processClickUpResponse(task));
+    }
+
+    return result as unknown as { tasks: Task[]; last_page?: boolean };
   }
 
   // Removed pseudo endpoints for getting tasks from spaces and folders
@@ -155,10 +249,16 @@ export class TasksClient {
   /**
    * Get a specific task by ID
    * @param taskId The ID of the task to get
-   * @param params Optional parameters (include_subtasks)
+   * @param params Optional parameters (include_subtasks, include_markdown_description, custom_task_ids, team_id)
    * @returns The task details with processed content
    */
-  async getTask(taskId: string, params?: { include_subtasks?: boolean }): Promise<Task> {
+  async getTask(
+    taskId: string,
+    params?: {
+      include_subtasks?: boolean;
+      include_markdown_description?: boolean;
+    } & CustomTaskIdParams
+  ): Promise<Task> {
     const result = await this.client.get(`/task/${taskId}`, params);
     return processClickUpResponse(result);
   }
@@ -169,7 +269,11 @@ export class TasksClient {
    * @param params The task parameters (supports markdown in description)
    * @returns The created task with processed content
    */
-  async createTask(listId: string, params: CreateTaskParams): Promise<Task> {
+  async createTask(
+    listId: string,
+    params: CreateTaskParams,
+    query?: CustomTaskIdParams
+  ): Promise<Task> {
     // Process description for markdown support
     const processedParams = { ...params };
 
@@ -181,8 +285,8 @@ export class TasksClient {
       delete processedParams.description;
 
       // Add the appropriate field(s) based on content type
-      if (contentData.markdown_content) {
-        processedParams.markdown_content = contentData.markdown_content;
+      if (contentData.markdown_description) {
+        processedParams.markdown_description = contentData.markdown_description;
       } else if (contentData.description) {
         processedParams.description = contentData.description;
       }
@@ -190,7 +294,16 @@ export class TasksClient {
       // Note: ClickUp API doesn't accept text_content on create, it generates it
     }
 
-    const result = await this.client.post(`/list/${listId}/task`, processedParams);
+    // markdown_content is a tool-level alias; the API field is markdown_description
+    if (processedParams.markdown_content !== undefined) {
+      processedParams.markdown_description = processedParams.markdown_content;
+      delete processedParams.markdown_content;
+    }
+
+    const result = await this.client.post(
+      `/list/${listId}/task${this.buildCustomIdQuery(query)}`,
+      processedParams
+    );
     return processClickUpResponse(result);
   }
 
@@ -200,7 +313,11 @@ export class TasksClient {
    * @param params The task parameters to update (supports markdown in description)
    * @returns The updated task with processed content
    */
-  async updateTask(taskId: string, params: UpdateTaskParams): Promise<Task> {
+  async updateTask(
+    taskId: string,
+    params: UpdateTaskParams,
+    query?: CustomTaskIdParams
+  ): Promise<Task> {
     // Process description for markdown support
     const processedParams: Record<string, unknown> = { ...params };
 
@@ -212,8 +329,8 @@ export class TasksClient {
       delete processedParams.description;
 
       // Add the appropriate field(s) based on content type
-      if (contentData.markdown_content) {
-        processedParams.markdown_content = contentData.markdown_content;
+      if (contentData.markdown_description) {
+        processedParams.markdown_description = contentData.markdown_description;
       } else if (contentData.description) {
         processedParams.description = contentData.description;
       }
@@ -221,13 +338,24 @@ export class TasksClient {
       // Note: ClickUp API doesn't accept text_content on update, it generates it
     }
 
+    // markdown_content is a tool-level alias; the API field is markdown_description
+    if (processedParams.markdown_content !== undefined) {
+      processedParams.markdown_description = processedParams.markdown_content;
+      delete processedParams.markdown_content;
+    }
+
+    // The Update Task endpoint ignores custom_fields in the body — set them
+    // via the Set Custom Field Value endpoint after the PUT instead.
+    const customFields = params.custom_fields;
+    delete processedParams.custom_fields;
+
     // ClickUp's Update Task endpoint takes assignees as a `{add, rem}` delta
     // envelope, NOT a flat array like Create Task does. Sending a flat array
     // returns HTTP 200 but silently routes the IDs into the watcher list
     // instead of assigning them. Translate the desired-set input into a delta
     // by diffing against current state.
     if (params.assignees !== undefined) {
-      const current = await this.getTask(taskId);
+      const current = await this.getTask(taskId, query);
       const currentIds = (current.assignees ?? []).map(a => a.id);
       const desiredIds = params.assignees;
       const add = desiredIds.filter(id => !currentIds.includes(id));
@@ -241,17 +369,97 @@ export class TasksClient {
       }
     }
 
-    const result = await this.client.put(`/task/${taskId}`, processedParams);
+    const result = await this.client.put(
+      `/task/${taskId}${this.buildCustomIdQuery(query)}`,
+      processedParams
+    );
+
+    if (customFields && customFields.length > 0) {
+      for (const field of customFields) {
+        await this.client.post(
+          `/task/${taskId}/field/${field.id}${this.buildCustomIdQuery(query)}`,
+          { value: field.value }
+        );
+      }
+    }
+
     return processClickUpResponse(result);
   }
 
   /**
    * Delete a task
    * @param taskId The ID of the task to delete
-   * @returns Success message
+   * @param query Optional custom_task_ids/team_id addressing
+   * @returns Empty object (ClickUp returns no body on delete)
    */
-  async deleteTask(taskId: string): Promise<{ success: boolean }> {
-    return this.client.delete(`/task/${taskId}`);
+  async deleteTask(taskId: string, query?: CustomTaskIdParams): Promise<Record<string, never>> {
+    return this.client.delete(`/task/${taskId}${this.buildCustomIdQuery(query)}`);
+  }
+
+  /**
+   * Merge tasks into a target task using ClickUp's native merge endpoint.
+   * Comments, attachments, and other content are migrated server-side.
+   * Note: Custom Task IDs are not supported by this endpoint.
+   * @param targetTaskId The ID of the task that remains after the merge
+   * @param sourceTaskIds The IDs of the tasks to merge into the target
+   * @returns The merged target task with processed content
+   */
+  async mergeTasks(targetTaskId: string, sourceTaskIds: string[]): Promise<Task> {
+    const result = await this.client.post(`/task/${targetTaskId}/merge`, {
+      source_task_ids: sourceTaskIds
+    });
+    return processClickUpResponse(result);
+  }
+
+  /**
+   * Add a tag to a task
+   * @param taskId The ID of the task
+   * @param tagName The name of the tag to add
+   * @param query Optional custom_task_ids/team_id addressing
+   * @returns Empty object (ClickUp returns no body)
+   */
+  async addTagToTask(
+    taskId: string,
+    tagName: string,
+    query?: CustomTaskIdParams
+  ): Promise<Record<string, never>> {
+    return this.client.post(
+      `/task/${taskId}/tag/${encodeURIComponent(tagName)}${this.buildCustomIdQuery(query)}`,
+      {}
+    );
+  }
+
+  /**
+   * Remove a tag from a task
+   * @param taskId The ID of the task
+   * @param tagName The name of the tag to remove
+   * @param query Optional custom_task_ids/team_id addressing
+   * @returns Empty object (ClickUp returns no body)
+   */
+  async removeTagFromTask(
+    taskId: string,
+    tagName: string,
+    query?: CustomTaskIdParams
+  ): Promise<Record<string, never>> {
+    return this.client.delete(
+      `/task/${taskId}/tag/${encodeURIComponent(tagName)}${this.buildCustomIdQuery(query)}`
+    );
+  }
+
+  /**
+   * Create a task in a list from a saved task template
+   * @param listId The ID of the list to create the task in
+   * @param templateId The ID of the task template
+   * @param params The parameters for the new task (name)
+   * @returns The created task with processed content
+   */
+  async createTaskFromTemplate(
+    listId: string,
+    templateId: string,
+    params: { name: string }
+  ): Promise<Task> {
+    const result = await this.client.post(`/list/${listId}/taskTemplate/${templateId}`, params);
+    return processClickUpResponse(result);
   }
 
   /**
@@ -343,17 +551,11 @@ export class TasksClient {
    */
   async getSubtasks(taskId: string): Promise<Task[]> {
     try {
-      // First, we need to get the task to find its list ID
-      const task = await this.getTask(taskId);
-      if (!task.list || !task.list.id) {
-        throw new Error('Task does not have a list ID');
-      }
-
-      // Then, get all tasks from the list with subtasks included
-      const result = await this.getTasksFromList(task.list.id, { subtasks: true });
-
-      // Filter tasks to find those that have the specified task as parent
-      return result.tasks.filter(task => task.parent === taskId);
+      // Fetch the task with its subtasks directly — avoids paging through the
+      // parent's entire list (which caps at 100 tasks per page and excludes
+      // closed tasks by default).
+      const task = await this.getTask(taskId, { include_subtasks: true });
+      return (task.subtasks ?? []).map(subtask => processClickUpResponse(subtask));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(`Failed to get subtasks for task ${taskId}: ${message}`);

@@ -1,243 +1,282 @@
 import { z } from 'zod';
 
 // ========================================
-// CHAT CHANNEL SCHEMAS
+// SHARED ENUMS (ClickUp Chat API v3)
 // ========================================
 
-export const ChannelTypeSchema = z.enum(['public', 'private', 'direct']);
+export const ChannelVisibilitySchema = z.enum(['PUBLIC', 'PRIVATE']);
+
+export const ChannelTypeSchema = z.enum(['CHANNEL', 'DM', 'GROUP_DM']);
+
+export const ChannelLocationTypeSchema = z.enum(['space', 'folder', 'list']);
+
+export const ContentFormatSchema = z.enum(['text/md', 'text/plain']);
+
+export const MessageTypeSchema = z.enum(['message', 'post']);
+
+// ========================================
+// CHAT CHANNEL REQUEST SCHEMAS
+// ========================================
+
+export const GetChannelsFilterSchema = z.object({
+  workspace_id: z.string().min(1),
+  description_format: z.enum(['text/md', 'text/plain']).optional(),
+  cursor: z.string().optional(),
+  limit: z.number().min(1).max(100).optional(),
+  is_follower: z.boolean().optional(),
+  include_closed: z.boolean().optional(),
+  with_message_since: z.number().optional(),
+  channel_types: z.array(ChannelTypeSchema).optional(),
+});
 
 export const CreateChannelSchema = z.object({
   workspace_id: z.string().min(1),
   name: z.string().min(1).max(255),
   description: z.string().optional(),
-  type: ChannelTypeSchema.default('public'),
-  members: z.array(z.number()).optional(),
-  is_private: z.boolean().optional(),
+  topic: z.string().optional(),
+  user_ids: z.array(z.string()).max(100).optional(),
+  visibility: ChannelVisibilitySchema.optional(),
 });
 
 export const CreateChannelOnParentSchema = z.object({
+  workspace_id: z.string().min(1),
   parent_id: z.string().min(1),
-  parent_type: z.enum(['space', 'folder', 'list']),
-  name: z.string().min(1).max(255),
+  parent_type: ChannelLocationTypeSchema,
   description: z.string().optional(),
-  type: ChannelTypeSchema.default('public'),
-  members: z.array(z.number()).optional(),
-  is_private: z.boolean().optional(),
+  topic: z.string().optional(),
+  user_ids: z.array(z.string()).max(100).optional(),
+  visibility: ChannelVisibilitySchema.optional(),
 });
 
 export const CreateDirectMessageSchema = z.object({
   workspace_id: z.string().min(1),
-  members: z.array(z.number()).min(2),
-  name: z.string().optional(),
+  user_ids: z.array(z.string()).max(15).optional(),
 });
 
 export const UpdateChannelSchema = z.object({
+  workspace_id: z.string().min(1),
   channel_id: z.string().min(1),
   name: z.string().min(1).max(255).optional(),
   description: z.string().optional(),
-  is_private: z.boolean().optional(),
+  topic: z.string().optional(),
+  visibility: ChannelVisibilitySchema.optional(),
+  location: z
+    .object({
+      id: z.string().min(1),
+      type: ChannelLocationTypeSchema,
+    })
+    .optional(),
 });
 
-export const GetChannelsFilterSchema = z.object({
+export const GetChannelUsersFilterSchema = z.object({
   workspace_id: z.string().min(1),
-  archived: z.boolean().optional(),
-  type: ChannelTypeSchema.optional(),
+  channel_id: z.string().min(1),
+  cursor: z.string().optional(),
+  limit: z.number().min(1).max(100).optional(),
 });
 
 // ========================================
-// CHAT MESSAGE SCHEMAS
+// CHAT MESSAGE REQUEST SCHEMAS
 // ========================================
 
-export const MessageContentSchema = z.object({
-  text: z.string().min(1),
-  mentions: z.array(z.number()).optional(),
-  attachments: z.array(z.string()).optional(),
+export const GetMessagesFilterSchema = z.object({
+  workspace_id: z.string().min(1),
+  channel_id: z.string().min(1),
+  cursor: z.string().optional(),
+  limit: z.number().min(1).max(100).optional(),
+  content_format: ContentFormatSchema.optional(),
 });
 
 export const SendMessageSchema = z.object({
+  workspace_id: z.string().min(1),
   channel_id: z.string().min(1),
-  text: z.string().min(1),
-  mentions: z.array(z.number()).optional(),
-  attachments: z.array(z.string()).optional(),
-  reply_to: z.string().optional(),
+  type: MessageTypeSchema.default('message'),
+  content: z.string().min(1),
+  content_format: ContentFormatSchema.optional(),
+  assignee: z.string().optional(),
+  group_assignee: z.string().optional(),
+  followers: z.array(z.string()).optional(),
+  post_data: z
+    .object({
+      title: z.string().max(255),
+      subtype: z.object({ id: z.string() }).passthrough(),
+    })
+    .passthrough()
+    .optional(),
 });
 
 export const UpdateMessageSchema = z.object({
-  channel_id: z.string().min(1),
+  workspace_id: z.string().min(1),
   message_id: z.string().min(1),
-  text: z.string().min(1),
-  mentions: z.array(z.number()).optional(),
-});
-
-export const CreateReplySchema = z.object({
-  channel_id: z.string().min(1),
-  message_id: z.string().min(1),
-  text: z.string().min(1),
-  mentions: z.array(z.number()).optional(),
-  attachments: z.array(z.string()).optional(),
-});
-
-export const GetMessagesFilterSchema = z.object({
-  channel_id: z.string().min(1),
-  limit: z.number().min(1).max(100).optional(),
-  before: z.string().optional(),
-  after: z.string().optional(),
+  content: z.string().min(1).optional(),
+  content_format: ContentFormatSchema.optional(),
+  assignee: z.string().optional(),
+  group_assignee: z.string().optional(),
+  resolved: z.boolean().optional(),
+  post_data: z
+    .object({
+      title: z.string().max(255),
+      subtype: z.object({ id: z.string() }).passthrough(),
+    })
+    .passthrough()
+    .optional(),
 });
 
 export const GetRepliesFilterSchema = z.object({
-  channel_id: z.string().min(1),
+  workspace_id: z.string().min(1),
   message_id: z.string().min(1),
+  cursor: z.string().optional(),
   limit: z.number().min(1).max(100).optional(),
-  before: z.string().optional(),
-  after: z.string().optional(),
+  content_format: ContentFormatSchema.optional(),
+});
+
+export const CreateReplySchema = z.object({
+  workspace_id: z.string().min(1),
+  message_id: z.string().min(1),
+  type: MessageTypeSchema.default('message'),
+  content: z.string().min(1),
+  content_format: ContentFormatSchema.optional(),
+  assignee: z.string().optional(),
+  group_assignee: z.string().optional(),
+  followers: z.array(z.string()).optional(),
+  post_data: z
+    .object({
+      title: z.string().max(255),
+      subtype: z.object({ id: z.string() }).passthrough(),
+    })
+    .passthrough()
+    .optional(),
 });
 
 // ========================================
-// CHAT REACTION SCHEMAS
+// CHAT REACTION REQUEST SCHEMAS
 // ========================================
 
-export const ReactionTypeSchema = z.enum([
-  'thumbs_up',
-  'thumbs_down',
-  'heart',
-  'laugh',
-  'surprised',
-  'sad',
-  'angry',
-  'fire',
-  'party',
-  'rocket',
-  'eyes',
-  'thinking',
-  'clap',
-  'pray',
-]);
+export const GetReactionsFilterSchema = z.object({
+  workspace_id: z.string().min(1),
+  message_id: z.string().min(1),
+  cursor: z.string().optional(),
+  limit: z.number().min(1).max(100).optional(),
+});
 
 export const CreateReactionSchema = z.object({
-  channel_id: z.string().min(1),
+  workspace_id: z.string().min(1),
   message_id: z.string().min(1),
-  reaction: ReactionTypeSchema,
+  reaction: z.string().min(1),
 });
 
 export const DeleteReactionSchema = z.object({
-  channel_id: z.string().min(1),
+  workspace_id: z.string().min(1),
   message_id: z.string().min(1),
-  reaction: ReactionTypeSchema,
+  reaction: z.string().min(1),
 });
 
 // ========================================
-// CHAT MEMBER SCHEMAS
+// TAGGED USERS REQUEST SCHEMAS
 // ========================================
 
-export const AddChannelMemberSchema = z.object({
-  channel_id: z.string().min(1),
-  user_id: z.number(),
-});
-
-export const RemoveChannelMemberSchema = z.object({
-  channel_id: z.string().min(1),
-  user_id: z.number(),
+export const GetTaggedUsersFilterSchema = z.object({
+  workspace_id: z.string().min(1),
+  message_id: z.string().min(1),
+  cursor: z.string().optional(),
+  limit: z.number().min(1).max(100).optional(),
 });
 
 // ========================================
-// RESPONSE TYPE SCHEMAS
+// RESPONSE TYPE SCHEMAS (v3 shapes)
 // ========================================
 
-export const ChatChannelSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string().optional(),
-  type: ChannelTypeSchema,
-  is_private: z.boolean(),
-  workspace_id: z.string(),
-  parent_id: z.string().optional(),
-  parent_type: z.enum(['space', 'folder', 'list']).optional(),
-  created_by: z.number(),
-  date_created: z.string(),
-  date_updated: z.string(),
-  member_count: z.number(),
-  unread_count: z.number().optional(),
-});
+export const ChatSimpleUserSchema = z
+  .object({
+    id: z.string(),
+    email: z.string().optional(),
+    initials: z.string().optional(),
+    name: z.string().optional(),
+    username: z.string().optional(),
+  })
+  .passthrough();
 
-export const ChatMessageSchema = z.object({
-  id: z.string(),
-  text: z.string(),
-  channel_id: z.string(),
-  user: z.object({
-    id: z.number(),
-    username: z.string(),
-    email: z.string(),
-    color: z.string(),
-    profilePicture: z.string().optional(),
-  }),
-  date_created: z.string(),
-  date_updated: z.string().optional(),
-  reply_to: z.string().optional(),
-  mentions: z.array(z.number()).optional(),
-  reactions: z
-    .array(
-      z.object({
-        reaction: ReactionTypeSchema,
-        users: z.array(z.number()),
-        count: z.number(),
-      })
-    )
-    .optional(),
-  attachments: z
-    .array(
-      z.object({
+export const ChatChannelSchema = z
+  .object({
+    id: z.string(),
+    name: z.string().optional(),
+    description: z.string().optional(),
+    topic: z.string().optional(),
+    type: z.string().optional(),
+    visibility: ChannelVisibilitySchema.optional(),
+    parent: z
+      .object({
         id: z.string(),
-        filename: z.string(),
-        url: z.string(),
-        size: z.number(),
+        type: z.union([z.string(), z.number()]),
       })
-    )
-    .optional(),
-});
+      .passthrough()
+      .optional(),
+    creator: z.string().optional(),
+    created_at: z.string().optional(),
+    updated_at: z.string().optional(),
+    is_follower: z.boolean().optional(),
+    counts: z.record(z.any()).optional(),
+    latest_comment_at: z.union([z.string(), z.number()]).nullable().optional(),
+    links: z.record(z.any()).optional(),
+  })
+  .passthrough();
 
-export const ChatReactionSchema = z.object({
-  reaction: ReactionTypeSchema,
-  users: z.array(
-    z.object({
-      id: z.number(),
-      username: z.string(),
-      email: z.string(),
-      color: z.string(),
-      profilePicture: z.string().optional(),
+export const ChatMessageSchema = z
+  .object({
+    id: z.string(),
+    type: z.string().optional(),
+    content: z.string().optional(),
+    user_id: z.string().optional(),
+    date: z.number().optional(),
+    date_updated: z.number().nullable().optional(),
+    parent_channel: z.string().optional(),
+    parent_message: z.string().nullable().optional(),
+    resolved: z.boolean().optional(),
+    replies_count: z.number().optional(),
+    assignee: z.string().nullable().optional(),
+    group_assignee: z.string().nullable().optional(),
+    post_data: z
+    .object({
+      title: z.string().max(255),
+      subtype: z.object({ id: z.string() }).passthrough().optional(),
     })
-  ),
-  count: z.number(),
-});
+    .passthrough()
+    .optional(),
+    links: z.record(z.any()).optional(),
+  })
+  .passthrough();
 
-export const ChatMemberSchema = z.object({
-  id: z.number(),
-  username: z.string(),
-  email: z.string(),
-  color: z.string(),
-  profilePicture: z.string().optional(),
-  role: z.string().optional(),
-  date_joined: z.string(),
-});
+export const ChatReactionSchema = z
+  .object({
+    date: z.number(),
+    reaction: z.string(),
+    user_id: z.string(),
+  })
+  .passthrough();
 
 // ========================================
 // TYPE EXPORTS
 // ========================================
 
+export type ChannelVisibility = z.infer<typeof ChannelVisibilitySchema>;
+export type ChannelType = z.infer<typeof ChannelTypeSchema>;
+export type ContentFormat = z.infer<typeof ContentFormatSchema>;
+export type GetChannelsFilter = z.infer<typeof GetChannelsFilterSchema>;
 export type CreateChannelRequest = z.infer<typeof CreateChannelSchema>;
 export type CreateChannelOnParentRequest = z.infer<typeof CreateChannelOnParentSchema>;
 export type CreateDirectMessageRequest = z.infer<typeof CreateDirectMessageSchema>;
 export type UpdateChannelRequest = z.infer<typeof UpdateChannelSchema>;
-export type GetChannelsFilter = z.infer<typeof GetChannelsFilterSchema>;
+export type GetChannelUsersFilter = z.infer<typeof GetChannelUsersFilterSchema>;
+export type GetMessagesFilter = z.infer<typeof GetMessagesFilterSchema>;
 export type SendMessageRequest = z.infer<typeof SendMessageSchema>;
 export type UpdateMessageRequest = z.infer<typeof UpdateMessageSchema>;
-export type CreateReplyRequest = z.infer<typeof CreateReplySchema>;
-export type GetMessagesFilter = z.infer<typeof GetMessagesFilterSchema>;
 export type GetRepliesFilter = z.infer<typeof GetRepliesFilterSchema>;
+export type CreateReplyRequest = z.infer<typeof CreateReplySchema>;
+export type GetReactionsFilter = z.infer<typeof GetReactionsFilterSchema>;
 export type CreateReactionRequest = z.infer<typeof CreateReactionSchema>;
 export type DeleteReactionRequest = z.infer<typeof DeleteReactionSchema>;
-export type AddChannelMemberRequest = z.infer<typeof AddChannelMemberSchema>;
-export type RemoveChannelMemberRequest = z.infer<typeof RemoveChannelMemberSchema>;
+export type GetTaggedUsersFilter = z.infer<typeof GetTaggedUsersFilterSchema>;
+export type ChatSimpleUser = z.infer<typeof ChatSimpleUserSchema>;
 export type ChatChannel = z.infer<typeof ChatChannelSchema>;
 export type ChatMessage = z.infer<typeof ChatMessageSchema>;
 export type ChatReaction = z.infer<typeof ChatReactionSchema>;
-export type ChatMember = z.infer<typeof ChatMemberSchema>;

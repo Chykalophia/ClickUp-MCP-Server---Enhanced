@@ -5,13 +5,13 @@ import { createClickUpClient } from '../clickup-client/index.js';
 import { createEnhancedGoalsClient } from '../clickup-client/goals-enhanced.js';
 import { htmlEncode } from '../utils/security.js';
 import { mcpError } from '../utils/error-handling.js';
-import {} from // TeamIdSchema,
-// GoalIdSchema,
-// TargetIdSchema,
-// CreateGoalSchema,
-// UpdateGoalSchema,
-// GoalColorSchema
-'../schemas/goals-schemas.js';
+import {
+  TeamIdSchema,
+  GoalIdSchema,
+  TargetIdSchema,
+  GoalTargetTypeSchema,
+  GoalColorSchema,
+} from '../schemas/goals-schemas.js';
 
 // Create clients
 const clickUpClient = createClickUpClient();
@@ -26,7 +26,7 @@ export function setupGoalsTools(server: McpServer): void {
     'clickup_get_goals',
     'Get goals for a team with optional filtering. Returns goal details including progress, targets, and team members.',
     {
-      team_id: z.string().min(1).describe('The ID of the team to get goals for'),
+      team_id: TeamIdSchema.describe('The ID of the team to get goals for'),
       include_completed: z
         .boolean()
         .optional()
@@ -55,21 +55,16 @@ export function setupGoalsTools(server: McpServer): void {
     'clickup_create_goal',
     'Create a new goal with targets and deadlines. Supports team collaboration with multiple owners.',
     {
-      team_id: z.string().min(1).describe('The ID of the team to create the goal for'),
+      team_id: TeamIdSchema.describe('The ID of the team to create the goal for'),
       name: z.string().min(1).max(255).describe('The name of the goal'),
-      due_date: z.number().positive().describe('Goal due date (Unix timestamp)'),
+      due_date: z.number().positive().describe('Goal due date (Unix timestamp in milliseconds)'),
       description: z.string().optional().describe('Detailed description of the goal'),
       multiple_owners: z
         .boolean()
-        .default(false)
-        .describe('Whether the goal can have multiple owners'),
-      owners: z.array(z.number().positive()).min(1).describe('Array of user IDs who own this goal'),
-      color: z
-        .string()
-        .regex(/^#[0-9A-Fa-f]{6}$/)
         .optional()
-        .default('#007cff')
-        .describe('Goal color (hex format)'),
+        .describe('Whether the goal can have multiple owners (defaults to true when multiple owners are provided)'),
+      owners: z.array(z.number().positive()).min(1).describe('Array of user IDs who own this goal'),
+      color: GoalColorSchema.optional().default('#007cff').describe('Goal color (hex format)'),
     },
     async ({ team_id, name, due_date, description, multiple_owners, owners, color }) => {
       try {
@@ -83,9 +78,10 @@ export function setupGoalsTools(server: McpServer): void {
 
         const params = {
           name,
-          due_date,
+          // The API expects unix milliseconds; normalize seconds-scale input
+          due_date: goalsClient.normalizeGoalDate(due_date),
           description,
-          multiple_owners,
+          multiple_owners: multiple_owners ?? owners.length > 1,
           owners,
           color,
         };
@@ -110,9 +106,9 @@ export function setupGoalsTools(server: McpServer): void {
     'clickup_update_goal',
     'Update an existing goal. Can modify name, description, due date, owners, and color.',
     {
-      goal_id: z.string().min(1).describe('The ID of the goal to update'),
+      goal_id: GoalIdSchema.describe('The ID of the goal to update'),
       name: z.string().min(1).max(255).optional().describe('New name for the goal'),
-      due_date: z.number().positive().optional().describe('New due date (Unix timestamp)'),
+      due_date: z.number().positive().optional().describe('New due date (Unix timestamp in milliseconds)'),
       description: z.string().optional().describe('New description for the goal'),
       rem_owners: z
         .array(z.number().positive())
@@ -122,11 +118,7 @@ export function setupGoalsTools(server: McpServer): void {
         .array(z.number().positive())
         .optional()
         .describe('Array of user IDs to add as owners'),
-      color: z
-        .string()
-        .regex(/^#[0-9A-Fa-f]{6}$/)
-        .optional()
-        .describe('New goal color (hex format)'),
+      color: GoalColorSchema.optional().describe('New goal color (hex format)'),
     },
     async ({ goal_id, name, due_date, description, rem_owners, add_owners, color }) => {
       try {
@@ -140,7 +132,8 @@ export function setupGoalsTools(server: McpServer): void {
 
         const params = {
           name,
-          due_date,
+          // The API expects unix milliseconds; normalize seconds-scale input
+          due_date: due_date !== undefined ? goalsClient.normalizeGoalDate(due_date) : undefined,
           description,
           rem_owners,
           add_owners,
@@ -167,7 +160,7 @@ export function setupGoalsTools(server: McpServer): void {
     'clickup_delete_goal',
     'Delete a goal from ClickUp. This action cannot be undone and will remove all associated targets.',
     {
-      goal_id: z.string().min(1).describe('The ID of the goal to delete'),
+      goal_id: GoalIdSchema.describe('The ID of the goal to delete'),
     },
     async ({ goal_id }) => {
       try {
@@ -191,7 +184,7 @@ export function setupGoalsTools(server: McpServer): void {
     'clickup_get_goal',
     'Get detailed information about a specific goal including all targets and progress data.',
     {
-      goal_id: z.string().min(1).describe('The ID of the goal to retrieve'),
+      goal_id: GoalIdSchema.describe('The ID of the goal to retrieve'),
     },
     async ({ goal_id }) => {
       try {
@@ -229,34 +222,37 @@ export function setupGoalsTools(server: McpServer): void {
 
   server.tool(
     'clickup_create_goal_target',
-    'Create a target (key result) for a goal. Supports different target types: number, currency, boolean, task, and list.',
+    'Create a target (key result) for a goal. Supports different target types: number, currency, boolean, percentage, and automatic (tracked via linked tasks/lists).',
     {
-      goal_id: z.string().min(1).describe('The ID of the goal to add the target to'),
+      goal_id: GoalIdSchema.describe('The ID of the goal to add the target to'),
       name: z.string().min(1).max(255).describe('The name of the target'),
-      type: z
-        .enum(['number', 'currency', 'boolean', 'task', 'list'])
-        .describe('The type of target'),
-      target_value: z.number().min(0).describe('The target value to achieve'),
-      start_value: z.number().optional().default(0).describe('The starting value (defaults to 0)'),
+      type: GoalTargetTypeSchema.describe('The type of target'),
+      steps_end: z.number().optional().describe('The target end value to achieve'),
+      steps_start: z.number().optional().default(0).describe('The starting value (defaults to 0)'),
       unit: z.string().optional().describe('Unit of measurement (e.g., "USD", "tasks", "users")'),
-      task_statuses: z
+      owners: z
+        .array(z.number().positive())
+        .optional()
+        .describe('Array of user IDs who own this target'),
+      task_ids: z
         .array(z.string())
         .optional()
-        .describe('Task statuses to track (for task type targets)'),
+        .describe('Task IDs to link for automatic tracking'),
       list_ids: z
         .array(z.string())
         .optional()
-        .describe('List IDs to track (for list type targets)'),
+        .describe('List IDs to link for automatic tracking'),
     },
-    async ({ goal_id, name, type, target_value, start_value, unit, task_statuses, list_ids }) => {
+    async ({ goal_id, name, type, steps_end, steps_start, unit, owners, task_ids, list_ids }) => {
       try {
         const params = {
           name,
           type,
-          target_value,
-          start_value,
+          steps_end,
+          steps_start,
           unit,
-          task_statuses,
+          owners,
+          task_ids,
           list_ids,
         };
 
@@ -278,27 +274,20 @@ export function setupGoalsTools(server: McpServer): void {
 
   server.tool(
     'clickup_update_goal_target',
-    'Update an existing goal target. Can modify name, target value, unit, and tracking parameters.',
+    'Update an existing goal target (key result). Sets the current progress value and an optional note.',
     {
-      goal_id: z.string().min(1).describe('The ID of the goal'),
-      target_id: z.string().min(1).describe('The ID of the target to update'),
-      name: z.string().min(1).max(255).optional().describe('New name for the target'),
-      target_value: z.number().min(0).optional().describe('New target value'),
-      unit: z.string().optional().describe('New unit of measurement'),
-      task_statuses: z.array(z.string()).optional().describe('New task statuses to track'),
-      list_ids: z.array(z.string()).optional().describe('New list IDs to track'),
+      target_id: TargetIdSchema.describe('The ID of the target (key result) to update'),
+      steps_current: z.number().optional().describe('The current progress value of the target'),
+      note: z.string().optional().describe('A note describing the progress update'),
     },
-    async ({ goal_id, target_id, name, target_value, unit, task_statuses, list_ids }) => {
+    async ({ target_id, steps_current, note }) => {
       try {
         const params = {
-          name,
-          target_value,
-          unit,
-          task_statuses,
-          list_ids,
+          steps_current,
+          note,
         };
 
-        const updatedTarget = await goalsClient.updateGoalTarget(goal_id, target_id, params);
+        const updatedTarget = await goalsClient.updateGoalTarget(target_id, params);
 
         return {
           content: [
@@ -316,20 +305,19 @@ export function setupGoalsTools(server: McpServer): void {
 
   server.tool(
     'clickup_delete_goal_target',
-    'Delete a target from a goal. This action cannot be undone.',
+    'Delete a target (key result) from a goal. This action cannot be undone.',
     {
-      goal_id: z.string().min(1).describe('The ID of the goal'),
-      target_id: z.string().min(1).describe('The ID of the target to delete'),
+      target_id: TargetIdSchema.describe('The ID of the target (key result) to delete'),
     },
-    async ({ goal_id, target_id }) => {
+    async ({ target_id }) => {
       try {
-        await goalsClient.deleteGoalTarget(goal_id, target_id);
+        await goalsClient.deleteGoalTarget(target_id);
 
         return {
           content: [
             {
               type: 'text',
-              text: `Goal target ${htmlEncode(target_id)} deleted successfully from goal ${htmlEncode(goal_id)}.`,
+              text: `Goal target ${htmlEncode(target_id)} deleted successfully.`,
             },
           ],
         };
@@ -347,7 +335,7 @@ export function setupGoalsTools(server: McpServer): void {
     'clickup_get_goal_summary',
     'Get comprehensive goal analytics and summary for a team. Includes progress statistics, status breakdown, and upcoming deadlines.',
     {
-      team_id: z.string().min(1).describe('The ID of the team to get goal summary for'),
+      team_id: TeamIdSchema.describe('The ID of the team to get goal summary for'),
     },
     async ({ team_id }) => {
       try {
@@ -375,7 +363,7 @@ export function setupGoalsTools(server: McpServer): void {
     'clickup_create_number_goal',
     'Create a number-based goal with a target. Convenient helper for creating numeric goals like task counts or metrics.',
     {
-      team_id: z.string().min(1).describe('The ID of the team'),
+      team_id: TeamIdSchema.describe('The ID of the team'),
       goal_name: z.string().min(1).max(255).describe('The name of the goal'),
       target_name: z.string().min(1).max(255).describe('The name of the target'),
       target_value: z.number().min(1).describe('The numeric target to achieve'),
@@ -408,7 +396,7 @@ export function setupGoalsTools(server: McpServer): void {
         // Create the goal
         const goal = await goalsClient.createGoal(team_id, {
           name: goal_name,
-          due_date,
+          due_date: goalsClient.normalizeGoalDate(due_date),
           description,
           multiple_owners: owners.length > 1,
           owners,
@@ -419,8 +407,8 @@ export function setupGoalsTools(server: McpServer): void {
         const target = await goalsClient.createGoalTarget(goal.id, {
           name: target_name,
           type: 'number',
-          target_value,
-          start_value: 0,
+          steps_end: target_value,
+          steps_start: 0,
           unit,
         });
 
@@ -442,7 +430,7 @@ export function setupGoalsTools(server: McpServer): void {
     'clickup_create_currency_goal',
     'Create a currency-based goal with a monetary target. Convenient helper for creating revenue or budget goals.',
     {
-      team_id: z.string().min(1).describe('The ID of the team'),
+      team_id: TeamIdSchema.describe('The ID of the team'),
       goal_name: z.string().min(1).max(255).describe('The name of the goal'),
       target_name: z.string().min(1).max(255).describe('The name of the target'),
       target_value: z.number().min(0).describe('The monetary target to achieve'),
@@ -476,7 +464,7 @@ export function setupGoalsTools(server: McpServer): void {
         // Create the goal
         const goal = await goalsClient.createGoal(team_id, {
           name: goal_name,
-          due_date,
+          due_date: goalsClient.normalizeGoalDate(due_date),
           description,
           multiple_owners: owners.length > 1,
           owners,
@@ -487,8 +475,8 @@ export function setupGoalsTools(server: McpServer): void {
         const target = await goalsClient.createGoalTarget(goal.id, {
           name: target_name,
           type: 'currency',
-          target_value,
-          start_value: 0,
+          steps_end: target_value,
+          steps_start: 0,
           unit: currency,
         });
 
@@ -513,7 +501,7 @@ export function setupGoalsTools(server: McpServer): void {
     'clickup_format_goal_progress',
     'Format goal progress information for human-readable display. Useful for reporting and dashboards.',
     {
-      goal_id: z.string().min(1).describe('The ID of the goal to format'),
+      goal_id: GoalIdSchema.describe('The ID of the goal to format'),
     },
     async ({ goal_id }) => {
       try {
@@ -525,16 +513,16 @@ export function setupGoalsTools(server: McpServer): void {
         let formattedTargets = '';
         for (const target of goal.key_results) {
           const progress = goalsClient.calculateTargetProgress(
-            target.start_value,
-            target.current_value,
-            target.target_value
+            target.steps_start,
+            target.steps_current,
+            target.steps_end
           );
           let valueDisplay = '';
 
           if (target.type === 'currency') {
-            valueDisplay = `${goalsClient.formatCurrencyValue(target.current_value, target.unit || 'USD')} / ${goalsClient.formatCurrencyValue(target.target_value, target.unit || 'USD')}`;
+            valueDisplay = `${goalsClient.formatCurrencyValue(target.steps_current, target.unit || 'USD')} / ${goalsClient.formatCurrencyValue(target.steps_end, target.unit || 'USD')}`;
           } else {
-            valueDisplay = `${goalsClient.formatNumberValue(target.current_value, target.unit || undefined)} / ${goalsClient.formatNumberValue(target.target_value, target.unit || undefined)}`;
+            valueDisplay = `${goalsClient.formatNumberValue(target.steps_current, target.unit || undefined)} / ${goalsClient.formatNumberValue(target.steps_end, target.unit || undefined)}`;
           }
 
           formattedTargets += `\n  • ${target.name}: ${valueDisplay} (${progress.toFixed(1)}%)`;

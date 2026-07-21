@@ -1,7 +1,12 @@
 /* eslint-disable no-console */
 import { ClickUpClient } from './index.js';
 import axios from 'axios';
-import { validateResponse, TimeEntriesResponseSchema, TimeEntryResponseSchema } from '../schemas/response-schemas.js';
+import {
+  validateResponse,
+  TimeEntriesResponseSchema,
+  TimeEntryResponseSchema,
+  CurrentTimeEntryResponseSchema,
+} from '../schemas/response-schemas.js';
 
 // ========================================
 // TIME TRACKING TYPE DEFINITIONS
@@ -28,6 +33,8 @@ export interface CreateTimeEntryParams {
   tid?: string;
   assignee?: number;
   tags?: TimeEntryTag[];
+  /** If true, the tid parameter is treated as a custom task ID (sent as a query param). */
+  custom_task_ids?: boolean;
 }
 
 /** Parameters for updating an existing time entry via the ClickUp API. */
@@ -35,26 +42,55 @@ export interface UpdateTimeEntryParams {
   description?: string;
   /** Start time as a Unix timestamp in milliseconds. */
   start?: number;
-  /** End time as a Unix timestamp in milliseconds. Provide either stop or duration, not both. */
+  /**
+   * End time as a Unix timestamp in milliseconds. The update endpoint's body
+   * field is 'end' (unlike create, which uses 'stop').
+   * Provide either end or duration, not both.
+   */
+  end?: number;
+  /** Alias for end (mapped to the 'end' body field before sending). */
   stop?: number;
-  /** Duration in milliseconds. Provide either duration or stop, not both. */
+  /** Duration in milliseconds. Provide either duration or end/stop, not both. */
   duration?: number;
   billable?: boolean;
   /** Task ID to associate the time entry with (ClickUp API field name). */
   tid?: string;
   tags?: TimeEntryTag[];
+  /**
+   * What to do with the supplied tags: 'replace', 'add', or 'remove'.
+   * Defaults to 'add' when tags are provided without a tag_action.
+   */
+  tag_action?: 'replace' | 'add' | 'remove';
+  /** If true, the tid parameter is treated as a custom task ID (sent as a query param). */
+  custom_task_ids?: boolean;
 }
 
 export interface GetTimeEntriesParams {
+  /** Unix timestamp in milliseconds for the start of the date range. */
   start_date?: number;
+  /** Unix timestamp in milliseconds for the end of the date range. */
   end_date?: number;
-  assignee?: number;
+  /** User ID, or a comma-separated list of user IDs (e.g. '1234,9876'). */
+  assignee?: number | string;
   include_task_tags?: boolean;
   include_location_names?: boolean;
   space_id?: string;
   folder_id?: string;
   list_id?: string;
   task_id?: string;
+  /** If true, the task_id parameter is treated as a custom task ID. */
+  custom_task_ids?: boolean;
+}
+
+/** Parameters for starting a timer via POST /team/{team_id}/time_entries/start. */
+export interface StartTimerParams {
+  /** Task ID to associate with the timer (ClickUp API field name). */
+  tid?: string;
+  description?: string;
+  billable?: boolean;
+  tags?: TimeEntryTag[];
+  /** If true, the tid parameter is treated as a custom task ID. */
+  custom_task_ids?: boolean;
 }
 
 export interface TimeEntry {
@@ -144,6 +180,19 @@ export class EnhancedTimeTrackingClient {
     return this.client.getAxiosInstance();
   }
 
+  /**
+   * Build the custom_task_ids/team_id query-string suffix used when a task is
+   * addressed by its custom task ID (e.g. 'PROJ-123'). ClickUp requires the
+   * companion team_id query param whenever custom_task_ids is true.
+   */
+  private buildCustomTaskIdsQuery(teamId: string, customTaskIds?: boolean): string {
+    if (!customTaskIds) return '';
+    const query = new URLSearchParams();
+    query.set('custom_task_ids', 'true');
+    query.set('team_id', teamId);
+    return `?${query.toString()}`;
+  }
+
   // ========================================
   // TIME ENTRY MANAGEMENT
   // ========================================
@@ -164,6 +213,10 @@ export class EnhancedTimeTrackingClient {
       if (params.folder_id) queryParams.append('folder_id', params.folder_id);
       if (params.list_id) queryParams.append('list_id', params.list_id);
       if (params.task_id) queryParams.append('task_id', params.task_id);
+      if (params.custom_task_ids) {
+        queryParams.append('custom_task_ids', 'true');
+        queryParams.append('team_id', teamId);
+      }
 
       const endpoint = `/team/${teamId}/time_entries?${queryParams.toString()}`;
       const response = await this.getAxiosInstance().get(endpoint);
@@ -177,12 +230,61 @@ export class EnhancedTimeTrackingClient {
   }
 
   /**
-   * Create a new time entry
+   * Get a single time entry by ID
+   */
+  async getTimeEntry(teamId: string, timerId: string): Promise<TimeEntry> {
+    try {
+      const endpoint = `/team/${teamId}/time_entries/${timerId}`;
+      const response = await this.getAxiosInstance().get(endpoint);
+
+      const validated = validateResponse(TimeEntryResponseSchema, response.data, 'getTimeEntry');
+      return validated.data as unknown as TimeEntry;
+    } catch (error) {
+      console.error('Error getting time entry:', error instanceof Error ? error.message : error);
+      throw this.handleError(error, `Failed to get time entry ${timerId} for team ${teamId}`);
+    }
+  }
+
+  /**
+   * Get the change history of a time entry
+   */
+  async getTimeEntryHistory(teamId: string, timerId: string): Promise<unknown[]> {
+    try {
+      const endpoint = `/team/${teamId}/time_entries/${timerId}/history`;
+      const response = await this.getAxiosInstance().get(endpoint);
+
+      const validated = validateResponse(
+        TimeEntriesResponseSchema,
+        response.data,
+        'getTimeEntryHistory'
+      );
+      return validated.data || [];
+    } catch (error) {
+      console.error(
+        'Error getting time entry history:',
+        error instanceof Error ? error.message : error
+      );
+      throw this.handleError(
+        error,
+        `Failed to get history for time entry ${timerId} in team ${teamId}`
+      );
+    }
+  }
+
+  /**
+   * Create a new time entry.
+   * The API requires 'duration'; when only 'stop' is provided it is computed
+   * client-side as stop - start (both Unix timestamps in milliseconds).
    */
   async createTimeEntry(teamId: string, params: CreateTimeEntryParams): Promise<TimeEntry> {
     try {
-      const endpoint = `/team/${teamId}/time_entries`;
-      const response = await this.getAxiosInstance().post(endpoint, params);
+      const { custom_task_ids, ...body } = params;
+      if (body.duration === undefined && body.stop !== undefined) {
+        body.duration = body.stop - body.start;
+      }
+
+      const endpoint = `/team/${teamId}/time_entries${this.buildCustomTaskIdsQuery(teamId, custom_task_ids)}`;
+      const response = await this.getAxiosInstance().post(endpoint, body);
 
       const validated = validateResponse(TimeEntryResponseSchema, response.data, 'createTimeEntry');
       return validated.data as unknown as TimeEntry;
@@ -193,7 +295,10 @@ export class EnhancedTimeTrackingClient {
   }
 
   /**
-   * Update an existing time entry
+   * Update an existing time entry.
+   * The update endpoint's end-time body field is 'end' ('stop' is accepted as
+   * an alias and mapped). ClickUp requires 'start' alongside 'end', so the
+   * entry's current start is fetched when only an end time is supplied.
    */
   async updateTimeEntry(
     teamId: string,
@@ -201,8 +306,38 @@ export class EnhancedTimeTrackingClient {
     params: UpdateTimeEntryParams
   ): Promise<TimeEntry> {
     try {
-      const endpoint = `/team/${teamId}/time_entries/${timerId}`;
-      const response = await this.getAxiosInstance().put(endpoint, params);
+      const { stop, custom_task_ids, ...rest } = params;
+      const body: UpdateTimeEntryParams = { ...rest };
+
+      // The update body field is 'end', not 'stop' (which only exists on create)
+      if (body.end === undefined && stop !== undefined) {
+        body.end = stop;
+      }
+
+      // 'start' and 'end' must be sent as a pair; fall back to the entry's
+      // current value for whichever side the caller omitted.
+      if (body.end !== undefined && body.start === undefined) {
+        const currentEntry = await this.getTimeEntry(teamId, timerId);
+        body.start = parseInt(currentEntry.start, 10);
+      } else if (body.start !== undefined && body.end === undefined) {
+        if (body.duration !== undefined) {
+          // start and end must be sent as a pair; derive end from the duration
+          body.end = body.start + body.duration;
+        } else {
+          const currentEntry = await this.getTimeEntry(teamId, timerId);
+          if (currentEntry.end) {
+            body.end = parseInt(currentEntry.end, 10);
+          }
+        }
+      }
+
+      // 'tags' must be accompanied by a tag_action telling ClickUp what to do
+      if (body.tags !== undefined && body.tag_action === undefined) {
+        body.tag_action = 'add';
+      }
+
+      const endpoint = `/team/${teamId}/time_entries/${timerId}${this.buildCustomTaskIdsQuery(teamId, custom_task_ids)}`;
+      const response = await this.getAxiosInstance().put(endpoint, body);
 
       const validated = validateResponse(TimeEntryResponseSchema, response.data, 'updateTimeEntry');
       return validated.data as unknown as TimeEntry;
@@ -230,9 +365,11 @@ export class EnhancedTimeTrackingClient {
   // ========================================
 
   /**
-   * Get currently running timers for a team
+   * Get the currently running time entry (timer) for the authenticated user,
+   * or for a specific user when assignee is provided. The endpoint returns at
+   * most one timer: { data: <TimeEntry> } or { data: null } when none is running.
    */
-  async getRunningTimers(teamId: string, assignee?: number): Promise<RunningTimer[]> {
+  async getRunningTimer(teamId: string, assignee?: number): Promise<RunningTimer | null> {
     try {
       const queryParams = new URLSearchParams();
       if (assignee) queryParams.append('assignee', assignee.toString());
@@ -240,24 +377,31 @@ export class EnhancedTimeTrackingClient {
       const endpoint = `/team/${teamId}/time_entries/current?${queryParams.toString()}`;
       const response = await this.getAxiosInstance().get(endpoint);
 
-      const validated = validateResponse(TimeEntriesResponseSchema, response.data, 'getRunningTimers');
-      return (validated.data as unknown as RunningTimer[]) || [];
+      const validated = validateResponse(
+        CurrentTimeEntryResponseSchema,
+        response.data,
+        'getRunningTimer'
+      );
+      return (validated.data as unknown as RunningTimer | undefined) ?? null;
     } catch (error) {
-      console.error('Error getting running timers:', error instanceof Error ? error.message : error);
-      throw this.handleError(error, `Failed to get running timers for team ${teamId}`);
+      console.error('Error getting running timer:', error instanceof Error ? error.message : error);
+      throw this.handleError(error, `Failed to get running timer for team ${teamId}`);
     }
   }
 
   /**
    * Start a timer for the authenticated user.
-   * @param tid - Optional task ID to associate with the timer.
+   * Returns the started time entry (including its id) from the API response.
    */
-  async startTimer(teamId: string, tid?: string): Promise<void> {
+  async startTimer(teamId: string, params: StartTimerParams = {}): Promise<TimeEntry> {
     try {
-      const endpoint = `/team/${teamId}/time_entries/start`;
-      const params = tid ? { tid } : {};
+      const { custom_task_ids, ...body } = params;
+      const endpoint = `/team/${teamId}/time_entries/start${this.buildCustomTaskIdsQuery(teamId, custom_task_ids)}`;
 
-      await this.getAxiosInstance().post(endpoint, params);
+      const response = await this.getAxiosInstance().post(endpoint, body);
+
+      const validated = validateResponse(TimeEntryResponseSchema, response.data, 'startTimer');
+      return validated.data as unknown as TimeEntry;
     } catch (error) {
       console.error('Error starting timer:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to start timer for team ${teamId}`);
@@ -266,15 +410,66 @@ export class EnhancedTimeTrackingClient {
 
   /**
    * Stop the running timer for the authenticated user.
+   * Returns the stopped time entry (including its id and duration).
    */
-  async stopTimer(teamId: string): Promise<void> {
+  async stopTimer(teamId: string): Promise<TimeEntry> {
     try {
       const endpoint = `/team/${teamId}/time_entries/stop`;
 
-      await this.getAxiosInstance().post(endpoint);
+      const response = await this.getAxiosInstance().post(endpoint);
+
+      const validated = validateResponse(TimeEntryResponseSchema, response.data, 'stopTimer');
+      return validated.data as unknown as TimeEntry;
     } catch (error) {
       console.error('Error stopping timer:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to stop timer for team ${teamId}`);
+    }
+  }
+
+  // ========================================
+  // TIME ENTRY TAGS
+  // ========================================
+
+  /**
+   * Get all tags used on time entries in a Workspace
+   */
+  async getTimeEntryTags(teamId: string): Promise<TimeEntryTag[]> {
+    try {
+      const endpoint = `/team/${teamId}/time_entries/tags`;
+      const response = await this.getAxiosInstance().get(endpoint);
+
+      const validated = validateResponse(
+        TimeEntriesResponseSchema,
+        response.data,
+        'getTimeEntryTags'
+      );
+      return (validated.data as unknown as TimeEntryTag[]) || [];
+    } catch (error) {
+      console.error(
+        'Error getting time entry tags:',
+        error instanceof Error ? error.message : error
+      );
+      throw this.handleError(error, `Failed to get time entry tags for team ${teamId}`);
+    }
+  }
+
+  /**
+   * Bulk add tags to one or more time entries
+   */
+  async addTagsToTimeEntries(
+    teamId: string,
+    timeEntryIds: string[],
+    tags: TimeEntryTag[]
+  ): Promise<void> {
+    try {
+      const endpoint = `/team/${teamId}/time_entries/tags`;
+      await this.getAxiosInstance().post(endpoint, { time_entry_ids: timeEntryIds, tags });
+    } catch (error) {
+      console.error(
+        'Error adding tags to time entries:',
+        error instanceof Error ? error.message : error
+      );
+      throw this.handleError(error, `Failed to add tags to time entries for team ${teamId}`);
     }
   }
 

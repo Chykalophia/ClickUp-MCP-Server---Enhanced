@@ -328,7 +328,7 @@ export function setupChatTools(server: McpServer): void {
       post_data: z
         .object({
           title: z.string().max(255).describe('Post title'),
-          subtype: z.object({ id: z.string() }).passthrough().optional().describe('Post subtype (id from Get Post Subtype IDs)'),
+          subtype: z.object({ id: z.string() }).passthrough().describe('Post subtype (required; id from Get Post Subtype IDs)'),
         })
         .passthrough()
         .optional()
@@ -367,7 +367,7 @@ export function setupChatTools(server: McpServer): void {
       post_data: z
         .object({
           title: z.string().max(255).describe('Post title'),
-          subtype: z.object({ id: z.string() }).passthrough().optional().describe('Post subtype (id from Get Post Subtype IDs)'),
+          subtype: z.object({ id: z.string() }).passthrough().describe('Post subtype (required; id from Get Post Subtype IDs)'),
         })
         .passthrough()
         .optional()
@@ -465,7 +465,7 @@ export function setupChatTools(server: McpServer): void {
       post_data: z
         .object({
           title: z.string().max(255).describe('Post title'),
-          subtype: z.object({ id: z.string() }).passthrough().optional().describe('Post subtype (id from Get Post Subtype IDs)'),
+          subtype: z.object({ id: z.string() }).passthrough().describe('Post subtype (required; id from Get Post Subtype IDs)'),
         })
         .passthrough()
         .optional()

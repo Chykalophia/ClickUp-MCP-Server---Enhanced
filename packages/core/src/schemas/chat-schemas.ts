@@ -99,7 +99,7 @@ export const SendMessageSchema = z.object({
   post_data: z
     .object({
       title: z.string().max(255),
-      subtype: z.object({ id: z.string() }).passthrough().optional(),
+      subtype: z.object({ id: z.string() }).passthrough(),
     })
     .passthrough()
     .optional(),
@@ -116,7 +116,7 @@ export const UpdateMessageSchema = z.object({
   post_data: z
     .object({
       title: z.string().max(255),
-      subtype: z.object({ id: z.string() }).passthrough().optional(),
+      subtype: z.object({ id: z.string() }).passthrough(),
     })
     .passthrough()
     .optional(),
@@ -142,7 +142,7 @@ export const CreateReplySchema = z.object({
   post_data: z
     .object({
       title: z.string().max(255),
-      subtype: z.object({ id: z.string() }).passthrough().optional(),
+      subtype: z.object({ id: z.string() }).passthrough(),
     })
     .passthrough()
     .optional(),

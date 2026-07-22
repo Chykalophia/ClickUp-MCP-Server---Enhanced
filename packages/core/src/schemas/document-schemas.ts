@@ -105,13 +105,13 @@ export const SearchDocsParamsSchema = GetDocsParamsSchema.extend({
 });
 
 // Document ID validation
-export const DocIdSchema = z.string().min(1, 'Document ID is required');
+export const DocIdSchema = z.coerce.string().min(1, 'Document ID is required');
 
 // Page ID validation
-export const PageIdSchema = z.string().min(1, 'Page ID is required');
+export const PageIdSchema = z.coerce.string().min(1, 'Page ID is required');
 
 // Workspace ID validation
-export const WorkspaceIdSchema = z.string().min(1, 'Workspace ID is required');
+export const WorkspaceIdSchema = z.coerce.string().min(1, 'Workspace ID is required');
 
 // Combined schemas for tool validation.
 // Note: the public ClickUp API has no doc update/delete, page delete,

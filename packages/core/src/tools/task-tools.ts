@@ -17,7 +17,7 @@ export function setupTaskTools(server: McpServer): void {
     'clickup_get_tasks',
     'Get tasks from a ClickUp list. Returns task details including name, description, assignees, and status.',
     {
-      list_id: z.string().describe('The ID of the list to get tasks from'),
+      list_id: z.coerce.string().describe('The ID of the list to get tasks from'),
       include_closed: z.boolean().optional().describe('Whether to include closed tasks'),
       subtasks: z.boolean().optional().describe('Whether to include subtasks in the results'),
       include_markdown_description: z
@@ -44,7 +44,7 @@ export function setupTaskTools(server: McpServer): void {
     'clickup_get_task_details',
     'Get detailed information about a specific ClickUp task. Returns comprehensive task data including description, assignees, status, and dates.',
     {
-      task_id: z.string().describe('The ID of the task to get'),
+      task_id: z.coerce.string().describe('The ID of the task to get'),
       include_subtasks: z
         .boolean()
         .optional()
@@ -83,7 +83,7 @@ export function setupTaskTools(server: McpServer): void {
     'clickup_create_task',
     'Create a new task in a ClickUp list with specified properties like name, description, assignees, status, and dates. Supports GitHub Flavored Markdown in description field.',
     {
-      list_id: z.string().describe('The ID of the list to create the task in'),
+      list_id: z.coerce.string().describe('The ID of the list to create the task in'),
       name: z.string().describe('The name of the task'),
       description: z
         .string()
@@ -148,7 +148,7 @@ export function setupTaskTools(server: McpServer): void {
     'clickup_update_task',
     "Update an existing ClickUp task's properties including name, description, assignees, status, and dates. Supports GitHub Flavored Markdown in description field.",
     {
-      task_id: z.string().describe('The ID of the task to update'),
+      task_id: z.coerce.string().describe('The ID of the task to update'),
       name: z.string().optional().describe('The new name of the task'),
       description: z
         .string()
@@ -210,7 +210,7 @@ export function setupTaskTools(server: McpServer): void {
     'clickup_delete_task',
     '⚠️ DESTRUCTIVE: Delete a task from ClickUp. This action cannot be undone and will permanently remove the task and all its data.',
     {
-      task_id: z.string().min(1).describe('The ID of the task to delete'),
+      task_id: z.coerce.string().min(1).describe('The ID of the task to delete'),
       confirm_deletion: z
         .boolean()
         .describe('Confirmation that you want to permanently delete this task (must be true)'),
@@ -261,8 +261,8 @@ export function setupTaskTools(server: McpServer): void {
     'clickup_add_task_to_list',
     'Add an existing task to a ClickUp list.',
     {
-      list_id: z.string().describe('The ID of the list to add the task to'),
-      task_id: z.string().describe('The ID of the task to add')
+      list_id: z.coerce.string().describe('The ID of the list to add the task to'),
+      task_id: z.coerce.string().describe('The ID of the task to add')
     },
     async ({ list_id, task_id }) => {
       try {
@@ -280,8 +280,8 @@ export function setupTaskTools(server: McpServer): void {
     'clickup_remove_task_from_list',
     'Remove a task from a ClickUp list without deleting the task.',
     {
-      list_id: z.string().describe('The ID of the list to remove the task from'),
-      task_id: z.string().describe('The ID of the task to remove')
+      list_id: z.coerce.string().describe('The ID of the list to remove the task from'),
+      task_id: z.coerce.string().describe('The ID of the task to remove')
     },
     async ({ list_id, task_id }) => {
       try {
@@ -299,7 +299,7 @@ export function setupTaskTools(server: McpServer): void {
     'clickup_get_task_time_in_status',
     "Get a ClickUp task's time-in-status data: current status (with elapsed time) plus the full status_history. Requires the workspace's \"Total time in Status\" ClickApp to be enabled. Response fields (including status_history[*].orderindex) may be omitted by ClickUp on some entries and are tolerated rather than rejected.",
     {
-      task_id: z.string().describe('The ID of the task'),
+      task_id: z.coerce.string().describe('The ID of the task'),
       custom_task_ids: z
         .boolean()
         .optional()
@@ -361,7 +361,7 @@ export function setupTaskTools(server: McpServer): void {
     'clickup_get_filtered_team_tasks',
     'Search tasks across an entire ClickUp workspace (team) with filters for statuses, assignees, tags, lists, spaces, and date ranges. Results are paginated (100 tasks per page).',
     {
-      team_id: z.string().describe('The ID of the workspace (team) to search'),
+      team_id: z.coerce.string().describe('The ID of the workspace (team) to search'),
       page: z.number().optional().describe('The page number to get (starts at 0)'),
       order_by: z.string().optional().describe('The field to order by (id, created, updated, due_date)'),
       reverse: z.boolean().optional().describe('Whether to reverse the order'),
@@ -401,7 +401,7 @@ export function setupTaskTools(server: McpServer): void {
     'clickup_add_tag_to_task',
     'Add a tag to an existing ClickUp task. The tag must already exist in the space.',
     {
-      task_id: z.string().describe('The ID of the task to tag'),
+      task_id: z.coerce.string().describe('The ID of the task to tag'),
       tag_name: z.string().describe('The name of the tag to add'),
       custom_task_ids: z
         .boolean()
@@ -430,7 +430,7 @@ export function setupTaskTools(server: McpServer): void {
     'clickup_remove_tag_from_task',
     'Remove a tag from a ClickUp task without deleting the tag itself.',
     {
-      task_id: z.string().describe('The ID of the task to remove the tag from'),
+      task_id: z.coerce.string().describe('The ID of the task to remove the tag from'),
       tag_name: z.string().describe('The name of the tag to remove'),
       custom_task_ids: z
         .boolean()
@@ -459,8 +459,8 @@ export function setupTaskTools(server: McpServer): void {
     'clickup_create_task_from_template',
     'Create a new task in a ClickUp list from a saved task template. Template contents such as checklists and subtasks are included.',
     {
-      list_id: z.string().describe('The ID of the list to create the task in'),
-      template_id: z.string().describe('The ID of the task template to instantiate'),
+      list_id: z.coerce.string().describe('The ID of the list to create the task in'),
+      template_id: z.coerce.string().describe('The ID of the task template to instantiate'),
       name: z.string().describe('The name of the new task')
     },
     async ({ list_id, template_id, name }) => {

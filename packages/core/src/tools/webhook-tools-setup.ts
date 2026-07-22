@@ -25,7 +25,7 @@ export function setupWebhookTools(server: McpServer): void {
     'clickup_create_webhook',
     'Create a new webhook in a ClickUp workspace. Webhooks allow real-time notifications when events occur. The response includes the webhook secret (returned only at creation) — store it for signature verification.',
     {
-      workspace_id: z.string().min(1).describe('The ID of the workspace to create the webhook in'),
+      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace to create the webhook in'),
       endpoint: z
         .string()
         .url()
@@ -73,7 +73,7 @@ export function setupWebhookTools(server: McpServer): void {
     'clickup_get_webhooks',
     'Get all webhooks for a workspace, including per-webhook health info (status, fail_count). Optional status/event type filters are applied client-side (the ClickUp API does not support filtering).',
     {
-      workspace_id: z.string().min(1).describe('The ID of the workspace to get webhooks from'),
+      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace to get webhooks from'),
       status: z
         .enum(['active', 'failing', 'suspended'])
         .optional()
@@ -106,8 +106,8 @@ export function setupWebhookTools(server: McpServer): void {
     'clickup_get_webhook',
     'Get detailed information about a specific webhook by its ID, including health info (status, fail_count). The ClickUp API has no single-webhook endpoint, so this looks the webhook up in the workspace list.',
     {
-      workspace_id: z.string().min(1).describe('The ID of the workspace the webhook belongs to'),
-      webhook_id: z.string().min(1).describe('The ID of the webhook to get'),
+      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace the webhook belongs to'),
+      webhook_id: z.coerce.string().min(1).describe('The ID of the webhook to get'),
     },
     async args => {
       try {
@@ -131,7 +131,7 @@ export function setupWebhookTools(server: McpServer): void {
     'clickup_update_webhook',
     "Update an existing webhook's configuration including endpoint, events, and status. ClickUp requires the full endpoint/events/status body, so unspecified fields are filled in from the webhook's current configuration.",
     {
-      webhook_id: z.string().min(1).describe('The ID of the webhook to update'),
+      webhook_id: z.coerce.string().min(1).describe('The ID of the webhook to update'),
       workspace_id: z
         .string()
         .min(1)
@@ -170,7 +170,7 @@ export function setupWebhookTools(server: McpServer): void {
     'clickup_delete_webhook',
     'Delete a webhook from ClickUp. This will stop all notifications to the webhook endpoint.',
     {
-      webhook_id: z.string().min(1).describe('The ID of the webhook to delete'),
+      webhook_id: z.coerce.string().min(1).describe('The ID of the webhook to delete'),
     },
     async args => {
       try {

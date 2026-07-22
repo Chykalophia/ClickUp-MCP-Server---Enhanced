@@ -6,13 +6,13 @@ import { z } from 'zod';
 // ========================================
 
 // Team ID validation
-export const TeamIdSchema = z.string().min(1, 'Team ID is required');
+export const TeamIdSchema = z.coerce.string().min(1, 'Team ID is required');
 
 // Goal ID validation
-export const GoalIdSchema = z.string().min(1, 'Goal ID is required');
+export const GoalIdSchema = z.coerce.string().min(1, 'Goal ID is required');
 
 // Target ID validation
-export const TargetIdSchema = z.string().min(1, 'Target ID is required');
+export const TargetIdSchema = z.coerce.string().min(1, 'Target ID is required');
 
 // User ID validation
 export const UserIdSchema = z.number().positive('User ID must be positive');

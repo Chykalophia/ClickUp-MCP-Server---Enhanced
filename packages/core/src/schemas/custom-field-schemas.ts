@@ -188,12 +188,12 @@ export const ValueOptionsSchema = z.object({
 // CONTAINER VALIDATION SCHEMAS
 // ========================================
 
-export const ListIdSchema = z.string().min(1, 'List ID is required');
-export const FolderIdSchema = z.string().min(1, 'Folder ID is required');
-export const SpaceIdSchema = z.string().min(1, 'Space ID is required');
-export const TeamIdSchema = z.string().min(1, 'Team ID is required');
-export const FieldIdSchema = z.string().min(1, 'Field ID is required');
-export const TaskIdSchema = z.string().min(1, 'Task ID is required');
+export const ListIdSchema = z.coerce.string().min(1, 'List ID is required');
+export const FolderIdSchema = z.coerce.string().min(1, 'Folder ID is required');
+export const SpaceIdSchema = z.coerce.string().min(1, 'Space ID is required');
+export const TeamIdSchema = z.coerce.string().min(1, 'Team ID is required');
+export const FieldIdSchema = z.coerce.string().min(1, 'Field ID is required');
+export const TaskIdSchema = z.coerce.string().min(1, 'Task ID is required');
 
 // ========================================
 // TOOL PARAMETER SCHEMAS

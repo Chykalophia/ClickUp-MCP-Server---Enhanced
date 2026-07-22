@@ -16,8 +16,8 @@ export function setupDocTools(server: McpServer): void {
     'clickup_get_doc_content',
     'Get the content of a specific ClickUp doc. Returns combined content from all pages in the doc.',
     {
-      doc_id: z.string().describe('The ID of the doc to get'),
-      workspace_id: z.string().describe('The ID of the workspace containing the doc'),
+      doc_id: z.coerce.string().describe('The ID of the doc to get'),
+      workspace_id: z.coerce.string().describe('The ID of the workspace containing the doc'),
     },
     async ({ doc_id, workspace_id }) => {
       try {
@@ -48,7 +48,7 @@ export function setupDocTools(server: McpServer): void {
     'clickup_search_docs',
     'Search for docs in a ClickUp workspace by name (matched client-side; the ClickUp API has no full-text doc search). Use "space:{spaceId}" as the query to list docs in a space. Returns matching docs with their metadata.',
     {
-      workspace_id: z.string().describe('The ID of the workspace to search in'),
+      workspace_id: z.coerce.string().describe('The ID of the workspace to search in'),
       query: z.string().describe('The search query'),
       cursor: z.string().optional().describe('Cursor for pagination'),
     },
@@ -71,7 +71,7 @@ export function setupDocTools(server: McpServer): void {
     'clickup_get_docs_from_workspace',
     'Get all docs from a ClickUp workspace. Supports pagination and filtering for deleted/archived docs.',
     {
-      workspace_id: z.string().describe('The ID of the workspace to get docs from'),
+      workspace_id: z.coerce.string().describe('The ID of the workspace to get docs from'),
       cursor: z.string().optional().describe('Cursor for pagination'),
       deleted: z.boolean().optional().describe('Whether to include deleted docs'),
       archived: z.boolean().optional().describe('Whether to include archived docs'),
@@ -101,8 +101,8 @@ export function setupDocTools(server: McpServer): void {
     'clickup_get_doc_pages',
     'Get the pages of a specific ClickUp doc. Returns page content in the requested format (markdown or plain text).',
     {
-      doc_id: z.string().describe('The ID of the doc to get pages from'),
-      workspace_id: z.string().describe('The ID of the workspace containing the doc'),
+      doc_id: z.coerce.string().describe('The ID of the doc to get pages from'),
+      workspace_id: z.coerce.string().describe('The ID of the workspace containing the doc'),
       content_format: z
         .enum(['text/md', 'text/plain'])
         .optional()

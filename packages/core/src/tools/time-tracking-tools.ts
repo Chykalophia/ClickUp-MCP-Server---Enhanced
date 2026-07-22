@@ -25,7 +25,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
     'clickup_get_time_entries',
     'Get time entries for a team with filtering options. Supports filtering by date range, user, task, and project.',
     {
-      team_id: z.string().min(1).describe('The ID of the team to get time entries for'),
+      team_id: z.coerce.string().min(1).describe('The ID of the team to get time entries for'),
       start_date: z
         .number()
         .positive()
@@ -52,10 +52,10 @@ export function setupTimeTrackingTools(server: McpServer): void {
         .optional()
         .default(false)
         .describe('Include location names'),
-      space_id: z.string().optional().describe('Filter by space ID'),
-      folder_id: z.string().optional().describe('Filter by folder ID'),
-      list_id: z.string().optional().describe('Filter by list ID'),
-      task_id: z.string().optional().describe('Filter by task ID'),
+      space_id: z.coerce.string().optional().describe('Filter by space ID'),
+      folder_id: z.coerce.string().optional().describe('Filter by folder ID'),
+      list_id: z.coerce.string().optional().describe('Filter by list ID'),
+      task_id: z.coerce.string().optional().describe('Filter by task ID'),
       custom_task_ids: z
         .boolean()
         .optional()
@@ -108,13 +108,13 @@ export function setupTimeTrackingTools(server: McpServer): void {
     'clickup_create_time_entry',
     'Create a new time entry for time tracking. Can be used for manual time logging or creating timer-based entries.',
     {
-      team_id: z.string().min(1).describe('The ID of the team to create the time entry for'),
+      team_id: z.coerce.string().min(1).describe('The ID of the team to create the time entry for'),
       description: z.string().min(1).describe('Description of the time entry'),
       start: z.number().positive().describe('Start time (Unix timestamp in milliseconds)'),
       billable: z.boolean().default(false).describe('Whether the time is billable'),
       duration: z.number().positive().optional().describe('Duration in milliseconds. Provide either duration or stop, not both.'),
       stop: z.number().positive().optional().describe('End time (Unix timestamp in milliseconds). Provide either stop or duration, not both.'),
-      task_id: z.string().optional().describe('Associated task ID'),
+      task_id: z.coerce.string().optional().describe('Associated task ID'),
       custom_task_ids: z
         .boolean()
         .optional()
@@ -190,8 +190,8 @@ export function setupTimeTrackingTools(server: McpServer): void {
     'clickup_update_time_entry',
     'Update an existing time entry. Can modify description, times, billable status, and associated task.',
     {
-      team_id: z.string().min(1).describe('The ID of the team'),
-      timer_id: z.string().min(1).describe('The ID of the time entry to update'),
+      team_id: z.coerce.string().min(1).describe('The ID of the team'),
+      timer_id: z.coerce.string().min(1).describe('The ID of the time entry to update'),
       description: z.string().min(1).optional().describe('New description for the time entry'),
       start: z
         .number()
@@ -211,7 +211,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
           'New end time (Unix timestamp in milliseconds); sent to the API as the "end" body field. Provide either stop or duration, not both.'
         ),
       billable: z.boolean().optional().describe('Update billable status'),
-      task_id: z.string().optional().describe('Change associated task ID'),
+      task_id: z.coerce.string().optional().describe('Change associated task ID'),
       custom_task_ids: z
         .boolean()
         .optional()
@@ -288,8 +288,8 @@ export function setupTimeTrackingTools(server: McpServer): void {
     'clickup_delete_time_entry',
     'Delete a time entry from ClickUp. This action cannot be undone.',
     {
-      team_id: z.string().min(1).describe('The ID of the team'),
-      timer_id: z.string().min(1).describe('The ID of the time entry to delete'),
+      team_id: z.coerce.string().min(1).describe('The ID of the team'),
+      timer_id: z.coerce.string().min(1).describe('The ID of the time entry to delete'),
     },
     async ({ team_id, timer_id }) => {
       try {
@@ -313,8 +313,8 @@ export function setupTimeTrackingTools(server: McpServer): void {
     'clickup_get_time_entry',
     'Get a single time entry by its ID.',
     {
-      team_id: z.string().min(1).describe('The ID of the team'),
-      timer_id: z.string().min(1).describe('The ID of the time entry to retrieve'),
+      team_id: z.coerce.string().min(1).describe('The ID of the team'),
+      timer_id: z.coerce.string().min(1).describe('The ID of the time entry to retrieve'),
     },
     async ({ team_id, timer_id }) => {
       try {
@@ -338,8 +338,8 @@ export function setupTimeTrackingTools(server: McpServer): void {
     'clickup_get_time_entry_history',
     'Get the change history of a time entry. Useful for auditing who edited tracked time.',
     {
-      team_id: z.string().min(1).describe('The ID of the team'),
-      timer_id: z.string().min(1).describe('The ID of the time entry to get history for'),
+      team_id: z.coerce.string().min(1).describe('The ID of the team'),
+      timer_id: z.coerce.string().min(1).describe('The ID of the time entry to get history for'),
     },
     async ({ team_id, timer_id }) => {
       try {
@@ -367,7 +367,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
     'clickup_get_time_entry_tags',
     'Get all tags that have been used on time entries in a Workspace.',
     {
-      team_id: z.string().min(1).describe('The ID of the team (Workspace)'),
+      team_id: z.coerce.string().min(1).describe('The ID of the team (Workspace)'),
     },
     async ({ team_id }) => {
       try {
@@ -391,7 +391,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
     'clickup_add_tags_to_time_entries',
     'Add tags to one or more time entries in bulk.',
     {
-      team_id: z.string().min(1).describe('The ID of the team (Workspace)'),
+      team_id: z.coerce.string().min(1).describe('The ID of the team (Workspace)'),
       time_entry_ids: z
         .array(z.string().min(1))
         .min(1)
@@ -433,7 +433,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
     'clickup_get_running_timers',
     'Get the currently running time entry (timer) for the authenticated user, or for a specific user via assignee. The ClickUp API returns at most one running timer per user.',
     {
-      team_id: z.string().min(1).describe('The ID of the team to get the running timer for'),
+      team_id: z.coerce.string().min(1).describe('The ID of the team to get the running timer for'),
       assignee: z
         .number()
         .positive()
@@ -473,8 +473,8 @@ export function setupTimeTrackingTools(server: McpServer): void {
     'clickup_start_timer',
     'Start a timer for the authenticated user. Optionally associate with a task and set description, billable status, and tags.',
     {
-      team_id: z.string().min(1).describe('The ID of the team'),
-      task_id: z.string().optional().describe('Task ID to associate with the timer'),
+      team_id: z.coerce.string().min(1).describe('The ID of the team'),
+      task_id: z.coerce.string().optional().describe('Task ID to associate with the timer'),
       custom_task_ids: z
         .boolean()
         .optional()
@@ -520,7 +520,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
     'clickup_stop_timer',
     'Stop the running timer for the authenticated user. Returns the stopped time entry.',
     {
-      team_id: z.string().min(1).describe('The ID of the team'),
+      team_id: z.coerce.string().min(1).describe('The ID of the team'),
     },
     async ({ team_id }) => {
       try {
@@ -548,7 +548,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
     'clickup_get_time_summary',
     'Get time tracking summary and analytics. Provides aggregated time data with breakdowns by user and task.',
     {
-      team_id: z.string().min(1).describe('The ID of the team to get time summary for'),
+      team_id: z.coerce.string().min(1).describe('The ID of the team to get time summary for'),
       start_date: z
         .number()
         .positive()
@@ -565,10 +565,10 @@ export function setupTimeTrackingTools(server: McpServer): void {
         .describe(
           'Filter by user ID. For multiple users, pass a comma-separated string of user IDs (e.g. "1234,9876")'
         ),
-      task_id: z.string().optional().describe('Filter by task ID'),
-      list_id: z.string().optional().describe('Filter by list ID'),
-      folder_id: z.string().optional().describe('Filter by folder ID'),
-      space_id: z.string().optional().describe('Filter by space ID'),
+      task_id: z.coerce.string().optional().describe('Filter by task ID'),
+      list_id: z.coerce.string().optional().describe('Filter by list ID'),
+      folder_id: z.coerce.string().optional().describe('Filter by folder ID'),
+      space_id: z.coerce.string().optional().describe('Filter by space ID'),
     },
     async ({ team_id, start_date, end_date, assignee, task_id, list_id, folder_id, space_id }) => {
       try {
@@ -616,9 +616,9 @@ export function setupTimeTrackingTools(server: McpServer): void {
     'clickup_create_timer_entry',
     'Create a new time entry and immediately start the timer. Convenient for starting time tracking in one step.',
     {
-      team_id: z.string().min(1).describe('The ID of the team'),
+      team_id: z.coerce.string().min(1).describe('The ID of the team'),
       description: z.string().min(1).describe('Description of what you are working on'),
-      task_id: z.string().optional().describe('Associated task ID'),
+      task_id: z.coerce.string().optional().describe('Associated task ID'),
       custom_task_ids: z
         .boolean()
         .optional()

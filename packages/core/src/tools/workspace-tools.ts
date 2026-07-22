@@ -13,7 +13,7 @@ export function setupWorkspaceTools(server: McpServer): void {
   server.tool(
     'clickup_get_workspace_seats',
     'Get information about seats (user licenses) in a ClickUp workspace. Returns details about seat allocation and availability.',
-    { workspace_id: z.string().describe('The ID of the workspace to get seats information for') },
+    { workspace_id: z.coerce.string().describe('The ID of the workspace to get seats information for') },
     async ({ workspace_id }) => {
       try {
         const result = await authClient.getWorkspaceSeats(workspace_id);
@@ -62,7 +62,7 @@ export function setupWorkspaceTools(server: McpServer): void {
     'clickup_get_user_groups',
     'Get the User Groups (ClickUp "Teams" feature) in a workspace. Returns group IDs, names, handles, and members. Group IDs can be used as group_assignees on tasks.',
     {
-      workspace_id: z.string().describe('The ID of the workspace to get user groups for'),
+      workspace_id: z.coerce.string().describe('The ID of the workspace to get user groups for'),
       group_ids: z
         .string()
         .optional()
@@ -83,7 +83,7 @@ export function setupWorkspaceTools(server: McpServer): void {
   server.tool(
     'clickup_get_workspace_plan',
     'Get the current pricing plan of a ClickUp workspace. Returns the plan ID and name (e.g. Free Forever, Unlimited, Business).',
-    { workspace_id: z.string().describe('The ID of the workspace to get the plan for') },
+    { workspace_id: z.coerce.string().describe('The ID of the workspace to get the plan for') },
     async ({ workspace_id }) => {
       try {
         const result = await authClient.getWorkspacePlan(workspace_id);
@@ -100,7 +100,7 @@ export function setupWorkspaceTools(server: McpServer): void {
     'clickup_get_custom_roles',
     'Get the Custom Roles defined in a ClickUp workspace. Useful for resolving the custom_role IDs referenced on workspace members.',
     {
-      workspace_id: z.string().describe('The ID of the workspace to get custom roles for'),
+      workspace_id: z.coerce.string().describe('The ID of the workspace to get custom roles for'),
       include_members: z
         .boolean()
         .optional()

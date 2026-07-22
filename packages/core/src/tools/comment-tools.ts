@@ -149,7 +149,7 @@ export function setupCommentTools(server: McpServer): void {
     'clickup_create_task_comment_raw_test',
     'RAW API TEST: Create a comment bypassing ALL MCP processing to isolate duplication issue. Returns raw ClickUp API response.',
     {
-      task_id: z.string().describe('The ID of the task to comment on'),
+      task_id: z.coerce.string().describe('The ID of the task to comment on'),
       comment_text: z.string().describe('The text content of the comment'),
     },
     async ({ task_id, comment_text }) => {
@@ -169,9 +169,9 @@ export function setupCommentTools(server: McpServer): void {
     'clickup_get_task_comments',
     'Get comments for a ClickUp task. Returns comment details including text, author, and timestamps with enhanced markdown styling.',
     {
-      task_id: z.string().describe('The ID of the task to get comments for'),
+      task_id: z.coerce.string().describe('The ID of the task to get comments for'),
       start: z.number().optional().describe('Pagination start (timestamp)'),
-      start_id: z.string().optional().describe('Pagination start ID'),
+      start_id: z.coerce.string().optional().describe('Pagination start ID'),
       custom_task_ids: z
         .boolean()
         .optional()
@@ -199,7 +199,7 @@ export function setupCommentTools(server: McpServer): void {
     'clickup_create_task_comment',
     'Create a new comment on a ClickUp task using structured array format. Supports optional assignee and notification settings. Supports @mentions via tag blocks ({type:"tag", user:{id}} or {type:"tag", text:"@Full Name"}).',
     {
-      task_id: z.string().describe('The ID of the task to comment on'),
+      task_id: z.coerce.string().describe('The ID of the task to comment on'),
       comment: commentBlocksSchema.describe(
         'Array of comment blocks. Plain/formatted text uses {text, attributes}. @mentions use {type:"tag", user:{id}} (canonical, recommended — reliably triggers native mention notifications) or {type:"tag", text:"@Full Name"} (UI fallback shape; notification behavior may be less reliable). Unknown keys pass through to the ClickUp API.'
       ),
@@ -250,9 +250,9 @@ export function setupCommentTools(server: McpServer): void {
     'clickup_get_chat_view_comments',
     'Get comments for a ClickUp chat view. Returns comment details with pagination support.',
     {
-      view_id: z.string().describe('The ID of the chat view to get comments for'),
+      view_id: z.coerce.string().describe('The ID of the chat view to get comments for'),
       start: z.number().optional().describe('Pagination start (timestamp)'),
-      start_id: z.string().optional().describe('Pagination start ID'),
+      start_id: z.coerce.string().optional().describe('Pagination start ID'),
     },
     async ({ view_id, ...params }) => {
       try {
@@ -271,7 +271,7 @@ export function setupCommentTools(server: McpServer): void {
     'clickup_create_chat_view_comment',
     'Create a new comment in a ClickUp chat view. Supports notification settings. Supports GitHub Flavored Markdown in comment text, or structured comment blocks for @mentions. Provide either comment_text or comment.',
     {
-      view_id: z.string().describe('The ID of the chat view to comment on'),
+      view_id: z.coerce.string().describe('The ID of the chat view to comment on'),
       comment_text: z
         .string()
         .optional()
@@ -309,9 +309,9 @@ export function setupCommentTools(server: McpServer): void {
     'clickup_get_list_comments',
     'Get comments for a ClickUp list. Returns comment details with pagination support.',
     {
-      list_id: z.string().describe('The ID of the list to get comments for'),
+      list_id: z.coerce.string().describe('The ID of the list to get comments for'),
       start: z.number().optional().describe('Pagination start (timestamp)'),
-      start_id: z.string().optional().describe('Pagination start ID'),
+      start_id: z.coerce.string().optional().describe('Pagination start ID'),
     },
     async ({ list_id, ...params }) => {
       try {
@@ -330,7 +330,7 @@ export function setupCommentTools(server: McpServer): void {
     'clickup_create_list_comment',
     'Create a new comment on a ClickUp list. Supports optional assignee and notification settings. Supports GitHub Flavored Markdown in comment text, or structured comment blocks for @mentions. Provide either comment_text or comment.',
     {
-      list_id: z.string().describe('The ID of the list to comment on'),
+      list_id: z.coerce.string().describe('The ID of the list to comment on'),
       comment_text: z
         .string()
         .optional()
@@ -369,7 +369,7 @@ export function setupCommentTools(server: McpServer): void {
     'clickup_update_comment',
     "Update an existing ClickUp comment's properties including text, assignee, and resolved status. Supports GitHub Flavored Markdown in comment text, or structured comment blocks for @mentions. Omit comment_text/comment for resolve-only or assign-only updates that leave the comment body untouched.",
     {
-      comment_id: z.string().describe('The ID of the comment to update'),
+      comment_id: z.coerce.string().describe('The ID of the comment to update'),
       comment_text: z
         .string()
         .optional()
@@ -417,7 +417,7 @@ export function setupCommentTools(server: McpServer): void {
     'clickup_delete_comment',
     'Delete a comment from ClickUp.',
     {
-      comment_id: z.string().describe('The ID of the comment to delete'),
+      comment_id: z.coerce.string().describe('The ID of the comment to delete'),
     },
     async ({ comment_id }) => {
       try {
@@ -436,9 +436,9 @@ export function setupCommentTools(server: McpServer): void {
     'clickup_get_threaded_comments',
     'Get threaded comments (replies) for a parent comment. Returns comment details with pagination support.',
     {
-      comment_id: z.string().describe('The ID of the parent comment'),
+      comment_id: z.coerce.string().describe('The ID of the parent comment'),
       start: z.number().optional().describe('Pagination start (timestamp)'),
-      start_id: z.string().optional().describe('Pagination start ID'),
+      start_id: z.coerce.string().optional().describe('Pagination start ID'),
     },
     async ({ comment_id, ...params }) => {
       try {
@@ -457,7 +457,7 @@ export function setupCommentTools(server: McpServer): void {
     'clickup_create_threaded_comment',
     'Create a new threaded comment (reply) to a parent comment. Supports notification settings. Supports GitHub Flavored Markdown in comment text, or structured comment blocks for @mentions. Provide either comment_text or comment.',
     {
-      comment_id: z.string().describe('The ID of the parent comment'),
+      comment_id: z.coerce.string().describe('The ID of the parent comment'),
       comment_text: z
         .string()
         .optional()

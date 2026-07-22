@@ -28,8 +28,8 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'clickup_get_doc_content',
     'Get the content of a specific ClickUp doc. Returns combined content from all pages in the doc.',
     {
-      workspace_id: z.string().min(1).describe('The ID of the workspace containing the doc'),
-      doc_id: z.string().min(1).describe('The ID of the doc to get'),
+      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace containing the doc'),
+      doc_id: z.coerce.string().min(1).describe('The ID of the doc to get'),
       content_format: contentFormatEnum
         .optional()
         .default('text/md')
@@ -61,16 +61,16 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'clickup_search_docs',
     'Search for docs in a ClickUp workspace. Supports the documented v3 filters (creator, parent, deleted, archived) plus a free-text name filter applied client-side (the ClickUp API has no full-text doc search).',
     {
-      workspace_id: z.string().min(1).describe('The ID of the workspace to search in'),
+      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace to search in'),
       query: z
         .string()
         .optional()
         .describe('Free-text name filter, matched client-side against doc names'),
-      doc_id: z.string().optional().describe('Filter to a specific doc ID'),
+      doc_id: z.coerce.string().optional().describe('Filter to a specific doc ID'),
       creator: z.number().int().optional().describe('Filter by creator user ID'),
       deleted: z.boolean().optional().describe('Whether to include deleted docs'),
       archived: z.boolean().optional().describe('Whether to include archived docs'),
-      parent_id: z.string().optional().describe('Filter docs by parent ID'),
+      parent_id: z.coerce.string().optional().describe('Filter docs by parent ID'),
       parent_type: parentTypeEnum.optional().describe('Filter docs by parent type'),
       limit: z.number().int().min(1).max(100).optional().describe('Maximum number of docs to return'),
       cursor: z.string().optional().describe('Cursor for pagination (next_cursor from a previous response)')
@@ -101,12 +101,12 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'clickup_get_docs_from_workspace',
     'Get all docs from a ClickUp workspace. Supports pagination and filtering by creator, parent, and deleted/archived state.',
     {
-      workspace_id: z.string().min(1).describe('The ID of the workspace to get docs from'),
+      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace to get docs from'),
       cursor: z.string().optional().describe('Cursor for pagination (next_cursor from a previous response)'),
       deleted: z.boolean().optional().default(false).describe('Whether to include deleted docs'),
       archived: z.boolean().optional().default(false).describe('Whether to include archived docs'),
       creator: z.number().int().optional().describe('Filter by creator user ID'),
-      parent_id: z.string().optional().describe('Filter docs by parent ID'),
+      parent_id: z.coerce.string().optional().describe('Filter docs by parent ID'),
       parent_type: parentTypeEnum.optional().describe('Filter docs by parent type'),
       limit: z
         .number()
@@ -141,8 +141,8 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'clickup_get_doc_pages',
     'Get the pages of a specific ClickUp doc. Returns page content in the requested format (markdown or plain text).',
     {
-      workspace_id: z.string().min(1).describe('The ID of the workspace containing the doc'),
-      doc_id: z.string().min(1).describe('The ID of the doc to get pages from'),
+      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace containing the doc'),
+      doc_id: z.coerce.string().min(1).describe('The ID of the doc to get pages from'),
       content_format: contentFormatEnum
         .optional()
         .default('text/md')
@@ -164,8 +164,8 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'clickup_list_doc_pages',
     'List the page hierarchy of a ClickUp doc (page IDs and names, without content). Much cheaper than clickup_get_doc_pages for large docs.',
     {
-      workspace_id: z.string().min(1).describe('The ID of the workspace containing the doc'),
-      doc_id: z.string().min(1).describe('The ID of the doc to list pages for'),
+      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace containing the doc'),
+      doc_id: z.coerce.string().min(1).describe('The ID of the doc to list pages for'),
       max_page_depth: z
         .number()
         .int()
@@ -193,8 +193,8 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'clickup_get_doc',
     'Get detailed information about a specific ClickUp document including metadata.',
     {
-      workspace_id: z.string().min(1).describe('The ID of the workspace containing the document'),
-      doc_id: z.string().min(1).describe('The ID of the document to get')
+      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace containing the document'),
+      doc_id: z.coerce.string().min(1).describe('The ID of the document to get')
     },
     async ({ workspace_id, doc_id }) => {
       try {
@@ -222,10 +222,10 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'clickup_create_doc',
     'Create a new document in a ClickUp workspace. Placement inside the hierarchy (space, folder, list) is set via the parent fields. If content is supplied, it is added as the first page. Note: the ClickUp public API has no doc update/delete, page delete, sharing, or template endpoints.',
     {
-      workspace_id: z.string().min(1).describe('The ID of the workspace to create the document in'),
+      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace to create the document in'),
       name: z.string().min(1).max(255).describe('The name of the document'),
-      space_id: z.string().optional().describe('Place the doc in this space (parent type 4)'),
-      folder_id: z.string().optional().describe('Place the doc in this folder (parent type 5)'),
+      space_id: z.coerce.string().optional().describe('Place the doc in this space (parent type 4)'),
+      folder_id: z.coerce.string().optional().describe('Place the doc in this folder (parent type 5)'),
       parent_id: z
         .string()
         .optional()
@@ -294,8 +294,8 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'clickup_create_doc_page',
     'Create a new page in a ClickUp document. Supports markdown and plain text content, an optional sub_title, and nesting under a parent page.',
     {
-      workspace_id: z.string().min(1).describe('The ID of the workspace containing the document'),
-      doc_id: z.string().min(1).describe('The ID of the document to create the page in'),
+      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace containing the document'),
+      doc_id: z.coerce.string().min(1).describe('The ID of the document to create the page in'),
       name: z.string().min(1).max(255).describe('The name/title of the page'),
       content: z.string().min(1).describe('The content of the page'),
       sub_title: z.string().optional().describe('Optional sub title for the page'),
@@ -303,7 +303,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
         .optional()
         .default('text/md')
         .describe('The format of the content (markdown maps to text/md, html to text/html)'),
-      parent_page_id: z.string().optional().describe('ID of parent page for nesting')
+      parent_page_id: z.coerce.string().optional().describe('ID of parent page for nesting')
     },
     async ({ workspace_id, doc_id, name, content, sub_title, content_format, parent_page_id }) => {
       try {
@@ -333,9 +333,9 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'clickup_update_doc_page',
     'Update an existing page in a ClickUp document. Can update name, sub_title, and content. content_edit_mode controls whether content replaces, appends to, or prepends to the existing page content.',
     {
-      workspace_id: z.string().min(1).describe('The ID of the workspace containing the document'),
-      doc_id: z.string().min(1).describe('The ID of the document containing the page'),
-      page_id: z.string().min(1).describe('The ID of the page to update'),
+      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace containing the document'),
+      doc_id: z.coerce.string().min(1).describe('The ID of the document containing the page'),
+      page_id: z.coerce.string().min(1).describe('The ID of the page to update'),
       name: z.string().min(1).max(255).optional().describe('New name/title for the page'),
       sub_title: z.string().optional().describe('New sub title for the page'),
       content: z.string().optional().describe('New content for the page'),

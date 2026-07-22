@@ -93,8 +93,8 @@ export function setupCustomFieldTools(server: McpServer): void {
     'clickup_set_custom_field_value',
     `Set a custom field value on a ClickUp task. ${VALUE_FORMAT_GUIDE}`,
     {
-      task_id: z.string().min(1).describe('The ID of the task to set the custom field value on'),
-      field_id: z.string().min(1).describe('The ID of the custom field'),
+      task_id: z.coerce.string().min(1).describe('The ID of the task to set the custom field value on'),
+      field_id: z.coerce.string().min(1).describe('The ID of the custom field'),
       value: z
         .any()
         .describe('The value to set (format depends on field type — see tool description)'),
@@ -151,7 +151,7 @@ export function setupCustomFieldTools(server: McpServer): void {
         .string()
         .min(1)
         .describe('The ID of the task to remove the custom field value from'),
-      field_id: z.string().min(1).describe('The ID of the custom field to clear'),
+      field_id: z.coerce.string().min(1).describe('The ID of the custom field to clear'),
       custom_task_ids: z
         .boolean()
         .optional()
@@ -189,8 +189,8 @@ export function setupCustomFieldTools(server: McpServer): void {
     'clickup_get_custom_field_value',
     'Get a custom field value from a ClickUp task. Returns the current value and field information.',
     {
-      task_id: z.string().min(1).describe('The ID of the task to get the custom field value from'),
-      field_id: z.string().min(1).describe('The ID of the custom field to retrieve'),
+      task_id: z.coerce.string().min(1).describe('The ID of the task to get the custom field value from'),
+      field_id: z.coerce.string().min(1).describe('The ID of the custom field to retrieve'),
       custom_task_ids: z
         .boolean()
         .optional()
@@ -228,11 +228,11 @@ export function setupCustomFieldTools(server: McpServer): void {
     'clickup_bulk_set_custom_field_values',
     `Set multiple custom field values on a ClickUp task in a single operation. More efficient than setting values individually. ${VALUE_FORMAT_GUIDE}`,
     {
-      task_id: z.string().min(1).describe('The ID of the task to set custom field values on'),
+      task_id: z.coerce.string().min(1).describe('The ID of the task to set custom field values on'),
       field_values: z
         .array(
           z.object({
-            field_id: z.string().min(1).describe('The ID of the custom field'),
+            field_id: z.coerce.string().min(1).describe('The ID of the custom field'),
             value: z
               .any()
               .describe('The value to set (format depends on field type — see tool description)'),
@@ -306,7 +306,7 @@ export function setupCustomFieldTools(server: McpServer): void {
     'clickup_get_task_custom_field_values',
     'Get all custom field values for a ClickUp task. Returns all field values with their definitions.',
     {
-      task_id: z.string().min(1).describe('The ID of the task to get custom field values from'),
+      task_id: z.coerce.string().min(1).describe('The ID of the task to get custom field values from'),
       custom_task_ids: z
         .boolean()
         .optional()
@@ -348,13 +348,13 @@ export function setupCustomFieldTools(server: McpServer): void {
     'clickup_validate_custom_field_value',
     `Validate a custom field value against its field type and configuration. Useful for checking values before setting them. ${VALUE_FORMAT_GUIDE}`,
     {
-      field_id: z.string().min(1).describe('The ID of the custom field'),
+      field_id: z.coerce.string().min(1).describe('The ID of the custom field'),
       container_type: z
         .enum(['list', 'folder', 'space', 'team', 'workspace'])
         .describe(
           'The type of container the field belongs to ("team" and "workspace" are synonyms)'
         ),
-      container_id: z.string().min(1).describe('The ID of the container'),
+      container_id: z.coerce.string().min(1).describe('The ID of the container'),
       value: z.any().describe('The value to validate'),
     },
     async ({ field_id, container_type, container_id, value }) => {

@@ -21,7 +21,7 @@ export function setupBulkTaskTools(server: McpServer): void {
     'Create multiple tasks in a ClickUp list in a single operation. More efficient than creating tasks individually. ' +
       'Supports up to 50 tasks per request.',
     {
-      list_id: z.string().min(1).describe('The ID of the list to create tasks in'),
+      list_id: z.coerce.string().min(1).describe('The ID of the list to create tasks in'),
       tasks: z
         .array(BulkCreateTaskItemSchema)
         .min(1)
@@ -238,7 +238,7 @@ export function setupBulkTaskTools(server: McpServer): void {
     'clickup_delete_subtask',
     '⚠️ DESTRUCTIVE: Delete a subtask from ClickUp. This action cannot be undone and will permanently remove the subtask.',
     {
-      task_id: z.string().min(1).describe('The ID of the subtask to delete'),
+      task_id: z.coerce.string().min(1).describe('The ID of the subtask to delete'),
       confirm_deletion: z
         .boolean()
         .describe('Confirmation that you want to permanently delete this subtask (must be true)')

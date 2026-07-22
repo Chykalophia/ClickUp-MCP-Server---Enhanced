@@ -6,13 +6,13 @@ import { z } from 'zod';
 // ========================================
 
 // Team ID validation
-export const TeamIdSchema = z.string().min(1, 'Team ID is required');
+export const TeamIdSchema = z.coerce.string().min(1, 'Team ID is required');
 
 // Timer ID validation
-export const TimerIdSchema = z.string().min(1, 'Timer ID is required');
+export const TimerIdSchema = z.coerce.string().min(1, 'Timer ID is required');
 
 // Task ID validation (optional for time entries)
-export const TaskIdSchema = z.string().min(1, 'Task ID is required');
+export const TaskIdSchema = z.coerce.string().min(1, 'Task ID is required');
 
 // User ID validation
 export const UserIdSchema = z.number().positive('User ID must be positive');

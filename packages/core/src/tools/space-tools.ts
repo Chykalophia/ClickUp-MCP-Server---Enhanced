@@ -40,7 +40,7 @@ export function setupSpaceTools(server: McpServer): void {
     'clickup_get_spaces',
     'Get spaces from a ClickUp workspace. Returns space details including name, settings, and features.',
     {
-      workspace_id: z.string().describe('The ID of the workspace to get spaces from'),
+      workspace_id: z.coerce.string().describe('The ID of the workspace to get spaces from'),
       archived: z
         .boolean()
         .optional()
@@ -68,7 +68,7 @@ export function setupSpaceTools(server: McpServer): void {
   server.tool(
     'clickup_get_space',
     'Get details about a specific ClickUp space. Returns space name, settings, features, and metadata.',
-    { space_id: z.string().describe('The ID of the space to get') },
+    { space_id: z.coerce.string().describe('The ID of the space to get') },
     async ({ space_id }) => {
       try {
         console.error(`[SpaceTools] Getting space ${space_id}...`);
@@ -89,7 +89,7 @@ export function setupSpaceTools(server: McpServer): void {
     'clickup_create_space',
     'Create a new space in a ClickUp workspace. Optionally configure multiple assignees and features (due dates, time tracking, tags, time estimates, checklists, custom fields).',
     {
-      workspace_id: z.string().describe('The ID of the workspace to create the space in'),
+      workspace_id: z.coerce.string().describe('The ID of the workspace to create the space in'),
       name: z.string().describe('The name of the space'),
       multiple_assignees: z
         .boolean()
@@ -121,7 +121,7 @@ export function setupSpaceTools(server: McpServer): void {
     'clickup_update_space',
     "Update an existing ClickUp space's name, color, privacy, admin management, multiple assignees setting, or features.",
     {
-      space_id: z.string().describe('The ID of the space to update'),
+      space_id: z.coerce.string().describe('The ID of the space to update'),
       name: z.string().optional().describe('The new name of the space'),
       color: z.string().optional().describe('The new hex color code of the space (e.g. #7B68EE)'),
       private: z.boolean().optional().describe('Whether the space should be private'),
@@ -162,7 +162,7 @@ export function setupSpaceTools(server: McpServer): void {
     'clickup_delete_space',
     '⚠️ DESTRUCTIVE: Delete a space from ClickUp. This action cannot be undone and will permanently remove the space and ALL of its contents, including folders, lists, and tasks.',
     {
-      space_id: z.string().describe('The ID of the space to delete'),
+      space_id: z.coerce.string().describe('The ID of the space to delete'),
       confirm_deletion: z
         .boolean()
         .describe('Confirmation that you want to permanently delete this space (must be true)'),
@@ -204,7 +204,7 @@ export function setupSpaceTools(server: McpServer): void {
   server.tool(
     'clickup_get_space_tags',
     'Get the task tags defined in a ClickUp space. Returns tag names and foreground/background colors.',
-    { space_id: z.string().describe('The ID of the space to get tags from') },
+    { space_id: z.coerce.string().describe('The ID of the space to get tags from') },
     async ({ space_id }) => {
       try {
         console.error(`[SpaceTools] Getting tags for space ${space_id}...`);
@@ -225,7 +225,7 @@ export function setupSpaceTools(server: McpServer): void {
     'clickup_create_space_tag',
     'Create a new task tag in a ClickUp space with an optional foreground and background color.',
     {
-      space_id: z.string().describe('The ID of the space to create the tag in'),
+      space_id: z.coerce.string().describe('The ID of the space to create the tag in'),
       name: z.string().describe('The name of the tag'),
       tag_fg: z.string().optional().describe('The foreground (text) hex color of the tag (e.g. #FFFFFF)'),
       tag_bg: z.string().optional().describe('The background hex color of the tag (e.g. #7B68EE)'),
@@ -253,7 +253,7 @@ export function setupSpaceTools(server: McpServer): void {
     'clickup_edit_space_tag',
     "Edit an existing task tag in a ClickUp space. Update the tag's name and/or colors.",
     {
-      space_id: z.string().describe('The ID of the space containing the tag'),
+      space_id: z.coerce.string().describe('The ID of the space containing the tag'),
       tag_name: z.string().describe('The current name of the tag to edit'),
       new_name: z.string().optional().describe('The new name of the tag'),
       tag_fg: z.string().optional().describe('The new foreground (text) hex color of the tag'),
@@ -287,7 +287,7 @@ export function setupSpaceTools(server: McpServer): void {
     'clickup_delete_space_tag',
     '⚠️ DESTRUCTIVE: Delete a task tag from a ClickUp space. The tag is removed from the space and from all tasks that use it.',
     {
-      space_id: z.string().describe('The ID of the space containing the tag'),
+      space_id: z.coerce.string().describe('The ID of the space containing the tag'),
       tag_name: z.string().describe('The name of the tag to delete'),
     },
     async ({ space_id, tag_name }) => {

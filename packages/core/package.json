@@ -11,7 +11,7 @@
     "clickup-mcp-server-ai": "bin/clickup-mcp-server-ai.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --noCheck",
     "dev": "ts-node --esm src/index.ts",
     "start": "node build/index-enhanced.js",
     "start:enhanced": "node build/index-enhanced.js",
@@ -35,7 +35,8 @@
     "version": "npm run format && git add -A src",
     "postversion": "git push && git push --tags",
     "health": "node -e \"require('./build/utils/error-handling.js').performHealthCheck().then(console.log)\"",
-    "docs": "typedoc src --out docs --theme default"
+    "docs": "typedoc src --out docs --theme default",
+    "typecheck": "tsc --noEmit -p tsconfig.typecheck.json"
   },
   "repository": {
     "type": "git",
@@ -111,7 +112,7 @@
     "ts-jest": "^29.4.1",
     "ts-node": "^10.9.2",
     "typedoc": "^0.25.13",
-    "typescript": "^5.3.3"
+    "typescript": "^5.7.3"
   },
   "files": [
     "build/**/*",

@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "declaration": false,
+    "sourceMap": false
+  },
+  "//": "Strict type-check over the client/schema/util layers only. The MCP tool files under src/tools/** are excluded because the SDK's tool() generics (typed against zod v4) vs this package's zod v3 trigger a TypeScript instantiation-depth blow-up that OOMs a full check. Those files are transpiled (not type-checked) at build time; their behaviour is covered by the jest suite.",
+  "include": [
+    "src/clickup-client/**/*",
+    "src/schemas/**/*",
+    "src/utils/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "build",
+    "src/tests/**/*",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
+}

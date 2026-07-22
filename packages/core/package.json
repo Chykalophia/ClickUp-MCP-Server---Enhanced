@@ -11,7 +11,7 @@
     "clickup-mcp-server-ai": "bin/clickup-mcp-server-ai.js"
   },
   "scripts": {
-    "build": "tsc --noCheck --declaration false --sourceMap false",
+    "build": "node scripts/esbuild-build.mjs",
     "dev": "ts-node --esm src/index.ts",
     "start": "node build/index-enhanced.js",
     "start:enhanced": "node build/index-enhanced.js",

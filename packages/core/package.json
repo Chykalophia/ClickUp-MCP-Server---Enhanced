@@ -11,7 +11,7 @@
     "clickup-mcp-server-ai": "bin/clickup-mcp-server-ai.js"
   },
   "scripts": {
-    "build": "tsc --noCheck",
+    "build": "tsc --noCheck --declaration false --sourceMap false",
     "dev": "ts-node --esm src/index.ts",
     "start": "node build/index-enhanced.js",
     "start:enhanced": "node build/index-enhanced.js",
@@ -30,13 +30,13 @@
     "validate": "npm run test:coverage && npm run security:check",
     "validate-with-lint": "npm run lint && npm run test:coverage && npm run security:check",
     "clean": "rm -rf build coverage test-results .jest-cache",
-    "prepare": "npm run build",
     "prepack": "npm run build",
     "version": "npm run format && git add -A src",
     "postversion": "git push && git push --tags",
     "health": "node -e \"require('./build/utils/error-handling.js').performHealthCheck().then(console.log)\"",
     "docs": "typedoc src --out docs --theme default",
-    "typecheck": "tsc --noEmit -p tsconfig.typecheck.json"
+    "typecheck": "tsc --noEmit -p tsconfig.typecheck.json",
+    "prepare": "npm run build"
   },
   "repository": {
     "type": "git",

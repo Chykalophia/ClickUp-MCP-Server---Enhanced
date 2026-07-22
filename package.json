@@ -18,12 +18,12 @@
     "lint:fix": "npm run lint:fix --workspaces",
     "format": "npm run format --workspaces",
     "clean": "npm run clean --workspaces && rm -rf node_modules",
-    "prepare": "npm run build",
     "validate": "npm run test:coverage && npm run lint",
     "publish:all": "npm run publish --workspaces",
     "version:patch": "npm version patch --workspaces",
     "version:minor": "npm version minor --workspaces",
-    "version:major": "npm version major --workspaces"
+    "version:major": "npm version major --workspaces",
+    "prepare": "npm run build"
   },
   "repository": {
     "type": "git",

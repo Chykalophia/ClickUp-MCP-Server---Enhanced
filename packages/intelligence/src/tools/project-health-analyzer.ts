@@ -1,25 +1,38 @@
 /* eslint-disable no-console, max-len */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-import { ProjectHealthAnalyzer } from '../analyzers/project-health-analyzer.js';
+import { ProjectHealthAnalyzer, ProjectHealthAnalysisParams } from '../analyzers/project-health-analyzer.js';
 
-// Schema for project health analysis parameters
-const ProjectHealthAnalysisSchema = z.object({
+// Parameter shape for the project-health tool. The MCP SDK's tool() generics are
+// typed against its bundled zod v4, while this package uses zod v3; matching a v3
+// ZodRawShape against the v4-typed overload trips TypeScript's instantiation-depth
+// limit (TS2589). We register through a locally-narrowed view of server.tool that
+// accepts a raw shape + a params-typed handler, so the shape and handler params
+// stay fully typed while the cross-version generic inference is bypassed.
+const projectHealthAnalysisShape = {
   workspace_id: z.string().describe('The ClickUp workspace ID to analyze'),
   space_id: z.string().optional().describe('Optional: Specific space ID to analyze'),
   list_id: z.string().optional().describe('Optional: Specific list ID to analyze'),
   include_archived: z.boolean().default(false).describe('Whether to include archived tasks in analysis'),
   analysis_depth: z.enum(['basic', 'detailed', 'comprehensive']).default('detailed').describe('Depth of analysis to perform')
-});
+};
+
+type RawShapeToolRegister = (
+  name: string,
+  description: string,
+  paramsShape: z.ZodRawShape,
+  cb: (params: ProjectHealthAnalysisParams) => Promise<{ content: Array<{ type: 'text'; text: string }>; isError?: boolean }>
+) => void;
 
 export function setupProjectHealthAnalyzer(server: McpServer) {
   const analyzer = new ProjectHealthAnalyzer();
 
-  server.tool(
+  const registerTool = server.tool.bind(server) as unknown as RawShapeToolRegister;
+  registerTool(
     'clickup_analyze_project_health',
     'Analyze the health of a ClickUp project with AI-powered insights including task completion rates, bottlenecks, team velocity, and risk assessment',
-    ProjectHealthAnalysisSchema.shape,
-    async (params) => {
+    projectHealthAnalysisShape,
+    async (params: ProjectHealthAnalysisParams) => {
       try {
         const analysis = await analyzer.analyzeProjectHealth(params);
         

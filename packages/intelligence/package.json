@@ -7,7 +7,7 @@
     "clickup-intelligence-mcp-server": "build/index.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --build",
     "dev": "ts-node --esm src/index.ts",
     "start": "node build/index.js",
     "test": "jest",

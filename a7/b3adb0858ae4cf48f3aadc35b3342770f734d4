@@ -1,0 +1,19 @@
+packages/core/src/tests/version.test.ts
+  s_d7e0cdac3873cf::t_27835104c1be1d 79-83
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "a7b3adb0858ae4cf48f3aadc35b3342770f734d4",
+  "prompts": {},
+  "sessions": {
+    "s_d7e0cdac3873cf": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2c1f1b49-5745-4516-aa9e-11d3cbc2c79d",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}

@@ -21,12 +21,21 @@ const config = {
       // issue as the full tsc build). Types are enforced separately via tsc
       // over the client/schema/util layers.
       diagnostics: false,
+      // isolatedModules makes ts-jest transpile each file independently
+      // (like esbuild) instead of building a whole-program TypeScript Program.
+      // Without it, loading the tool-setup test suites (time-tracking,
+      // integration) builds a type graph over the SDK tool() x zod generics
+      // that exhausts the 4 GB Node heap and OOM-kills the jest worker. Per-file
+      // transpile keeps memory bounded; types are still enforced by `npm run
+      // typecheck`.
+      isolatedModules: true,
       tsconfig: {
         module: 'esnext',
         target: 'es2020',
         moduleResolution: 'node',
         allowSyntheticDefaultImports: true,
-        esModuleInterop: true
+        esModuleInterop: true,
+        isolatedModules: true
       }
     }]
   },

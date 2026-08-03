@@ -15,6 +15,20 @@ import { createRequire } from 'node:module';
 // outside `rootDir` into the tsc program and break `tsc --build`.
 const requireFromHere = createRequire(import.meta.url);
 
-const pkg = requireFromHere('../package.json') as { version?: string };
+function readVersion(): string {
+  try {
+    const pkg = requireFromHere('../package.json') as { version?: unknown };
 
-export const VERSION = pkg.version ?? '0.0.0-unknown';
+    return typeof pkg.version === 'string' && pkg.version.length > 0
+      ? pkg.version
+      : '0.0.0-unknown';
+  } catch {
+    // Reporting an unknown version is a cosmetic defect; failing to start is
+    // not. This module is imported by the server entry point, so an unreadable,
+    // missing, or malformed package.json would otherwise throw during startup
+    // and the process would never reach the stdio transport.
+    return '0.0.0-unknown';
+  }
+}
+
+export const VERSION = readVersion();

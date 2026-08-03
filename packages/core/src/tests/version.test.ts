@@ -12,10 +12,22 @@ import { join } from 'node:path';
 // installed location) and ts-jest transpiles this suite to CommonJS, where
 // `import.meta` is a syntax error. Checking the source text guards the thing
 // that actually rots — the literal — without needing an ESM test runner.
-const PACKAGE_ROOT = join(__dirname, '..', '..');
+//
+// __dirname exists under that CommonJS transpile. The typeof guard keeps this
+// working if the suite is ever switched to true ESM (jest's ESM mode needs
+// NODE_OPTIONS=--experimental-vm-modules), where __dirname is undefined and
+// jest's cwd is the package root. `import.meta.url` is deliberately not used
+// for this either — it is the very syntax error described above.
+const PACKAGE_ROOT =
+  typeof __dirname !== 'undefined' ? join(__dirname, '..', '..') : process.cwd();
 
 const readSource = (relative: string): string =>
   readFileSync(join(PACKAGE_ROOT, relative), 'utf8');
+
+// Quote style is not the thing under test, so every pattern below accepts
+// either. Prettier is configured with singleQuote, but a reformat must not be
+// able to turn this guard red while version reporting is still correct.
+const Q = '[\'"]';
 
 const ENTRY_POINTS = ['src/index-enhanced.ts', 'src/index-efficiency-simple.ts'];
 
@@ -25,16 +37,18 @@ describe('server version reporting', () => {
 
     // The server constructor must hand through the shared VERSION constant.
     expect(source).toMatch(/version:\s*VERSION\b/);
-    expect(source).toMatch(/from '\.\/version\.js'/);
+    expect(source).toMatch(new RegExp(`from ${Q}\\./version\\.js${Q}`));
 
     // ...and must not carry a hardcoded semver literal in its place.
-    expect(source).not.toMatch(/version:\s*['"]\d+\.\d+\.\d+['"]/);
+    expect(source).not.toMatch(new RegExp(`version:\\s*${Q}\\d+\\.\\d+\\.\\d+${Q}`));
   });
 
   it('version.ts sources the version from package.json', () => {
     const source = readSource('src/version.ts');
 
-    expect(source).toContain("requireFromHere('../package.json')");
+    expect(source).toMatch(
+      new RegExp(`requireFromHere\\(\\s*${Q}\\.\\./package\\.json${Q}\\s*\\)`)
+    );
     expect(source).toMatch(/export const VERSION/);
 
     // No semver literal may appear in the executable code. Comments are
@@ -43,9 +57,20 @@ describe('server version reporting', () => {
     const code = source
       .replace(/\/\*[\s\S]*?\*\//g, '')
       .replace(/\/\/.*$/gm, '')
-      .replace(/'0\.0\.0-unknown'/g, '');
+      .replace(new RegExp(`${Q}0\\.0\\.0-unknown${Q}`, 'g'), '');
 
-    expect(code).not.toMatch(/'\d+\.\d+\.\d+'/);
+    expect(code).not.toMatch(new RegExp(`${Q}\\d+\\.\\d+\\.\\d+${Q}`));
+  });
+
+  it('survives an unreadable package.json instead of crashing at startup', () => {
+    const source = readSource('src/version.ts');
+
+    // The entry points import this module, so a throw here would abort startup
+    // before the stdio transport is ever connected — the fallback would never
+    // be reached. Guard that the read stays wrapped.
+    expect(source).toMatch(/try\s*{/);
+    expect(source).toMatch(/catch/);
+    expect(source).toMatch(new RegExp(`${Q}0\\.0\\.0-unknown${Q}`));
   });
 
   it('package.json declares a valid semver version', () => {

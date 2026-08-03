@@ -48,15 +48,16 @@ const config = {
   
   // Coverage configuration
   //
-  // Coverage instrumentation is disabled: Istanbul instruments every source
-  // file, and the MCP tool-registration modules (src/tools/*-setup.ts) combine
-  // the SDK's tool() generics with zod across dozens of registrations. Building
-  // a coverage map for those files exhausts the jest worker's memory and the OS
-  // OOM-kills it (SIGTERM), which fails the suite after ~40 min even though all
-  // tests pass. This is the same type-graph explosion that forces the esbuild
-  // transpile-only build. The 157 unit tests still run (in ~15s); type safety is
-  // enforced separately by `npm run typecheck`.
-  collectCoverage: false,
+  // Coverage stays enabled for the codebase, but the MCP tool-registration
+  // modules under src/tools/ are excluded from collectCoverageFrom (below).
+  // Instrumenting those files combines the SDK's tool() generics with zod
+  // across dozens of registrations and exhausts the jest worker's memory
+  // (OOM/SIGTERM) — the same type-graph explosion that forces the esbuild
+  // transpile-only build. They are untested registration glue (0% coverage),
+  // so excluding them keeps coverage visible for the rest of the code without
+  // the blow-up. (isolatedModules in the transform also keeps transpilation
+  // per-file; type safety is enforced separately by `npm run typecheck`.)
+  collectCoverage: true,
   coverageDirectory: 'coverage',
   coverageReporters: [
     'text',
@@ -83,7 +84,17 @@ const config = {
     '!src/**/*.test.{ts,tsx}',
     '!src/**/*.spec.{ts,tsx}',
     '!src/tests/**/*',
-    '!src/**/index.ts'
+    '!src/**/index.ts',
+    // Exclude the MCP tool-registration modules: instrumenting them OOM-kills
+    // the jest worker (SDK tool() x zod type-graph explosion). They are
+    // untested registration glue, so this keeps coverage bounded and stable.
+    '!src/tools/**'
+  ],
+  // Belt-and-suspenders: also skip instrumenting the tool modules if any test
+  // imports them directly, so coverage collection never touches those files.
+  coveragePathIgnorePatterns: [
+    '/node_modules/',
+    '<rootDir>/src/tools/'
   ],
   
   // Setup files

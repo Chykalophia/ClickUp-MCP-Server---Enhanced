@@ -1,0 +1,170 @@
+packages/intelligence/src/__tests__/utils/test-data-generator.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 82,106,131,144,160,178
+packages/core/src/clickup-client/webhooks-enhanced.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 13,59,120,182,190,202
+packages/intelligence/src/__tests__/services/workflow-intelligence-service.test.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 26,53,67,92,116,121,137,159
+packages/intelligence/src/utils/task-decomposition-formatter.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 20,42,70,79,95,115,124,139,247,261,301
+packages/core/src/clickup-client/custom-fields-enhanced.ts
+  s_d7e0cdac3873cf::t_85bd8e9afbd6a2 735
+  s_d7e0cdac3873cf::t_89467b82afb3e8 549,582
+packages/intelligence/src/utils/test-data-generator.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 49,62,73,85,95,104,122-123,139,149-150
+packages/intelligence/src/tools/workflow-intelligence.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 18,59,65,71,78
+packages/core/src/utils/clickup-comment-formatter.ts
+  s_d7e0cdac3873cf::t_85bd8e9afbd6a2 471
+packages/intelligence/src/utils/workflow-intelligence-formatter.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 16
+packages/intelligence/src/planners/smart-sprint-planner.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 37,47,59,106,116,130,171,371
+packages/core/src/clickup-client/comments-enhanced.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 7,241,261,303,343,359,415
+packages/intelligence/src/tools/project-health-analyzer.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 17,144-145,167,169
+packages/core/src/tests/error-handling.test.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 13,34,62-63,78-79,92,106
+packages/core/src/tools/workspace-tools.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 22,38,54,70,76,92,108,114
+packages/core/src/clickup-client/folders.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 5
+packages/intelligence/src/services/real-time-processing-engine.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 45,54,64,76,93,163,196,200,216,221,237,249-250,290,300
+packages/core/src/tools/time-tracking-tools.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 151,158,252
+packages/intelligence/src/tools/resource-optimizer.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 17,27,34,52-53,60,72-73,75,88,95,104,109-110,119,124-125,127,135,137,268-269,271,285-286,288,302-303,305,319-320,322
+packages/core/src/index-efficiency-simple.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 313
+packages/intelligence/src/tools/task-decomposition-engine.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 10,26,36,61,74,140,171,182,210,223,229,235,241,247-248,296,301,304,353,476,507,516-517,519,526,535-536,538,552-553,555
+packages/shared/src/__tests__/types.test.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 17,40
+packages/intelligence/src/services/event-stream-processor.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 27,114,124,134
+packages/core/src/clickup-client/secure-client.ts
+  s_d7e0cdac3873cf::t_85bd8e9afbd6a2 345
+packages/core/src/tests/security.test.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 11,62
+packages/core/src/clickup-client/tasks.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 8,412,649,737
+packages/core/src/clickup-client/index.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 38-39
+packages/core/src/tests/global-teardown.ts
+  s_d7e0cdac3873cf::t_85bd8e9afbd6a2 12
+packages/core/src/tests/integration.test.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 14
+packages/core/src/tests/time-tracking.test.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 11,27-28,40,54,65,77,87,108,128,132,135,149,153,167,171,186,203,220,224,227
+packages/shared/src/schemas/index.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 14,22-23,34,43
+packages/intelligence/src/tools/smart-sprint-planner.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 37,51,69,80,82,91,99,103,111,119,121,133,142,151,153,162,169-170,206,219,237,239,257-258,277,285,294,304,312,323-324,343,361,370-371,388,399-400
+packages/core/src/tests/update-task-assignees.test.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 9,47-48,56,58
+packages/intelligence/src/services/websocket-service.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 40,51,84-85,201,221,238,293
+packages/intelligence/src/__tests__/services/capacity-modeling-service.test.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 29,34,70,79-80,86-88,109,127,147,153,158-160
+packages/intelligence/src/index.ts
+  s_d7e0cdac3873cf::t_b1a670d218e1c3 300,318,321,333,335,347,349,361,363,375,378,393,395,407,409,420,423,435,437,449,451,463,465,477,480,492,494,506,508,520
+  s_d7e0cdac3873cf::t_e43d24ade07c63 40-41
+  s_d7e0cdac3873cf::t_f9affbcb8148ef 17-20
+  s_d7e0cdac3873cf::t_89467b82afb3e8 55,85,89-90,125,129,135,140,146-147,149-150,157,163,169,175,182,188,194,201,207,213,219,226,232,238,245,251,257,263,274-275,277-278,287-290,308,314-316,329-331,343-345,357-359,371-373,389-391,403-405,416-418,431-433,445-447,459-461,473-475,488-490,502-504,516-518,556-557,559,589,597,605
+packages/core/src/schemas/goals-schemas.ts
+  s_d7e0cdac3873cf::t_85bd8e9afbd6a2 226
+packages/core/src/tools/list-folder-tools.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 27,40,51,67,74,86,92,105,111,124,130,142,148,164,171,205,220,251,262,265,277,283,322,332,344,350,367,376-377,379,393-395,413,419,422,440,446,449,471,477,480,492,498
+packages/intelligence/src/tests/task-decomposition-engine.test.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 17,36,66,82,92
+packages/core/src/tools/bulk-task-tools.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 10,34,67-69,90,122-124,147,156-157,159,186,195,206,228-230,245,254-255,257,271-273,302,311-312,314,335-337
+packages/core/src/clickup-client/views-enhanced.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 22,118,170,187,196,205,214,253,274,319,331,339,347-348,358,361,370-371
+  s_d7e0cdac3873cf::t_d2fad149f16ed5 4-8
+packages/core/src/schemas/response-schemas.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 33,37,80,84,88,106,117-118,124,135,144,150-151,162,198
+packages/core/src/tests/time-in-status.test.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 4,20,28,35-37,49-50,60-61,77,92-93,97-98,111-112,115-116
+packages/intelligence/src/__tests__/services/velocity-analysis-service.test.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 18,39,56,68,86
+packages/core/src/clickup-client/comments.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 7
+packages/core/src/tests/markdown.test.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 64,76,87
+packages/intelligence/src/services/real-time-data-service.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 30,46,59,91,99,122,148
+packages/intelligence/src/services/capacity-modeling-service.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 23,32,38,49,58,63,68,73,75,83,89,95,102-103,111,118,123-124,144,190,195,248,253,258,261,306,310,339,381,441,455,468,479,500,515,525,573,589
+packages/intelligence/src/services/task-analysis-service.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 110,117,124,131,138,145,152-154,164,171,178,185,192,199,206-208,218,225,232,239,246,253,260-262,272,279,286,293,300-302,312,319,326,333,340-343,354,405,415,455,476,520,527,539,552,565,579,588,652,658,672,678,684,690-691,703,709
+packages/intelligence/src/services/data-cache-service.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 34,42,57
+packages/core/src/tests/clickup-comment-formatter.test.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 15,27-29,40-42,55-57,70-72,85-87,100-102,113,122,131,140,149,158,170,181-183,194-196,207-209,221-223,235-237,249-251,263-265,277-279,293-294,306-308,327,349,372,378,384,390,403-405,414,419,423-424,435-437,447,453,482,495,508,516,524,531,545,553,559
+packages/core/src/tools/task-tools.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 30,36,64,72,75,125,137,140,187,199,202,225,234-235,237,251-253,266,272,285,291,311,317,320,344,350,353,387,393,414,421-422,443,450-451,465,471
+packages/core/src/tools/doc-tools-enhanced.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 37,53,77,90,93,118,129,133,150,156,175,185,198,208-210,253,272,279-281,306,315,322-324,349,359-360,362,371,378-380
+packages/core/src/clickup-client/goals-enhanced.ts
+  s_d7e0cdac3873cf::t_85bd8e9afbd6a2 384
+  s_d7e0cdac3873cf::t_89467b82afb3e8 317,332,379
+packages/intelligence/src/services/sprint-optimization-service.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 24,30,36,45,59-60,75,81,106,124,180,263
+packages/intelligence/src/services/health-metrics-service.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 96,106,124,142,154,166,178,190,246,259,298,314,328,339,354,373,431
+packages/intelligence/src/__tests__/setup.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 21,31,36,38
+packages/core/src/clickup-client/time-tracking-enhanced.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 521,538,555
+packages/intelligence/src/services/resource-optimization-service-impl.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 35,46,53,92,130,152,174,198,211,218,232,253-254,266,400,411,502,517,530,540,574,582,590,660,679,712,727,745,755,788,798,813,822,836,845,860,871,887,901,910
+packages/core/src/tests/delete-merge-operations.test.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 9,15,36,41,46,62,78,94,115,123,140,152,166,181,196,220,235,256,271
+packages/intelligence/src/__tests__/services/resource-optimization-service.test.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 28,35,41,47,49,90,97,103,109,111,123,129,157,163,169,171,203,209,215,217,223
+packages/core/src/clickup-client/docs-enhanced.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 177,225,293,310,316,344
+packages/intelligence/src/services/velocity-analysis-service.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 20,29,36,42,46,57,66,72-73,90,128,164,185,226,251,259,264,269-270,278,296,308,319,329,350
+packages/intelligence/src/utils/resource-optimization-formatter.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 10,28,43,58,73,91,114,138,181,221,233,253,306,325,335,352
+packages/intelligence/src/tools/real-time-tools.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 15,22,30,34,43-44,55,82-84,91,93,104,106,124-126,133,135,146,148,163,176-178,185,187,198,200,216-219,226,228,239-240,254-256,263,265,276,278,291-293,300,302
+packages/core/src/tests/bulk-task-operations.test.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 6,18,26,35,44,55-56,69,77,86,98,106,115,125,134,147,149,157,166,169,180,190,199,208,217,227,235,246,255,264,274,284,288,316-317,334
+packages/intelligence/src/__tests__/real-time-processing-engine.test.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 11-12,26,53,74-75,96,111,140,152,178-179,213,227,239,266-267,290-291,320,326,378,393,402,415,429
+packages/intelligence/src/services/workflow-intelligence-service.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 19,26,33,119,126-127,130,143,150-151,154-155,169,171,183,185-186,196,204-205,220,225-226,249,251,264,266,279,281-282,307,315,323,331,339-340
+packages/core/src/utils/error-handling.ts
+  s_d7e0cdac3873cf::t_85bd8e9afbd6a2 574
+packages/core/src/utils/security.ts
+  s_d7e0cdac3873cf::t_85bd8e9afbd6a2 405,648
+packages/intelligence/src/analyzers/project-health-analyzer.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 81,107,129,138,158,169,176,247,298,309,339
+packages/intelligence/src/__tests__/services/health-metrics-service.test.ts
+  s_d7e0cdac3873cf::t_50e6d31d31c0c7 19
+  s_d7e0cdac3873cf::t_89467b82afb3e8 38,53,58,72,86,100
+packages/intelligence/src/__tests__/utils/workflow-intelligence-formatter.test.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 15,37-38,41-42,53-54,63-64,71-72,106-107,130-131,150,160-161,187,197-198,225,233-234,257,265,273-274,302,310-311,336-337,346-347,364-365,370
+packages/core/src/index-enhanced.ts
+  s_d7e0cdac3873cf::t_89467b82afb3e8 39
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "c63dd469183b83012e48ad47f09f72b88574b35e",
+  "prompts": {},
+  "sessions": {
+    "s_d7e0cdac3873cf": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2c1f1b49-5745-4516-aa9e-11d3cbc2c79d",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}

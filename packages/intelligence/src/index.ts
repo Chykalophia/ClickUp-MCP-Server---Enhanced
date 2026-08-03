@@ -14,11 +14,9 @@ import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprot
 import { VERSION } from './version.js';
 
 // Phase 1.1 - Project Health Analyzer (COMPLETED)
-// NOTE: setupProjectHealthAnalyzer() in ./tools/project-health-analyzer.js is
-// never called from here — the 'clickup_analyze_project_health' case below
-// returns mock data instead. Its unused import was dropped rather than left to
-// imply the analyzer is wired up.
 import { HealthMetricsService } from './services/health-metrics-service.js';
+import { ProjectHealthAnalyzer, ProjectHealthAnalysisParams } from './analyzers/project-health-analyzer.js';
+import { formatProjectHealthReport, formatProjectHealthError } from './tools/project-health-analyzer.js';
 
 // Phase 1.2 - Smart Sprint Planner (COMPLETED)
 import { SmartSprintPlanner, createSmartSprintPlanner, SmartSprintPlannerInputSchema } from './tools/smart-sprint-planner.js';
@@ -76,6 +74,10 @@ class ClickUpIntelligenceServer {
   private resourceOptimizer: ResourceOptimizer;
   private resourceOptimizationService: ResourceOptimizationService;
   private workflowIntelligence: WorkflowIntelligence;
+  // Created on first use rather than in the constructor: ProjectHealthAnalyzer
+  // throws when CLICKUP_API_TOKEN is unset, and that has to surface as a tool
+  // error, not stop the whole server from starting.
+  private projectHealthAnalyzer?: ProjectHealthAnalyzer;
 
   constructor() {
     // Initialize MCP server
@@ -117,36 +119,38 @@ class ClickUpIntelligenceServer {
         {
           name: 'clickup_analyze_project_health',
           description: '🏥 **AI PROJECT HEALTH ANALYZER** - Comprehensive real-time project health analysis with risk assessment, velocity trends, and actionable recommendations. Provides executive dashboard with letter grades (A-F) and specific improvement suggestions.',
+          // Mirrors ProjectHealthAnalysisParams. The previous schema advertised
+          // camelCase names and a quick/standard/comprehensive depth that the
+          // analyzer never accepted — harmless only while this tool returned
+          // mock data, and wrong the moment it was wired to the real one.
           inputSchema: {
             type: 'object',
             properties: {
-              workspaceId: {
+              workspace_id: {
                 type: 'string',
                 description: 'ClickUp workspace ID to analyze',
               },
-              spaceId: {
+              space_id: {
                 type: 'string',
                 description: 'Optional: Specific space ID to analyze (analyzes entire workspace if not provided)',
               },
-              analysisDepth: {
+              list_id: {
                 type: 'string',
-                enum: ['quick', 'standard', 'comprehensive'],
-                default: 'standard',
-                description: 'Analysis depth: quick (basic metrics), standard (full analysis), comprehensive (deep insights)',
+                description: 'Optional: Specific list ID to analyze',
               },
-              includeRecommendations: {
+              include_archived: {
                 type: 'boolean',
-                default: true,
-                description: 'Include actionable recommendations in the analysis',
+                default: false,
+                description: 'Whether to include archived tasks in analysis',
               },
-              timeframe: {
+              analysis_depth: {
                 type: 'string',
-                enum: ['1week', '2weeks', '1month', '3months'],
-                default: '1month',
-                description: 'Historical data timeframe for trend analysis',
+                enum: ['basic', 'detailed', 'comprehensive'],
+                default: 'detailed',
+                description: 'Depth of analysis to perform',
               },
             },
-            required: ['workspaceId'],
+            required: ['workspace_id'],
           },
         },
         
@@ -299,22 +303,38 @@ class ClickUpIntelligenceServer {
           // Phase 1.1 - Project Health Analyzer
           case 'clickup_analyze_project_health': {
             console.log('[Intelligence] Executing project health analysis...');
-            // For now, return mock health analysis data
-            const healthResult = {
-              workspaceId: (args as any)?.workspaceId || 'unknown',
-              healthScore: 85,
-              grade: 'B',
-              analysis: 'Mock project health analysis for Phase 1.2 development',
-              metadata: { version: '4.0.0', timestamp: new Date().toISOString() },
-            };
-            return {
-              content: [
-                {
-                  type: 'text',
-                  text: formatMarkdownReport(healthResult, 'Project Health Analysis'),
-                },
-              ],
-            };
+            if (!args) throw new Error('Missing required arguments for project health analysis');
+
+            const healthParams = args as unknown as ProjectHealthAnalysisParams;
+            if (!healthParams.workspace_id) {
+              throw new Error('workspace_id is required for project health analysis');
+            }
+
+            try {
+              if (!this.projectHealthAnalyzer) {
+                this.projectHealthAnalyzer = new ProjectHealthAnalyzer();
+              }
+              const analysis =
+                await this.projectHealthAnalyzer.analyzeProjectHealth(healthParams);
+
+              return {
+                content: [
+                  {
+                    type: 'text',
+                    text: formatProjectHealthReport(analysis, healthParams),
+                  },
+                ],
+              };
+            } catch (error) {
+              // The analyzer's own error report names the likely causes (bad
+              // workspace id, missing scope, token permissions), so it is more
+              // useful here than the generic handler at the bottom of this
+              // switch.
+              return {
+                content: [{ type: 'text', text: formatProjectHealthError(error) }],
+                isError: true,
+              };
+            }
           }
 
           // Phase 1.2 - Smart Sprint Planner

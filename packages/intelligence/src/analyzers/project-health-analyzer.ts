@@ -138,25 +138,35 @@ export class ProjectHealthAnalyzer {
       'Content-Type': 'application/json',
     };
 
-    let endpoint = '';
-    
-    if (params.list_id) {
-      endpoint = `${this.baseURL}/list/${params.list_id}/task`;
-    } else if (params.space_id) {
-      endpoint = `${this.baseURL}/space/${params.space_id}/task`;
-    } else {
-      endpoint = `${this.baseURL}/team/${params.workspace_id}/task`;
-    }
-
+    // `statuses` is deliberately absent. The ClickUp API requires it to be an
+    // array (statuses[]=open&statuses[]=...), so the scalar `statuses: 'all'`
+    // this used to send made every request fail with
+    // 400 PUBAPITASK_014 "statuses must be an array" — the analyzer could never
+    // return a result. Omitting it returns tasks in every status, which is what
+    // 'all' was trying to express.
     const queryParams = new URLSearchParams({
       archived: params.include_archived ? 'true' : 'false',
       page: '0',
       order_by: 'created',
       reverse: 'true',
       subtasks: 'true',
-      statuses: 'all',
       include_closed: 'true',
     });
+
+    let endpoint = '';
+
+    if (params.list_id) {
+      endpoint = `${this.baseURL}/list/${params.list_id}/task`;
+    } else {
+      // Space scoping goes through the filtered team-tasks endpoint with a
+      // space_ids[] filter. There is no GET /space/{space_id}/task in the
+      // ClickUp v2 API — that path returned 404, so passing space_id used to
+      // break the analyzer outright.
+      endpoint = `${this.baseURL}/team/${params.workspace_id}/task`;
+      if (params.space_id) {
+        queryParams.append('space_ids[]', params.space_id);
+      }
+    }
 
     const response = await axios.get(`${endpoint}?${queryParams}`, { headers });
     return response.data.tasks || [];

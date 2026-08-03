@@ -13,7 +13,7 @@ import {
   WorkflowAnalysisResult, 
   AutomationOpportunity, 
   IntegrationRecommendation,
-  WorkflowPattern 
+  WorkflowPattern, 
 } from '../services/workflow-intelligence-service.js';
 
 export class WorkflowIntelligenceFormatter {

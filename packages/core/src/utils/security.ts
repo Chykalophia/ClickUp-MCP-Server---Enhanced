@@ -402,7 +402,7 @@ export const validateUrl = (url: string): { isValid: boolean; error?: string } =
     }
 
     return { isValid: true };
-  } catch (error) {
+  } catch {
     return { isValid: false, error: 'Invalid URL format' };
   }
 };
@@ -645,7 +645,7 @@ export const safeJsonParse = (jsonString: string, maxLength = 100000): any => {
     }
 
     return parsed;
-  } catch (error) {
+  } catch {
     throw new Error('Invalid JSON format');
   }
 };

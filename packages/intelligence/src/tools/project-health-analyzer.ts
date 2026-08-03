@@ -1,7 +1,11 @@
 /* eslint-disable no-console, max-len */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-import { ProjectHealthAnalyzer, ProjectHealthAnalysisParams } from '../analyzers/project-health-analyzer.js';
+import {
+  ProjectHealthAnalyzer,
+  ProjectHealthAnalysisParams,
+  ProjectHealthAnalysisResult,
+} from '../analyzers/project-health-analyzer.js';
 
 // Parameter shape for the project-health tool. The MCP SDK's tool() generics are
 // typed against its bundled zod v4, while this package uses zod v3; matching a v3
@@ -9,13 +13,18 @@ import { ProjectHealthAnalyzer, ProjectHealthAnalysisParams } from '../analyzers
 // limit (TS2589). We register through a locally-narrowed view of server.tool that
 // accepts a raw shape + a params-typed handler, so the shape and handler params
 // stay fully typed while the cross-version generic inference is bypassed.
-const projectHealthAnalysisShape = {
+export const projectHealthAnalysisShape = {
   workspace_id: z.string().describe('The ClickUp workspace ID to analyze'),
   space_id: z.string().optional().describe('Optional: Specific space ID to analyze'),
   list_id: z.string().optional().describe('Optional: Specific list ID to analyze'),
   include_archived: z.boolean().default(false).describe('Whether to include archived tasks in analysis'),
-  analysis_depth: z.enum(['basic', 'detailed', 'comprehensive']).default('detailed').describe('Depth of analysis to perform')
+  analysis_depth: z.enum(['basic', 'detailed', 'comprehensive']).default('detailed').describe('Depth of analysis to perform'),
 };
+
+export const PROJECT_HEALTH_TOOL_NAME = 'clickup_analyze_project_health';
+
+export const PROJECT_HEALTH_TOOL_DESCRIPTION =
+  'Analyze the health of a ClickUp project with AI-powered insights including task completion rates, bottlenecks, team velocity, and risk assessment';
 
 type RawShapeToolRegister = (
   name: string,
@@ -24,22 +33,17 @@ type RawShapeToolRegister = (
   cb: (params: ProjectHealthAnalysisParams) => Promise<{ content: Array<{ type: 'text'; text: string }>; isError?: boolean }>
 ) => void;
 
-export function setupProjectHealthAnalyzer(server: McpServer) {
-  const analyzer = new ProjectHealthAnalyzer();
-
-  const registerTool = server.tool.bind(server) as unknown as RawShapeToolRegister;
-  registerTool(
-    'clickup_analyze_project_health',
-    'Analyze the health of a ClickUp project with AI-powered insights including task completion rates, bottlenecks, team velocity, and risk assessment',
-    projectHealthAnalysisShape,
-    async (params: ProjectHealthAnalysisParams) => {
-      try {
-        const analysis = await analyzer.analyzeProjectHealth(params);
-        
-        return {
-          content: [{
-            type: 'text',
-            text: `# Project Health Analysis Report
+/**
+ * Renders a completed analysis as the tool's markdown report.
+ *
+ * Exported so the low-level Server in index.ts produces byte-identical output to
+ * the McpServer registration below, instead of each growing its own formatting.
+ */
+export function formatProjectHealthReport(
+  analysis: ProjectHealthAnalysisResult,
+  params: ProjectHealthAnalysisParams
+): string {
+  return `# Project Health Analysis Report
 
 ## Executive Summary
 - **Overall Health Score**: ${analysis.summary.overallScore}/100 (Grade: ${analysis.summary.healthGrade})
@@ -87,7 +91,7 @@ export function setupProjectHealthAnalyzer(server: McpServer) {
 
 ## 🚨 Risk Assessment
 
-${analysis.risks.length > 0 ? analysis.risks.map(risk => 
+${analysis.risks.length > 0 ? analysis.risks.map(risk =>
     `### ${risk.level.toUpperCase()} Risk: ${risk.category.toUpperCase()}
 - **Issue**: ${risk.description}
 - **Impact**: ${risk.impact}
@@ -98,18 +102,18 @@ ${analysis.risks.length > 0 ? analysis.risks.map(risk =>
 ## 💡 Key Insights
 
 ### 🎯 Strengths
-${analysis.insights.keyStrengths.length > 0 ? 
-    analysis.insights.keyStrengths.map(strength => `- ${strength}`).join('\n') : 
+${analysis.insights.keyStrengths.length > 0 ?
+    analysis.insights.keyStrengths.map(strength => `- ${strength}`).join('\n') :
     '- No specific strengths identified in current analysis'}
 
 ### ⚠️ Critical Issues
-${analysis.insights.criticalIssues.length > 0 ? 
-    analysis.insights.criticalIssues.map(issue => `- ${issue}`).join('\n') : 
+${analysis.insights.criticalIssues.length > 0 ?
+    analysis.insights.criticalIssues.map(issue => `- ${issue}`).join('\n') :
     '- No critical issues identified'}
 
 ### 📈 Improvement Areas
-${analysis.insights.improvementAreas.length > 0 ? 
-    analysis.insights.improvementAreas.map(area => `- ${area}`).join('\n') : 
+${analysis.insights.improvementAreas.length > 0 ?
+    analysis.insights.improvementAreas.map(area => `- ${area}`).join('\n') :
     '- No specific improvement areas identified'}
 
 ## 🎯 Action Plan
@@ -133,7 +137,7 @@ ${analysis.recommendations.longTerm.map(rec => `- ${rec}`).join('\n')}
 
 Based on this comprehensive analysis, your project has an overall health score of **${analysis.summary.overallScore}/100** with a grade of **${analysis.summary.healthGrade}**, indicating **${analysis.summary.status}** project health.
 
-${analysis.summary.overallScore >= 80 ? 
+${analysis.summary.overallScore >= 80 ?
     '🎉 **Excellent work!** Your project is performing well. Focus on maintaining current standards and implementing long-term improvements.' :
     analysis.summary.overallScore >= 60 ?
       '⚠️ **Action needed.** Address the identified risks and implement the recommended improvements to get your project back on track.' :
@@ -141,17 +145,22 @@ ${analysis.summary.overallScore >= 80 ?
 }
 
 ---
-*Analysis generated on ${new Date().toISOString().split('T')[0]} using AI-powered project health analytics*`
-          }]
-        };
-      } catch (error: any) {
-        console.error('Error in project health analysis:', error);
-        return {
-          content: [{
-            type: 'text',
-            text: `# Project Health Analysis Error
+*Analysis generated on ${new Date().toISOString().split('T')[0]} using AI-powered project health analytics*`;
+}
 
-❌ **Analysis Failed**: ${error.message}
+/**
+ * Renders a failed analysis as the tool's error report.
+ *
+ * Takes `unknown` because that is what a catch clause actually binds — the
+ * previous `error: any` let `error.message` through unchecked on values that
+ * need not be Errors at all.
+ */
+export function formatProjectHealthError(error: unknown): string {
+  const err = error instanceof Error ? error : new Error(String(error));
+
+  return `# Project Health Analysis Error
+
+❌ **Analysis Failed**: ${err.message}
 
 ## Troubleshooting Steps:
 1. Verify the workspace ID is correct
@@ -161,12 +170,33 @@ ${analysis.summary.overallScore >= 80 ?
 
 ## Error Details:
 \`\`\`
-${error.stack || error.message}
+${err.stack || err.message}
 \`\`\`
 
-Please resolve these issues and try again.`
-          }],
-          isError: true
+Please resolve these issues and try again.`;
+}
+
+export function setupProjectHealthAnalyzer(server: McpServer) {
+  const analyzer = new ProjectHealthAnalyzer();
+
+  const registerTool = server.tool.bind(server) as unknown as RawShapeToolRegister;
+  registerTool(
+    PROJECT_HEALTH_TOOL_NAME,
+    PROJECT_HEALTH_TOOL_DESCRIPTION,
+    projectHealthAnalysisShape,
+    async (params: ProjectHealthAnalysisParams) => {
+      try {
+        const analysis = await analyzer.analyzeProjectHealth(params);
+
+        return {
+          content: [{ type: 'text', text: formatProjectHealthReport(analysis, params) }],
+        };
+      } catch (error) {
+        console.error('Error in project health analysis:', error);
+
+        return {
+          content: [{ type: 'text', text: formatProjectHealthError(error) }],
+          isError: true,
         };
       }
     }

@@ -223,7 +223,7 @@ export function formatCurrencyValue(value: number, unit: string = 'USD'): string
 
   try {
     return formatter.format(value);
-  } catch (error) {
+  } catch {
     // Fallback for invalid currency codes
     return `${unit} ${value.toLocaleString()}`;
   }

@@ -16,21 +16,21 @@ export const WorkflowPatternAnalysisInputSchema = z.object({
   workspaceId: z.string().describe('ClickUp workspace ID to analyze'),
   timeframe: z.enum(['1week', '2weeks', '1month', '3months']).default('1month').describe('Analysis timeframe'),
   includeAutomationOpportunities: z.boolean().default(true).describe('Include automation recommendations'),
-  analysisDepth: z.enum(['quick', 'standard', 'comprehensive']).default('standard').describe('Analysis depth level')
+  analysisDepth: z.enum(['quick', 'standard', 'comprehensive']).default('standard').describe('Analysis depth level'),
 });
 
 export const AutomationRecommendationInputSchema = z.object({
   workspaceId: z.string().describe('ClickUp workspace ID'),
   workflowType: z.enum(['task_management', 'project_planning', 'team_collaboration', 'reporting', 'all']).default('all').describe('Type of workflow to analyze'),
   complexityThreshold: z.enum(['low', 'medium', 'high']).default('medium').describe('Minimum complexity for recommendations'),
-  includeIntegrations: z.boolean().default(true).describe('Include third-party integration suggestions')
+  includeIntegrations: z.boolean().default(true).describe('Include third-party integration suggestions'),
 });
 
 export const IntegrationOptimizationInputSchema = z.object({
   workspaceId: z.string().describe('ClickUp workspace ID'),
   currentIntegrations: z.array(z.string()).optional().describe('List of current integrations'),
   businessGoals: z.array(z.string()).optional().describe('Business objectives to optimize for'),
-  teamSize: z.number().optional().describe('Team size for scaling recommendations')
+  teamSize: z.number().optional().describe('Team size for scaling recommendations'),
 });
 
 // Output interfaces
@@ -116,18 +116,18 @@ export class WorkflowIntelligenceService {
             tool: 'clickup_get_lists',
             averageTime: 15,
             errorRate: 0.02,
-            automationPotential: 0.8
+            automationPotential: 0.8,
           },
           {
             action: 'Create task',
             tool: 'clickup_create_task',
             averageTime: 30,
             errorRate: 0.05,
-            automationPotential: 0.9
-          }
+            automationPotential: 0.9,
+          },
         ],
         bottlenecks: ['Manual list navigation', 'Repetitive task details'],
-        optimizationPotential: 0.75
+        optimizationPotential: 0.75,
       },
       {
         id: 'status-update-flow',
@@ -140,19 +140,19 @@ export class WorkflowIntelligenceService {
             tool: 'clickup_get_tasks',
             averageTime: 25,
             errorRate: 0.08,
-            automationPotential: 0.95
+            automationPotential: 0.95,
           },
           {
             action: 'Update status',
             tool: 'clickup_update_task',
             averageTime: 10,
             errorRate: 0.01,
-            automationPotential: 0.85
-          }
+            automationPotential: 0.85,
+          },
         ],
         bottlenecks: ['Task discovery time', 'Manual status selection'],
-        optimizationPotential: 0.85
-      }
+        optimizationPotential: 0.85,
+      },
     ];
 
     const automationOpportunities: AutomationOpportunity[] = [
@@ -166,9 +166,9 @@ export class WorkflowIntelligenceService {
         implementationSteps: [
           'Create task templates',
           'Set up automation triggers',
-          'Configure assignment rules'
+          'Configure assignment rules',
         ],
-        requiredTools: ['clickup_create_task', 'clickup_get_custom_fields']
+        requiredTools: ['clickup_create_task', 'clickup_get_custom_fields'],
       },
       {
         id: 'smart-status-updates',
@@ -180,10 +180,10 @@ export class WorkflowIntelligenceService {
         implementationSteps: [
           'Analyze completion patterns',
           'Set up status triggers',
-          'Configure notification rules'
+          'Configure notification rules',
         ],
-        requiredTools: ['clickup_update_task', 'clickup_get_time_entries']
-      }
+        requiredTools: ['clickup_update_task', 'clickup_get_time_entries'],
+      },
     ];
 
     const integrationRecommendations: IntegrationRecommendation[] = [
@@ -193,7 +193,7 @@ export class WorkflowIntelligenceService {
         benefits: ['Real-time notifications', 'Team collaboration', 'Status updates'],
         implementation: 'ClickUp Slack integration with custom workflows',
         cost: 'free',
-        priority: 9
+        priority: 9,
       },
       {
         tool: 'GitHub',
@@ -201,8 +201,8 @@ export class WorkflowIntelligenceService {
         benefits: ['Code-task linking', 'Automated status updates', 'PR tracking'],
         implementation: 'GitHub integration with branch-task mapping',
         cost: 'free',
-        priority: 8
-      }
+        priority: 8,
+      },
     ];
 
     return {
@@ -217,13 +217,13 @@ export class WorkflowIntelligenceService {
         'Implement automated task creation templates to reduce manual work by 60%',
         'Set up smart status updates to eliminate 80% of manual status changes',
         'Integrate with Slack for real-time team notifications',
-        'Consider GitHub integration for development workflow optimization'
+        'Consider GitHub integration for development workflow optimization',
       ],
       metadata: {
         version: this.version,
         analysisDepth: input.analysisDepth,
-        dataPoints: 1250
-      }
+        dataPoints: 1250,
+      },
     };
   }
 
@@ -246,9 +246,9 @@ export class WorkflowIntelligenceService {
           'Identify recurring task patterns',
           'Create automation templates',
           'Set up scheduling rules',
-          'Configure team assignments'
+          'Configure team assignments',
         ],
-        requiredTools: ['clickup_create_task', 'clickup_get_lists']
+        requiredTools: ['clickup_create_task', 'clickup_get_lists'],
       },
       {
         id: 'priority-based-assignment',
@@ -261,9 +261,9 @@ export class WorkflowIntelligenceService {
           'Analyze team member skills and capacity',
           'Create assignment algorithms',
           'Set up workload balancing rules',
-          'Implement notification system'
+          'Implement notification system',
         ],
-        requiredTools: ['clickup_update_task', 'clickup_analyze_team_workload']
+        requiredTools: ['clickup_update_task', 'clickup_analyze_team_workload'],
       },
       {
         id: 'deadline-monitoring',
@@ -276,10 +276,10 @@ export class WorkflowIntelligenceService {
           'Set up deadline tracking',
           'Configure alert thresholds',
           'Create escalation rules',
-          'Implement team notifications'
+          'Implement team notifications',
         ],
-        requiredTools: ['clickup_get_tasks', 'clickup_create_task_comment']
-      }
+        requiredTools: ['clickup_get_tasks', 'clickup_create_task_comment'],
+      },
     ];
 
     // Filter by complexity threshold
@@ -304,7 +304,7 @@ export class WorkflowIntelligenceService {
         benefits: ['Real-time notifications', 'Team collaboration', 'Quick status updates'],
         implementation: 'Native ClickUp-Slack integration with custom notification rules',
         cost: 'free',
-        priority: 9
+        priority: 9,
       },
       {
         tool: 'GitHub',
@@ -312,7 +312,7 @@ export class WorkflowIntelligenceService {
         benefits: ['Code-task linking', 'Automated PR tracking', 'Commit-based status updates'],
         implementation: 'GitHub integration with branch-task mapping and automated workflows',
         cost: 'free',
-        priority: 8
+        priority: 8,
       },
       {
         tool: 'Zapier',
@@ -320,7 +320,7 @@ export class WorkflowIntelligenceService {
         benefits: ['Cross-platform automation', 'Custom workflows', 'Data synchronization'],
         implementation: 'Zapier integration for complex multi-tool workflows',
         cost: 'medium',
-        priority: 7
+        priority: 7,
       },
       {
         tool: 'Time Doctor',
@@ -328,7 +328,7 @@ export class WorkflowIntelligenceService {
         benefits: ['Detailed time tracking', 'Productivity insights', 'Automated reporting'],
         implementation: 'Time tracking integration with automatic task time logging',
         cost: 'low',
-        priority: 6
+        priority: 6,
       },
       {
         tool: 'Google Calendar',
@@ -336,8 +336,8 @@ export class WorkflowIntelligenceService {
         benefits: ['Calendar sync', 'Meeting integration', 'Deadline visualization'],
         implementation: 'Calendar integration with task deadline synchronization',
         cost: 'free',
-        priority: 8
-      }
+        priority: 8,
+      },
     ];
 
     // Filter out current integrations

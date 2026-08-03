@@ -37,7 +37,7 @@ export class WebSocketService extends EventEmitter {
     pingInterval: 30000,
     connectionTimeout: 60000,
     maxConnections: 1000,
-    enableCompression: true
+    enableCompression: true,
   }) {
     super();
     this.config = config;
@@ -48,7 +48,7 @@ export class WebSocketService extends EventEmitter {
       try {
         this.wss = new WebSocketServer({
           port: this.config.port,
-          perMessageDeflate: this.config.enableCompression
+          perMessageDeflate: this.config.enableCompression,
         });
 
         this.wss.on('connection', this.handleConnection.bind(this));
@@ -81,8 +81,8 @@ export class WebSocketService extends EventEmitter {
       metadata: {
         userAgent: request.headers['user-agent'],
         ip: request.socket.remoteAddress,
-        connectedAt: Date.now()
-      }
+        connectedAt: Date.now(),
+      },
     };
 
     this.connections.set(connectionId, connection);
@@ -198,7 +198,7 @@ export class WebSocketService extends EventEmitter {
       const fullMessage: WebSocketMessage = {
         type: 'data',
         timestamp: Date.now(),
-        ...message
+        ...message,
       };
 
       connection.ws.send(JSON.stringify(fullMessage));
@@ -218,7 +218,7 @@ export class WebSocketService extends EventEmitter {
       type: 'data',
       channel,
       data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     subscribers.forEach(connectionId => {
@@ -235,7 +235,7 @@ export class WebSocketService extends EventEmitter {
     const message: WebSocketMessage = {
       type: 'data',
       data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     this.connections.forEach((connection, connectionId) => {
@@ -290,7 +290,7 @@ export class WebSocketService extends EventEmitter {
       connections: this.connections.size,
       channels: this.channels.size,
       uptime: process.uptime(),
-      memoryUsage: process.memoryUsage()
+      memoryUsage: process.memoryUsage(),
     };
   }
 

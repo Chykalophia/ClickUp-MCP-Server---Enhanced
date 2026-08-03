@@ -19,7 +19,7 @@ export function setupWorkspaceTools(server: McpServer): void {
       try {
         const result = await authClient.getWorkspaceSeats(workspace_id);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('getting workspace seats', error);
@@ -35,7 +35,7 @@ export function setupWorkspaceTools(server: McpServer): void {
       try {
         const result = await authClient.getWorkspaces();
         return {
-          content: [{ type: 'text', text: JSON.stringify(result.teams, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result.teams, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('getting workspaces', error);
@@ -51,7 +51,7 @@ export function setupWorkspaceTools(server: McpServer): void {
       try {
         const result = await authClient.getAuthorizedUser();
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('getting authorized user', error);
@@ -67,13 +67,13 @@ export function setupWorkspaceTools(server: McpServer): void {
       group_ids: z
         .string()
         .optional()
-        .describe('Optional comma-separated list of group IDs to filter by')
+        .describe('Optional comma-separated list of group IDs to filter by'),
     },
     async ({ workspace_id, group_ids }) => {
       try {
         const result = await authClient.getUserGroups(workspace_id, group_ids);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result.groups, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result.groups, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('getting user groups', error);
@@ -89,7 +89,7 @@ export function setupWorkspaceTools(server: McpServer): void {
       try {
         const result = await authClient.getWorkspacePlan(workspace_id);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('getting workspace plan', error);
@@ -105,13 +105,13 @@ export function setupWorkspaceTools(server: McpServer): void {
       include_members: z
         .boolean()
         .optional()
-        .describe('Whether to include the member user IDs assigned to each role')
+        .describe('Whether to include the member user IDs assigned to each role'),
     },
     async ({ workspace_id, include_members }) => {
       try {
         const result = await authClient.getCustomRoles(workspace_id, include_members);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result.custom_roles, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result.custom_roles, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('getting custom roles', error);

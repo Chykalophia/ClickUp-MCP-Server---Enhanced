@@ -30,11 +30,11 @@ const listResponse = (key: string) =>
 // ========================================
 
 export const UserResponseSchema = z.object({
-  user: z.record(z.unknown())
+  user: z.record(z.unknown()),
 }).passthrough();
 
 export const TeamsResponseSchema = z.object({
-  teams: z.array(z.unknown())
+  teams: z.array(z.unknown()),
 }).passthrough();
 
 // ========================================
@@ -77,15 +77,15 @@ export const CommentResponseSchema = z.record(z.unknown());
 // ========================================
 
 export const GoalsResponseSchema = z.object({
-  goals: z.array(z.unknown())
+  goals: z.array(z.unknown()),
 }).passthrough();
 
 export const GoalResponseSchema = z.object({
-  goal: z.record(z.unknown())
+  goal: z.record(z.unknown()),
 }).passthrough();
 
 export const GoalTargetResponseSchema = z.object({
-  key_result: z.record(z.unknown())
+  key_result: z.record(z.unknown()),
 }).passthrough();
 
 // ========================================
@@ -103,7 +103,7 @@ const StatusHistoryEntrySchema = z.object({
   type: z.string().optional(),
   total_time: z.object({
     by_minute: z.number().optional(),
-    since: z.string().optional()
+    since: z.string().optional(),
   }).passthrough().optional(),
   orderindex: z.union([z.number(), z.string()]).optional(),
   // ClickUp may emit additional fields per status (e.g., custom-status edges)
@@ -114,14 +114,14 @@ const CurrentStatusSchema = z.object({
   color: z.string().optional(),
   total_time: z.object({
     by_minute: z.number().optional(),
-    since: z.string().optional()
-  }).passthrough().optional()
+    since: z.string().optional(),
+  }).passthrough().optional(),
 }).passthrough();
 
 /** Response shape for GET /task/{task_id}/time_in_status */
 export const TaskTimeInStatusResponseSchema = z.object({
   current_status: CurrentStatusSchema.optional(),
-  status_history: z.array(StatusHistoryEntrySchema).optional()
+  status_history: z.array(StatusHistoryEntrySchema).optional(),
 }).passthrough();
 
 /**
@@ -132,7 +132,7 @@ export const TaskTimeInStatusResponseSchema = z.object({
 export const BulkTasksTimeInStatusResponseSchema = z.record(
   z.object({
     current_status: CurrentStatusSchema.optional(),
-    status_history: z.array(StatusHistoryEntrySchema).optional()
+    status_history: z.array(StatusHistoryEntrySchema).optional(),
   }).passthrough()
 );
 
@@ -141,14 +141,14 @@ export const BulkTasksTimeInStatusResponseSchema = z.record(
 // ========================================
 
 export const TimeEntriesResponseSchema = z.object({
-  data: z.array(z.unknown())
+  data: z.array(z.unknown()),
 }).passthrough();
 
 export const TimeEntryResponseSchema = z.object({
   data: z.union([
     z.array(z.unknown()).min(1),
-    z.record(z.unknown())
-  ])
+    z.record(z.unknown()),
+  ]),
 }).passthrough();
 
 /**
@@ -159,7 +159,7 @@ export const TimeEntryResponseSchema = z.object({
 export const CurrentTimeEntryResponseSchema = z.object({
   // `data` is required (nullable): a null means "no running timer", whereas a
   // missing `data` indicates a malformed response and should fail validation.
-  data: z.record(z.unknown()).nullable()
+  data: z.record(z.unknown()).nullable(),
 }).passthrough();
 
 // ========================================
@@ -195,7 +195,7 @@ export const CustomFieldResponseSchema = z.record(z.unknown());
 // ========================================
 
 export const DocsResponseSchema = z.object({
-  docs: z.array(z.unknown())
+  docs: z.array(z.unknown()),
 }).passthrough();
 
 export const DocResponseSchema = z.record(z.unknown());

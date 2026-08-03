@@ -14,7 +14,7 @@ import {
   BurnoutRiskLevel,
   WorkingStyle,
   CollaborationPreference,
-  TrendDirection
+  TrendDirection,
 } from '../services/resource-optimization-service.js';
 
 // Zod schemas for validation
@@ -24,14 +24,14 @@ const SkillSchema = z.object({
   category: z.nativeEnum(SkillCategory),
   yearsExperience: z.number().min(0),
   lastUsed: z.string().transform(str => new Date(str)),
-  certifications: z.array(z.string()).default([])
+  certifications: z.array(z.string()).default([]),
 });
 
 const RequiredSkillSchema = z.object({
   name: z.string(),
   minimumProficiency: z.number().min(1).max(10),
   importance: z.nativeEnum(SkillImportance),
-  isRequired: z.boolean()
+  isRequired: z.boolean(),
 });
 
 const TeamMemberSchema = z.object({
@@ -49,15 +49,15 @@ const TeamMemberSchema = z.object({
     unavailablePeriods: z.array(z.object({
       startDate: z.string().transform(str => new Date(str)),
       endDate: z.string().transform(str => new Date(str)),
-      reason: z.string()
-    })).default([])
+      reason: z.string(),
+    })).default([]),
   }),
   preferences: z.object({
     preferredTaskTypes: z.array(z.string()).default([]),
     learningGoals: z.array(z.string()).default([]),
     avoidTaskTypes: z.array(z.string()).default([]),
     workingStyle: z.nativeEnum(WorkingStyle),
-    collaborationPreference: z.nativeEnum(CollaborationPreference)
+    collaborationPreference: z.nativeEnum(CollaborationPreference),
   }),
   performanceMetrics: z.object({
     taskCompletionRate: z.number().min(0).max(1),
@@ -69,10 +69,10 @@ const TeamMemberSchema = z.object({
       indicator: z.string(),
       value: z.number(),
       threshold: z.number(),
-      trend: z.nativeEnum(TrendDirection)
-    })).default([])
+      trend: z.nativeEnum(TrendDirection),
+    })).default([]),
   }),
-  burnoutRisk: z.nativeEnum(BurnoutRiskLevel)
+  burnoutRisk: z.nativeEnum(BurnoutRiskLevel),
 });
 
 const TaskSchema = z.object({
@@ -85,14 +85,14 @@ const TaskSchema = z.object({
   complexity: z.number().min(1).max(10),
   deadline: z.string().transform(str => new Date(str)).optional(),
   dependencies: z.array(z.string()).default([]),
-  currentAssignee: z.string().optional()
+  currentAssignee: z.string().optional(),
 });
 
 const WorkloadAnalysisInputSchema = z.object({
   teamId: z.string().describe('The ID of the team to analyze'),
   teamMembers: z.array(TeamMemberSchema).describe('Array of team members to analyze'),
   includeRecommendations: z.boolean().default(true).describe('Include optimization recommendations'),
-  analysisDepth: z.enum(['basic', 'standard', 'comprehensive']).default('standard').describe('Depth of analysis to perform')
+  analysisDepth: z.enum(['basic', 'standard', 'comprehensive']).default('standard').describe('Depth of analysis to perform'),
 });
 
 const TaskAssignmentInputSchema = z.object({
@@ -101,13 +101,13 @@ const TaskAssignmentInputSchema = z.object({
   optimizationGoals: z.object({
     balanceWorkload: z.number().min(0).max(1).default(0.4).describe('Weight for workload balance (0-1)'),
     maximizeSkillMatch: z.number().min(0).max(1).default(0.4).describe('Weight for skill matching (0-1)'),
-    developSkills: z.number().min(0).max(1).default(0.2).describe('Weight for skill development (0-1)')
+    developSkills: z.number().min(0).max(1).default(0.2).describe('Weight for skill development (0-1)'),
   }).default({}),
   constraints: z.object({
     maxUtilization: z.number().min(0).max(2).default(1.0).describe('Maximum utilization rate per member'),
     respectPreferences: z.boolean().default(true).describe('Consider member preferences'),
-    allowOverallocation: z.boolean().default(false).describe('Allow temporary overallocation')
-  }).default({})
+    allowOverallocation: z.boolean().default(false).describe('Allow temporary overallocation'),
+  }).default({}),
 });
 
 const BurnoutAnalysisInputSchema = z.object({
@@ -116,15 +116,15 @@ const BurnoutAnalysisInputSchema = z.object({
     workloadHistory: z.array(z.object({
       date: z.string().transform(str => new Date(str)),
       workload: z.number(),
-      stress: z.number().min(1).max(10).optional()
+      stress: z.number().min(1).max(10).optional(),
     })).default([]),
     performanceHistory: z.array(z.object({
       date: z.string().transform(str => new Date(str)),
       completionRate: z.number().min(0).max(1),
-      qualityScore: z.number().min(0).max(100)
-    })).default([])
+      qualityScore: z.number().min(0).max(100),
+    })).default([]),
   }).optional(),
-  includePreventionPlan: z.boolean().default(true).describe('Include burnout prevention recommendations')
+  includePreventionPlan: z.boolean().default(true).describe('Include burnout prevention recommendations'),
 });
 
 const CapacityForecastInputSchema = z.object({
@@ -132,9 +132,9 @@ const CapacityForecastInputSchema = z.object({
   timeframe: z.string().describe('Forecast timeframe (e.g., "3 months", "1 quarter", "6 weeks")'),
   scenarios: z.array(z.object({
     name: z.string(),
-    assumptions: z.record(z.any())
+    assumptions: z.record(z.any()),
   })).default([]).describe('Different scenarios to forecast'),
-  includeHiringRecommendations: z.boolean().default(true).describe('Include hiring recommendations')
+  includeHiringRecommendations: z.boolean().default(true).describe('Include hiring recommendations'),
 });
 
 /**
@@ -265,10 +265,10 @@ export const workloadAnalysisTool = {
     return {
       content: [{
         type: 'text',
-        text: JSON.stringify(result, null, 2)
-      }]
+        text: JSON.stringify(result, null, 2),
+      }],
     };
-  }
+  },
 };
 
 export const taskAssignmentTool = {
@@ -282,10 +282,10 @@ export const taskAssignmentTool = {
     return {
       content: [{
         type: 'text',
-        text: JSON.stringify(result, null, 2)
-      }]
+        text: JSON.stringify(result, null, 2),
+      }],
     };
-  }
+  },
 };
 
 export const burnoutAnalysisTool = {
@@ -299,10 +299,10 @@ export const burnoutAnalysisTool = {
     return {
       content: [{
         type: 'text',
-        text: JSON.stringify(result, null, 2)
-      }]
+        text: JSON.stringify(result, null, 2),
+      }],
     };
-  }
+  },
 };
 
 export const capacityForecastTool = {
@@ -316,8 +316,8 @@ export const capacityForecastTool = {
     return {
       content: [{
         type: 'text',
-        text: JSON.stringify(result, null, 2)
-      }]
+        text: JSON.stringify(result, null, 2),
+      }],
     };
-  }
+  },
 };

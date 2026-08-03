@@ -148,14 +148,14 @@ export function setupTimeTrackingTools(server: McpServer): void {
         if (duration && stop) {
           return {
             content: [{ type: 'text', text: 'Error: Provide either duration or stop, not both.' }],
-            isError: true
+            isError: true,
           };
         }
 
         if (!duration && !stop) {
           return {
             content: [{ type: 'text', text: 'Error: Provide either duration or stop to define the time entry length.' }],
-            isError: true
+            isError: true,
           };
         }
 
@@ -249,7 +249,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
         if (duration && stop) {
           return {
             content: [{ type: 'text', text: 'Error: Provide either duration or stop, not both.' }],
-            isError: true
+            isError: true,
           };
         }
 

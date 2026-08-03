@@ -7,7 +7,7 @@ import {
   BulkCreateTasksSchema,
   BulkUpdateTasksSchema,
   BulkCreateTaskItemSchema,
-  BulkUpdateTaskItemSchema
+  BulkUpdateTaskItemSchema,
 } from '../schemas/task-schemas.js';
 import { mcpError } from '../utils/error-handling.js';
 import { idSchema } from '../schemas/common.js';
@@ -31,7 +31,7 @@ export function setupBulkTaskTools(server: McpServer): void {
       continue_on_error: z
         .boolean()
         .default(false)
-        .describe('Whether to continue creating remaining tasks if one fails')
+        .describe('Whether to continue creating remaining tasks if one fails'),
     },
     async ({ list_id, tasks, continue_on_error }) => {
       try {
@@ -64,9 +64,9 @@ export function setupBulkTaskTools(server: McpServer): void {
                 `❌ Failed: ${result.error_count} tasks\n` +
                 `📊 Total: ${result.total_count} tasks\n` +
                 `⏱️ Execution time: ${result.execution_time_ms}ms\n\n` +
-                `Detailed Results:\n${JSON.stringify(result.results, null, 2)}`
-            }
-          ]
+                `Detailed Results:\n${JSON.stringify(result.results, null, 2)}`,
+            },
+          ],
         };
       } catch (error: unknown) {
         return mcpError('in bulk task creation', error);
@@ -87,7 +87,7 @@ export function setupBulkTaskTools(server: McpServer): void {
       continue_on_error: z
         .boolean()
         .default(false)
-        .describe('Whether to continue updating remaining tasks if one fails')
+        .describe('Whether to continue updating remaining tasks if one fails'),
     },
     async ({ tasks, continue_on_error }) => {
       try {
@@ -119,9 +119,9 @@ export function setupBulkTaskTools(server: McpServer): void {
                 `❌ Failed: ${result.error_count} tasks\n` +
                 `📊 Total: ${result.total_count} tasks\n` +
                 `⏱️ Execution time: ${result.execution_time_ms}ms\n\n` +
-                `Detailed Results:\n${JSON.stringify(result.results, null, 2)}`
-            }
-          ]
+                `Detailed Results:\n${JSON.stringify(result.results, null, 2)}`,
+            },
+          ],
         };
       } catch (error: unknown) {
         return mcpError('in bulk task update', error);
@@ -144,7 +144,7 @@ export function setupBulkTaskTools(server: McpServer): void {
       continue_on_error: z
         .boolean()
         .default(false)
-        .describe('Whether to continue deleting remaining tasks if one fails')
+        .describe('Whether to continue deleting remaining tasks if one fails'),
     },
     async ({ task_ids, confirm_deletion, continue_on_error }) => {
       try {
@@ -153,10 +153,10 @@ export function setupBulkTaskTools(server: McpServer): void {
             content: [
               {
                 type: 'text',
-                text: '❌ Bulk task deletion cancelled. You must set confirm_deletion to true to proceed with this destructive operation.'
-              }
+                text: '❌ Bulk task deletion cancelled. You must set confirm_deletion to true to proceed with this destructive operation.',
+              },
             ],
-            isError: true
+            isError: true,
           };
         }
 
@@ -183,7 +183,7 @@ export function setupBulkTaskTools(server: McpServer): void {
               success: true,
               task_id: taskId,
               task_name: taskDetails.name,
-              index: i
+              index: i,
             });
             successCount++;
           } catch (error: any) {
@@ -192,7 +192,7 @@ export function setupBulkTaskTools(server: McpServer): void {
               success: false,
               task_id: task_ids[i],
               error: errorMessage,
-              index: i
+              index: i,
             });
             errorCount++;
 
@@ -203,7 +203,7 @@ export function setupBulkTaskTools(server: McpServer): void {
                   success: false,
                   task_id: task_ids[j],
                   error: 'Skipped due to previous error',
-                  index: j
+                  index: j,
                 });
                 errorCount++;
               }
@@ -225,9 +225,9 @@ export function setupBulkTaskTools(server: McpServer): void {
                 `📊 Total: ${task_ids.length} tasks\n` +
                 `⏱️ Execution time: ${executionTime}ms\n\n` +
                 '⚠️ This action cannot be undone. All successfully deleted tasks have been permanently removed.\n\n' +
-                `Detailed Results:\n${JSON.stringify(results, null, 2)}`
-            }
-          ]
+                `Detailed Results:\n${JSON.stringify(results, null, 2)}`,
+            },
+          ],
         };
       } catch (error: unknown) {
         return mcpError('in bulk task deletion', error);
@@ -242,7 +242,7 @@ export function setupBulkTaskTools(server: McpServer): void {
       task_id: idSchema().describe('The ID of the subtask to delete'),
       confirm_deletion: z
         .boolean()
-        .describe('Confirmation that you want to permanently delete this subtask (must be true)')
+        .describe('Confirmation that you want to permanently delete this subtask (must be true)'),
     },
     async ({ task_id, confirm_deletion }) => {
       try {
@@ -251,10 +251,10 @@ export function setupBulkTaskTools(server: McpServer): void {
             content: [
               {
                 type: 'text',
-                text: '❌ Subtask deletion cancelled. You must set confirm_deletion to true to proceed with this destructive operation.'
-              }
+                text: '❌ Subtask deletion cancelled. You must set confirm_deletion to true to proceed with this destructive operation.',
+              },
             ],
-            isError: true
+            isError: true,
           };
         }
 
@@ -268,9 +268,9 @@ export function setupBulkTaskTools(server: McpServer): void {
               type: 'text',
               text:
                 `✅ Subtask "${subtaskDetails.name}" (ID: ${task_id}) has been permanently deleted.\n\n` +
-                '⚠️ This action cannot be undone. The subtask and all its data have been removed from ClickUp.'
-            }
-          ]
+                '⚠️ This action cannot be undone. The subtask and all its data have been removed from ClickUp.',
+            },
+          ],
         };
       } catch (error: unknown) {
         return mcpError('deleting subtask', error);
@@ -299,7 +299,7 @@ export function setupBulkTaskTools(server: McpServer): void {
         .boolean()
         .describe(
           'Confirmation that you want to merge these tasks (secondary tasks are absorbed into the primary task)'
-        )
+        ),
     },
     async ({ primary_task_id, secondary_task_ids, confirm_merge }) => {
       try {
@@ -308,10 +308,10 @@ export function setupBulkTaskTools(server: McpServer): void {
             content: [
               {
                 type: 'text',
-                text: '❌ Task merge cancelled. You must set confirm_merge to true to proceed. Secondary tasks will be merged into the primary task.'
-              }
+                text: '❌ Task merge cancelled. You must set confirm_merge to true to proceed. Secondary tasks will be merged into the primary task.',
+              },
             ],
-            isError: true
+            isError: true,
           };
         }
 
@@ -332,9 +332,9 @@ export function setupBulkTaskTools(server: McpServer): void {
                 `Primary Task: "${primaryTask.name}" (${primary_task_id})\n` +
                 `Merged Tasks: ${secondaryTasks.map(task => task.name).join(', ')}\n\n` +
                 'Comments, attachments, and other content were migrated into the primary task by ClickUp.\n\n' +
-                `Merged Task:\n${JSON.stringify(mergedTask, null, 2)}`
-            }
-          ]
+                `Merged Task:\n${JSON.stringify(mergedTask, null, 2)}`,
+            },
+          ],
         };
       } catch (error: unknown) {
         return mcpError('merging tasks', error);

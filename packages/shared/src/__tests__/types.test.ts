@@ -14,7 +14,7 @@ describe('Shared Types', () => {
         time_estimate: 3600000,
         time_spent: 1800000,
         tags: ['test'],
-        custom_fields: []
+        custom_fields: [],
       };
 
       expect(mockTask.id).toBeDefined();
@@ -37,7 +37,7 @@ describe('Shared Types', () => {
         averageTaskAge: 5.5,
         teamVelocity: 25,
         riskFactors: ['High workload on key team member'],
-        recommendations: ['Consider redistributing tasks']
+        recommendations: ['Consider redistributing tasks'],
       };
 
       expect(typeof mockMetrics.overallScore).toBe('number');

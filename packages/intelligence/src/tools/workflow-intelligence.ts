@@ -15,7 +15,7 @@ import {
   WorkflowPatternAnalysisInputSchema,
   AutomationRecommendationInputSchema,
   IntegrationOptimizationInputSchema,
-  createWorkflowIntelligenceService
+  createWorkflowIntelligenceService,
 } from '../services/workflow-intelligence-service.js';
 
 /**
@@ -56,26 +56,26 @@ export class WorkflowIntelligence {
 export const workflowPatternAnalysisTool = {
   name: 'clickup_analyze_workflow_patterns',
   description: '🔄 **WORKFLOW PATTERN ANALYZER** - Identify recurring workflow patterns, bottlenecks, and optimization opportunities. Analyzes team workflows to discover inefficiencies and automation potential.',
-  inputSchema: WorkflowPatternAnalysisInputSchema
+  inputSchema: WorkflowPatternAnalysisInputSchema,
 };
 
 export const automationRecommendationTool = {
   name: 'clickup_recommend_automations',
   description: '🤖 **AUTOMATION RECOMMENDER** - Generate AI-powered automation recommendations based on workflow analysis. Identifies repetitive tasks and suggests automation solutions with implementation guidance.',
-  inputSchema: AutomationRecommendationInputSchema
+  inputSchema: AutomationRecommendationInputSchema,
 };
 
 export const integrationOptimizationTool = {
   name: 'clickup_optimize_integrations',
   description: '🔗 **INTEGRATION OPTIMIZER** - Recommend optimal third-party integrations and workflow connections. Analyzes current setup and suggests integrations to maximize productivity and reduce manual work.',
-  inputSchema: IntegrationOptimizationInputSchema
+  inputSchema: IntegrationOptimizationInputSchema,
 };
 
 // Export tool configurations for main server
 export const workflowIntelligenceTools = [
   workflowPatternAnalysisTool,
   automationRecommendationTool,
-  integrationOptimizationTool
+  integrationOptimizationTool,
 ];
 
 // Factory function

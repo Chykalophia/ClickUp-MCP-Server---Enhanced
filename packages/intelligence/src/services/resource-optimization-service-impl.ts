@@ -32,7 +32,7 @@ import {
   LongTermAction,
   HiringRecommendation,
   TrainingRecommendation,
-  ProcessImprovement
+  ProcessImprovement,
 } from './resource-optimization-service.js';
 
 /**
@@ -43,14 +43,14 @@ export class ResourceOptimizationService {
   private readonly skillWeights = {
     [SkillImportance.CRITICAL]: 1.0,
     [SkillImportance.IMPORTANT]: 0.7,
-    [SkillImportance.NICE_TO_HAVE]: 0.3
+    [SkillImportance.NICE_TO_HAVE]: 0.3,
   };
 
   private readonly burnoutThresholds = {
     [BurnoutRiskLevel.LOW]: 0.8,
     [BurnoutRiskLevel.MODERATE]: 0.9,
     [BurnoutRiskLevel.HIGH]: 1.0,
-    [BurnoutRiskLevel.CRITICAL]: 1.1
+    [BurnoutRiskLevel.CRITICAL]: 1.1,
   };
 
   /**
@@ -89,7 +89,7 @@ export class ResourceOptimizationService {
       bottlenecks,
       recommendations,
       balanceScore,
-      riskLevel
+      riskLevel,
     };
   }
 
@@ -127,7 +127,7 @@ export class ResourceOptimizationService {
       capacityUtilization,
       alternativeOptions,
       confidence,
-      estimatedImpact
+      estimatedImpact,
     };
   }
 
@@ -149,7 +149,7 @@ export class ResourceOptimizationService {
       earlyWarningSignals,
       recommendations,
       timeToAction,
-      confidence
+      confidence,
     };
   }
 
@@ -171,7 +171,7 @@ export class ResourceOptimizationService {
       bottleneckPredictions,
       resourceNeeds,
       recommendations,
-      confidence
+      confidence,
     };
   }
 
@@ -195,7 +195,7 @@ export class ResourceOptimizationService {
       longTerm,
       hiring,
       training,
-      processImprovements
+      processImprovements,
     };
   }
 
@@ -208,14 +208,14 @@ export class ResourceOptimizationService {
       skillName: skill.name,
       utilizationRate: this.calculateSkillUtilization(skill, member.currentWorkload),
       growthOpportunity: this.calculateGrowthOpportunity(skill),
-      lastUsed: skill.lastUsed
+      lastUsed: skill.lastUsed,
     }));
 
     const workloadTrend = {
       direction: this.calculateWorkloadTrend(),
       velocity: this.calculateTrendVelocity(),
       sustainabilityScore: this.calculateSustainabilityScore(),
-      projectedBurnout: this.projectBurnoutDate()
+      projectedBurnout: this.projectBurnoutDate(),
     };
 
     const recommendations = this.generateMemberRecommendations(utilizationRate);
@@ -229,7 +229,7 @@ export class ResourceOptimizationService {
       skillUtilization,
       burnoutRisk: member.burnoutRisk,
       workloadTrend,
-      recommendations
+      recommendations,
     };
   }
 
@@ -250,8 +250,8 @@ export class ResourceOptimizationService {
         suggestedActions: [
           'Redistribute workload to available team members',
           'Consider hiring additional resources',
-          'Prioritize and defer non-critical tasks'
-        ]
+          'Prioritize and defer non-critical tasks',
+        ],
       });
     }
 
@@ -263,7 +263,7 @@ export class ResourceOptimizationService {
         severity: Math.max(...skillGaps.map(gap => gap.severity)),
         affectedMembers: skillGaps.map(gap => gap.affectedMember),
         estimatedImpact: skillGaps.reduce((sum, gap) => sum + gap.estimatedDelay, 0),
-        suggestedActions: ['Provide targeted training for skill gaps', 'Hire specialists for critical skills', 'Cross-train team members']
+        suggestedActions: ['Provide targeted training for skill gaps', 'Hire specialists for critical skills', 'Cross-train team members'],
       });
     }
 
@@ -397,7 +397,7 @@ export class ResourceOptimizationService {
           newUtilization: (memberWorkloads.get(member.id)! + task.estimatedEffort) / member.capacity,
           utilizationChange: task.estimatedEffort / member.capacity,
           burnoutRiskChange: BurnoutRiskLevel.LOW, // Placeholder
-          capacityRemaining: member.capacity - (memberWorkloads.get(member.id)! + task.estimatedEffort)
+          capacityRemaining: member.capacity - (memberWorkloads.get(member.id)! + task.estimatedEffort),
         };
 
         assignments.push({
@@ -408,7 +408,7 @@ export class ResourceOptimizationService {
           workloadImpact,
           confidence: 0.9, // Placeholder
           reasoning: ['Assigned based on skill match and workload balance.'],
-          alternatives: []
+          alternatives: [],
         });
 
         memberWorkloads.set(member.id, memberWorkloads.get(member.id)! + task.estimatedEffort);
@@ -499,7 +499,7 @@ export class ResourceOptimizationService {
       teamBalance: 85,
       skillDevelopment: 78,
       deliveryRisk: 15,
-      memberSatisfaction: 82
+      memberSatisfaction: 82,
     };
   }
 
@@ -514,7 +514,7 @@ export class ResourceOptimizationService {
         factor: 'High Workload',
         severity: utilizationRate * 10,
         trend: TrendDirection.INCREASING,
-        description: `Sustained high utilization at ${Math.round(utilizationRate * 100)}%`
+        description: `Sustained high utilization at ${Math.round(utilizationRate * 100)}%`,
       });
     }
 
@@ -527,7 +527,7 @@ export class ResourceOptimizationService {
         factor: 'Low Skill Utilization',
         severity: (1 - avgSkillUtilization) * 10,
         trend: TrendDirection.STABLE,
-        description: 'Skills are not being effectively utilized, leading to disengagement.'
+        description: 'Skills are not being effectively utilized, leading to disengagement.',
       });
     }
 
@@ -537,7 +537,7 @@ export class ResourceOptimizationService {
         factor: 'Performance Degradation',
         severity: (100 - member.performanceMetrics.qualityScore) / 10,
         trend: TrendDirection.DECREASING,
-        description: 'Quality score has dropped significantly.'
+        description: 'Quality score has dropped significantly.',
       });
     }
 
@@ -571,7 +571,7 @@ export class ResourceOptimizationService {
           action: 'Reduce workload immediately',
           priority: 1,
           estimatedImpact: 0.2,
-          timeframe: '1 week'
+          timeframe: '1 week',
         });
         break;
       case 'Low Skill Utilization':
@@ -579,7 +579,7 @@ export class ResourceOptimizationService {
           action: 'Assign tasks that better match skills',
           priority: 2,
           estimatedImpact: 0.3,
-          timeframe: '2 weeks'
+          timeframe: '2 weeks',
         });
         break;
       case 'Performance Degradation':
@@ -587,7 +587,7 @@ export class ResourceOptimizationService {
           action: 'Provide coaching and support',
           priority: 1,
           estimatedImpact: 0.4,
-          timeframe: '1 month'
+          timeframe: '1 month',
         });
         break;
       }
@@ -657,7 +657,7 @@ export class ResourceOptimizationService {
     return {
       startDate: now,
       endDate,
-      granularity
+      granularity,
     };
   }
   private projectCapacityTrends(members: TeamMember[], period: ForecastPeriod): ProjectedCapacity[] {
@@ -676,7 +676,7 @@ export class ResourceOptimizationService {
         period: new Date(currentDate),
         totalCapacity,
         availableCapacity: totalCapacity, // Simplified for now
-        utilizationRate: 0 // Placeholder
+        utilizationRate: 0, // Placeholder
       });
 
       switch (period.granularity) {
@@ -709,7 +709,7 @@ export class ResourceOptimizationService {
         type: BottleneckType.SKILL_GAP,
         severity: Math.max(...skillGaps.map(g => g.severity)),
         affectedCapacity: 0, // Placeholder
-        mitigation: ['Initiate targeted training', 'Hire skilled contractors']
+        mitigation: ['Initiate targeted training', 'Hire skilled contractors'],
       });
     }
 
@@ -724,7 +724,7 @@ export class ResourceOptimizationService {
           skillRequired: 'Unknown', // Placeholder
           urgency: bottleneck.severity,
           duration: 12, // weeks
-          justification: `Predicted skill gap bottleneck with severity ${bottleneck.severity}`
+          justification: `Predicted skill gap bottleneck with severity ${bottleneck.severity}`,
         });
       }
     }
@@ -742,7 +742,7 @@ export class ResourceOptimizationService {
         type: RecommendationType.TRAINING,
         priority: need.urgency,
         description: `Initiate training for skill: ${need.skillRequired}`,
-        estimatedImpact: 0.5
+        estimatedImpact: 0.5,
       });
     }
 
@@ -752,7 +752,7 @@ export class ResourceOptimizationService {
           type: RecommendationType.HIRING,
           priority: bottleneck.severity,
           description: 'Hire additional resources to address capacity overload',
-          estimatedImpact: 0.7
+          estimatedImpact: 0.7,
         });
       }
     }
@@ -785,7 +785,7 @@ export class ResourceOptimizationService {
         action: 'Address critical risk immediately',
         priority: 1,
         estimatedTime: 2,
-        impact: 'High'
+        impact: 'High',
       });
     }
 
@@ -795,7 +795,7 @@ export class ResourceOptimizationService {
           action: `Address severe bottleneck: ${bottleneck.type}`,
           priority: 1,
           estimatedTime: 4,
-          impact: 'High'
+          impact: 'High',
         });
       }
     }
@@ -810,7 +810,7 @@ export class ResourceOptimizationService {
         action: 'Rebalance team workload',
         timeframe: '2 weeks',
         resources: ['Team Lead'],
-        expectedOutcome: 'Improve balance score by 10 points'
+        expectedOutcome: 'Improve balance score by 10 points',
       });
     }
 
@@ -819,7 +819,7 @@ export class ResourceOptimizationService {
         action: 'Review and adjust task assignments',
         timeframe: '1 week',
         resources: ['Team Lead', 'Project Manager'],
-        expectedOutcome: 'Improve skill match score by 10 points'
+        expectedOutcome: 'Improve skill match score by 10 points',
       });
     }
 
@@ -833,7 +833,7 @@ export class ResourceOptimizationService {
         action: 'Develop a long-term hiring plan',
         timeframe: '3 months',
         investment: 5000,
-        expectedROI: 2.0
+        expectedROI: 2.0,
       });
     }
 
@@ -842,7 +842,7 @@ export class ResourceOptimizationService {
         action: 'Invest in cross-functional training',
         timeframe: '6 months',
         investment: 10000,
-        expectedROI: 3.0
+        expectedROI: 3.0,
       });
     }
 
@@ -857,7 +857,7 @@ export class ResourceOptimizationService {
         skills: ['TypeScript', 'Node.js'],
         urgency: 1,
         justification: 'Sustained high utilization across the team.',
-        estimatedCost: 120000
+        estimatedCost: 120000,
       });
     }
 
@@ -868,7 +868,7 @@ export class ResourceOptimizationService {
         skills: ['Unknown'], // Placeholder
         urgency: skillGap.severity / 10,
         justification: `Addressing skill gap bottleneck with severity ${skillGap.severity}`,
-        estimatedCost: 150000
+        estimatedCost: 150000,
       });
     }
 
@@ -884,7 +884,7 @@ export class ResourceOptimizationService {
         targetMembers: gap.affectedMembers,
         priority: gap.severity / 10,
         estimatedDuration: 40,
-        expectedBenefit: 'Mitigate skill gap bottleneck'
+        expectedBenefit: 'Mitigate skill gap bottleneck',
       });
     }
 
@@ -898,7 +898,7 @@ export class ResourceOptimizationService {
         process: 'Workload Balancing',
         currentEfficiency: analysis.balanceScore / 100,
         targetEfficiency: 0.85,
-        implementation: 'Implement a more sophisticated task assignment algorithm'
+        implementation: 'Implement a more sophisticated task assignment algorithm',
       });
     }
 
@@ -907,7 +907,7 @@ export class ResourceOptimizationService {
         process: 'Capacity Management',
         currentEfficiency: 1 - analysis.utilizationRate,
         targetEfficiency: 0.2,
-        implementation: 'Improve capacity forecasting and planning'
+        implementation: 'Improve capacity forecasting and planning',
       });
     }
 

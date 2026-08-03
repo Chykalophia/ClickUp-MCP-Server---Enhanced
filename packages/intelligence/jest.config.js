@@ -68,7 +68,12 @@ export default {
   
   // Module name mapping
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1'
+    '^@/(.*)$': '<rootDir>/src/$1',
+    // Strip the .js extension from relative imports so jest resolves them to
+    // the .ts sources. The extension is mandatory in the emitted output —
+    // Node's ESM loader does not do extension guessing — but the files on disk
+    // here are .ts. Mirrors the same mapper in the core package's jest config.
+    '^(\\.{1,2}/.*)\\.js$': '$1'
   },
   
   // Test timeout

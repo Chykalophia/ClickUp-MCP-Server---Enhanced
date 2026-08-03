@@ -5,17 +5,18 @@
  * AI-powered project management intelligence and workflow optimization.
  * Provides advanced analytics, predictive insights, and optimization tools.
  * 
- * @version 4.1.0
  * @package @chykalophia/clickup-intelligence-mcp-server
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import { VERSION } from './version.js';
 
 // Phase 1.1 - Project Health Analyzer (COMPLETED)
-import { setupProjectHealthAnalyzer } from './tools/project-health-analyzer.js';
 import { HealthMetricsService } from './services/health-metrics-service.js';
+import { ProjectHealthAnalyzer, ProjectHealthAnalysisParams } from './analyzers/project-health-analyzer.js';
+import { formatProjectHealthReport, formatProjectHealthError } from './tools/project-health-analyzer.js';
 
 // Phase 1.2 - Smart Sprint Planner (COMPLETED)
 import { SmartSprintPlanner, createSmartSprintPlanner, SmartSprintPlannerInputSchema } from './tools/smart-sprint-planner.js';
@@ -34,8 +35,8 @@ import { ResourceOptimizationService } from './services/resource-optimization-se
 import { ResourceOptimizationFormatter } from './utils/resource-optimization-formatter.js';
 
 // Phase 1.5 - Workflow Intelligence (NEW)
-import { WorkflowIntelligence, workflowPatternAnalysisTool, automationRecommendationTool, integrationOptimizationTool } from './tools/workflow-intelligence.js';
-import { WorkflowIntelligenceService, WorkflowPatternAnalysisInputSchema, AutomationRecommendationInputSchema, IntegrationOptimizationInputSchema } from './services/workflow-intelligence-service.js';
+import { WorkflowIntelligence } from './tools/workflow-intelligence.js';
+import { WorkflowPatternAnalysisInputSchema, AutomationRecommendationInputSchema, IntegrationOptimizationInputSchema } from './services/workflow-intelligence-service.js';
 import { WorkflowIntelligenceFormatter } from './utils/workflow-intelligence-formatter.js';
 
 // Phase 3.1 - Real-Time Data Processing Engine (NEW)
@@ -49,7 +50,7 @@ import {
   startRealTimeEngineSchema,
   processWebhookSchema,
   addProcessingRuleSchema,
-  getRealTimeMetricsSchema
+  getRealTimeMetricsSchema,
 } from './tools/real-time-tools.js';
 
 // Shared utilities
@@ -73,18 +74,22 @@ class ClickUpIntelligenceServer {
   private resourceOptimizer: ResourceOptimizer;
   private resourceOptimizationService: ResourceOptimizationService;
   private workflowIntelligence: WorkflowIntelligence;
+  // Created on first use rather than in the constructor: ProjectHealthAnalyzer
+  // throws when CLICKUP_API_TOKEN is unset, and that has to surface as a tool
+  // error, not stop the whole server from starting.
+  private projectHealthAnalyzer?: ProjectHealthAnalyzer;
 
   constructor() {
     // Initialize MCP server
     this.server = new Server(
       {
         name: 'clickup-intelligence-mcp-server',
-        version: '4.1.0'
+        version: VERSION,
       },
       {
         capabilities: {
-          tools: {}
-        }
+          tools: {},
+        },
       }
     );
 
@@ -114,150 +119,152 @@ class ClickUpIntelligenceServer {
         {
           name: 'clickup_analyze_project_health',
           description: '🏥 **AI PROJECT HEALTH ANALYZER** - Comprehensive real-time project health analysis with risk assessment, velocity trends, and actionable recommendations. Provides executive dashboard with letter grades (A-F) and specific improvement suggestions.',
+          // Mirrors ProjectHealthAnalysisParams. The previous schema advertised
+          // camelCase names and a quick/standard/comprehensive depth that the
+          // analyzer never accepted — harmless only while this tool returned
+          // mock data, and wrong the moment it was wired to the real one.
           inputSchema: {
             type: 'object',
             properties: {
-              workspaceId: {
+              workspace_id: {
                 type: 'string',
-                description: 'ClickUp workspace ID to analyze'
+                description: 'ClickUp workspace ID to analyze',
               },
-              spaceId: {
+              space_id: {
                 type: 'string',
-                description: 'Optional: Specific space ID to analyze (analyzes entire workspace if not provided)'
+                description: 'Optional: Specific space ID to analyze (analyzes entire workspace if not provided)',
               },
-              analysisDepth: {
+              list_id: {
                 type: 'string',
-                enum: ['quick', 'standard', 'comprehensive'],
-                default: 'standard',
-                description: 'Analysis depth: quick (basic metrics), standard (full analysis), comprehensive (deep insights)'
+                description: 'Optional: Specific list ID to analyze',
               },
-              includeRecommendations: {
+              include_archived: {
                 type: 'boolean',
-                default: true,
-                description: 'Include actionable recommendations in the analysis'
+                default: false,
+                description: 'Whether to include archived tasks in analysis',
               },
-              timeframe: {
+              analysis_depth: {
                 type: 'string',
-                enum: ['1week', '2weeks', '1month', '3months'],
-                default: '1month',
-                description: 'Historical data timeframe for trend analysis'
-              }
+                enum: ['basic', 'detailed', 'comprehensive'],
+                default: 'detailed',
+                description: 'Depth of analysis to perform',
+              },
             },
-            required: ['workspaceId']
-          }
+            required: ['workspace_id'],
+          },
         },
         
         // Phase 1.2 - Smart Sprint Planner
         {
           name: 'clickup_plan_smart_sprint',
           description: '🚀 **AI SMART SPRINT PLANNER** - Advanced AI-powered sprint planning with velocity analysis, capacity modeling, and task optimization. Combines historical data, team capacity, and business priorities for optimal sprint plans.',
-          inputSchema: SmartSprintPlannerInputSchema
+          inputSchema: SmartSprintPlannerInputSchema,
         },
         
         {
           name: 'clickup_analyze_team_velocity',
           description: '📈 **VELOCITY ANALYSIS** - Analyzes historical sprint data to predict team velocity with confidence intervals. Includes seasonal adjustments, team composition impact, and trend analysis.',
-          inputSchema: VelocityAnalysisInputSchema
+          inputSchema: VelocityAnalysisInputSchema,
         },
         
         {
           name: 'clickup_model_team_capacity',
           description: '⚡ **CAPACITY MODELING** - Advanced team capacity modeling with availability factors, focus factors, and skill-based adjustments. Provides individual and team capacity analysis.',
-          inputSchema: CapacityModelingInputSchema
+          inputSchema: CapacityModelingInputSchema,
         },
         
         {
           name: 'clickup_optimize_sprint_tasks',
           description: '🎯 **SPRINT OPTIMIZATION** - Multi-objective optimization for task selection using constraint satisfaction algorithms. Balances business value, capacity, dependencies, and risk factors.',
-          inputSchema: SprintOptimizationInputSchema
+          inputSchema: SprintOptimizationInputSchema,
         },
 
         // Phase 1.3 - Task Decomposition Engine
         {
           name: 'clickup_decompose_task',
           description: '🔄 **AI TASK DECOMPOSITION ENGINE** - Intelligently decompose complex tasks into smaller, manageable subtasks with AI-powered analysis. Features complexity assessment, effort estimation, dependency identification, and template-based decomposition patterns.',
-          inputSchema: taskDecompositionTool.inputSchema
+          inputSchema: taskDecompositionTool.inputSchema,
         },
 
         {
           name: 'clickup_analyze_task_complexity',
           description: '🧠 **TASK COMPLEXITY ANALYZER** - Analyze task complexity across multiple dimensions (technical, business, integration, uncertainty) to determine if decomposition is needed. Provides detailed reasoning and recommendations.',
-          inputSchema: complexityAnalysisTool.inputSchema
+          inputSchema: complexityAnalysisTool.inputSchema,
         },
 
         {
           name: 'clickup_get_decomposition_templates',
           description: '📋 **DECOMPOSITION TEMPLATES** - Get available task decomposition templates for common development patterns (API development, UI features, database changes, bug fixes, research tasks).',
-          inputSchema: decompositionTemplatesTools.inputSchema
+          inputSchema: decompositionTemplatesTools.inputSchema,
         },
 
         // Phase 1.4 - Resource Optimizer
         {
           name: 'clickup_analyze_team_workload',
           description: '⚖️ **TEAM WORKLOAD ANALYZER** - Comprehensive analysis of team workload distribution, capacity utilization, and resource bottlenecks. Identifies optimization opportunities and provides actionable recommendations for balanced team productivity.',
-          inputSchema: workloadAnalysisTool.inputSchema
+          inputSchema: workloadAnalysisTool.inputSchema,
         },
 
         {
           name: 'clickup_optimize_task_assignment',
           description: '🎯 **TASK ASSIGNMENT OPTIMIZER** - AI-powered task assignment optimization that balances workload, maximizes skill matching, and promotes team development. Uses constraint satisfaction algorithms for optimal resource allocation.',
-          inputSchema: taskAssignmentTool.inputSchema
+          inputSchema: taskAssignmentTool.inputSchema,
         },
 
         {
           name: 'clickup_analyze_burnout_risk',
           description: '🚨 **BURNOUT RISK ANALYZER** - Advanced burnout risk assessment using workload patterns, performance metrics, and early warning indicators. Provides personalized prevention strategies and intervention recommendations.',
-          inputSchema: burnoutAnalysisTool.inputSchema
+          inputSchema: burnoutAnalysisTool.inputSchema,
         },
 
         {
           name: 'clickup_forecast_team_capacity',
           description: '📈 **CAPACITY FORECASTING** - Predictive capacity analysis for future resource planning. Identifies potential bottlenecks, resource needs, and hiring recommendations based on historical trends and growth projections.',
-          inputSchema: capacityForecastTool.inputSchema
+          inputSchema: capacityForecastTool.inputSchema,
         },
 
         // Phase 1.5 - Workflow Intelligence
         {
           name: 'clickup_analyze_workflow_patterns',
           description: '🔄 **WORKFLOW PATTERN ANALYZER** - Identify recurring workflow patterns, bottlenecks, and optimization opportunities. Analyzes team workflows to discover inefficiencies and automation potential.',
-          inputSchema: WorkflowPatternAnalysisInputSchema
+          inputSchema: WorkflowPatternAnalysisInputSchema,
         },
 
         {
           name: 'clickup_recommend_automations',
           description: '🤖 **AUTOMATION RECOMMENDER** - Generate AI-powered automation recommendations based on workflow analysis. Identifies repetitive tasks and suggests automation solutions with implementation guidance.',
-          inputSchema: AutomationRecommendationInputSchema
+          inputSchema: AutomationRecommendationInputSchema,
         },
 
         {
           name: 'clickup_optimize_integrations',
           description: '🔗 **INTEGRATION OPTIMIZER** - Recommend optimal third-party integrations and workflow connections. Analyzes current setup and suggests integrations to maximize productivity and reduce manual work.',
-          inputSchema: IntegrationOptimizationInputSchema
+          inputSchema: IntegrationOptimizationInputSchema,
         },
 
         // Phase 3.1 - Real-Time Data Processing Engine
         {
           name: 'clickup_start_realtime_engine',
           description: '🚀 **REAL-TIME PROCESSING ENGINE** - Start the real-time data processing engine for live ClickUp integration. Enables WebSocket connections, event streaming, and real-time analytics with <2s latency.',
-          inputSchema: startRealTimeEngineSchema
+          inputSchema: startRealTimeEngineSchema,
         },
         
         {
           name: 'clickup_process_webhook',
           description: '📡 **WEBHOOK PROCESSOR** - Process incoming ClickUp webhook events in real-time. Validates signatures, processes events through stream pipeline, and broadcasts to connected clients.',
-          inputSchema: processWebhookSchema
+          inputSchema: processWebhookSchema,
         },
         
         {
           name: 'clickup_add_processing_rule',
           description: '⚙️ **PROCESSING RULE ENGINE** - Add custom processing rules for real-time event handling. Define conditions and actions for automated responses to ClickUp events.',
-          inputSchema: addProcessingRuleSchema
+          inputSchema: addProcessingRuleSchema,
         },
         
         {
           name: 'clickup_get_realtime_metrics',
           description: '📊 **REAL-TIME METRICS** - Get comprehensive metrics from the real-time processing engine including latency, throughput, cache hit rates, and SLA compliance.',
-          inputSchema: getRealTimeMetricsSchema
+          inputSchema: getRealTimeMetricsSchema,
         },
         
         {
@@ -268,11 +275,11 @@ class ClickUpIntelligenceServer {
             properties: {
               taskId: {
                 type: 'string',
-                description: 'ClickUp task ID to retrieve from cache'
-              }
+                description: 'ClickUp task ID to retrieve from cache',
+              },
             },
-            required: ['taskId']
-          }
+            required: ['taskId'],
+          },
         },
         
         {
@@ -281,10 +288,10 @@ class ClickUpIntelligenceServer {
           inputSchema: {
             type: 'object',
             properties: {},
-            additionalProperties: false
-          }
-        }
-      ]
+            additionalProperties: false,
+          },
+        },
+      ],
     }));
 
     // Handle tool calls
@@ -294,27 +301,44 @@ class ClickUpIntelligenceServer {
       try {
         switch (name) {
           // Phase 1.1 - Project Health Analyzer
-          case 'clickup_analyze_project_health':
+          case 'clickup_analyze_project_health': {
             console.log('[Intelligence] Executing project health analysis...');
-            // For now, return mock health analysis data
-            const healthResult = {
-              workspaceId: (args as any)?.workspaceId || 'unknown',
-              healthScore: 85,
-              grade: 'B',
-              analysis: 'Mock project health analysis for Phase 1.2 development',
-              metadata: { version: '4.0.0', timestamp: new Date().toISOString() }
-            };
-            return {
-              content: [
-                {
-                  type: 'text',
-                  text: formatMarkdownReport(healthResult, 'Project Health Analysis')
-                }
-              ]
-            };
+            if (!args) throw new Error('Missing required arguments for project health analysis');
+
+            const healthParams = args as unknown as ProjectHealthAnalysisParams;
+            if (!healthParams.workspace_id) {
+              throw new Error('workspace_id is required for project health analysis');
+            }
+
+            try {
+              if (!this.projectHealthAnalyzer) {
+                this.projectHealthAnalyzer = new ProjectHealthAnalyzer();
+              }
+              const analysis =
+                await this.projectHealthAnalyzer.analyzeProjectHealth(healthParams);
+
+              return {
+                content: [
+                  {
+                    type: 'text',
+                    text: formatProjectHealthReport(analysis, healthParams),
+                  },
+                ],
+              };
+            } catch (error) {
+              // The analyzer's own error report names the likely causes (bad
+              // workspace id, missing scope, token permissions), so it is more
+              // useful here than the generic handler at the bottom of this
+              // switch.
+              return {
+                content: [{ type: 'text', text: formatProjectHealthError(error) }],
+                isError: true,
+              };
+            }
+          }
 
           // Phase 1.2 - Smart Sprint Planner
-          case 'clickup_plan_smart_sprint':
+          case 'clickup_plan_smart_sprint': {
             console.log('[Intelligence] Executing smart sprint planning...');
             if (!args) throw new Error('Missing required arguments for sprint planning');
             const sprintPlan = await this.smartSprintPlanner.planSprint(args as any);
@@ -322,12 +346,13 @@ class ClickUpIntelligenceServer {
               content: [
                 {
                   type: 'text',
-                  text: generateExecutiveDashboard(sprintPlan, 'Smart Sprint Plan')
-                }
-              ]
+                  text: generateExecutiveDashboard(sprintPlan, 'Smart Sprint Plan'),
+                },
+              ],
             };
+          }
 
-          case 'clickup_analyze_team_velocity':
+          case 'clickup_analyze_team_velocity': {
             console.log('[Intelligence] Executing velocity analysis...');
             if (!args) throw new Error('Missing required arguments for velocity analysis');
             const velocityResult = await this.velocityAnalysisService.analyzeVelocity(args as any);
@@ -335,12 +360,13 @@ class ClickUpIntelligenceServer {
               content: [
                 {
                   type: 'text',
-                  text: formatMarkdownReport(velocityResult, 'Team Velocity Analysis')
-                }
-              ]
+                  text: formatMarkdownReport(velocityResult, 'Team Velocity Analysis'),
+                },
+              ],
             };
+          }
 
-          case 'clickup_model_team_capacity':
+          case 'clickup_model_team_capacity': {
             console.log('[Intelligence] Executing capacity modeling...');
             if (!args) throw new Error('Missing required arguments for capacity modeling');
             const capacityResult = await this.capacityModelingService.modelCapacity(args as any);
@@ -348,12 +374,13 @@ class ClickUpIntelligenceServer {
               content: [
                 {
                   type: 'text',
-                  text: formatMarkdownReport(capacityResult, 'Team Capacity Analysis')
-                }
-              ]
+                  text: formatMarkdownReport(capacityResult, 'Team Capacity Analysis'),
+                },
+              ],
             };
+          }
 
-          case 'clickup_optimize_sprint_tasks':
+          case 'clickup_optimize_sprint_tasks': {
             console.log('[Intelligence] Executing sprint optimization...');
             if (!args) throw new Error('Missing required arguments for sprint optimization');
             const optimizationResult = await this.sprintOptimizationService.optimizeSprint(args as any);
@@ -361,13 +388,14 @@ class ClickUpIntelligenceServer {
               content: [
                 {
                   type: 'text',
-                  text: formatMarkdownReport(optimizationResult, 'Sprint Task Optimization')
-                }
-              ]
+                  text: formatMarkdownReport(optimizationResult, 'Sprint Task Optimization'),
+                },
+              ],
             };
+          }
 
           // Phase 1.3 - Task Decomposition Engine
-          case 'clickup_decompose_task':
+          case 'clickup_decompose_task': {
             console.log('[Intelligence] Executing task decomposition...');
             if (!args) throw new Error('Missing required arguments for task decomposition');
             const decompositionResult = await this.taskDecompositionEngine.decomposeTask(
@@ -378,12 +406,13 @@ class ClickUpIntelligenceServer {
               content: [
                 {
                   type: 'text',
-                  text: TaskDecompositionFormatter.generateReport(decompositionResult)
-                }
-              ]
+                  text: TaskDecompositionFormatter.generateReport(decompositionResult),
+                },
+              ],
             };
+          }
 
-          case 'clickup_analyze_task_complexity':
+          case 'clickup_analyze_task_complexity': {
             console.log('[Intelligence] Executing task complexity analysis...');
             if (!args) throw new Error('Missing required arguments for complexity analysis');
             const complexityResult = await this.taskDecompositionEngine.analyzeComplexity((args as any).task);
@@ -391,25 +420,27 @@ class ClickUpIntelligenceServer {
               content: [
                 {
                   type: 'text',
-                  text: formatMarkdownReport(complexityResult, 'Task Complexity Analysis')
-                }
-              ]
+                  text: formatMarkdownReport(complexityResult, 'Task Complexity Analysis'),
+                },
+              ],
             };
+          }
 
-          case 'clickup_get_decomposition_templates':
+          case 'clickup_get_decomposition_templates': {
             console.log('[Intelligence] Retrieving decomposition templates...');
             const templates = this.taskDecompositionEngine.getAvailableTemplates();
             return {
               content: [
                 {
                   type: 'text',
-                  text: formatMarkdownReport(templates, 'Available Decomposition Templates')
-                }
-              ]
+                  text: formatMarkdownReport(templates, 'Available Decomposition Templates'),
+                },
+              ],
             };
+          }
 
           // Phase 1.4 - Resource Optimizer
-          case 'clickup_analyze_team_workload':
+          case 'clickup_analyze_team_workload': {
             console.log('[Intelligence] Executing team workload analysis...');
             if (!args) throw new Error('Missing required arguments for workload analysis');
             const workloadResult = await this.resourceOptimizer.analyzeTeamWorkload(args as any);
@@ -417,12 +448,13 @@ class ClickUpIntelligenceServer {
               content: [
                 {
                   type: 'text',
-                  text: ResourceOptimizationFormatter.generateWorkloadReport(workloadResult)
-                }
-              ]
+                  text: ResourceOptimizationFormatter.generateWorkloadReport(workloadResult),
+                },
+              ],
             };
+          }
 
-          case 'clickup_optimize_task_assignment':
+          case 'clickup_optimize_task_assignment': {
             console.log('[Intelligence] Executing task assignment optimization...');
             if (!args) throw new Error('Missing required arguments for task assignment');
             const assignmentResult = await this.resourceOptimizer.optimizeTaskAssignment(args as any);
@@ -430,12 +462,13 @@ class ClickUpIntelligenceServer {
               content: [
                 {
                   type: 'text',
-                  text: ResourceOptimizationFormatter.generateAssignmentReport(assignmentResult)
-                }
-              ]
+                  text: ResourceOptimizationFormatter.generateAssignmentReport(assignmentResult),
+                },
+              ],
             };
+          }
 
-          case 'clickup_analyze_burnout_risk':
+          case 'clickup_analyze_burnout_risk': {
             console.log('[Intelligence] Executing burnout risk analysis...');
             if (!args) throw new Error('Missing required arguments for burnout analysis');
             const burnoutResult = await this.resourceOptimizer.analyzeBurnoutRisk(args as any);
@@ -443,12 +476,13 @@ class ClickUpIntelligenceServer {
               content: [
                 {
                   type: 'text',
-                  text: ResourceOptimizationFormatter.generateBurnoutReport(burnoutResult)
-                }
-              ]
+                  text: ResourceOptimizationFormatter.generateBurnoutReport(burnoutResult),
+                },
+              ],
             };
+          }
 
-          case 'clickup_forecast_team_capacity':
+          case 'clickup_forecast_team_capacity': {
             console.log('[Intelligence] Executing capacity forecasting...');
             if (!args) throw new Error('Missing required arguments for capacity forecasting');
             const forecastResult = await this.resourceOptimizer.forecastCapacity(args as any);
@@ -456,13 +490,14 @@ class ClickUpIntelligenceServer {
               content: [
                 {
                   type: 'text',
-                  text: ResourceOptimizationFormatter.generateCapacityReport(forecastResult)
-                }
-              ]
+                  text: ResourceOptimizationFormatter.generateCapacityReport(forecastResult),
+                },
+              ],
             };
+          }
 
           // Phase 1.5 - Workflow Intelligence
-          case 'clickup_analyze_workflow_patterns':
+          case 'clickup_analyze_workflow_patterns': {
             console.log('[Intelligence] Executing workflow pattern analysis...');
             if (!args) throw new Error('Missing required arguments for workflow pattern analysis');
             const workflowResult = await this.workflowIntelligence.analyzeWorkflowPatterns(args as any);
@@ -470,12 +505,13 @@ class ClickUpIntelligenceServer {
               content: [
                 {
                   type: 'text',
-                  text: WorkflowIntelligenceFormatter.generateWorkflowReport(workflowResult)
-                }
-              ]
+                  text: WorkflowIntelligenceFormatter.generateWorkflowReport(workflowResult),
+                },
+              ],
             };
+          }
 
-          case 'clickup_recommend_automations':
+          case 'clickup_recommend_automations': {
             console.log('[Intelligence] Executing automation recommendations...');
             if (!args) throw new Error('Missing required arguments for automation recommendations');
             const automationResult = await this.workflowIntelligence.recommendAutomations(args as any);
@@ -483,12 +519,13 @@ class ClickUpIntelligenceServer {
               content: [
                 {
                   type: 'text',
-                  text: WorkflowIntelligenceFormatter.generateAutomationReport(automationResult)
-                }
-              ]
+                  text: WorkflowIntelligenceFormatter.generateAutomationReport(automationResult),
+                },
+              ],
             };
+          }
 
-          case 'clickup_optimize_integrations':
+          case 'clickup_optimize_integrations': {
             console.log('[Intelligence] Executing integration optimization...');
             if (!args) throw new Error('Missing required arguments for integration optimization');
             const integrationResult = await this.workflowIntelligence.optimizeIntegrations(args as any);
@@ -496,10 +533,11 @@ class ClickUpIntelligenceServer {
               content: [
                 {
                   type: 'text',
-                  text: WorkflowIntelligenceFormatter.generateIntegrationReport(integrationResult)
-                }
-              ]
+                  text: WorkflowIntelligenceFormatter.generateIntegrationReport(integrationResult),
+                },
+              ],
             };
+          }
 
           // Phase 3.1 - Real-Time Data Processing Engine
           case 'clickup_start_realtime_engine':
@@ -535,10 +573,10 @@ class ClickUpIntelligenceServer {
           content: [
             {
               type: 'text',
-              text: `❌ **Error executing ${name}**\n\n${error instanceof Error ? error.message : 'Unknown error occurred'}\n\n*Please check your input parameters and try again.*`
-            }
+              text: `❌ **Error executing ${name}**\n\n${error instanceof Error ? error.message : 'Unknown error occurred'}\n\n*Please check your input parameters and try again.*`,
+            },
           ],
-          isError: true
+          isError: true,
         };
       }
     });
@@ -568,7 +606,7 @@ export {
   HealthMetricsService,
   VelocityAnalysisService,
   CapacityModelingService,
-  SprintOptimizationService
+  SprintOptimizationService,
 };
 
 // Export factory functions
@@ -576,7 +614,7 @@ export {
   createSmartSprintPlanner,
   createVelocityAnalysisService,
   createCapacityModelingService,
-  createSprintOptimizationService
+  createSprintOptimizationService,
 };
 
 // Export schemas for external use
@@ -584,7 +622,7 @@ export {
   SmartSprintPlannerInputSchema,
   VelocityAnalysisInputSchema,
   CapacityModelingInputSchema,
-  SprintOptimizationInputSchema
+  SprintOptimizationInputSchema,
 };
 
 // Main entry point

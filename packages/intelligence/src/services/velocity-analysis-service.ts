@@ -17,7 +17,7 @@ export const VelocityAnalysisInputSchema = z.object({
   lookbackPeriod: z.number().min(1).max(52).default(12).describe('Number of weeks to analyze (1-52)'),
   includePartialSprints: z.boolean().default(false).describe('Include incomplete sprints in analysis'),
   adjustForTeamChanges: z.boolean().default(true).describe('Adjust for team composition changes'),
-  seasonalAdjustment: z.boolean().default(true).describe('Apply seasonal variation adjustments')
+  seasonalAdjustment: z.boolean().default(true).describe('Apply seasonal variation adjustments'),
 });
 
 export const VelocityTrendSchema = z.object({
@@ -26,24 +26,24 @@ export const VelocityTrendSchema = z.object({
   tasksCompleted: z.number().describe('Number of tasks completed'),
   teamSize: z.number().describe('Team size during period'),
   velocityPerPerson: z.number().describe('Velocity per team member'),
-  confidence: z.number().min(0).max(1).describe('Confidence in data quality')
+  confidence: z.number().min(0).max(1).describe('Confidence in data quality'),
 });
 
 export const VelocityPredictionSchema = z.object({
   predictedVelocity: z.number().describe('Predicted story points for next sprint'),
   confidenceInterval: z.object({
     lower: z.number().describe('Lower bound (80% confidence)'),
-    upper: z.number().describe('Upper bound (80% confidence)')
+    upper: z.number().describe('Upper bound (80% confidence)'),
   }),
   factors: z.array(
     z.object({
       factor: z.string().describe('Factor affecting velocity'),
       impact: z.number().min(-1).max(1).describe('Impact on velocity (-1 to 1)'),
-      description: z.string().describe('Explanation of factor impact')
+      description: z.string().describe('Explanation of factor impact'),
     })
   ),
   seasonalAdjustment: z.number().describe('Seasonal adjustment factor'),
-  teamCompositionImpact: z.number().describe('Team change impact factor')
+  teamCompositionImpact: z.number().describe('Team change impact factor'),
 });
 
 export const VelocityAnalysisResultSchema = z.object({
@@ -54,7 +54,7 @@ export const VelocityAnalysisResultSchema = z.object({
     average: z.number().describe('Average velocity over lookback period'),
     median: z.number().describe('Median velocity (more stable metric)'),
     standardDeviation: z.number().describe('Velocity variability'),
-    trend: z.enum(['increasing', 'stable', 'decreasing']).describe('Velocity trend direction')
+    trend: z.enum(['increasing', 'stable', 'decreasing']).describe('Velocity trend direction'),
   }),
   prediction: VelocityPredictionSchema,
   recommendations: z.array(
@@ -63,14 +63,14 @@ export const VelocityAnalysisResultSchema = z.object({
       priority: z.enum(['high', 'medium', 'low']),
       title: z.string(),
       description: z.string(),
-      expectedImpact: z.string().describe('Expected improvement from recommendation')
+      expectedImpact: z.string().describe('Expected improvement from recommendation'),
     })
   ),
   metadata: z.object({
     dataQuality: z.number().min(0).max(1).describe('Overall data quality score'),
     analysisConfidence: z.number().min(0).max(1).describe('Confidence in analysis results'),
-    lastUpdated: z.string().describe('ISO timestamp of last data update')
-  })
+    lastUpdated: z.string().describe('ISO timestamp of last data update'),
+  }),
 });
 
 export type VelocityAnalysisInput = z.infer<typeof VelocityAnalysisInputSchema>;
@@ -87,7 +87,7 @@ export class VelocityAnalysisService {
     Q1: 0.95, // January-March (post-holiday slowdown)
     Q2: 1.05, // April-June (peak productivity)
     Q3: 0.9, // July-September (vacation season)
-    Q4: 0.85 // October-December (holidays)
+    Q4: 0.85, // October-December (holidays)
   };
 
   /**
@@ -125,7 +125,7 @@ export class VelocityAnalysisService {
         currentVelocity,
         prediction,
         recommendations,
-        metadata
+        metadata,
       };
 
       return VelocityAnalysisResultSchema.parse(result);
@@ -161,7 +161,7 @@ export class VelocityAnalysisService {
         storyPoints: Math.floor(Math.random() * 30) + 20, // 20-50 points
         tasksCompleted: Math.floor(Math.random() * 15) + 10, // 10-25 tasks
         teamSize: 5 + Math.floor(Math.random() * 3), // 5-8 people
-        isComplete: i > 1 || input.includePartialSprints
+        isComplete: i > 1 || input.includePartialSprints,
       });
     }
 
@@ -182,7 +182,7 @@ export class VelocityAnalysisService {
         tasksCompleted: sprint.tasksCompleted,
         teamSize: sprint.teamSize,
         velocityPerPerson,
-        confidence
+        confidence,
       };
     });
   }
@@ -223,7 +223,7 @@ export class VelocityAnalysisService {
       average: Math.round(average * 100) / 100,
       median: Math.round(median * 100) / 100,
       standardDeviation: Math.round(standardDeviation * 100) / 100,
-      trend
+      trend,
     };
   }
 
@@ -248,7 +248,7 @@ export class VelocityAnalysisService {
     const standardDeviation = this.calculateVelocityStandardDeviation(recentTrends);
     const confidenceInterval = {
       lower: Math.max(0, Math.round(predictedVelocity - 1.28 * standardDeviation)), // 80% confidence
-      upper: Math.round(predictedVelocity + 1.28 * standardDeviation)
+      upper: Math.round(predictedVelocity + 1.28 * standardDeviation),
     };
 
     // Identify factors affecting velocity
@@ -256,18 +256,18 @@ export class VelocityAnalysisService {
       {
         factor: 'Historical Performance',
         impact: 0.8,
-        description: `Based on ${recentTrends.length} recent sprints with average ${Math.round(baseVelocity)} points`
+        description: `Based on ${recentTrends.length} recent sprints with average ${Math.round(baseVelocity)} points`,
       },
       {
         factor: 'Seasonal Variation',
         impact: seasonalAdjustment - 1,
-        description: `${currentQuarter} seasonal adjustment: ${((seasonalAdjustment - 1) * 100).toFixed(1)}%`
+        description: `${currentQuarter} seasonal adjustment: ${((seasonalAdjustment - 1) * 100).toFixed(1)}%`,
       },
       {
         factor: 'Team Composition',
         impact: teamCompositionImpact - 1,
-        description: `Team stability impact: ${((teamCompositionImpact - 1) * 100).toFixed(1)}%`
-      }
+        description: `Team stability impact: ${((teamCompositionImpact - 1) * 100).toFixed(1)}%`,
+      },
     ];
 
     return {
@@ -275,7 +275,7 @@ export class VelocityAnalysisService {
       confidenceInterval,
       factors,
       seasonalAdjustment,
-      teamCompositionImpact
+      teamCompositionImpact,
     };
   }
 
@@ -293,7 +293,7 @@ export class VelocityAnalysisService {
         title: 'Reduce Velocity Variability',
         description:
           'High velocity variability detected. Consider improving sprint planning consistency and task estimation accuracy.',
-        expectedImpact: 'Reduce planning uncertainty by 20-30%'
+        expectedImpact: 'Reduce planning uncertainty by 20-30%',
       });
     }
 
@@ -305,7 +305,7 @@ export class VelocityAnalysisService {
         title: 'Address Declining Velocity',
         description:
           'Velocity has been declining. Investigate potential blockers, team satisfaction, or technical debt issues.',
-        expectedImpact: 'Stabilize or improve velocity by 15-25%'
+        expectedImpact: 'Stabilize or improve velocity by 15-25%',
       });
     }
 
@@ -316,7 +316,7 @@ export class VelocityAnalysisService {
         priority: 'medium' as const,
         title: 'Improve Estimation Accuracy',
         description: 'Wide prediction interval suggests inconsistent estimation. Consider story point calibration sessions.',
-        expectedImpact: 'Improve planning accuracy by 10-20%'
+        expectedImpact: 'Improve planning accuracy by 10-20%',
       });
     }
 
@@ -326,7 +326,7 @@ export class VelocityAnalysisService {
       priority: 'medium' as const,
       title: 'Optimize Sprint Capacity',
       description: `Plan for ${prediction.predictedVelocity} story points with buffer for ${prediction.confidenceInterval.lower}-${prediction.confidenceInterval.upper} range.`,
-      expectedImpact: 'Improve sprint success rate by 15-30%'
+      expectedImpact: 'Improve sprint success rate by 15-30%',
     });
 
     return recommendations;
@@ -347,7 +347,7 @@ export class VelocityAnalysisService {
     return {
       dataQuality: Math.round(dataQuality * 100) / 100,
       analysisConfidence: Math.round(analysisConfidence * 100) / 100,
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
     };
   }
 

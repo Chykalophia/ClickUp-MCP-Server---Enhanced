@@ -34,7 +34,7 @@ export const SmartSprintPlannerInputSchema = z.object({
         skills: z.array(z.string()),
         experienceLevel: z.enum(['junior', 'mid', 'senior', 'lead']),
         availabilityHours: z.number().min(0).max(40),
-        focusFactor: z.number().min(0).max(1).default(0.75)
+        focusFactor: z.number().min(0).max(1).default(0.75),
       })
     )
     .optional()
@@ -48,7 +48,7 @@ export const SmartSprintPlannerInputSchema = z.object({
         startDate: z.string(),
         endDate: z.string(),
         hoursImpact: z.number().min(0),
-        description: z.string()
+        description: z.string(),
       })
     )
     .default([])
@@ -66,7 +66,7 @@ export const SmartSprintPlannerInputSchema = z.object({
         dependencies: z.array(z.string()).default([]),
         estimatedHours: z.number().min(0),
         businessValue: z.number().min(0).max(100),
-        riskLevel: z.enum(['low', 'medium', 'high']).default('medium')
+        riskLevel: z.enum(['low', 'medium', 'high']).default('medium'),
       })
     )
     .optional()
@@ -77,9 +77,9 @@ export const SmartSprintPlannerInputSchema = z.object({
       riskTolerance: z.enum(['conservative', 'balanced', 'aggressive']).default('balanced'),
       prioritizeBusinessValue: z.boolean().default(true),
       includeBufferTime: z.boolean().default(true),
-      bufferPercentage: z.number().min(0).max(0.3).default(0.15)
+      bufferPercentage: z.number().min(0).max(0.3).default(0.15),
     })
-    .default({})
+    .default({}),
 });
 
 export const SmartSprintPlanResultSchema = z.object({
@@ -88,7 +88,7 @@ export const SmartSprintPlanResultSchema = z.object({
     sprintPeriod: z.object({
       startDate: z.string(),
       endDate: z.string(),
-      workingDays: z.number()
+      workingDays: z.number(),
     }),
 
     // Velocity insights
@@ -96,11 +96,11 @@ export const SmartSprintPlanResultSchema = z.object({
       predictedVelocity: z.number(),
       confidenceInterval: z.object({
         lower: z.number(),
-        upper: z.number()
+        upper: z.number(),
       }),
       trend: z.enum(['increasing', 'stable', 'decreasing']),
       seasonalAdjustment: z.number(),
-      recommendations: z.array(z.string())
+      recommendations: z.array(z.string()),
     }),
 
     // Capacity insights
@@ -108,7 +108,7 @@ export const SmartSprintPlanResultSchema = z.object({
       totalCapacity: z.object({
         storyPointCapacity: z.number(),
         effectiveHours: z.number(),
-        confidenceLevel: z.number()
+        confidenceLevel: z.number(),
       }),
       teamUtilization: z.number(),
       skillCapacityGaps: z.array(z.string()),
@@ -116,9 +116,9 @@ export const SmartSprintPlanResultSchema = z.object({
         z.object({
           factor: z.string(),
           severity: z.enum(['low', 'medium', 'high']),
-          mitigation: z.string()
+          mitigation: z.string(),
         })
-      )
+      ),
     }),
 
     // Optimized sprint
@@ -130,7 +130,7 @@ export const SmartSprintPlanResultSchema = z.object({
         priority: z.enum(['critical', 'high', 'medium', 'low']),
         businessValue: z.number(),
         riskLevel: z.enum(['low', 'medium', 'high']),
-        assignmentSuggestion: z.string().optional()
+        assignmentSuggestion: z.string().optional(),
       })
     ),
 
@@ -139,7 +139,7 @@ export const SmartSprintPlanResultSchema = z.object({
       totalBusinessValue: z.number(),
       capacityUtilization: z.number(),
       riskScore: z.number(),
-      optimizationScore: z.number()
+      optimizationScore: z.number(),
     }),
 
     alternativeOptions: z.array(
@@ -148,9 +148,9 @@ export const SmartSprintPlanResultSchema = z.object({
         taskCount: z.number(),
         storyPoints: z.number(),
         tradeoffs: z.string(),
-        score: z.number()
+        score: z.number(),
       })
-    )
+    ),
   }),
 
   // Executive summary
@@ -159,15 +159,15 @@ export const SmartSprintPlanResultSchema = z.object({
     keyInsights: z.array(z.string()),
     criticalRecommendations: z.array(z.string()),
     successProbability: z.number().min(0).max(100),
-    confidenceLevel: z.enum(['high', 'medium', 'low'])
+    confidenceLevel: z.enum(['high', 'medium', 'low']),
   }),
 
   metadata: z.object({
     analysisTimestamp: z.string(),
     processingTimeMs: z.number(),
     dataQuality: z.number().min(0).max(1),
-    version: z.string()
-  })
+    version: z.string(),
+  }),
 });
 
 export type SmartSprintPlannerInput = z.infer<typeof SmartSprintPlannerInputSchema>;
@@ -203,7 +203,7 @@ export class SmartSprintPlanner {
         lookbackPeriod: validatedInput.velocityLookback,
         includePartialSprints: validatedInput.includePartialSprints,
         adjustForTeamChanges: true,
-        seasonalAdjustment: true
+        seasonalAdjustment: true,
       });
 
       // Step 2: Model team capacity
@@ -216,7 +216,7 @@ export class SmartSprintPlanner {
         constraints: validatedInput.capacityConstraints,
         skillRequirements: [],
         includeBufferTime: validatedInput.planningPreferences.includeBufferTime,
-        bufferPercentage: validatedInput.planningPreferences.bufferPercentage
+        bufferPercentage: validatedInput.planningPreferences.bufferPercentage,
       });
 
       // Step 3: Optimize task selection
@@ -234,9 +234,9 @@ export class SmartSprintPlanner {
         objectives: {
           maximize: ['business_value'],
           minimize: ['risk'],
-          weights: {}
+          weights: {},
         },
-        riskTolerance: validatedInput.planningPreferences.riskTolerance
+        riskTolerance: validatedInput.planningPreferences.riskTolerance,
       });
 
       // Step 4: Generate comprehensive plan
@@ -254,8 +254,8 @@ export class SmartSprintPlanner {
           analysisTimestamp: new Date().toISOString(),
           processingTimeMs: processingTime,
           dataQuality: Math.min(velocityAnalysis.metadata.dataQuality, capacityAnalysis.metadata.dataQuality),
-          version: '4.0.0'
-        }
+          version: '4.0.0',
+        },
       };
 
       return SmartSprintPlanResultSchema.parse(result);
@@ -274,7 +274,7 @@ export class SmartSprintPlanner {
       sprintPeriod: {
         startDate: input.sprintStartDate,
         endDate: input.sprintEndDate,
-        workingDays: capacityAnalysis.sprintPeriod.workingDays
+        workingDays: capacityAnalysis.sprintPeriod.workingDays,
       },
 
       velocityAnalysis: {
@@ -282,7 +282,7 @@ export class SmartSprintPlanner {
         confidenceInterval: velocityAnalysis.prediction.confidenceInterval,
         trend: velocityAnalysis.currentVelocity.trend,
         seasonalAdjustment: velocityAnalysis.prediction.seasonalAdjustment,
-        recommendations: velocityAnalysis.recommendations.map((r: any) => r.description)
+        recommendations: velocityAnalysis.recommendations.map((r: any) => r.description),
       },
 
       capacityAnalysis: {
@@ -291,7 +291,7 @@ export class SmartSprintPlanner {
         skillCapacityGaps: capacityAnalysis.teamCapacity.skillCapacity
           .filter((sc: any) => sc.availableHours < 10)
           .map((sc: any) => sc.skill),
-        riskFactors: capacityAnalysis.teamCapacity.riskFactors
+        riskFactors: capacityAnalysis.teamCapacity.riskFactors,
       },
 
       recommendedTasks: optimizedSprint.selectedTasks.map((task: any) => ({
@@ -301,7 +301,7 @@ export class SmartSprintPlanner {
         priority: task.priority,
         businessValue: task.businessValue,
         riskLevel: task.riskLevel,
-        assignmentSuggestion: this.generateAssignmentSuggestion(task, capacityAnalysis)
+        assignmentSuggestion: this.generateAssignmentSuggestion(task, capacityAnalysis),
       })),
 
       sprintMetrics: {
@@ -309,7 +309,7 @@ export class SmartSprintPlanner {
         totalBusinessValue: optimizedSprint.totalBusinessValue,
         capacityUtilization: optimizedSprint.capacityUtilization,
         riskScore: optimizedSprint.riskScore,
-        optimizationScore: optimizedSprint.optimizationScore
+        optimizationScore: optimizedSprint.optimizationScore,
       },
 
       alternativeOptions: optimizedSprint.alternativeOptions.map((alt: any) => ({
@@ -320,8 +320,8 @@ export class SmartSprintPlanner {
           return sum + (task?.storyPoints || 0);
         }, 0),
         tradeoffs: alt.tradeoffs,
-        score: alt.score
-      }))
+        score: alt.score,
+      })),
     };
   }
 
@@ -340,7 +340,7 @@ export class SmartSprintPlanner {
       keyInsights,
       criticalRecommendations,
       successProbability,
-      confidenceLevel
+      confidenceLevel,
     };
   }
 
@@ -358,7 +358,7 @@ export class SmartSprintPlanner {
         skills: ['React', 'TypeScript', 'CSS'],
         experienceLevel: 'senior' as const,
         availabilityHours: 35,
-        focusFactor: 0.8
+        focusFactor: 0.8,
       },
       {
         userId: 'user2',
@@ -367,8 +367,8 @@ export class SmartSprintPlanner {
         skills: ['Node.js', 'PostgreSQL', 'API Design'],
         experienceLevel: 'mid' as const,
         availabilityHours: 40,
-        focusFactor: 0.75
-      }
+        focusFactor: 0.75,
+      },
     ];
   }
 
@@ -385,7 +385,7 @@ export class SmartSprintPlanner {
         dependencies: [],
         estimatedHours: 16,
         businessValue: 85,
-        riskLevel: 'medium' as const
+        riskLevel: 'medium' as const,
       },
       {
         taskId: 'task2',
@@ -396,8 +396,8 @@ export class SmartSprintPlanner {
         dependencies: [],
         estimatedHours: 10,
         businessValue: 70,
-        riskLevel: 'low' as const
-      }
+        riskLevel: 'low' as const,
+      },
     ];
   }
 

@@ -7,8 +7,8 @@ import {
   DecomposedTask,
   EstimationSummary,
   TaskType,
-  ComplexityAnalysis
-} from '../services/task-analysis-service';
+  ComplexityAnalysis,
+} from '../services/task-analysis-service.js';
 
 // Zod schemas for validation
 const TaskSchema = z.object({
@@ -23,7 +23,7 @@ const TaskSchema = z.object({
   timeEstimate: z.number().optional(),
   timeSpent: z.number().optional(),
   dueDate: z.string().optional(),
-  dependencies: z.array(z.string()).optional()
+  dependencies: z.array(z.string()).optional(),
 });
 
 const DecompositionOptionsSchema = z.object({
@@ -33,7 +33,7 @@ const DecompositionOptionsSchema = z.object({
   includeDependencies: z.boolean().default(true).describe('Identify dependencies between subtasks'),
   templatePreference: z.enum(['auto', 'api-development', 'ui-feature', 'database-change', 'bug-fix', 'research-task', 'generic']).default('auto').describe('Preferred decomposition template'),
   complexityThreshold: z.number().min(1).max(10).default(6).describe('Minimum complexity score to trigger decomposition'),
-  effortThreshold: z.number().min(1).max(100).default(8).describe('Minimum effort (hours) to trigger decomposition')
+  effortThreshold: z.number().min(1).max(100).default(8).describe('Minimum effort (hours) to trigger decomposition'),
 });
 
 /**
@@ -58,7 +58,7 @@ export class TaskDecompositionEngine {
       includeDependencies: true,
       templatePreference: 'auto',
       complexityThreshold: 6,
-      effortThreshold: 8
+      effortThreshold: 8,
     }
   ): Promise<TaskDecomposition> {
     const startTime = Date.now();
@@ -71,7 +71,7 @@ export class TaskDecompositionEngine {
       // Convert to internal Task format
       const internalTask: Task = {
         ...validatedTask,
-        timeEstimate: validatedTask.timeEstimate ? validatedTask.timeEstimate * 1000 * 60 * 60 : undefined // Convert hours to milliseconds
+        timeEstimate: validatedTask.timeEstimate ? validatedTask.timeEstimate * 1000 * 60 * 60 : undefined, // Convert hours to milliseconds
       };
 
       // Analyze task complexity
@@ -137,7 +137,7 @@ export class TaskDecompositionEngine {
         recommendations,
         confidenceScore,
         templateUsed: this.getTemplateUsed(internalTask, validatedOptions),
-        processingTime: Date.now() - startTime
+        processingTime: Date.now() - startTime,
       };
 
       // Validate decomposition quality
@@ -168,7 +168,7 @@ export class TaskDecompositionEngine {
     const validatedTask = TaskSchema.parse(task);
     const internalTask: Task = {
       ...validatedTask,
-      timeEstimate: validatedTask.timeEstimate ? validatedTask.timeEstimate * 1000 * 60 * 60 : undefined
+      timeEstimate: validatedTask.timeEstimate ? validatedTask.timeEstimate * 1000 * 60 * 60 : undefined,
     };
 
     const complexityAnalysis = this.taskAnalysisService.analyzeTaskComplexity(internalTask);
@@ -179,7 +179,7 @@ export class TaskDecompositionEngine {
       includeDependencies: true,
       templatePreference: 'auto',
       complexityThreshold: 5,
-      effortThreshold: 8
+      effortThreshold: 8,
     });
 
     const recommendations = [];
@@ -207,7 +207,7 @@ export class TaskDecompositionEngine {
       complexity: complexityAnalysis,
       shouldDecompose,
       reasoning: complexityAnalysis.reasoning,
-      recommendations
+      recommendations,
     };
   }
 
@@ -220,32 +220,32 @@ export class TaskDecompositionEngine {
         description: 'Template for API and service development tasks',
         pattern: 'api|endpoint|service|rest|graphql',
         subtaskCount: 7,
-        estimatedEffort: '14.5 hours'
+        estimatedEffort: '14.5 hours',
       },
       'ui-feature': {
         description: 'Template for user interface and frontend development',
         pattern: 'ui|interface|frontend|component|react|vue|angular',
         subtaskCount: 7,
-        estimatedEffort: '13 hours'
+        estimatedEffort: '13 hours',
       },
       'database-change': {
         description: 'Template for database schema changes and migrations',
         pattern: 'database|schema|migration|sql|table|index',
         subtaskCount: 7,
-        estimatedEffort: '12 hours'
+        estimatedEffort: '12 hours',
       },
       'bug-fix': {
         description: 'Template for bug fixes and issue resolution',
         pattern: 'bug|fix|issue|error|defect',
         subtaskCount: 5,
-        estimatedEffort: '6.5 hours'
+        estimatedEffort: '6.5 hours',
       },
       'research-task': {
         description: 'Template for research and investigation tasks',
         pattern: 'research|investigate|analyze|study|explore',
         subtaskCount: 5,
-        estimatedEffort: '9 hours'
-      }
+        estimatedEffort: '9 hours',
+      },
     };
   }
 
@@ -293,15 +293,15 @@ export class TaskDecompositionEngine {
         totalEstimatedEffort: task.timeEstimate ? task.timeEstimate / (1000 * 60 * 60) : 0,
         effortBreakdown: { [task.name]: task.timeEstimate ? task.timeEstimate / (1000 * 60 * 60) : 0 },
         riskFactors: [],
-        confidenceLevel: 'high'
+        confidenceLevel: 'high',
       },
       recommendations: [
         '✅ Task is appropriately sized and does not require decomposition',
         '📝 Ensure clear acceptance criteria are defined before starting work',
-        '🎯 Task can be assigned and worked on as a single unit'
+        '🎯 Task can be assigned and worked on as a single unit',
       ],
       confidenceScore: 0.9,
-      processingTime: Date.now() - startTime
+      processingTime: Date.now() - startTime,
     };
   }
 
@@ -350,7 +350,7 @@ export class TaskDecompositionEngine {
       effortBreakdown,
       riskFactors,
       confidenceLevel,
-      comparisonToOriginal
+      comparisonToOriginal,
     };
   }
 
@@ -473,7 +473,7 @@ export class TaskDecompositionEngine {
       /ui|interface|frontend|component/i,
       /database|schema|migration/i,
       /bug|fix|issue|error/i,
-      /research|investigate|analyze/i
+      /research|investigate|analyze/i,
     ];
     
     return patterns.some(pattern => pattern.test(text));
@@ -504,7 +504,7 @@ export const taskDecompositionTool = {
   description: 'Intelligently decompose a complex task into smaller, manageable subtasks with AI-powered analysis, effort estimation, and dependency identification',
   inputSchema: z.object({
     task: TaskSchema.describe('The task to decompose'),
-    options: DecompositionOptionsSchema.optional().describe('Decomposition options and preferences')
+    options: DecompositionOptionsSchema.optional().describe('Decomposition options and preferences'),
   }),
   handler: async (params: { task: z.infer<typeof TaskSchema>, options?: z.infer<typeof DecompositionOptionsSchema> }) => {
     const engine = new TaskDecompositionEngine();
@@ -513,17 +513,17 @@ export const taskDecompositionTool = {
     return {
       content: [{
         type: 'text',
-        text: JSON.stringify(result, null, 2)
-      }]
+        text: JSON.stringify(result, null, 2),
+      }],
     };
-  }
+  },
 };
 
 export const complexityAnalysisTool = {
   name: 'analyze_task_complexity',
   description: 'Analyze task complexity across multiple dimensions to determine if decomposition is needed',
   inputSchema: z.object({
-    task: TaskSchema.describe('The task to analyze')
+    task: TaskSchema.describe('The task to analyze'),
   }),
   handler: async (params: { task: z.infer<typeof TaskSchema> }) => {
     const engine = new TaskDecompositionEngine();
@@ -532,10 +532,10 @@ export const complexityAnalysisTool = {
     return {
       content: [{
         type: 'text',
-        text: JSON.stringify(result, null, 2)
-      }]
+        text: JSON.stringify(result, null, 2),
+      }],
     };
-  }
+  },
 };
 
 export const decompositionTemplatesTools = {
@@ -549,8 +549,8 @@ export const decompositionTemplatesTools = {
     return {
       content: [{
         type: 'text',
-        text: JSON.stringify(templates, null, 2)
-      }]
+        text: JSON.stringify(templates, null, 2),
+      }],
     };
-  }
+  },
 };

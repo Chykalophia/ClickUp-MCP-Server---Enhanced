@@ -10,7 +10,7 @@ import {
   type UpdateWebhookRequest,
   type WebhookFilter,
   type ValidateWebhookSignatureRequest,
-  type ProcessWebhookRequest
+  type ProcessWebhookRequest,
 } from '../schemas/webhook-schemas.js';
 
 // Webhook object as returned by the ClickUp API
@@ -56,7 +56,7 @@ export class WebhooksEnhancedClient extends ClickUpClient {
   async createWebhook(request: CreateWebhookRequest): Promise<WebhookResponse> {
     const body: Record<string, any> = {
       endpoint: request.endpoint,
-      events: request.events
+      events: request.events,
     };
     if (request.space_id !== undefined) body.space_id = request.space_id;
     if (request.folder_id !== undefined) body.folder_id = request.folder_id;
@@ -117,7 +117,7 @@ export class WebhooksEnhancedClient extends ClickUpClient {
       events: request.events ?? current.events,
       // Preserve the webhook's effective state on partial updates: a suspended
       // webhook must only be reactivated when the caller explicitly asks.
-      status: request.status ?? (current.health?.status === 'suspended' ? 'inactive' : 'active')
+      status: request.status ?? (current.health?.status === 'suspended' ? 'inactive' : 'active'),
     };
 
     const response = await this.put<WebhookResponse>(`/webhook/${request.webhook_id}`, updateData);
@@ -179,7 +179,7 @@ export class WebhooksEnhancedClient extends ClickUpClient {
       const isValidSignature = this.validateWebhookSignature({
         payload: request.body,
         signature: request.signature,
-        secret: request.secret
+        secret: request.secret,
       });
 
       if (!isValidSignature) {
@@ -187,7 +187,7 @@ export class WebhooksEnhancedClient extends ClickUpClient {
           valid: false,
           webhookId: '',
           event: '',
-          historyItems: []
+          historyItems: [],
         };
       }
     }
@@ -199,7 +199,7 @@ export class WebhooksEnhancedClient extends ClickUpClient {
       webhookId: payload.webhook_id,
       event: payload.event,
       taskId: payload.task_id,
-      historyItems: payload.history_items ?? []
+      historyItems: payload.history_items ?? [],
     };
   }
 }

@@ -48,13 +48,39 @@ module.exports = {
     'no-self-compare': 'error',
     'no-template-curly-in-string': 'error',
     'no-unreachable': 'error',
-    'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    // The base rule is not TypeScript-aware: it reports parameter names
+    // declared in type aliases and interfaces as unused variables, and it
+    // cannot see a binding that is only used in a type position. The
+    // @typescript-eslint version understands both, and still catches genuinely
+    // unused imports and locals.
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     
     // Style consistency
-    'comma-dangle': ['error', 'never'],
+    //
+    // Prettier owns layout in this repo (`npm run format`, and core's `version`
+    // lifecycle hook runs it on every release). These rules must therefore
+    // agree with .prettierrc or the two tools fight: the previous
+    // `comma-dangle: 'never'` contradicted prettier's `trailingComma: 'es5'`,
+    // which alone accounted for 928 lint errors that `npm run format` would
+    // immediately reintroduce.
+    //
+    // This object form mirrors `trailingComma: 'es5'` exactly — trailing commas
+    // in multiline arrays/objects/imports/exports, never in function
+    // parentheses.
+    'comma-dangle': ['error', {
+      arrays: 'always-multiline',
+      objects: 'always-multiline',
+      imports: 'always-multiline',
+      exports: 'always-multiline',
+      functions: 'never'
+    }],
     'quotes': ['error', 'single', { avoidEscape: true }],
     'semi': ['error', 'always'],
-    'indent': ['error', 2],
+    // Indentation is prettier's job. ESLint's `indent` rule cannot be
+    // reconciled with prettier's output (it disagreed on 495 already-formatted
+    // lines, mostly method-chain and ternary continuations).
+    'indent': 'off',
     'max-len': ['warn', { code: 120, ignoreUrls: true }],
     
     // Best practices
@@ -81,6 +107,7 @@ module.exports = {
       },
       rules: {
         'no-unused-vars': 'off',
+        '@typescript-eslint/no-unused-vars': 'off',
         'max-len': 'off'
       }
     },

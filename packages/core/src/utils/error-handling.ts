@@ -571,7 +571,7 @@ export const performHealthCheck = async (): Promise<{
         : envValidation.errors.join(', '),
       duration: Date.now() - startTime,
     };
-  } catch (error) {
+  } catch {
     checks.environment = {
       status: 'fail',
       message: 'Failed to validate environment',

@@ -21,19 +21,19 @@ export const TaskSchema = z.object({
   dependencies: z.array(z.string()).default([]),
   estimatedHours: z.number().min(0),
   businessValue: z.number().min(0).max(100),
-  riskLevel: z.enum(['low', 'medium', 'high']).default('medium')
+  riskLevel: z.enum(['low', 'medium', 'high']).default('medium'),
 });
 
 export const OptimizationConstraintSchema = z.object({
   type: z.enum(['capacity', 'dependency', 'skill', 'priority', 'risk']),
   weight: z.number().min(0).max(1).default(1),
-  description: z.string()
+  description: z.string(),
 });
 
 export const OptimizationObjectiveSchema = z.object({
   maximize: z.array(z.enum(['business_value', 'story_points', 'task_count'])).default(['business_value']),
   minimize: z.array(z.enum(['risk', 'complexity', 'dependencies'])).default(['risk']),
-  weights: z.record(z.string(), z.number().min(0).max(1)).default({})
+  weights: z.record(z.string(), z.number().min(0).max(1)).default({}),
 });
 
 export const SprintOptimizationInputSchema = z.object({
@@ -42,7 +42,7 @@ export const SprintOptimizationInputSchema = z.object({
   availableTasks: z.array(TaskSchema),
   constraints: z.array(OptimizationConstraintSchema).default([]),
   objectives: OptimizationObjectiveSchema.default({}),
-  riskTolerance: z.enum(['conservative', 'balanced', 'aggressive']).default('balanced')
+  riskTolerance: z.enum(['conservative', 'balanced', 'aggressive']).default('balanced'),
 });
 
 export const OptimizedSprintSchema = z.object({
@@ -56,8 +56,8 @@ export const OptimizedSprintSchema = z.object({
     name: z.string(),
     tasks: z.array(z.string()),
     score: z.number(),
-    tradeoffs: z.string()
-  }))
+    tradeoffs: z.string(),
+  })),
 });
 
 export type SprintOptimizationInput = z.infer<typeof SprintOptimizationInputSchema>;
@@ -72,13 +72,13 @@ export class SprintOptimizationService {
     'critical': 1.0,
     'high': 0.8,
     'medium': 0.6,
-    'low': 0.4
+    'low': 0.4,
   };
 
   private readonly RISK_WEIGHTS = {
     'low': 0.2,
     'medium': 0.5,
-    'high': 0.8
+    'high': 0.8,
   };
 
   /**
@@ -103,7 +103,7 @@ export class SprintOptimizationService {
         score: this.calculateCombinationScore(combination, validatedInput.objectives),
         storyPoints: combination.reduce((sum, task) => sum + task.storyPoints, 0),
         businessValue: combination.reduce((sum, task) => sum + task.businessValue, 0),
-        riskScore: this.calculateRiskScore(combination)
+        riskScore: this.calculateRiskScore(combination),
       }));
       
       // Select optimal combination
@@ -121,7 +121,7 @@ export class SprintOptimizationService {
         capacityUtilization: optimal.storyPoints / validatedInput.sprintCapacity,
         riskScore: optimal.riskScore,
         optimizationScore: optimal.score,
-        alternativeOptions: alternatives
+        alternativeOptions: alternatives,
       };
       
     } catch (error) {
@@ -177,7 +177,7 @@ export class SprintOptimizationService {
           const withTask = {
             tasks: [...dp[i - 1][w - taskPoints].tasks, task],
             points: dp[i - 1][w - taskPoints].points + task.storyPoints,
-            value: dp[i - 1][w - taskPoints].value + task.businessValue
+            value: dp[i - 1][w - taskPoints].value + task.businessValue,
           };
           
           if (withTask.value > dp[i][w].value) {
@@ -260,7 +260,7 @@ export class SprintOptimizationService {
           name: `Alternative ${index + 1}`,
           tasks: combo.tasks.map((task: Task) => task.taskId),
           score: Math.round(combo.score),
-          tradeoffs: tradeoffs || 'Similar risk profile'
+          tradeoffs: tradeoffs || 'Similar risk profile',
         };
       });
     

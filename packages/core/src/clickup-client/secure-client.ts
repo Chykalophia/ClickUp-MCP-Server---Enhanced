@@ -342,7 +342,7 @@ export class SecureClickUpClient {
         latency,
         timestamp: new Date().toISOString(),
       };
-    } catch (error) {
+    } catch {
       return {
         status: 'unhealthy',
         latency: Date.now() - startTime,

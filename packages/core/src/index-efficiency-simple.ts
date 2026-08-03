@@ -30,6 +30,7 @@ import { setupListResources } from './resources/list-resources.js';
 
 // Import efficiency utilities
 import { createClickUpClient } from './clickup-client/index.js';
+import { VERSION } from './version.js';
 
 /**
  * Enhanced ClickUp MCP Server with Basic Efficiency Tools
@@ -44,7 +45,7 @@ class EfficiencyEnhancedClickUpServer {
   constructor() {
     this.server = new McpServer({
       name: 'clickup-mcp-server-efficiency',
-      version: '3.4.0',
+      version: VERSION,
     });
 
     this.client = createClickUpClient();
@@ -309,7 +310,7 @@ ${overview.spaces
 ### 🚀 Quick Actions
 ${
   overview.chat_channels.length > 0
-    ? `**Post to chat**: Use \`create_chat_view_comment\` with any of the chat channel IDs above.`
+    ? '**Post to chat**: Use `create_chat_view_comment` with any of the chat channel IDs above.'
     : '**No chat channels available for posting.**'
 }
 

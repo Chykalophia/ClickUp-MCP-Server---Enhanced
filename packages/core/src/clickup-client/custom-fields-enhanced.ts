@@ -546,7 +546,7 @@ export class EnhancedCustomFieldsClient {
         field_name: customField.name,
         field_type: customField.type,
         value: customField.value,
-        type_config: customField.type_config
+        type_config: customField.type_config,
       };
     } catch (error) {
       console.error('Error getting custom field value:', error instanceof Error ? error.message : error);
@@ -579,7 +579,7 @@ export class EnhancedCustomFieldsClient {
           value: field.value,
           type_config: field.type_config,
           required: field.required,
-          hide_from_guests: field.hide_from_guests
+          hide_from_guests: field.hide_from_guests,
         })) || []
       );
     } catch (error) {
@@ -732,7 +732,7 @@ export class EnhancedCustomFieldsClient {
     try {
       const url = new URL(string);
       return !!url;
-    } catch (_) {
+    } catch {
       return false;
     }
   }

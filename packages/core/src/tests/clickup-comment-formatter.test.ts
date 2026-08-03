@@ -12,7 +12,7 @@ import {
   combineCommentBlocks,
   processCommentBlocks,
   ClickUpCommentBlock,
-  ClickUpCommentFormat
+  ClickUpCommentFormat,
 } from '../utils/clickup-comment-formatter';
 
 describe('ClickUp Comment Formatter', () => {
@@ -24,9 +24,9 @@ describe('ClickUp Comment Formatter', () => {
         comment: [
           {
             text: 'Hello world',
-            attributes: {}
-          }
-        ]
+            attributes: {},
+          },
+        ],
       });
     });
 
@@ -37,9 +37,9 @@ describe('ClickUp Comment Formatter', () => {
         comment: [
           {
             text: '',
-            attributes: {}
-          }
-        ]
+            attributes: {},
+          },
+        ],
       });
     });
   });
@@ -52,9 +52,9 @@ describe('ClickUp Comment Formatter', () => {
         comment: [
           {
             text: 'Bold text',
-            attributes: { bold: true }
-          }
-        ]
+            attributes: { bold: true },
+          },
+        ],
       });
     });
   });
@@ -67,9 +67,9 @@ describe('ClickUp Comment Formatter', () => {
         comment: [
           {
             text: 'Italic text',
-            attributes: { italic: true }
-          }
-        ]
+            attributes: { italic: true },
+          },
+        ],
       });
     });
   });
@@ -82,9 +82,9 @@ describe('ClickUp Comment Formatter', () => {
         comment: [
           {
             text: 'const x = 1;',
-            attributes: { code: true }
-          }
-        ]
+            attributes: { code: true },
+          },
+        ],
       });
     });
   });
@@ -97,9 +97,9 @@ describe('ClickUp Comment Formatter', () => {
         comment: [
           {
             text: 'ClickUp',
-            attributes: { link: { url: 'https://clickup.com' } }
-          }
-        ]
+            attributes: { link: { url: 'https://clickup.com' } },
+          },
+        ],
       });
     });
   });
@@ -110,7 +110,7 @@ describe('ClickUp Comment Formatter', () => {
 
       expect(result.comment).toContainEqual({
         text: 'bold text',
-        attributes: { bold: true }
+        attributes: { bold: true },
       });
     });
 
@@ -119,7 +119,7 @@ describe('ClickUp Comment Formatter', () => {
 
       expect(result.comment).toContainEqual({
         text: 'italic text',
-        attributes: { italic: true }
+        attributes: { italic: true },
       });
     });
 
@@ -128,7 +128,7 @@ describe('ClickUp Comment Formatter', () => {
 
       expect(result.comment).toContainEqual({
         text: 'underlined text',
-        attributes: { underline: true }
+        attributes: { underline: true },
       });
     });
 
@@ -137,7 +137,7 @@ describe('ClickUp Comment Formatter', () => {
 
       expect(result.comment).toContainEqual({
         text: 'strikethrough text',
-        attributes: { strikethrough: true }
+        attributes: { strikethrough: true },
       });
     });
 
@@ -146,7 +146,7 @@ describe('ClickUp Comment Formatter', () => {
 
       expect(result.comment).toContainEqual({
         text: 'code text',
-        attributes: { code: true }
+        attributes: { code: true },
       });
     });
 
@@ -155,7 +155,7 @@ describe('ClickUp Comment Formatter', () => {
 
       expect(result.comment).toContainEqual({
         text: 'ClickUp',
-        attributes: { link: { url: 'https://clickup.com' } }
+        attributes: { link: { url: 'https://clickup.com' } },
       });
     });
 
@@ -167,7 +167,7 @@ describe('ClickUp Comment Formatter', () => {
         { text: 'bold', attributes: { bold: true } },
         { text: ' and ', attributes: {} },
         { text: 'italic', attributes: { italic: true } },
-        { text: ' text', attributes: {} }
+        { text: ' text', attributes: {} },
       ]);
     });
 
@@ -178,9 +178,9 @@ describe('ClickUp Comment Formatter', () => {
         comment: [
           {
             text: 'Just plain text',
-            attributes: {}
-          }
-        ]
+            attributes: {},
+          },
+        ],
       });
     });
 
@@ -191,9 +191,9 @@ describe('ClickUp Comment Formatter', () => {
         comment: [
           {
             text: '',
-            attributes: {}
-          }
-        ]
+            attributes: {},
+          },
+        ],
       });
     });
   });
@@ -204,9 +204,9 @@ describe('ClickUp Comment Formatter', () => {
         comment: [
           {
             text: 'bold text',
-            attributes: { bold: true }
-          }
-        ]
+            attributes: { bold: true },
+          },
+        ],
       };
 
       const result = clickUpCommentToMarkdown(input);
@@ -218,9 +218,9 @@ describe('ClickUp Comment Formatter', () => {
         comment: [
           {
             text: 'italic text',
-            attributes: { italic: true }
-          }
-        ]
+            attributes: { italic: true },
+          },
+        ],
       };
 
       const result = clickUpCommentToMarkdown(input);
@@ -232,9 +232,9 @@ describe('ClickUp Comment Formatter', () => {
         comment: [
           {
             text: 'underlined text',
-            attributes: { underline: true }
-          }
-        ]
+            attributes: { underline: true },
+          },
+        ],
       };
 
       const result = clickUpCommentToMarkdown(input);
@@ -246,9 +246,9 @@ describe('ClickUp Comment Formatter', () => {
         comment: [
           {
             text: 'strikethrough text',
-            attributes: { strikethrough: true }
-          }
-        ]
+            attributes: { strikethrough: true },
+          },
+        ],
       };
 
       const result = clickUpCommentToMarkdown(input);
@@ -260,9 +260,9 @@ describe('ClickUp Comment Formatter', () => {
         comment: [
           {
             text: 'code text',
-            attributes: { code: true }
-          }
-        ]
+            attributes: { code: true },
+          },
+        ],
       };
 
       const result = clickUpCommentToMarkdown(input);
@@ -274,9 +274,9 @@ describe('ClickUp Comment Formatter', () => {
         comment: [
           {
             text: 'ClickUp',
-            attributes: { link: { url: 'https://clickup.com' } }
-          }
-        ]
+            attributes: { link: { url: 'https://clickup.com' } },
+          },
+        ],
       };
 
       const result = clickUpCommentToMarkdown(input);
@@ -290,8 +290,8 @@ describe('ClickUp Comment Formatter', () => {
           { text: 'bold', attributes: { bold: true } },
           { text: ' and ', attributes: {} },
           { text: 'italic', attributes: { italic: true } },
-          { text: ' text', attributes: {} }
-        ]
+          { text: ' text', attributes: {} },
+        ],
       };
 
       const result = clickUpCommentToMarkdown(input);
@@ -303,9 +303,9 @@ describe('ClickUp Comment Formatter', () => {
         comment: [
           {
             text: 'Just plain text',
-            attributes: {}
-          }
-        ]
+            attributes: {},
+          },
+        ],
       };
 
       const result = clickUpCommentToMarkdown(input);
@@ -324,7 +324,7 @@ describe('ClickUp Comment Formatter', () => {
 
       expect(result.comment).toContainEqual({
         text: 'Header 1',
-        attributes: { bold: true }
+        attributes: { bold: true },
       });
     });
 
@@ -346,7 +346,7 @@ describe('ClickUp Comment Formatter', () => {
 
       expect(result.comment).toContainEqual({
         text: 'const x = 1;\nconsole.log(x);',
-        attributes: { code: true }
+        attributes: { code: true },
       });
     });
 
@@ -369,25 +369,25 @@ Visit [ClickUp](https://clickup.com) for more info.`;
       // Should contain header
       expect(result.comment).toContainEqual({
         text: 'Status Update',
-        attributes: { bold: true }
+        attributes: { bold: true },
       });
 
       // Should contain formatted text
       expect(result.comment).toContainEqual({
         text: 'Authentication',
-        attributes: { bold: true }
+        attributes: { bold: true },
       });
 
       // Should contain code block
       expect(result.comment).toContainEqual({
         text: "const user = { name: 'John' };",
-        attributes: { code: true }
+        attributes: { code: true },
       });
 
       // Should contain link
       expect(result.comment).toContainEqual({
         text: 'ClickUp',
-        attributes: { link: { url: 'https://clickup.com' } }
+        attributes: { link: { url: 'https://clickup.com' } },
       });
     });
   });
@@ -400,9 +400,9 @@ Visit [ClickUp](https://clickup.com) for more info.`;
         comment: [
           {
             text: 'Hello world',
-            attributes: {}
-          }
-        ]
+            attributes: {},
+          },
+        ],
       });
     });
 
@@ -411,17 +411,17 @@ Visit [ClickUp](https://clickup.com) for more info.`;
 
       expect(result.comment).toContainEqual({
         text: 'Bold',
-        attributes: { bold: true }
+        attributes: { bold: true },
       });
       expect(result.comment).toEqual([
         {
           text: 'Bold',
-          attributes: { bold: true }
+          attributes: { bold: true },
         },
         {
           text: ' text',
-          attributes: {}
-        }
+          attributes: {},
+        },
       ]);
     });
 
@@ -432,9 +432,9 @@ Visit [ClickUp](https://clickup.com) for more info.`;
         comment: [
           {
             text: '',
-            attributes: {}
-          }
-        ]
+            attributes: {},
+          },
+        ],
       });
     });
   });
@@ -444,13 +444,13 @@ Visit [ClickUp](https://clickup.com) for more info.`;
       const blocks: ClickUpCommentBlock[] = [
         { text: 'Hello ', attributes: {} },
         { text: 'world', attributes: { bold: true } },
-        { text: '!', attributes: {} }
+        { text: '!', attributes: {} },
       ];
 
       const result = combineCommentBlocks(blocks);
 
       expect(result).toEqual({
-        comment: blocks
+        comment: blocks,
       });
     });
   });
@@ -479,7 +479,7 @@ Visit [ClickUp](https://clickup.com) for more info.`;
       const blocks: ClickUpCommentBlock[] = [
         { text: 'Hey ' },
         { type: 'tag', text: '@Peter Krzyzek' },
-        { text: ' quick check' }
+        { text: ' quick check' },
       ];
 
       const processed = processCommentBlocks(blocks);
@@ -492,7 +492,7 @@ Visit [ClickUp](https://clickup.com) for more info.`;
       const blocks: ClickUpCommentBlock[] = [
         { text: 'I need someone to look at this. Maybe ' },
         { type: 'tag', user: { id: 38366580 } },
-        { text: ' — thanks' }
+        { text: ' — thanks' },
       ];
 
       const processed = processCommentBlocks(blocks);
@@ -505,7 +505,7 @@ Visit [ClickUp](https://clickup.com) for more info.`;
 
     it('preserves combined tag block ({type, text, user}) without injecting attributes', () => {
       const blocks: ClickUpCommentBlock[] = [
-        { type: 'tag', text: '@Peter Krzyzek', user: { id: 38366580 } }
+        { type: 'tag', text: '@Peter Krzyzek', user: { id: 38366580 } },
       ];
 
       const processed = processCommentBlocks(blocks);
@@ -513,7 +513,7 @@ Visit [ClickUp](https://clickup.com) for more info.`;
       expect(processed[0]).toEqual({
         type: 'tag',
         text: '@Peter Krzyzek',
-        user: { id: 38366580 }
+        user: { id: 38366580 },
       });
       expect(processed[0]).not.toHaveProperty('attributes');
     });
@@ -521,14 +521,14 @@ Visit [ClickUp](https://clickup.com) for more info.`;
     it('preserves emoticon blocks without injecting attributes', () => {
       const blocks: ClickUpCommentBlock[] = [
         { text: 'Done ' },
-        { type: 'emoticon', emoticon: { code: '1f389' } }
+        { type: 'emoticon', emoticon: { code: '1f389' } },
       ];
 
       const processed = processCommentBlocks(blocks);
 
       expect(processed[1]).toEqual({
         type: 'emoticon',
-        emoticon: { code: '1f389' }
+        emoticon: { code: '1f389' },
       });
       expect(processed[1]).not.toHaveProperty('attributes');
     });
@@ -542,7 +542,7 @@ Visit [ClickUp](https://clickup.com) for more info.`;
         { text: 'This is ' },
         { text: 'important', attributes: { bold: true } },
         { text: ' — link ' },
-        { text: 'here', attributes: { link: { url: 'https://example.com' } } }
+        { text: 'here', attributes: { link: { url: 'https://example.com' } } },
       ];
 
       const processed = processCommentBlocks(blocks);
@@ -550,13 +550,13 @@ Visit [ClickUp](https://clickup.com) for more info.`;
       expect(processed[1]).toMatchObject({ text: 'important', attributes: { bold: true } });
       expect(processed[3]).toMatchObject({
         text: 'here',
-        attributes: { link: { url: 'https://example.com' } }
+        attributes: { link: { url: 'https://example.com' } },
       });
     });
 
     it('passes through unknown forward-compat keys without dropping them', () => {
       const blocks: ClickUpCommentBlock[] = [
-        { text: 'hi', someFutureKey: { foo: 'bar' } } as ClickUpCommentBlock
+        { text: 'hi', someFutureKey: { foo: 'bar' } } as ClickUpCommentBlock,
       ];
 
       const processed = processCommentBlocks(blocks);

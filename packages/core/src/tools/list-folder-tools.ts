@@ -24,7 +24,7 @@ export function setupListFolderTools(server: McpServer): void {
       archived: z
         .boolean()
         .optional()
-        .describe('Whether to return archived lists (defaults to false)')
+        .describe('Whether to return archived lists (defaults to false)'),
     },
     async ({ container_type, container_id, archived }) => {
       try {
@@ -37,7 +37,7 @@ export function setupListFolderTools(server: McpServer): void {
           // the lists embedded in the space's folders to cover the whole space.
           const [folderless, folderResult] = await Promise.all([
             listsClient.getListsFromSpace(container_id, params),
-            foldersClient.getFoldersFromSpace(container_id, params)
+            foldersClient.getFoldersFromSpace(container_id, params),
           ]);
           const listsInFolders = folderResult.folders.flatMap(
             folder => (folder as { lists?: List[] }).lists ?? []
@@ -48,7 +48,7 @@ export function setupListFolderTools(server: McpServer): void {
         }
 
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('getting lists', error);
@@ -64,14 +64,14 @@ export function setupListFolderTools(server: McpServer): void {
       archived: z
         .boolean()
         .optional()
-        .describe('Whether to return archived folders (defaults to false)')
+        .describe('Whether to return archived folders (defaults to false)'),
     },
     async ({ space_id, archived }) => {
       try {
         const params = archived === undefined ? undefined : { archived };
         const result = await foldersClient.getFoldersFromSpace(space_id, params);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('getting folders', error);
@@ -83,13 +83,13 @@ export function setupListFolderTools(server: McpServer): void {
     'clickup_get_folder',
     'Get details about a specific ClickUp folder including its name, statuses, and lists.',
     {
-      folder_id: idSchema().describe('The ID of the folder to get')
+      folder_id: idSchema().describe('The ID of the folder to get'),
     },
     async ({ folder_id }) => {
       try {
         const result = await foldersClient.getFolder(folder_id);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('getting folder', error);
@@ -102,13 +102,13 @@ export function setupListFolderTools(server: McpServer): void {
     'Create a new folder in a ClickUp space with the specified name.',
     {
       space_id: idSchema().describe('The ID of the space to create the folder in'),
-      name: z.string().describe('The name of the folder')
+      name: z.string().describe('The name of the folder'),
     },
     async ({ space_id, name }) => {
       try {
         const result = await foldersClient.createFolder(space_id, { name });
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('creating folder', error);
@@ -121,13 +121,13 @@ export function setupListFolderTools(server: McpServer): void {
     "Update an existing ClickUp folder's name.",
     {
       folder_id: idSchema().describe('The ID of the folder to update'),
-      name: z.string().describe('The new name of the folder')
+      name: z.string().describe('The new name of the folder'),
     },
     async ({ folder_id, name }) => {
       try {
         const result = await foldersClient.updateFolder(folder_id, { name });
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('updating folder', error);
@@ -139,13 +139,13 @@ export function setupListFolderTools(server: McpServer): void {
     'clickup_delete_folder',
     'Delete a folder from ClickUp. Removes the folder and its contents.',
     {
-      folder_id: idSchema().describe('The ID of the folder to delete')
+      folder_id: idSchema().describe('The ID of the folder to delete'),
     },
     async ({ folder_id }) => {
       try {
         const result = await foldersClient.deleteFolder(folder_id);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('deleting folder', error);
@@ -161,14 +161,14 @@ export function setupListFolderTools(server: McpServer): void {
       archived: z
         .boolean()
         .optional()
-        .describe('Whether to return archived lists (defaults to false)')
+        .describe('Whether to return archived lists (defaults to false)'),
     },
     async ({ space_id, archived }) => {
       try {
         const params = archived === undefined ? undefined : { archived };
         const result = await listsClient.getListsFromSpace(space_id, params);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('getting folderless lists', error);
@@ -202,7 +202,7 @@ export function setupListFolderTools(server: McpServer): void {
         .optional()
         .describe('The priority of the list (1 = Urgent, 2 = High, 3 = Normal, 4 = Low)'),
       assignee: z.number().int().optional().describe('The user ID to assign the list to'),
-      status: z.string().optional().describe('The status of the list')
+      status: z.string().optional().describe('The status of the list'),
     },
     async ({ container_type, container_id, name, content, due_date, due_date_time, priority, assignee, status }) => {
       try {
@@ -217,7 +217,7 @@ export function setupListFolderTools(server: McpServer): void {
         }
 
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('creating list', error);
@@ -248,7 +248,7 @@ export function setupListFolderTools(server: McpServer): void {
         .optional()
         .describe('The priority of the list (1 = Urgent, 2 = High, 3 = Normal, 4 = Low)'),
       assignee: z.number().int().optional().describe('The user ID to assign the list to'),
-      status: z.string().optional().describe('The status of the list')
+      status: z.string().optional().describe('The status of the list'),
     },
     async ({ space_id, name, content, due_date, due_date_time, priority, assignee, status }) => {
       try {
@@ -259,10 +259,10 @@ export function setupListFolderTools(server: McpServer): void {
           due_date_time,
           priority,
           assignee,
-          status
+          status,
         });
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('creating folderless list', error);
@@ -274,13 +274,13 @@ export function setupListFolderTools(server: McpServer): void {
     'clickup_get_list',
     'Get details about a specific ClickUp list including its name and content.',
     {
-      list_id: idSchema().describe('The ID of the list to get')
+      list_id: idSchema().describe('The ID of the list to get'),
     },
     async ({ list_id }) => {
       try {
         const result = await listsClient.getList(list_id);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('getting list', error);
@@ -319,7 +319,7 @@ export function setupListFolderTools(server: McpServer): void {
       unset_status: z
         .boolean()
         .optional()
-        .describe('Set to true to remove the list status')
+        .describe('Set to true to remove the list status'),
     },
     async ({ list_id, name, content, due_date, due_date_time, priority, assignee, unset_status }) => {
       try {
@@ -329,7 +329,7 @@ export function setupListFolderTools(server: McpServer): void {
         }
         const result = await listsClient.updateList(list_id, params);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('updating list', error);
@@ -341,13 +341,13 @@ export function setupListFolderTools(server: McpServer): void {
     'clickup_get_list_members',
     'Get the members (users) who have access to a specific ClickUp list.',
     {
-      list_id: idSchema().describe('The ID of the list to get members from')
+      list_id: idSchema().describe('The ID of the list to get members from'),
     },
     async ({ list_id }) => {
       try {
         const result = await listsClient.getListMembers(list_id);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('getting list members', error);
@@ -364,7 +364,7 @@ export function setupListFolderTools(server: McpServer): void {
         .boolean()
         .describe(
           'Confirmation that you want to permanently delete this list and all its tasks (must be true)'
-        )
+        ),
     },
     async ({ list_id, confirm_deletion }) => {
       try {
@@ -373,10 +373,10 @@ export function setupListFolderTools(server: McpServer): void {
             content: [
               {
                 type: 'text',
-                text: '❌ List deletion cancelled. You must set confirm_deletion to true to proceed with this destructive operation.'
-              }
+                text: '❌ List deletion cancelled. You must set confirm_deletion to true to proceed with this destructive operation.',
+              },
             ],
-            isError: true
+            isError: true,
           };
         }
 
@@ -390,9 +390,9 @@ export function setupListFolderTools(server: McpServer): void {
               type: 'text',
               text:
                 `✅ List "${listDetails.name}" (ID: ${list_id}) has been permanently deleted.\n\n` +
-                '⚠️ This action cannot be undone. The list and all its tasks have been removed from ClickUp.'
-            }
-          ]
+                '⚠️ This action cannot be undone. The list and all its tasks have been removed from ClickUp.',
+            },
+          ],
         };
       } catch (error: unknown) {
         return mcpError('deleting list', error);
@@ -410,16 +410,16 @@ export function setupListFolderTools(server: McpServer): void {
       return_immediately: z
         .boolean()
         .optional()
-        .describe('Return immediately with the future List ID instead of waiting for the template to finish')
+        .describe('Return immediately with the future List ID instead of waiting for the template to finish'),
     },
     async ({ folder_id, template_id, name, return_immediately }) => {
       try {
         const result = await listsClient.createListFromTemplateInFolder(folder_id, template_id, {
           name,
-          ...(return_immediately === undefined ? {} : { options: { return_immediately } })
+          ...(return_immediately === undefined ? {} : { options: { return_immediately } }),
         });
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('creating list from template in folder', error);
@@ -437,16 +437,16 @@ export function setupListFolderTools(server: McpServer): void {
       return_immediately: z
         .boolean()
         .optional()
-        .describe('Return immediately with the future List ID instead of waiting for the template to finish')
+        .describe('Return immediately with the future List ID instead of waiting for the template to finish'),
     },
     async ({ space_id, template_id, name, return_immediately }) => {
       try {
         const result = await listsClient.createListFromTemplateInSpace(space_id, template_id, {
           name,
-          ...(return_immediately === undefined ? {} : { options: { return_immediately } })
+          ...(return_immediately === undefined ? {} : { options: { return_immediately } }),
         });
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('creating list from template in space', error);
@@ -468,16 +468,16 @@ export function setupListFolderTools(server: McpServer): void {
         .optional()
         .describe(
           'Return immediately with the folder ID instead of waiting for all template assets to be created'
-        )
+        ),
     },
     async ({ space_id, template_id, name, return_immediately }) => {
       try {
         const result = await foldersClient.createFolderFromTemplate(space_id, template_id, {
           name,
-          ...(return_immediately === undefined ? {} : { options: { return_immediately } })
+          ...(return_immediately === undefined ? {} : { options: { return_immediately } }),
         });
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('creating folder from template', error);
@@ -489,13 +489,13 @@ export function setupListFolderTools(server: McpServer): void {
     'clickup_get_folder_templates',
     'Get the folder templates available in a ClickUp workspace. Use the returned template IDs with clickup_create_folder_from_template.',
     {
-      team_id: idSchema().describe('The ID of the workspace (team) to get folder templates from')
+      team_id: idSchema().describe('The ID of the workspace (team) to get folder templates from'),
     },
     async ({ team_id }) => {
       try {
         const result = await foldersClient.getFolderTemplates(team_id);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('getting folder templates', error);

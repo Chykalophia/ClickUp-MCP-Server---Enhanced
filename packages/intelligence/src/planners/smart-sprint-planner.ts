@@ -34,7 +34,7 @@ export class SmartSprintPlanner {
         velocity: teamVelocity,
         capacity: sprintCapacity,
         focus: params.priority_focus || 'balanced',
-        includeDependencies: params.include_dependencies || true
+        includeDependencies: params.include_dependencies || true,
       });
 
       // Generate risk assessment
@@ -44,7 +44,7 @@ export class SmartSprintPlanner {
       const recommendations = this.generateSprintRecommendations(suggestedTasks, {
         velocity: teamVelocity,
         capacity: sprintCapacity,
-        focus: params.priority_focus || 'balanced'
+        focus: params.priority_focus || 'balanced',
       });
 
       // Estimate completion confidence
@@ -56,7 +56,7 @@ export class SmartSprintPlanner {
         suggestedTasks,
         estimatedCompletion,
         riskAssessment,
-        recommendations
+        recommendations,
       };
     } catch (error: any) {
       throw new Error(`Failed to generate sprint plan: ${error.message}`);
@@ -103,7 +103,7 @@ export class SmartSprintPlanner {
         totalCapacity,
         allocatedHours,
         remainingCapacity,
-        insights
+        insights,
       };
     } catch (error: any) {
       throw new Error(`Failed to optimize capacity: ${error.message}`);
@@ -113,7 +113,7 @@ export class SmartSprintPlanner {
   private async fetchAvailableTasks(workspaceId: string): Promise<ClickUpTask[]> {
     const headers = {
       'Authorization': this.apiToken,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     };
 
     try {
@@ -127,7 +127,7 @@ export class SmartSprintPlanner {
   private async fetchTasksByIds(taskIds: string[]): Promise<ClickUpTask[]> {
     const headers = {
       'Authorization': this.apiToken,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     };
 
     const tasks: ClickUpTask[] = [];
@@ -168,7 +168,7 @@ export class SmartSprintPlanner {
     // AI-powered task selection algorithm
     const scoredTasks = availableTasks.map(task => ({
       task,
-      score: this.calculateTaskScore(task, criteria)
+      score: this.calculateTaskScore(task, criteria),
     }));
 
     // Sort by score (highest first)
@@ -368,7 +368,7 @@ export class SmartSprintPlanner {
         assigneeName: `User ${bestMember.user_id}`,
         estimatedHours,
         skillMatch: this.calculateSkillMatch(task, bestMember.skills || []),
-        confidence: estimatedHours <= 8 ? 'High' : estimatedHours <= 16 ? 'Medium' : 'Low'
+        confidence: estimatedHours <= 8 ? 'High' : estimatedHours <= 16 ? 'Medium' : 'Low',
       });
     }
     

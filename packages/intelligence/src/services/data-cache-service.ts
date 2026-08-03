@@ -31,7 +31,7 @@ export class DataCacheService {
     hitRate: 0,
     size: 0,
     memoryUsage: 0,
-    evictions: 0
+    evictions: 0,
   };
   private cleanupTimer?: ReturnType<typeof setInterval>;
 
@@ -39,7 +39,7 @@ export class DataCacheService {
     defaultTTL: 300000, // 5 minutes
     maxSize: 10000,
     cleanupInterval: 60000, // 1 minute
-    enableMetrics: true
+    enableMetrics: true,
   }) {
     this.config = config;
     // Only start cleanup in non-test environments
@@ -54,7 +54,7 @@ export class DataCacheService {
       timestamp: Date.now(),
       ttl: ttl || this.config.defaultTTL,
       accessCount: 0,
-      lastAccessed: Date.now()
+      lastAccessed: Date.now(),
     };
 
     // Evict if at max size

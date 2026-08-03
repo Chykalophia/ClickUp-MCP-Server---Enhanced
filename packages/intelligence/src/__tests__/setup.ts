@@ -18,7 +18,7 @@ global.console = {
   debug: jest.fn(),
   info: jest.fn(),
   warn: jest.fn(),
-  error: jest.fn()
+  error: jest.fn(),
 };
 
 // Custom matchers
@@ -28,14 +28,14 @@ expect.extend({
     if (pass) {
       return {
         message: () => `expected ${received} not to be within range ${floor} - ${ceiling}`,
-        pass: true
+        pass: true,
       };
     }
     return {
       message: () => `expected ${received} to be within range ${floor} - ${ceiling}`,
-      pass: false
+      pass: false,
     };
-  }
+  },
 });
 
 // Mock Date for consistent testing

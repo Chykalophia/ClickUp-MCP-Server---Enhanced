@@ -6,7 +6,7 @@ jest.mock('../utils/markdown', () => ({
   prepareContentForClickUp: jest.fn((content: string) => ({ description: content })),
   processClickUpResponse: jest.fn((task: any) => task),
   markdownToHtml: jest.fn((s: string) => s),
-  htmlToMarkdown: jest.fn((s: string) => s)
+  htmlToMarkdown: jest.fn((s: string) => s),
 }));
 
 import { TasksClient } from '../clickup-client/tasks.js';
@@ -44,8 +44,8 @@ describe('TasksClient.updateTask — assignees delta envelope', () => {
           assignees: currentAssigneeIds.map(id => ({
             id,
             username: `user-${id}`,
-            email: `u${id}@example.com`
-          }))
+            email: `u${id}@example.com`,
+          })),
         };
       }) as any,
       put: jest.fn(async (endpoint: string, data: any) => {
@@ -53,9 +53,9 @@ describe('TasksClient.updateTask — assignees delta envelope', () => {
         return {
           id: 'task-1',
           name: data?.name ?? 'Existing task',
-          url: 'https://app.clickup.com/t/task-1'
+          url: 'https://app.clickup.com/t/task-1',
         };
-      }) as any
+      }) as any,
     };
 
     client = new TasksClient(fakeHttp as ClickUpClient);

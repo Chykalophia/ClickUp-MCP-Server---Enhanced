@@ -15,7 +15,7 @@ describe('VelocityAnalysisService', () => {
         lookbackPeriod: 8,
         includePartialSprints: false,
         adjustForTeamChanges: true,
-        seasonalAdjustment: true
+        seasonalAdjustment: true,
       };
 
       const result = await service.analyzeVelocity(input);
@@ -36,7 +36,7 @@ describe('VelocityAnalysisService', () => {
         lookbackPeriod: 4,
         seasonalAdjustment: false,
         includePartialSprints: false,
-        adjustForTeamChanges: false
+        adjustForTeamChanges: false,
       };
 
       const result = await service.analyzeVelocity(input);
@@ -53,7 +53,7 @@ describe('VelocityAnalysisService', () => {
         lookbackPeriod: 100, // Invalid: exceeds max of 52
         seasonalAdjustment: false,
         includePartialSprints: false,
-        adjustForTeamChanges: false
+        adjustForTeamChanges: false,
       };
 
       await expect(service.analyzeVelocity(invalidInput)).rejects.toThrow();
@@ -65,7 +65,7 @@ describe('VelocityAnalysisService', () => {
         lookbackPeriod: 12,
         seasonalAdjustment: true,
         includePartialSprints: false,
-        adjustForTeamChanges: false
+        adjustForTeamChanges: false,
       };
 
       const result = await service.analyzeVelocity(input);
@@ -83,7 +83,7 @@ describe('VelocityAnalysisService', () => {
   it.skip('should provide actionable recommendations', async () => {
       const input = {
         teamId: 'recommendations-team-123',
-        lookbackPeriod: 6
+        lookbackPeriod: 6,
       };
 
       const result = await service.analyzeVelocity(input);

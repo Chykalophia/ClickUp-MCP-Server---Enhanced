@@ -1,6 +1,11 @@
 import { ClickUpClient } from './index.js';
 import { validateResponse, ViewsResponseSchema, ViewResponseSchema, TasksResponseSchema } from '../schemas/response-schemas.js';
 import { normalizeViewType } from '../schemas/views-schemas.js';
+// Splitting these type-only imports from the value import above is deliberate:
+// the base no-duplicate-imports rule is not TypeScript-aware enough to tell the
+// two apart, and the esbuild build relies on type-only imports being elided
+// from the emitted JS.
+// eslint-disable-next-line no-duplicate-imports
 import type {
   CreateViewRequest,
   UpdateViewRequest,
@@ -14,7 +19,7 @@ import type {
   ViewGrouping,
   ViewDivide,
   ViewSorting,
-  ViewColumn
+  ViewColumn,
 } from '../schemas/views-schemas.js';
 
 export interface ViewResponse {
@@ -110,7 +115,7 @@ export class ViewsEnhancedClient extends ClickUpClient {
       filters: request.filters ? this.formatFilters(request.filters) : undefined,
       columns: request.columns ? this.formatColumns(request.columns) : undefined,
       team_sidebar: request.team_sidebar,
-      settings: request.settings
+      settings: request.settings,
     };
 
     const response = await this.post<{ view: ViewResponse }>(`${endpoint}/view`, payload);
@@ -162,7 +167,7 @@ export class ViewsEnhancedClient extends ClickUpClient {
       ...(request.filters && { filters: this.formatFilters(request.filters) }),
       ...(request.columns && { columns: this.formatColumns(request.columns) }),
       ...(request.team_sidebar && { team_sidebar: request.team_sidebar }),
-      ...(request.settings && { settings: { ...current.settings, ...request.settings } })
+      ...(request.settings && { settings: { ...current.settings, ...request.settings } }),
     }));
   }
 
@@ -179,7 +184,7 @@ export class ViewsEnhancedClient extends ClickUpClient {
    */
   async setViewFilters(request: SetViewFiltersRequest): Promise<ViewResponse> {
     return this.putFullView(request.view_id, () => ({
-      filters: this.formatFilters(request.filters)
+      filters: this.formatFilters(request.filters),
     }));
   }
 
@@ -188,7 +193,7 @@ export class ViewsEnhancedClient extends ClickUpClient {
    */
   async setViewGrouping(request: SetViewGroupingRequest): Promise<ViewResponse> {
     return this.putFullView(request.view_id, () => ({
-      grouping: this.formatGrouping(request.grouping)
+      grouping: this.formatGrouping(request.grouping),
     }));
   }
 
@@ -197,7 +202,7 @@ export class ViewsEnhancedClient extends ClickUpClient {
    */
   async setViewSorting(request: SetViewSortingRequest): Promise<ViewResponse> {
     return this.putFullView(request.view_id, () => ({
-      sorting: this.formatSorting(request.sorting)
+      sorting: this.formatSorting(request.sorting),
     }));
   }
 
@@ -206,7 +211,7 @@ export class ViewsEnhancedClient extends ClickUpClient {
    */
   async updateViewSettings(request: UpdateViewSettingsRequest): Promise<ViewResponse> {
     return this.putFullView(request.view_id, current => ({
-      settings: { ...current.settings, ...request.settings }
+      settings: { ...current.settings, ...request.settings },
     }));
   }
 
@@ -245,7 +250,7 @@ export class ViewsEnhancedClient extends ClickUpClient {
     // embed, doc) cannot be duplicated via the API.
     const creatableTypes = [
       'list', 'board', 'calendar', 'table', 'timeline',
-      'workload', 'activity', 'map', 'chat', 'conversation', 'gantt'
+      'workload', 'activity', 'map', 'chat', 'conversation', 'gantt',
     ];
     if (!creatableTypes.includes(source.type)) {
       throw new Error(
@@ -266,7 +271,7 @@ export class ViewsEnhancedClient extends ClickUpClient {
       filters: source.filters,
       columns: source.columns,
       team_sidebar: source.team_sidebar,
-      settings: source.settings
+      settings: source.settings,
     };
 
     const response = await this.post<{ view: ViewResponse }>(`${endpoint}/view`, payload);
@@ -311,7 +316,7 @@ export class ViewsEnhancedClient extends ClickUpClient {
       columns: current.columns,
       team_sidebar: current.team_sidebar,
       settings: current.settings,
-      ...makeOverrides(current)
+      ...makeOverrides(current),
     };
 
     const response = await this.put<{ view: ViewResponse }>(`/view/${viewId}`, body);
@@ -323,7 +328,7 @@ export class ViewsEnhancedClient extends ClickUpClient {
       field: grouping.field,
       dir: grouping.order === 'asc' ? 1 : -1,
       collapsed: grouping.collapsed ?? [],
-      ignore: grouping.ignore ?? false
+      ignore: grouping.ignore ?? false,
     };
   }
 
@@ -331,7 +336,7 @@ export class ViewsEnhancedClient extends ClickUpClient {
     return {
       field: divide.field,
       dir: divide.order === 'asc' ? 1 : -1,
-      collapsed: divide.collapsed ?? []
+      collapsed: divide.collapsed ?? [],
     };
   }
 
@@ -339,8 +344,8 @@ export class ViewsEnhancedClient extends ClickUpClient {
     return {
       fields: sorting.map(sort => ({
         field: sort.field,
-        dir: sort.order === 'asc' ? 1 : -1
-      }))
+        dir: sort.order === 'asc' ? 1 : -1,
+      })),
     };
   }
 
@@ -350,10 +355,10 @@ export class ViewsEnhancedClient extends ClickUpClient {
       fields: filters.map(filter => ({
         field: filter.field,
         op: filter.op,
-        values: filter.values ?? []
+        values: filter.values ?? [],
       })),
       search: '',
-      show_closed: false
+      show_closed: false,
     };
   }
 
@@ -362,8 +367,8 @@ export class ViewsEnhancedClient extends ClickUpClient {
       fields: columns.map(column => ({
         field: column.field,
         ...(column.hidden !== undefined && { hidden: column.hidden }),
-        ...(column.width !== undefined && { width: column.width })
-      }))
+        ...(column.width !== undefined && { width: column.width }),
+      })),
     };
   }
 

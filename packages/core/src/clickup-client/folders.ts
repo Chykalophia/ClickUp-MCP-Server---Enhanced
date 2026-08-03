@@ -2,7 +2,7 @@ import { ClickUpClient } from './index.js';
 import {
   validateResponse,
   FoldersResponseSchema,
-  ListsResponseSchema
+  ListsResponseSchema,
 } from '../schemas/response-schemas.js';
 
 export interface Folder {

@@ -25,6 +25,7 @@ import { setupCommentResources } from './resources/comment-resources.js';
 import { setupSpaceResources } from './resources/space-resources.js';
 import { setupFolderResources } from './resources/folder-resources.js';
 import { setupListResources } from './resources/list-resources.js';
+import { VERSION } from './version.js';
 
 // Environment variables are passed to the server through the MCP settings file
 // See mcp-settings-example.json for an example
@@ -35,7 +36,7 @@ class ClickUpServer {
   constructor() {
     this.server = new McpServer({
       name: 'clickup-mcp-server',
-      version: '3.4.0' // Updated version for namespaced tool names to prevent conflicts
+      version: VERSION,
     });
 
     // Handle process termination

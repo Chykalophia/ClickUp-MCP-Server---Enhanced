@@ -9,7 +9,7 @@ export default async function globalTeardown() {
   try {
     const { rateLimiter } = await import('../utils/security.js');
     rateLimiter.destroy();
-  } catch (error) {
+  } catch {
     // Ignore if module not loaded
   }
 

@@ -9,6 +9,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "declaration": true,
+    "composite": true,
     "outDir": "./build",
     "rootDir": "./src",
     "resolveJsonModule": true

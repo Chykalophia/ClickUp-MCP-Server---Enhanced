@@ -23,7 +23,7 @@ describe('WorkflowIntelligenceService', () => {
         workspaceId: 'test-workspace-123',
         timeframe: '1month' as const,
         includeAutomationOpportunities: true,
-        analysisDepth: 'standard' as const
+        analysisDepth: 'standard' as const,
       };
 
       const result = await service.analyzeWorkflowPatterns(input);
@@ -50,7 +50,7 @@ describe('WorkflowIntelligenceService', () => {
           workspaceId: 'test-workspace',
           timeframe,
           includeAutomationOpportunities: true,
-          analysisDepth: 'standard' as const
+          analysisDepth: 'standard' as const,
         };
 
         const result = await service.analyzeWorkflowPatterns(input);
@@ -64,7 +64,7 @@ describe('WorkflowIntelligenceService', () => {
         workspaceId: 'test-workspace',
         timeframe: '1month' as const,
         includeAutomationOpportunities: true,
-        analysisDepth: 'standard' as const
+        analysisDepth: 'standard' as const,
       };
 
       const result = await service.analyzeWorkflowPatterns(input);
@@ -89,7 +89,7 @@ describe('WorkflowIntelligenceService', () => {
         workspaceId: 'test-workspace-123',
         workflowType: 'all' as const,
         complexityThreshold: 'medium' as const,
-        includeIntegrations: true
+        includeIntegrations: true,
       };
 
       const result = await service.recommendAutomations(input);
@@ -113,12 +113,12 @@ describe('WorkflowIntelligenceService', () => {
         workspaceId: 'test-workspace',
         workflowType: 'all' as const,
         complexityThreshold: 'low' as const,
-        includeIntegrations: true
+        includeIntegrations: true,
       };
 
       const highComplexityInput = {
         ...lowComplexityInput,
-        complexityThreshold: 'high' as const
+        complexityThreshold: 'high' as const,
       };
 
       const lowResults = await service.recommendAutomations(lowComplexityInput);
@@ -134,7 +134,7 @@ describe('WorkflowIntelligenceService', () => {
         workspaceId: 'test-workspace-123',
         currentIntegrations: ['slack'],
         businessGoals: ['improve communication', 'automate workflows'],
-        teamSize: 10
+        teamSize: 10,
       };
 
       const result = await service.optimizeIntegrations(input);
@@ -156,7 +156,7 @@ describe('WorkflowIntelligenceService', () => {
       const input = {
         workspaceId: 'test-workspace',
         currentIntegrations: ['slack', 'github'],
-        teamSize: 5
+        teamSize: 5,
       };
 
       const result = await service.optimizeIntegrations(input);

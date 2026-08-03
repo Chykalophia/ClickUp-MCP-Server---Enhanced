@@ -5,7 +5,7 @@ import {
   validateResponse,
   TasksResponseSchema,
   TaskTimeInStatusResponseSchema,
-  BulkTasksTimeInStatusResponseSchema
+  BulkTasksTimeInStatusResponseSchema,
 } from '../schemas/response-schemas.js';
 
 export interface Task {
@@ -409,7 +409,7 @@ export class TasksClient {
    */
   async mergeTasks(targetTaskId: string, sourceTaskIds: string[]): Promise<Task> {
     const result = await this.client.post(`/task/${targetTaskId}/merge`, {
-      source_task_ids: sourceTaskIds
+      source_task_ids: sourceTaskIds,
     });
     return processClickUpResponse(result);
   }
@@ -646,7 +646,7 @@ export class TasksClient {
       error_count: errorCount,
       total_count: tasks.length,
       results,
-      execution_time_ms: executionTime
+      execution_time_ms: executionTime,
     };
   }
 
@@ -734,7 +734,7 @@ export class TasksClient {
       error_count: errorCount,
       total_count: taskUpdates.length,
       results,
-      execution_time_ms: executionTime
+      execution_time_ms: executionTime,
     };
   }
 }

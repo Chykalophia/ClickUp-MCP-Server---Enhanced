@@ -1,43 +1,121 @@
+# ---------------------------------------------------------------------------
 # Dependencies
+# ---------------------------------------------------------------------------
 node_modules/
-npm-debug.log
-yarn-debug.log
-yarn-error.log
+.pnp
+.pnp.*
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
 
+# ---------------------------------------------------------------------------
+# Logs & diagnostic reports
+# ---------------------------------------------------------------------------
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+.npm/
+.node_repl_history
+
+# ---------------------------------------------------------------------------
 # Build output
+# Each workspace package emits to build/. dist/ and out/ are covered too so a
+# package that switches bundlers later does not start leaking artifacts.
+# ---------------------------------------------------------------------------
 build/
 dist/
+out/
 *.tsbuildinfo
+tsconfig.tsbuildinfo
 
-# Test artifacts
-coverage/
+# ---------------------------------------------------------------------------
+# Caches
+# ---------------------------------------------------------------------------
+.cache/
+.turbo/
+.parcel-cache/
+.eslintcache
 .jest-cache/
-test-results/
-*.lcov
-
-# Environment variables and configuration
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-mcpclient.json
-
-# IDE and editor files
-.idea/
-.vscode/
-*.swp
-*.swo
-.DS_Store
-*.log
 *.tgz
 
-# Temporary files
+# ---------------------------------------------------------------------------
+# Test & coverage artifacts
+# jest writes coverage/; jest-junit writes test-results/junit.xml.
+# ---------------------------------------------------------------------------
+coverage/
+.nyc_output/
+test-results/
+junit.xml
+*.lcov
+
+# ---------------------------------------------------------------------------
+# Environment & local secrets
+# .env.example is the committed template documenting the required vars — the
+# negation below must stay, or `.env.*` swallows it.
+# ---------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+mcpclient.json
+*.pem
+
+# ---------------------------------------------------------------------------
+# Editor & IDE
+# ---------------------------------------------------------------------------
+.idea/
+.vscode/
+.history/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+
+# ---------------------------------------------------------------------------
+# OS cruft
+# ---------------------------------------------------------------------------
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+Desktop.ini
+
+# ---------------------------------------------------------------------------
+# AI / agent tooling
+# Shared rules and config are committed on purpose (.amazonq/rules/**,
+# .taskmaster/config.json) — only per-developer local state is ignored here.
+# ---------------------------------------------------------------------------
+.claude/settings.local.json
+.claude/*.local.json
+.amazonq/cache/
+.taskmaster/state.json
+.taskmaster/reports/
+
+# ---------------------------------------------------------------------------
+# Scratch files
+# Long-standing conventions in this repo for throwaway notes and one-off
+# debugging output that must never reach a commit.
+#
+# These are anchored to a separator on purpose. The previous bare `*TEMP*`
+# matched case-insensitively (core.ignorecase=true on macOS) and so silently
+# shadowed .github/ISSUE_TEMPLATE/, .github/PULL_REQUEST_TEMPLATE.md, and
+# packages/intelligence/docs/api/decomposition-templates.md — files that only
+# stayed in the repo because they were already tracked. Anything *new* added to
+# those directories would have been invisible to `git add`.
+# ---------------------------------------------------------------------------
 *.tmp
 *.temp
 *.bak
 *.old
-*TEMP*
-*URGENT*
-*FIX*.md
 temp_*
+TEMP_*
+TEMP-*
+URGENT_*
+URGENT-*
+*_FIX.md
+*-FIX.md

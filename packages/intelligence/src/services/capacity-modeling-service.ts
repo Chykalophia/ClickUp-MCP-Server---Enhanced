@@ -20,7 +20,7 @@ export const TeamMemberSchema = z.object({
   experienceLevel: z.enum(['junior', 'mid', 'senior', 'lead']).describe('Experience level'),
   historicalVelocity: z.number().optional().describe('Personal historical velocity (story points per sprint)'),
   availabilityHours: z.number().min(0).max(40).describe('Available hours per week'),
-  focusFactor: z.number().min(0).max(1).default(0.75).describe('Focus factor (0-1, typical 0.7-0.8)')
+  focusFactor: z.number().min(0).max(1).default(0.75).describe('Focus factor (0-1, typical 0.7-0.8)'),
 });
 
 export const CapacityConstraintSchema = z.object({
@@ -29,13 +29,13 @@ export const CapacityConstraintSchema = z.object({
   startDate: z.string().describe('Start date (ISO format)'),
   endDate: z.string().describe('End date (ISO format)'),
   hoursImpact: z.number().min(0).describe('Hours of capacity reduction'),
-  description: z.string().describe('Description of constraint')
+  description: z.string().describe('Description of constraint'),
 });
 
 export const SkillRequirementSchema = z.object({
   skill: z.string().describe('Required skill'),
   importance: z.enum(['required', 'preferred', 'nice-to-have']).describe('Importance level'),
-  estimatedHours: z.number().min(0).describe('Estimated hours requiring this skill')
+  estimatedHours: z.number().min(0).describe('Estimated hours requiring this skill'),
 });
 
 export const CapacityModelingInputSchema = z.object({
@@ -46,7 +46,7 @@ export const CapacityModelingInputSchema = z.object({
   constraints: z.array(CapacityConstraintSchema).default([]).describe('Capacity constraints'),
   skillRequirements: z.array(SkillRequirementSchema).default([]).describe('Sprint skill requirements'),
   includeBufferTime: z.boolean().default(true).describe('Include buffer time for unexpected work'),
-  bufferPercentage: z.number().min(0).max(0.5).default(0.15).describe('Buffer percentage (0-0.5)')
+  bufferPercentage: z.number().min(0).max(0.5).default(0.15).describe('Buffer percentage (0-0.5)'),
 });
 
 export const IndividualCapacitySchema = z.object({
@@ -55,24 +55,24 @@ export const IndividualCapacitySchema = z.object({
   role: z.string(),
   baseCapacity: z.object({
     totalHours: z.number().describe('Total available hours'),
-    storyPointCapacity: z.number().describe('Estimated story point capacity')
+    storyPointCapacity: z.number().describe('Estimated story point capacity'),
   }),
   adjustedCapacity: z.object({
     availableHours: z.number().describe('Hours after constraints'),
     focusHours: z.number().describe('Hours after focus factor'),
-    effectiveStoryPoints: z.number().describe('Effective story point capacity')
+    effectiveStoryPoints: z.number().describe('Effective story point capacity'),
   }),
   constraints: z.array(z.object({
     type: z.string(),
     impact: z.number().describe('Hours lost to constraint'),
-    description: z.string()
+    description: z.string(),
   })),
   skillMatch: z.object({
     primarySkills: z.array(z.string()).describe('Skills matching sprint requirements'),
     skillUtilization: z.number().min(0).max(1).describe('Percentage of capacity using primary skills'),
-    crossTrainingOpportunities: z.array(z.string()).describe('Skills that could be developed')
+    crossTrainingOpportunities: z.array(z.string()).describe('Skills that could be developed'),
   }),
-  recommendations: z.array(z.string()).describe('Capacity optimization recommendations')
+  recommendations: z.array(z.string()).describe('Capacity optimization recommendations'),
 });
 
 export const TeamCapacitySchema = z.object({
@@ -80,27 +80,27 @@ export const TeamCapacitySchema = z.object({
     totalHours: z.number().describe('Total team hours available'),
     effectiveHours: z.number().describe('Effective hours after all adjustments'),
     storyPointCapacity: z.number().describe('Total story point capacity'),
-    confidenceLevel: z.number().min(0).max(1).describe('Confidence in capacity estimate')
+    confidenceLevel: z.number().min(0).max(1).describe('Confidence in capacity estimate'),
   }),
   skillCapacity: z.array(z.object({
     skill: z.string(),
     availableHours: z.number().describe('Hours available for this skill'),
     teamMembers: z.array(z.string()).describe('Team members with this skill'),
-    utilizationRate: z.number().min(0).max(1).describe('Expected utilization rate')
+    utilizationRate: z.number().min(0).max(1).describe('Expected utilization rate'),
   })),
   riskFactors: z.array(z.object({
     factor: z.string(),
     severity: z.enum(['low', 'medium', 'high']),
     impact: z.string(),
-    mitigation: z.string()
+    mitigation: z.string(),
   })),
   recommendations: z.array(z.object({
     type: z.enum(['capacity', 'skills', 'planning', 'process']),
     priority: z.enum(['high', 'medium', 'low']),
     title: z.string(),
     description: z.string(),
-    expectedBenefit: z.string()
-  }))
+    expectedBenefit: z.string(),
+  })),
 });
 
 export const CapacityModelingResultSchema = z.object({
@@ -108,20 +108,20 @@ export const CapacityModelingResultSchema = z.object({
   sprintPeriod: z.object({
     startDate: z.string(),
     endDate: z.string(),
-    workingDays: z.number()
+    workingDays: z.number(),
   }),
   individualCapacities: z.array(IndividualCapacitySchema),
   teamCapacity: TeamCapacitySchema,
   capacityUtilization: z.object({
     planned: z.number().min(0).max(1).describe('Planned utilization rate'),
     optimal: z.number().min(0).max(1).describe('Optimal utilization rate (70-85%)'),
-    riskLevel: z.enum(['low', 'medium', 'high']).describe('Risk level based on utilization')
+    riskLevel: z.enum(['low', 'medium', 'high']).describe('Risk level based on utilization'),
   }),
   metadata: z.object({
     calculatedAt: z.string().describe('Calculation timestamp'),
     dataQuality: z.number().min(0).max(1).describe('Quality of input data'),
-    assumptions: z.array(z.string()).describe('Key assumptions made in calculations')
-  })
+    assumptions: z.array(z.string()).describe('Key assumptions made in calculations'),
+  }),
 });
 
 export type CapacityModelingInput = z.infer<typeof CapacityModelingInputSchema>;
@@ -141,7 +141,7 @@ export class CapacityModelingService {
     'junior': 0.7,
     'mid': 1.0,
     'senior': 1.3,
-    'lead': 1.5
+    'lead': 1.5,
   };
 
   /**
@@ -187,12 +187,12 @@ export class CapacityModelingService {
         sprintPeriod: {
           startDate: validatedInput.sprintStartDate,
           endDate: validatedInput.sprintEndDate,
-          workingDays
+          workingDays,
         },
         individualCapacities,
         teamCapacity,
         capacityUtilization,
-        metadata
+        metadata,
       };
       
       return CapacityModelingResultSchema.parse(result);
@@ -245,20 +245,20 @@ export class CapacityModelingService {
         role: member.role,
         baseCapacity: {
           totalHours: Math.round(totalHours * 100) / 100,
-          storyPointCapacity: Math.round(baseStoryPointCapacity * 100) / 100
+          storyPointCapacity: Math.round(baseStoryPointCapacity * 100) / 100,
         },
         adjustedCapacity: {
           availableHours: Math.round(availableHours * 100) / 100,
           focusHours: Math.round(focusHours * 100) / 100,
-          effectiveStoryPoints: Math.round(effectiveStoryPoints * 100) / 100
+          effectiveStoryPoints: Math.round(effectiveStoryPoints * 100) / 100,
         },
         constraints: memberConstraints.map(c => ({
           type: c.type,
           impact: c.hoursImpact,
-          description: c.description
+          description: c.description,
         })),
         skillMatch,
-        recommendations
+        recommendations,
       };
     });
   }
@@ -303,11 +303,11 @@ export class CapacityModelingService {
         totalHours: Math.round(totalHours * 100) / 100,
         effectiveHours: Math.round(effectiveHours * 100) / 100,
         storyPointCapacity: Math.round(storyPointCapacity * 100) / 100,
-        confidenceLevel: Math.round(confidenceLevel * 100) / 100
+        confidenceLevel: Math.round(confidenceLevel * 100) / 100,
       },
       skillCapacity,
       riskFactors,
-      recommendations
+      recommendations,
     };
   }
 
@@ -336,7 +336,7 @@ export class CapacityModelingService {
     return {
       planned: Math.round(planned * 100) / 100,
       optimal: Math.round(optimal * 100) / 100,
-      riskLevel
+      riskLevel,
     };
   }
 
@@ -378,7 +378,7 @@ export class CapacityModelingService {
     return {
       primarySkills,
       skillUtilization: Math.round(skillUtilization * 100) / 100,
-      crossTrainingOpportunities
+      crossTrainingOpportunities,
     };
   }
 
@@ -438,7 +438,7 @@ export class CapacityModelingService {
       skill,
       availableHours: Math.round(data.hours * 100) / 100,
       teamMembers: [...new Set(data.members)], // Remove duplicates
-      utilizationRate: Math.min(1.0, data.hours / (data.members.length * 40)) // Rough utilization estimate
+      utilizationRate: Math.min(1.0, data.hours / (data.members.length * 40)), // Rough utilization estimate
     }));
   }
 
@@ -452,7 +452,7 @@ export class CapacityModelingService {
         factor: 'Single Point of Failure',
         severity: 'high' as const,
         impact: `${criticalSkills.length} critical skills have only one team member`,
-        mitigation: 'Cross-train additional team members in critical skills'
+        mitigation: 'Cross-train additional team members in critical skills',
       });
     }
     
@@ -465,7 +465,7 @@ export class CapacityModelingService {
         factor: 'Underutilized Capacity',
         severity: 'medium' as const,
         impact: `${lowCapacityMembers.length} team members have significant capacity constraints`,
-        mitigation: 'Review and optimize capacity constraints and focus factors'
+        mitigation: 'Review and optimize capacity constraints and focus factors',
       });
     }
     
@@ -476,7 +476,7 @@ export class CapacityModelingService {
         factor: 'Skill Capacity Gaps',
         severity: 'medium' as const,
         impact: `Limited capacity for ${skillGaps.map(sg => sg.skill).join(', ')}`,
-        mitigation: 'Consider skill development or external resources'
+        mitigation: 'Consider skill development or external resources',
       });
     }
     
@@ -497,7 +497,7 @@ export class CapacityModelingService {
         priority: 'high' as const,
         title: 'Address Critical Skill Dependencies',
         description: 'Implement cross-training program for critical skills with single points of failure',
-        expectedBenefit: 'Reduce sprint risk by 30-50%'
+        expectedBenefit: 'Reduce sprint risk by 30-50%',
       });
     }
     
@@ -512,7 +512,7 @@ export class CapacityModelingService {
         priority: 'medium' as const,
         title: 'Optimize Team Capacity Utilization',
         description: `Current utilization is ${(utilizationRate * 100).toFixed(0)}%. Review constraints and focus factors.`,
-        expectedBenefit: 'Increase effective capacity by 15-25%'
+        expectedBenefit: 'Increase effective capacity by 15-25%',
       });
     }
     
@@ -522,7 +522,7 @@ export class CapacityModelingService {
       priority: 'medium' as const,
       title: 'Implement Capacity-Based Sprint Planning',
       description: 'Use calculated capacity metrics for more accurate sprint commitments',
-      expectedBenefit: 'Improve sprint predictability by 20-30%'
+      expectedBenefit: 'Improve sprint predictability by 20-30%',
     });
     
     return recommendations;
@@ -570,7 +570,7 @@ export class CapacityModelingService {
       `Default story points per hour: ${this.DEFAULT_STORY_POINTS_PER_HOUR}`,
       `Experience multipliers applied: Junior (${this.EXPERIENCE_MULTIPLIERS.junior}x), Senior (${this.EXPERIENCE_MULTIPLIERS.senior}x)`,
       'Working days exclude weekends',
-      `Buffer time ${input.includeBufferTime ? 'included' : 'excluded'} at ${(input.bufferPercentage * 100).toFixed(0)}%`
+      `Buffer time ${input.includeBufferTime ? 'included' : 'excluded'} at ${(input.bufferPercentage * 100).toFixed(0)}%`,
     ];
     
     // Assess data quality
@@ -586,7 +586,7 @@ export class CapacityModelingService {
     return {
       calculatedAt: new Date().toISOString(),
       dataQuality: Math.round(dataQuality * 100) / 100,
-      assumptions
+      assumptions,
     };
   }
 }

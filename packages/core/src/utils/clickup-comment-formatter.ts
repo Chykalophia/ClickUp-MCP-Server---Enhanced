@@ -468,7 +468,7 @@ export function cleanDuplicateCommentText(commentText: string): string {
           }
         }
       }
-    } catch (error) {
+    } catch {
       // Skip pattern if regex fails
       continue;
     }

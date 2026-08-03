@@ -48,7 +48,13 @@ module.exports = {
     'no-self-compare': 'error',
     'no-template-curly-in-string': 'error',
     'no-unreachable': 'error',
-    'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    // The base rule is not TypeScript-aware: it reports parameter names
+    // declared in type aliases and interfaces as unused variables, and it
+    // cannot see a binding that is only used in a type position. The
+    // @typescript-eslint version understands both, and still catches genuinely
+    // unused imports and locals.
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     
     // Style consistency
     //
@@ -99,6 +105,7 @@ module.exports = {
       },
       rules: {
         'no-unused-vars': 'off',
+        '@typescript-eslint/no-unused-vars': 'off',
         'max-len': 'off'
       }
     },

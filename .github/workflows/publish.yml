@@ -3,6 +3,10 @@ name: Publish Package
 on:
   release:
     types: [created]
+  # Allow triggering the publish manually (e.g. to release from main without
+  # cutting a GitHub Release from an environment that cannot create one). The
+  # job already skips versions that are already on the registry.
+  workflow_dispatch:
 
 jobs:
   publish:

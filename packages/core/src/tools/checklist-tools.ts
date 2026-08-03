@@ -10,6 +10,7 @@ import {
   UpdateChecklistItemParams,
 } from '../clickup-client/checklists.js';
 import { mcpError } from '../utils/error-handling.js';
+import { idSchema } from '../schemas/common.js';
 
 // Create clients
 const clickUpClient = createClickUpClient();
@@ -21,7 +22,7 @@ export function setupChecklistTools(server: McpServer): void {
     'clickup_create_checklist',
     'Create a new checklist in a ClickUp task. Returns the created checklist details.',
     {
-      task_id: z.coerce.string().describe('The ID of the task to create the checklist in'),
+      task_id: idSchema().describe('The ID of the task to create the checklist in'),
       name: z.string().describe('The name of the checklist'),
       custom_task_ids: z
         .boolean()
@@ -57,7 +58,7 @@ export function setupChecklistTools(server: McpServer): void {
     'clickup_update_checklist',
     "Update an existing ClickUp checklist's name and/or position (order of appearance on the task; 0 = top). The ClickUp API returns an empty response for this operation; use get_task to see the updated state.",
     {
-      checklist_id: z.coerce.string().describe('The ID of the checklist to update'),
+      checklist_id: idSchema().describe('The ID of the checklist to update'),
       name: z.string().optional().describe('The new name of the checklist'),
       position: z
         .number()
@@ -98,7 +99,7 @@ export function setupChecklistTools(server: McpServer): void {
     'clickup_delete_checklist',
     'Delete a checklist from a ClickUp task. Removes the checklist and all its items.',
     {
-      checklist_id: z.coerce.string().describe('The ID of the checklist to delete'),
+      checklist_id: idSchema().describe('The ID of the checklist to delete'),
     },
     async ({ checklist_id }) => {
       try {
@@ -123,7 +124,7 @@ export function setupChecklistTools(server: McpServer): void {
     'clickup_create_checklist_item',
     'Create a new item in a ClickUp checklist. Supports optional assignee and resolved status (resolved is applied via a follow-up update, since the create endpoint does not accept it). Returns the full parent checklist including all items.',
     {
-      checklist_id: z.coerce.string().describe('The ID of the checklist to create the item in'),
+      checklist_id: idSchema().describe('The ID of the checklist to create the item in'),
       name: z.string().describe('The name of the checklist item'),
       assignee: z
         .number()
@@ -168,8 +169,8 @@ export function setupChecklistTools(server: McpServer): void {
     'clickup_update_checklist_item',
     "Update an existing ClickUp checklist item's properties including name, assignee (null to unassign), resolved status, and parent (nest under another item, or null to un-nest). Returns the full parent checklist including all items.",
     {
-      checklist_id: z.coerce.string().describe('The ID of the checklist containing the item'),
-      checklist_item_id: z.coerce.string().describe('The ID of the checklist item to update'),
+      checklist_id: idSchema().describe('The ID of the checklist containing the item'),
+      checklist_item_id: idSchema().describe('The ID of the checklist item to update'),
       name: z.string().optional().describe('The new name of the checklist item'),
       assignee: z
         .union([z.number(), z.string(), z.null()])
@@ -212,8 +213,8 @@ export function setupChecklistTools(server: McpServer): void {
     'clickup_delete_checklist_item',
     'Delete an item from a ClickUp checklist.',
     {
-      checklist_id: z.coerce.string().describe('The ID of the checklist containing the item'),
-      checklist_item_id: z.coerce.string().describe('The ID of the checklist item to delete'),
+      checklist_id: idSchema().describe('The ID of the checklist containing the item'),
+      checklist_item_id: idSchema().describe('The ID of the checklist item to delete'),
     },
     async ({ checklist_id, checklist_item_id }) => {
       try {

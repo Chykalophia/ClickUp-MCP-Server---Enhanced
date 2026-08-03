@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { idSchema } from './common.js';
 
 // Content format values accepted by tool inputs.
 // 'markdown' and 'html' are aliases normalized to 'text/md'/'text/html'
@@ -105,13 +106,13 @@ export const SearchDocsParamsSchema = GetDocsParamsSchema.extend({
 });
 
 // Document ID validation
-export const DocIdSchema = z.coerce.string().min(1, 'Document ID is required');
+export const DocIdSchema = idSchema('Document ID is required');
 
 // Page ID validation
-export const PageIdSchema = z.coerce.string().min(1, 'Page ID is required');
+export const PageIdSchema = idSchema('Page ID is required');
 
 // Workspace ID validation
-export const WorkspaceIdSchema = z.coerce.string().min(1, 'Workspace ID is required');
+export const WorkspaceIdSchema = idSchema('Workspace ID is required');
 
 // Combined schemas for tool validation.
 // Note: the public ClickUp API has no doc update/delete, page delete,

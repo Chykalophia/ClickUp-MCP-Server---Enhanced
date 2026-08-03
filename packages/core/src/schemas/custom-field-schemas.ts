@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { idSchema } from './common.js';
 
 // ========================================
 // CUSTOM FIELD TYPE VALIDATION
@@ -188,12 +189,12 @@ export const ValueOptionsSchema = z.object({
 // CONTAINER VALIDATION SCHEMAS
 // ========================================
 
-export const ListIdSchema = z.coerce.string().min(1, 'List ID is required');
-export const FolderIdSchema = z.coerce.string().min(1, 'Folder ID is required');
-export const SpaceIdSchema = z.coerce.string().min(1, 'Space ID is required');
-export const TeamIdSchema = z.coerce.string().min(1, 'Team ID is required');
-export const FieldIdSchema = z.coerce.string().min(1, 'Field ID is required');
-export const TaskIdSchema = z.coerce.string().min(1, 'Task ID is required');
+export const ListIdSchema = idSchema('List ID is required');
+export const FolderIdSchema = idSchema('Folder ID is required');
+export const SpaceIdSchema = idSchema('Space ID is required');
+export const TeamIdSchema = idSchema('Team ID is required');
+export const FieldIdSchema = idSchema('Field ID is required');
+export const TaskIdSchema = idSchema('Task ID is required');
 
 // ========================================
 // TOOL PARAMETER SCHEMAS

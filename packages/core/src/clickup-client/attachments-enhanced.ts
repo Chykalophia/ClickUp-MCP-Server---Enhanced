@@ -38,7 +38,8 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
     const fileBytes = await this.resolveFileBytes(request);
 
     const form = new FormData();
-    form.append('attachment', new Blob([fileBytes]), request.filename);
+    // Wrap in a plain Uint8Array view so it is a valid BlobPart under the DOM types.
+    form.append('attachment', new Blob([new Uint8Array(fileBytes)]), request.filename);
     form.append('filename', request.filename);
 
     const params: Record<string, string> = {};

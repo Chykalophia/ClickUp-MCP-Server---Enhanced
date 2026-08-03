@@ -230,8 +230,10 @@ export class SecureClickUpClient {
 
     const formData = new FormData();
 
-    // Add file
-    const blob = new Blob([file.data], { type: file.mimetype });
+    // Add file. Wrap a Buffer in a plain Uint8Array view so it is a valid
+    // BlobPart under the DOM types (a string is already a valid BlobPart).
+    const filePart = typeof file.data === 'string' ? file.data : new Uint8Array(file.data);
+    const blob = new Blob([filePart], { type: file.mimetype });
     formData.append('file', blob, file.filename);
 
     // Add additional data

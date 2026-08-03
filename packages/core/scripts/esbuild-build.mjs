@@ -11,7 +11,7 @@
 
 import { build } from 'esbuild';
 import { readdirSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, sep } from 'node:path';
 
 function collectTsFiles(dir, out = []) {
   for (const entry of readdirSync(dir)) {
@@ -30,9 +30,12 @@ function collectTsFiles(dir, out = []) {
   return out;
 }
 
-const entryPoints = collectTsFiles('src').filter(
-  (p) => !p.includes(`${'/'}tests${'/'}`) && !p.includes(`${'/'}__tests__${'/'}`)
-);
+const entryPoints = collectTsFiles('src').filter((p) => {
+  // Normalize to POSIX separators so the directory checks also hold on Windows,
+  // where path.join() yields backslashes.
+  const posix = p.split(sep).join('/');
+  return !posix.includes('/tests/') && !posix.includes('/__tests__/');
+});
 
 await build({
   entryPoints,

@@ -26,6 +26,7 @@ import {
   ContentFormatSchema,
   MessageTypeSchema,
 } from '../schemas/chat-schemas.js';
+import { idSchema } from '../schemas/common.js';
 
 // Create enhanced chat client (Chat API is v3-only)
 const chatClient = new ChatEnhancedClient(getApiToken());
@@ -39,7 +40,7 @@ export function setupChatTools(server: McpServer): void {
     'clickup_get_chat_channels',
     'Retrieve chat channels in a workspace with cursor pagination and optional filtering by channel type, follower status, and activity.',
     {
-      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace to get channels from'),
+      workspace_id: idSchema().describe('The ID of the workspace to get channels from'),
       description_format: z.enum(['text/md', 'text/plain']).optional().describe('Format for channel descriptions in the response'),
       cursor: z.string().optional().describe('Pagination cursor from a previous response (next_cursor)'),
       limit: z.number().min(1).max(100).optional().describe('Maximum number of channels to return (1-100)'),
@@ -71,7 +72,7 @@ export function setupChatTools(server: McpServer): void {
     'clickup_create_chat_channel',
     'Create a new chat channel in a workspace with specified name, description, topic, members, and visibility.',
     {
-      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace to create the channel in'),
+      workspace_id: idSchema().describe('The ID of the workspace to create the channel in'),
       name: z.string().min(1).max(255).describe('The name of the channel'),
       description: z.string().optional().describe('Optional description of the channel'),
       topic: z.string().optional().describe('Optional topic of the channel'),
@@ -101,8 +102,8 @@ export function setupChatTools(server: McpServer): void {
     'clickup_create_chat_channel_on_parent',
     'Create a chat channel on a specific space, folder, or list for contextual discussions. The channel name is derived from the location.',
     {
-      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace'),
-      parent_id: z.coerce.string().min(1).describe('The ID of the parent location (space, folder, or list)'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      parent_id: idSchema().describe('The ID of the parent location (space, folder, or list)'),
       parent_type: ChannelLocationTypeSchema.describe('The type of parent location'),
       description: z.string().optional().describe('Optional description of the channel'),
       topic: z.string().optional().describe('Optional topic of the channel'),
@@ -132,7 +133,7 @@ export function setupChatTools(server: McpServer): void {
     'clickup_create_direct_message',
     'Create a direct message channel with up to 15 users. Provide no user IDs to create a self-DM.',
     {
-      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
       user_ids: z
         .array(z.string())
         .max(15)
@@ -162,8 +163,8 @@ export function setupChatTools(server: McpServer): void {
     'clickup_get_chat_channel',
     'Retrieve detailed information about a specific chat channel by its ID.',
     {
-      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace'),
-      channel_id: z.coerce.string().min(1).describe('The ID of the channel to retrieve'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      channel_id: idSchema().describe('The ID of the channel to retrieve'),
     },
     async args => {
       try {
@@ -187,8 +188,8 @@ export function setupChatTools(server: McpServer): void {
     'clickup_update_chat_channel',
     "Update a chat channel's name, description, topic, visibility, or location.",
     {
-      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace'),
-      channel_id: z.coerce.string().min(1).describe('The ID of the channel to update'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      channel_id: idSchema().describe('The ID of the channel to update'),
       name: z.string().min(1).max(255).optional().describe('New name for the channel'),
       description: z.string().optional().describe('New description for the channel'),
       topic: z.string().optional().describe('New topic for the channel'),
@@ -228,8 +229,8 @@ export function setupChatTools(server: McpServer): void {
     'clickup_get_chat_channel_followers',
     'Retrieve followers of a chat channel who receive notifications about channel activity (cursor-paginated).',
     {
-      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace'),
-      channel_id: z.coerce.string().min(1).describe('The ID of the channel to get followers for'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      channel_id: idSchema().describe('The ID of the channel to get followers for'),
       cursor: z.string().optional().describe('Pagination cursor from a previous response (next_cursor)'),
       limit: z.number().min(1).max(100).optional().describe('Maximum number of followers to return (1-100)'),
     },
@@ -256,8 +257,8 @@ export function setupChatTools(server: McpServer): void {
     'clickup_get_chat_channel_members',
     'Retrieve members of a chat channel (cursor-paginated).',
     {
-      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace'),
-      channel_id: z.coerce.string().min(1).describe('The ID of the channel to get members for'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      channel_id: idSchema().describe('The ID of the channel to get members for'),
       cursor: z.string().optional().describe('Pagination cursor from a previous response (next_cursor)'),
       limit: z.number().min(1).max(100).optional().describe('Maximum number of members to return (1-100)'),
     },
@@ -288,8 +289,8 @@ export function setupChatTools(server: McpServer): void {
     'clickup_get_chat_channel_messages',
     'Retrieve messages from a chat channel with cursor pagination.',
     {
-      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace'),
-      channel_id: z.coerce.string().min(1).describe('The ID of the channel to get messages from'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      channel_id: idSchema().describe('The ID of the channel to get messages from'),
       cursor: z.string().optional().describe('Pagination cursor from a previous response (next_cursor)'),
       limit: z.number().min(1).max(100).optional().describe('Maximum number of messages to return (1-100)'),
       content_format: ContentFormatSchema.optional().describe('Format of returned message content: text/md (default) or text/plain'),
@@ -317,8 +318,8 @@ export function setupChatTools(server: McpServer): void {
     'clickup_send_chat_message',
     'Send a message to a chat channel. Mentions can be embedded in markdown content.',
     {
-      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace'),
-      channel_id: z.coerce.string().min(1).describe('The ID of the channel to send the message to'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      channel_id: idSchema().describe('The ID of the channel to send the message to'),
       content: z.string().min(1).describe('The content of the message'),
       type: MessageTypeSchema.optional().describe("The type of message: 'message' (default) or 'post'"),
       content_format: ContentFormatSchema.optional().describe('Format of the content: text/md (default) or text/plain'),
@@ -357,8 +358,8 @@ export function setupChatTools(server: McpServer): void {
     'clickup_update_chat_message',
     'Update the content, assignee, or resolved state of an existing chat message.',
     {
-      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace'),
-      message_id: z.coerce.string().min(1).describe('The ID of the message to update'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      message_id: idSchema().describe('The ID of the message to update'),
       content: z.string().min(1).optional().describe('The new content of the message'),
       content_format: ContentFormatSchema.optional().describe('Format of the content: text/md (default) or text/plain'),
       assignee: z.string().optional().describe('User ID to assign the message to'),
@@ -396,8 +397,8 @@ export function setupChatTools(server: McpServer): void {
     'clickup_delete_chat_message',
     'Delete a chat message. This action cannot be undone.',
     {
-      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace'),
-      message_id: z.coerce.string().min(1).describe('The ID of the message to delete'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      message_id: idSchema().describe('The ID of the message to delete'),
     },
     async args => {
       try {
@@ -425,8 +426,8 @@ export function setupChatTools(server: McpServer): void {
     'clickup_get_chat_message_replies',
     'Retrieve replies to a specific chat message (cursor-paginated).',
     {
-      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace'),
-      message_id: z.coerce.string().min(1).describe('The ID of the message to get replies for'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      message_id: idSchema().describe('The ID of the message to get replies for'),
       cursor: z.string().optional().describe('Pagination cursor from a previous response (next_cursor)'),
       limit: z.number().min(1).max(100).optional().describe('Maximum number of replies to return (1-100)'),
       content_format: ContentFormatSchema.optional().describe('Format of returned reply content: text/md (default) or text/plain'),
@@ -454,8 +455,8 @@ export function setupChatTools(server: McpServer): void {
     'clickup_create_chat_message_reply',
     'Create a reply to a specific chat message.',
     {
-      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace'),
-      message_id: z.coerce.string().min(1).describe('The ID of the message to reply to'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      message_id: idSchema().describe('The ID of the message to reply to'),
       content: z.string().min(1).describe('The content of the reply'),
       type: MessageTypeSchema.optional().describe("The type of message: 'message' (default) or 'post'"),
       content_format: ContentFormatSchema.optional().describe('Format of the content: text/md (default) or text/plain'),
@@ -498,8 +499,8 @@ export function setupChatTools(server: McpServer): void {
     'clickup_get_chat_message_reactions',
     'Retrieve reactions on a specific chat message (cursor-paginated).',
     {
-      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace'),
-      message_id: z.coerce.string().min(1).describe('The ID of the message to get reactions for'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      message_id: idSchema().describe('The ID of the message to get reactions for'),
       cursor: z.string().optional().describe('Pagination cursor from a previous response (next_cursor)'),
       limit: z.number().min(1).max(100).optional().describe('Maximum number of reactions to return (1-100)'),
     },
@@ -526,8 +527,8 @@ export function setupChatTools(server: McpServer): void {
     'clickup_create_chat_message_reaction',
     'Add a reaction to a chat message using an emoji name (e.g. "grinning", "+1").',
     {
-      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace'),
-      message_id: z.coerce.string().min(1).describe('The ID of the message to react to'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      message_id: idSchema().describe('The ID of the message to react to'),
       reaction: z.string().min(1).describe('The name of the emoji to use for the reaction (e.g. "grinning", "+1")'),
     },
     async args => {
@@ -553,8 +554,8 @@ export function setupChatTools(server: McpServer): void {
     'clickup_delete_chat_message_reaction',
     'Remove a reaction from a chat message by emoji name.',
     {
-      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace'),
-      message_id: z.coerce.string().min(1).describe('The ID of the message to remove the reaction from'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      message_id: idSchema().describe('The ID of the message to remove the reaction from'),
       reaction: z.string().min(1).describe('The name of the emoji reaction to remove'),
     },
     async args => {
@@ -584,8 +585,8 @@ export function setupChatTools(server: McpServer): void {
     'clickup_get_chat_message_tagged_users',
     'Retrieve users tagged/mentioned in a specific chat message (cursor-paginated).',
     {
-      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace'),
-      message_id: z.coerce.string().min(1).describe('The ID of the message to get tagged users for'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      message_id: idSchema().describe('The ID of the message to get tagged users for'),
       cursor: z.string().optional().describe('Pagination cursor from a previous response (next_cursor)'),
       limit: z.number().min(1).max(100).optional().describe('Maximum number of tagged users to return (1-100)'),
     },
@@ -612,7 +613,7 @@ export function setupChatTools(server: McpServer): void {
     'clickup_search_chat_channels',
     'Search for chat channels by name within a workspace (client-side filtering over the channel list).',
     {
-      workspace_id: z.coerce.string().min(1).describe('The ID of the workspace to search in'),
+      workspace_id: idSchema().describe('The ID of the workspace to search in'),
       query: z.string().min(1).describe('The search query to match against channel names (case-insensitive)'),
     },
     async args => {

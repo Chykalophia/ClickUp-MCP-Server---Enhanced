@@ -14,6 +14,7 @@ import {
   BulkDependencyOperationSchema,
 } from '../schemas/dependencies-schemas.js';
 import { mcpError } from '../utils/error-handling.js';
+import { idSchema } from '../schemas/common.js';
 
 // Create clients
 const dependenciesClient = new DependenciesEnhancedClient(getApiToken());
@@ -39,7 +40,7 @@ export function setupDependenciesTools(server: McpServer): void {
     'clickup_create_dependency',
     'Create a dependency between two tasks. Provide exactly one of depends_on (this task is WAITING ON the other task) or dependency_of (this task is BLOCKING the other task).',
     {
-      task_id: z.coerce.string().min(1).describe('The ID of the task to add the dependency to'),
+      task_id: idSchema().describe('The ID of the task to add the dependency to'),
       depends_on: z
         .string()
         .min(1)
@@ -79,7 +80,7 @@ export function setupDependenciesTools(server: McpServer): void {
     'clickup_get_task_dependencies',
     "Get a task's dependencies and linked tasks (read from the task's dependencies and linked_tasks arrays).",
     {
-      task_id: z.coerce.string().min(1).describe('The ID of the task to get dependencies and links for'),
+      task_id: idSchema().describe('The ID of the task to get dependencies and links for'),
       ...customTaskIdInputs,
     },
     async args => {
@@ -105,7 +106,7 @@ export function setupDependenciesTools(server: McpServer): void {
     'clickup_delete_dependency',
     'Delete a dependency between two tasks. Provide exactly one of depends_on or dependency_of to identify which dependency to remove.',
     {
-      task_id: z.coerce.string().min(1).describe('The ID of the task to remove the dependency from'),
+      task_id: idSchema().describe('The ID of the task to remove the dependency from'),
       depends_on: z
         .string()
         .min(1)
@@ -145,8 +146,8 @@ export function setupDependenciesTools(server: McpServer): void {
     'clickup_add_task_link',
     'Link two tasks together (a non-blocking "linked" relationship). Returns the updated task.',
     {
-      task_id: z.coerce.string().min(1).describe('The ID of the task to add the link to'),
-      links_to: z.coerce.string().min(1).describe('The ID of the task to link to'),
+      task_id: idSchema().describe('The ID of the task to add the link to'),
+      links_to: idSchema().describe('The ID of the task to link to'),
       ...customTaskIdInputs,
     },
     async args => {
@@ -172,8 +173,8 @@ export function setupDependenciesTools(server: McpServer): void {
     'clickup_delete_task_link',
     'Remove a link between two tasks. Returns the updated task.',
     {
-      task_id: z.coerce.string().min(1).describe('The ID of the task to remove the link from'),
-      links_to: z.coerce.string().min(1).describe('The ID of the linked task to unlink'),
+      task_id: idSchema().describe('The ID of the task to remove the link from'),
+      links_to: idSchema().describe('The ID of the linked task to unlink'),
       ...customTaskIdInputs,
     },
     async args => {
@@ -203,7 +204,7 @@ export function setupDependenciesTools(server: McpServer): void {
     'clickup_get_dependency_graph',
     'Build a dependency graph for a task by traversing related tasks (computed client-side from task data; issues one Get Task request per task in the graph).',
     {
-      task_id: z.coerce.string().min(1).describe('The root task ID for the dependency graph'),
+      task_id: idSchema().describe('The root task ID for the dependency graph'),
       depth: z
         .number()
         .min(1)
@@ -234,7 +235,7 @@ export function setupDependenciesTools(server: McpServer): void {
     'clickup_check_dependency_conflicts',
     'Check for circular or duplicate dependencies around a task, optionally including proposed new dependencies (computed client-side from task data).',
     {
-      task_id: z.coerce.string().min(1).describe('The task ID to check for conflicts'),
+      task_id: idSchema().describe('The task ID to check for conflicts'),
       proposed_dependencies: z
         .array(
           z.object({
@@ -282,7 +283,7 @@ export function setupDependenciesTools(server: McpServer): void {
       dependencies: z
         .array(
           z.object({
-            task_id: z.coerce.string().min(1).describe('The task to add/remove the dependency on'),
+            task_id: idSchema().describe('The task to add/remove the dependency on'),
             depends_on: z
               .string()
               .min(1)

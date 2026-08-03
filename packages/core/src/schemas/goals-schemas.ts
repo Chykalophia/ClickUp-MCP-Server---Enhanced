@@ -1,18 +1,19 @@
 /* eslint-disable max-len */
 import { z } from 'zod';
+import { idSchema } from './common.js';
 
 // ========================================
 // GOALS VALIDATION SCHEMAS
 // ========================================
 
 // Team ID validation
-export const TeamIdSchema = z.coerce.string().min(1, 'Team ID is required');
+export const TeamIdSchema = idSchema('Team ID is required');
 
 // Goal ID validation
-export const GoalIdSchema = z.coerce.string().min(1, 'Goal ID is required');
+export const GoalIdSchema = idSchema('Goal ID is required');
 
 // Target ID validation
-export const TargetIdSchema = z.coerce.string().min(1, 'Target ID is required');
+export const TargetIdSchema = idSchema('Target ID is required');
 
 // User ID validation
 export const UserIdSchema = z.number().positive('User ID must be positive');

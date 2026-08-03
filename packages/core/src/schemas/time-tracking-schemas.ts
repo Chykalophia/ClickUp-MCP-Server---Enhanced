@@ -1,18 +1,19 @@
 /* eslint-disable max-len */
 import { z } from 'zod';
+import { idSchema } from './common.js';
 
 // ========================================
 // TIME TRACKING VALIDATION SCHEMAS
 // ========================================
 
 // Team ID validation
-export const TeamIdSchema = z.coerce.string().min(1, 'Team ID is required');
+export const TeamIdSchema = idSchema('Team ID is required');
 
 // Timer ID validation
-export const TimerIdSchema = z.coerce.string().min(1, 'Timer ID is required');
+export const TimerIdSchema = idSchema('Timer ID is required');
 
 // Task ID validation (optional for time entries)
-export const TaskIdSchema = z.coerce.string().min(1, 'Task ID is required');
+export const TaskIdSchema = idSchema('Task ID is required');
 
 // User ID validation
 export const UserIdSchema = z.number().positive('User ID must be positive');

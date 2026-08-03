@@ -5,6 +5,7 @@ import { createClickUpClient } from '../clickup-client/index.js';
 import { createListsClient, List } from '../clickup-client/lists.js';
 import { createFoldersClient } from '../clickup-client/folders.js';
 import { mcpError } from '../utils/error-handling.js';
+import { idSchema } from '../schemas/common.js';
 
 // Create clients
 const clickUpClient = createClickUpClient();
@@ -19,7 +20,7 @@ export function setupListFolderTools(server: McpServer): void {
       container_type: z
         .enum(['folder', 'space'])
         .describe('The type of container to get lists from'),
-      container_id: z.coerce.string().describe('The ID of the container to get lists from'),
+      container_id: idSchema().describe('The ID of the container to get lists from'),
       archived: z
         .boolean()
         .optional()
@@ -59,7 +60,7 @@ export function setupListFolderTools(server: McpServer): void {
     'clickup_get_folders',
     'Get folders from a ClickUp space. Returns folder details including the lists inside each folder.',
     {
-      space_id: z.coerce.string().describe('The ID of the space to get folders from'),
+      space_id: idSchema().describe('The ID of the space to get folders from'),
       archived: z
         .boolean()
         .optional()
@@ -82,7 +83,7 @@ export function setupListFolderTools(server: McpServer): void {
     'clickup_get_folder',
     'Get details about a specific ClickUp folder including its name, statuses, and lists.',
     {
-      folder_id: z.coerce.string().describe('The ID of the folder to get')
+      folder_id: idSchema().describe('The ID of the folder to get')
     },
     async ({ folder_id }) => {
       try {
@@ -100,7 +101,7 @@ export function setupListFolderTools(server: McpServer): void {
     'clickup_create_folder',
     'Create a new folder in a ClickUp space with the specified name.',
     {
-      space_id: z.coerce.string().describe('The ID of the space to create the folder in'),
+      space_id: idSchema().describe('The ID of the space to create the folder in'),
       name: z.string().describe('The name of the folder')
     },
     async ({ space_id, name }) => {
@@ -119,7 +120,7 @@ export function setupListFolderTools(server: McpServer): void {
     'clickup_update_folder',
     "Update an existing ClickUp folder's name.",
     {
-      folder_id: z.coerce.string().describe('The ID of the folder to update'),
+      folder_id: idSchema().describe('The ID of the folder to update'),
       name: z.string().describe('The new name of the folder')
     },
     async ({ folder_id, name }) => {
@@ -138,7 +139,7 @@ export function setupListFolderTools(server: McpServer): void {
     'clickup_delete_folder',
     'Delete a folder from ClickUp. Removes the folder and its contents.',
     {
-      folder_id: z.coerce.string().describe('The ID of the folder to delete')
+      folder_id: idSchema().describe('The ID of the folder to delete')
     },
     async ({ folder_id }) => {
       try {
@@ -156,7 +157,7 @@ export function setupListFolderTools(server: McpServer): void {
     'clickup_get_folderless_lists',
     'Get lists that are not in any folder within a ClickUp space.',
     {
-      space_id: z.coerce.string().describe('The ID of the space to get folderless lists from'),
+      space_id: idSchema().describe('The ID of the space to get folderless lists from'),
       archived: z
         .boolean()
         .optional()
@@ -182,7 +183,7 @@ export function setupListFolderTools(server: McpServer): void {
       container_type: z
         .enum(['folder', 'space'])
         .describe('The type of container to create the list in'),
-      container_id: z.coerce.string().describe('The ID of the container to create the list in'),
+      container_id: idSchema().describe('The ID of the container to create the list in'),
       name: z.string().describe('The name of the list'),
       content: z.string().optional().describe('The description/content of the list'),
       due_date: z
@@ -228,7 +229,7 @@ export function setupListFolderTools(server: McpServer): void {
     'clickup_create_folderless_list',
     'Create a new list directly in a ClickUp space without placing it in a folder.',
     {
-      space_id: z.coerce.string().describe('The ID of the space to create the folderless list in'),
+      space_id: idSchema().describe('The ID of the space to create the folderless list in'),
       name: z.string().describe('The name of the folderless list'),
       content: z.string().optional().describe('The description/content of the list'),
       due_date: z
@@ -273,7 +274,7 @@ export function setupListFolderTools(server: McpServer): void {
     'clickup_get_list',
     'Get details about a specific ClickUp list including its name and content.',
     {
-      list_id: z.coerce.string().describe('The ID of the list to get')
+      list_id: idSchema().describe('The ID of the list to get')
     },
     async ({ list_id }) => {
       try {
@@ -291,7 +292,7 @@ export function setupListFolderTools(server: McpServer): void {
     'clickup_update_list',
     'Update an existing ClickUp list. All fields are optional; only provided fields are changed.',
     {
-      list_id: z.coerce.string().describe('The ID of the list to update'),
+      list_id: idSchema().describe('The ID of the list to update'),
       name: z.string().optional().describe('The new name of the list'),
       content: z.string().optional().describe('The new description/content of the list'),
       due_date: z
@@ -340,7 +341,7 @@ export function setupListFolderTools(server: McpServer): void {
     'clickup_get_list_members',
     'Get the members (users) who have access to a specific ClickUp list.',
     {
-      list_id: z.coerce.string().describe('The ID of the list to get members from')
+      list_id: idSchema().describe('The ID of the list to get members from')
     },
     async ({ list_id }) => {
       try {
@@ -358,7 +359,7 @@ export function setupListFolderTools(server: McpServer): void {
     'clickup_delete_list',
     '⚠️ DESTRUCTIVE: Delete a list from ClickUp. This action cannot be undone and will permanently remove the list and all its tasks.',
     {
-      list_id: z.coerce.string().describe('The ID of the list to delete'),
+      list_id: idSchema().describe('The ID of the list to delete'),
       confirm_deletion: z
         .boolean()
         .describe(
@@ -403,8 +404,8 @@ export function setupListFolderTools(server: McpServer): void {
     'clickup_create_list_from_template_in_folder',
     'Create a new list in a ClickUp folder using an existing template.',
     {
-      folder_id: z.coerce.string().describe('The ID of the folder to create the list in'),
-      template_id: z.coerce.string().describe('The ID of the template to use'),
+      folder_id: idSchema().describe('The ID of the folder to create the list in'),
+      template_id: idSchema().describe('The ID of the template to use'),
       name: z.string().describe('The name of the list'),
       return_immediately: z
         .boolean()
@@ -430,8 +431,8 @@ export function setupListFolderTools(server: McpServer): void {
     'clickup_create_list_from_template_in_space',
     'Create a new list in a ClickUp space using an existing template.',
     {
-      space_id: z.coerce.string().describe('The ID of the space to create the list in'),
-      template_id: z.coerce.string().describe('The ID of the template to use'),
+      space_id: idSchema().describe('The ID of the space to create the list in'),
+      template_id: idSchema().describe('The ID of the template to use'),
       name: z.string().describe('The name of the list'),
       return_immediately: z
         .boolean()
@@ -457,7 +458,7 @@ export function setupListFolderTools(server: McpServer): void {
     'clickup_create_folder_from_template',
     'Create a new folder (with its nested lists and tasks) in a ClickUp space using an existing folder template.',
     {
-      space_id: z.coerce.string().describe('The ID of the space to create the folder in'),
+      space_id: idSchema().describe('The ID of the space to create the folder in'),
       template_id: z
         .string()
         .describe('The ID of the folder template to use (e.g. "t-7162342")'),
@@ -488,7 +489,7 @@ export function setupListFolderTools(server: McpServer): void {
     'clickup_get_folder_templates',
     'Get the folder templates available in a ClickUp workspace. Use the returned template IDs with clickup_create_folder_from_template.',
     {
-      team_id: z.coerce.string().describe('The ID of the workspace (team) to get folder templates from')
+      team_id: idSchema().describe('The ID of the workspace (team) to get folder templates from')
     },
     async ({ team_id }) => {
       try {

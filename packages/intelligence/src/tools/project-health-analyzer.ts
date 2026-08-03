@@ -14,7 +14,7 @@ const projectHealthAnalysisShape = {
   space_id: z.string().optional().describe('Optional: Specific space ID to analyze'),
   list_id: z.string().optional().describe('Optional: Specific list ID to analyze'),
   include_archived: z.boolean().default(false).describe('Whether to include archived tasks in analysis'),
-  analysis_depth: z.enum(['basic', 'detailed', 'comprehensive']).default('detailed').describe('Depth of analysis to perform')
+  analysis_depth: z.enum(['basic', 'detailed', 'comprehensive']).default('detailed').describe('Depth of analysis to perform'),
 };
 
 type RawShapeToolRegister = (
@@ -141,8 +141,8 @@ ${analysis.summary.overallScore >= 80 ?
 }
 
 ---
-*Analysis generated on ${new Date().toISOString().split('T')[0]} using AI-powered project health analytics*`
-          }]
+*Analysis generated on ${new Date().toISOString().split('T')[0]} using AI-powered project health analytics*`,
+          }],
         };
       } catch (error: any) {
         console.error('Error in project health analysis:', error);
@@ -164,9 +164,9 @@ ${analysis.summary.overallScore >= 80 ?
 ${error.stack || error.message}
 \`\`\`
 
-Please resolve these issues and try again.`
+Please resolve these issues and try again.`,
           }],
-          isError: true
+          isError: true,
         };
       }
     }

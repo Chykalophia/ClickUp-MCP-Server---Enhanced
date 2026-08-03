@@ -93,7 +93,7 @@ export class HealthMetricsService {
       workload: workloadMetrics.distributionScore,
       dependencies: dependencyMetrics.healthScore,
       quality: qualityMetrics.qualityScore,
-      timeline: timelineMetrics.adherenceScore
+      timeline: timelineMetrics.adherenceScore,
     });
 
     // Generate risk factors and recommendations
@@ -103,7 +103,7 @@ export class HealthMetricsService {
       workloadMetrics,
       dependencyMetrics,
       qualityMetrics,
-      timelineMetrics
+      timelineMetrics,
     });
 
     const recommendations = this.generateRecommendations(riskFactors);
@@ -121,7 +121,7 @@ export class HealthMetricsService {
       workloadDistribution: workloadMetrics,
       dependencyHealth: dependencyMetrics,
       qualityIndicators: qualityMetrics,
-      timelineAdherence: timelineMetrics
+      timelineAdherence: timelineMetrics,
     };
   }
 
@@ -139,7 +139,7 @@ export class HealthMetricsService {
         description: 'Poor timeline adherence detected',
         impact: `${100 - metrics.timelineAdherence.adherenceScore}% of deliverables are behind schedule`,
         recommendation: 'Review project scope, adjust timelines, or increase resources',
-        confidence: 85
+        confidence: 85,
       });
     }
 
@@ -151,7 +151,7 @@ export class HealthMetricsService {
         description: 'Unbalanced workload distribution',
         impact: `${metrics.workloadDistribution.overloadedMembers.length} team members are overloaded`,
         recommendation: 'Redistribute tasks and balance team workload',
-        confidence: 90
+        confidence: 90,
       });
     }
 
@@ -163,7 +163,7 @@ export class HealthMetricsService {
         description: 'Dependency bottlenecks identified',
         impact: `${metrics.dependencyHealth.blockedTasks} tasks are blocked by dependencies`,
         recommendation: 'Resolve blocking dependencies and review task sequencing',
-        confidence: 80
+        confidence: 80,
       });
     }
 
@@ -175,7 +175,7 @@ export class HealthMetricsService {
         description: 'Declining team velocity',
         impact: `Team velocity has decreased by ${Math.abs(metrics.velocityTrend.current - metrics.velocityTrend.previous)} points`,
         recommendation: 'Investigate velocity decline causes and implement improvement measures',
-        confidence: metrics.velocityTrend.confidence
+        confidence: metrics.velocityTrend.confidence,
       });
     }
 
@@ -187,7 +187,7 @@ export class HealthMetricsService {
         description: 'Quality indicators below threshold',
         impact: `Bug rate: ${(metrics.qualityIndicators.bugRate * 100).toFixed(1)}%, Rework frequency: ${(metrics.qualityIndicators.reworkFrequency * 100).toFixed(1)}%`,
         recommendation: 'Implement quality improvement processes and increase testing',
-        confidence: 75
+        confidence: 75,
       });
     }
 
@@ -243,7 +243,7 @@ export class HealthMetricsService {
       current: currentVelocity,
       previous: previousVelocity,
       trend,
-      confidence: 75 + Math.random() * 20 // Mock confidence: 75-95%
+      confidence: 75 + Math.random() * 20, // Mock confidence: 75-95%
     };
   }
 
@@ -256,7 +256,7 @@ export class HealthMetricsService {
         balanced: true,
         overloadedMembers: [],
         underutilizedMembers: [],
-        distributionScore: 85
+        distributionScore: 85,
       };
     }
 
@@ -295,7 +295,7 @@ export class HealthMetricsService {
       balanced,
       overloadedMembers,
       underutilizedMembers,
-      distributionScore
+      distributionScore,
     };
   }
 
@@ -311,7 +311,7 @@ export class HealthMetricsService {
       totalDependencies,
       blockedTasks,
       circularDependencies,
-      healthScore
+      healthScore,
     };
   }
 
@@ -325,7 +325,7 @@ export class HealthMetricsService {
     return {
       bugRate,
       reworkFrequency,
-      qualityScore
+      qualityScore,
     };
   }
 
@@ -336,7 +336,7 @@ export class HealthMetricsService {
         onTimeDelivery: 100,
         averageDelay: 0,
         scheduleVariance: 0,
-        adherenceScore: 100
+        adherenceScore: 100,
       };
     }
 
@@ -351,7 +351,7 @@ export class HealthMetricsService {
       onTimeDelivery,
       averageDelay,
       scheduleVariance,
-      adherenceScore
+      adherenceScore,
     };
   }
 
@@ -370,7 +370,7 @@ export class HealthMetricsService {
       quality: 0.20, // 20% - Quality is important
       workload: 0.15, // 15% - Workload balance affects sustainability
       dependencies: 0.10, // 10% - Dependencies affect flow
-      velocity: 0.10 // 10% - Velocity indicates team performance
+      velocity: 0.10, // 10% - Velocity indicates team performance
     };
 
     return Math.round(
@@ -428,7 +428,7 @@ export class HealthMetricsService {
       workloadDistribution: metrics.workloadMetrics,
       dependencyHealth: metrics.dependencyMetrics,
       qualityIndicators: metrics.qualityMetrics,
-      timelineAdherence: metrics.timelineMetrics
+      timelineAdherence: metrics.timelineMetrics,
     };
 
     return this.analyzeRisks(mockMetrics);

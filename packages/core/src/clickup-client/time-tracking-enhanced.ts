@@ -518,7 +518,7 @@ export class EnhancedTimeTrackingClient {
             duration: 0,
             billable_duration: 0,
             entries_count: 0,
-            user_info: entry.user
+            user_info: entry.user,
           };
         }
         byUser[userId].duration += duration;
@@ -535,7 +535,7 @@ export class EnhancedTimeTrackingClient {
               duration: 0,
               billable_duration: 0,
               entries_count: 0,
-              task_info: entry.task
+              task_info: entry.task,
             };
           }
           byTask[taskId].duration += duration;
@@ -552,7 +552,7 @@ export class EnhancedTimeTrackingClient {
         non_billable_duration: nonBillableDuration,
         entries_count: timeEntries.length,
         by_user: byUser,
-        by_task: byTask
+        by_task: byTask,
       };
     } catch (error) {
       console.error('Error getting time summary:', error instanceof Error ? error.message : error);

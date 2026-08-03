@@ -24,7 +24,7 @@ export class EventStreamProcessor extends EventEmitter {
     averageProcessingTime: 0,
     errorRate: 0,
     throughput: 0,
-    lastProcessedAt: 0
+    lastProcessedAt: 0,
   };
   private processingTimes: number[] = [];
   private errorCount = 0;
@@ -111,7 +111,7 @@ export class EventStreamProcessor extends EventEmitter {
       eventType: 'task_update',
       condition: () => true,
       action,
-      priority: 1
+      priority: 1,
     };
   }
 
@@ -121,7 +121,7 @@ export class EventStreamProcessor extends EventEmitter {
       eventType: 'task_created',
       condition: (_event) => _event.data.priority?.priority === 'urgent',
       action,
-      priority: 10
+      priority: 10,
     };
   }
 
@@ -131,7 +131,7 @@ export class EventStreamProcessor extends EventEmitter {
       eventType: 'status_changed',
       condition: () => true,
       action,
-      priority: 5
+      priority: 5,
     };
   }
 }

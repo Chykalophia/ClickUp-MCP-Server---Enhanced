@@ -174,7 +174,7 @@ export class EnhancedDocsClient {
       const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/pages`;
       const params = {
         max_page_depth: -1,
-        content_format: normalizeContentFormat(contentFormat)
+        content_format: normalizeContentFormat(contentFormat),
       };
 
       const response = await this.http.get(url, { params });
@@ -222,7 +222,7 @@ export class EnhancedDocsClient {
         const lowerQuery = query.toLowerCase();
         return {
           ...result,
-          docs: result.docs.filter(doc => doc.name?.toLowerCase().includes(lowerQuery))
+          docs: result.docs.filter(doc => doc.name?.toLowerCase().includes(lowerQuery)),
         };
       }
 
@@ -290,7 +290,7 @@ export class EnhancedDocsClient {
         name: params.name,
         visibility,
         // When content is supplied we create the first page ourselves
-        create_page: params.content ? false : params.create_page !== false
+        create_page: params.content ? false : params.create_page !== false,
       };
       if (parent) {
         requestBody.parent = parent;
@@ -307,13 +307,13 @@ export class EnhancedDocsClient {
           await this.createPage(params.workspace_id, doc.id, {
             name: params.name,
             content: params.content,
-            content_format: params.content_format || 'text/md'
+            content_format: params.content_format || 'text/md',
           });
         } catch (pageError) {
           const message = pageError instanceof Error ? pageError.message : String(pageError);
           return {
             ...doc,
-            warning: `Document created (id: ${doc.id}) but the initial content page failed: ${message}. Add the content with clickup_create_doc_page instead of retrying the creation.`
+            warning: `Document created (id: ${doc.id}) but the initial content page failed: ${message}. Add the content with clickup_create_doc_page instead of retrying the creation.`,
           } as Doc;
         }
       }
@@ -341,7 +341,7 @@ export class EnhancedDocsClient {
       const requestBody: Record<string, unknown> = {
         name: params.name,
         content: params.content,
-        content_format: normalizeContentFormat(params.content_format)
+        content_format: normalizeContentFormat(params.content_format),
       };
 
       if (params.sub_title) {

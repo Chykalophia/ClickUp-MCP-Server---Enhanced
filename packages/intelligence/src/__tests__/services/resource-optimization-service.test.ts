@@ -25,28 +25,28 @@ describe('ResourceOptimizationService', () => {
           category: SkillCategory.TECHNICAL,
           yearsExperience: 3,
           lastUsed: new Date(),
-          certifications: []
+          certifications: [],
         })) || [],
         capacity: user.capacity || 40,
         currentWorkload: 30,
         availability: {
           hoursPerWeek: user.capacity || 40,
           workingDays: [1, 2, 3, 4, 5],
-          unavailablePeriods: []
+          unavailablePeriods: [],
         },
         preferences: {
           preferredTaskTypes: ['development'],
           learningGoals: ['react'],
           workingStyle: 'focused' as any,
-          collaborationPreference: 'small_team' as any
+          collaborationPreference: 'small_team' as any,
         },
         performanceMetrics: {
           taskCompletionRate: 0.9,
           averageTaskTime: 8,
           qualityScore: 8.5,
-          velocityTrend: 'stable' as any
+          velocityTrend: 'stable' as any,
         },
-        burnoutRisk: BurnoutRiskLevel.LOW
+        burnoutRisk: BurnoutRiskLevel.LOW,
       }));
 
       const result = await service.analyzeWorkload(teamMembers);
@@ -87,28 +87,28 @@ describe('ResourceOptimizationService', () => {
           category: SkillCategory.TECHNICAL,
           yearsExperience: 3,
           lastUsed: new Date(),
-          certifications: []
+          certifications: [],
         }],
         capacity: 40,
         currentWorkload: 20,
         availability: {
           hoursPerWeek: 40,
           workingDays: [1, 2, 3, 4, 5],
-          unavailablePeriods: []
+          unavailablePeriods: [],
         },
         preferences: {
           preferredTaskTypes: ['development'],
           learningGoals: [],
           workingStyle: 'focused' as any,
-          collaborationPreference: 'individual' as any
+          collaborationPreference: 'individual' as any,
         },
         performanceMetrics: {
           taskCompletionRate: 0.85,
           averageTaskTime: 6,
           qualityScore: 8,
-          velocityTrend: 'stable' as any
+          velocityTrend: 'stable' as any,
         },
-        burnoutRisk: BurnoutRiskLevel.LOW
+        burnoutRisk: BurnoutRiskLevel.LOW,
       }));
 
       const tasks: Task[] = mockTasks.map(task => ({
@@ -120,13 +120,13 @@ describe('ResourceOptimizationService', () => {
           name: 'javascript',
           minimumProficiency: 5,
           importance: SkillImportance.IMPORTANT,
-          isRequired: true
+          isRequired: true,
         }],
         priority: task.priority,
         complexity: 5,
         deadline: task.due_date ? new Date(task.due_date) : undefined,
         dependencies: [],
-        currentAssignee: undefined
+        currentAssignee: undefined,
       }));
 
       const result = await service.optimizeAssignments(teamMembers, tasks);
@@ -154,21 +154,21 @@ describe('ResourceOptimizationService', () => {
         availability: {
           hoursPerWeek: 40,
           workingDays: [1, 2, 3, 4, 5],
-          unavailablePeriods: []
+          unavailablePeriods: [],
         },
         preferences: {
           preferredTaskTypes: [],
           learningGoals: [],
           workingStyle: 'focused' as any,
-          collaborationPreference: 'individual' as any
+          collaborationPreference: 'individual' as any,
         },
         performanceMetrics: {
           taskCompletionRate: 0.7, // Lower performance
           averageTaskTime: 12, // Slower completion
           qualityScore: 6, // Lower quality
-          velocityTrend: 'decreasing' as any
+          velocityTrend: 'decreasing' as any,
         },
-        burnoutRisk: BurnoutRiskLevel.MODERATE
+        burnoutRisk: BurnoutRiskLevel.MODERATE,
       }));
 
       const result = await service.assessBurnoutRisk(teamMembers);
@@ -200,27 +200,27 @@ describe('ResourceOptimizationService', () => {
         availability: {
           hoursPerWeek: 40,
           workingDays: [1, 2, 3, 4, 5],
-          unavailablePeriods: []
+          unavailablePeriods: [],
         },
         preferences: {
           preferredTaskTypes: [],
           learningGoals: [],
           workingStyle: 'focused' as any,
-          collaborationPreference: 'individual' as any
+          collaborationPreference: 'individual' as any,
         },
         performanceMetrics: {
           taskCompletionRate: 0.85,
           averageTaskTime: 8,
           qualityScore: 8,
-          velocityTrend: 'stable' as any
+          velocityTrend: 'stable' as any,
         },
-        burnoutRisk: BurnoutRiskLevel.LOW
+        burnoutRisk: BurnoutRiskLevel.LOW,
       }));
 
       const forecastPeriod = {
         startDate: new Date(),
         endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-        granularity: 'weekly' as any
+        granularity: 'weekly' as any,
       };
 
       const result = await service.forecastCapacity(teamMembers, forecastPeriod);

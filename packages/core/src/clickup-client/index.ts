@@ -35,8 +35,8 @@ export class ClickUpClient {
       headers: {
         accept: 'application/json',
         'content-type': 'application/json',
-        Authorization: formatAuthorizationHeader(config.apiToken)
-      }
+        Authorization: formatAuthorizationHeader(config.apiToken),
+      },
     });
 
     // Add response interceptor for rate-limit retries and error handling

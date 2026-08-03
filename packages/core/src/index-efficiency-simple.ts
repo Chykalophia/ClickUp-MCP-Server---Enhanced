@@ -310,7 +310,7 @@ ${overview.spaces
 ### 🚀 Quick Actions
 ${
   overview.chat_channels.length > 0
-    ? `**Post to chat**: Use \`create_chat_view_comment\` with any of the chat channel IDs above.`
+    ? '**Post to chat**: Use `create_chat_view_comment` with any of the chat channel IDs above.'
     : '**No chat channels available for posting.**'
 }
 

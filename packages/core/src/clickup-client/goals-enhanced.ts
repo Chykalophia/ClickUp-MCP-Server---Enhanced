@@ -314,7 +314,7 @@ export class EnhancedGoalsClient {
             goal_id: goal.id,
             name: goal.name,
             due_date: goal.due_date,
-            days_remaining: daysRemaining
+            days_remaining: daysRemaining,
           });
         }
       }
@@ -329,7 +329,7 @@ export class EnhancedGoalsClient {
         overdue_goals: overdueGoals,
         average_progress: totalGoals > 0 ? Math.round(totalProgress / totalGoals) : 0,
         goals_by_status: goalsByStatus,
-        upcoming_deadlines: upcomingDeadlines
+        upcoming_deadlines: upcomingDeadlines,
       };
     } catch (error) {
       console.error('Error getting goal summary:', error instanceof Error ? error.message : error);
@@ -376,12 +376,12 @@ export class EnhancedGoalsClient {
       style: 'currency',
       currency: unit.toUpperCase(),
       minimumFractionDigits: 0,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     });
 
     try {
       return formatter.format(value);
-    } catch (error) {
+    } catch {
       // Fallback for invalid currency codes
       return `${unit} ${value.toLocaleString()}`;
     }

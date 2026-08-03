@@ -78,7 +78,7 @@ export class ProjectHealthAnalyzer {
         tasks,
         workspaceId: params.workspace_id,
         teamMembers,
-        timeframe: this.getAnalysisTimeframe(params.analysis_depth)
+        timeframe: this.getAnalysisTimeframe(params.analysis_depth),
       });
 
       // Analyze risks
@@ -104,7 +104,7 @@ export class ProjectHealthAnalyzer {
         risks,
         insights,
         recommendations,
-        trends
+        trends,
       };
 
     } catch (error) {
@@ -126,7 +126,7 @@ export class ProjectHealthAnalyzer {
       averageTaskAge: result.metrics.averageTaskAge,
       teamVelocity: result.metrics.teamVelocity,
       riskFactors: result.metrics.riskFactors,
-      recommendations: result.metrics.recommendations
+      recommendations: result.metrics.recommendations,
     };
   }
 
@@ -135,7 +135,7 @@ export class ProjectHealthAnalyzer {
   private async fetchTasks(params: ProjectHealthAnalysisParams): Promise<ClickUpTask[]> {
     const headers = {
       'Authorization': this.apiToken,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     };
 
     let endpoint = '';
@@ -155,7 +155,7 @@ export class ProjectHealthAnalyzer {
       reverse: 'true',
       subtasks: 'true',
       statuses: 'all',
-      include_closed: 'true'
+      include_closed: 'true',
     });
 
     const response = await axios.get(`${endpoint}?${queryParams}`, { headers });
@@ -166,14 +166,14 @@ export class ProjectHealthAnalyzer {
     try {
       const headers = {
         'Authorization': this.apiToken,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       };
 
       const response = await axios.get(`${this.baseURL}/team/${workspaceId}/member`, { headers });
       return response.data.members?.map((member: any) => ({
         id: member.user.id,
         username: member.user.username,
-        email: member.user.email
+        email: member.user.email,
       })) || [];
     } catch (error) {
       console.warn('[ProjectHealthAnalyzer] Failed to fetch team members:', error);
@@ -244,7 +244,7 @@ export class ProjectHealthAnalyzer {
     return {
       keyStrengths,
       criticalIssues,
-      improvementAreas
+      improvementAreas,
     };
   }
 
@@ -295,7 +295,7 @@ export class ProjectHealthAnalyzer {
     return {
       immediate: [...new Set(immediate)], // Remove duplicates
       shortTerm: [...new Set(shortTerm)],
-      longTerm: [...new Set(longTerm)]
+      longTerm: [...new Set(longTerm)],
     };
   }
 
@@ -306,7 +306,7 @@ export class ProjectHealthAnalyzer {
       qualityTrend: metrics.qualityIndicators.qualityScore >= 75 ? 'improving' :
         metrics.qualityIndicators.qualityScore <= 60 ? 'declining' : 'stable',
       timelineTrend: metrics.timelineAdherence.adherenceScore >= 80 ? 'improving' :
-        metrics.timelineAdherence.adherenceScore <= 60 ? 'declining' : 'stable'
+        metrics.timelineAdherence.adherenceScore <= 60 ? 'declining' : 'stable',
     };
   }
 
@@ -336,7 +336,7 @@ export class ProjectHealthAnalyzer {
     return {
       overallScore: score,
       healthGrade,
-      status
+      status,
     };
   }
 }

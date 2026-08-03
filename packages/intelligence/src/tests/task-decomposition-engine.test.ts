@@ -14,7 +14,7 @@ describe('TaskDecompositionEngine', () => {
       name: 'Create user authentication API',
       description: 'Implement REST API endpoints for user authentication including login, logout, and token refresh',
       timeEstimate: 32 * 60 * 60 * 1000, // 32 hours in milliseconds
-      priority: 2
+      priority: 2,
     };
 
     const result = await engine.decomposeTask(task);
@@ -33,7 +33,7 @@ describe('TaskDecompositionEngine', () => {
       id: 'test-2',
       name: 'Implement complex machine learning algorithm',
       description: 'Research and implement a neural network for image recognition with uncertainty handling',
-      priority: 1
+      priority: 1,
     };
 
     const result = await engine.analyzeComplexity(task);
@@ -63,7 +63,7 @@ describe('TaskDecompositionEngine', () => {
       name: 'Fix typo in documentation',
       description: 'Correct spelling mistake in README file',
       timeEstimate: 0.5, // 30 minutes in hours
-      priority: 4
+      priority: 4,
     };
 
     const result = await engine.decomposeTask(task);
@@ -79,7 +79,7 @@ describe('TaskDecompositionEngine', () => {
       name: 'Build React component library',
       description: 'Create reusable UI components for the design system',
       timeEstimate: 40 * 60 * 60 * 1000, // 40 hours
-      priority: 2
+      priority: 2,
     };
 
     const options = {
@@ -89,7 +89,7 @@ describe('TaskDecompositionEngine', () => {
       includeDependencies: true,
       templatePreference: 'ui-feature' as const,
       complexityThreshold: 4,
-      effortThreshold: 6
+      effortThreshold: 6,
     };
 
     const result = await engine.decomposeTask(task, options);

@@ -8,8 +8,8 @@ jest.mock('ws', () => ({
   WebSocket: jest.fn(),
   WebSocketServer: jest.fn().mockImplementation(() => ({
     on: jest.fn(),
-    close: jest.fn()
-  }))
+    close: jest.fn(),
+  })),
 }));
 
 describe('RealTimeProcessingEngine', () => {
@@ -23,7 +23,7 @@ describe('RealTimeProcessingEngine', () => {
       webhookEndpoint: '/webhook',
       wsPort: 8080,
       maxLatency: 2000,
-      targetDeliveryRate: 0.999
+      targetDeliveryRate: 0.999,
     });
   });
 
@@ -50,7 +50,7 @@ describe('RealTimeProcessingEngine', () => {
       expect(startedSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           config: expect.any(Object),
-          timestamp: expect.any(Number)
+          timestamp: expect.any(Number),
         })
       );
     });
@@ -71,8 +71,8 @@ describe('RealTimeProcessingEngine', () => {
         data: {
           name: 'Test Task',
           status: 'open',
-          priority: { priority: 'high' }
-        }
+          priority: { priority: 'high' },
+        },
       };
 
       const result = await engine.processWebhookEvent(mockPayload);
@@ -93,7 +93,7 @@ describe('RealTimeProcessingEngine', () => {
       const slowPayload = {
         event: 'taskCreated',
         task_id: 'slow-task-123',
-        data: { name: 'Slow Task' }
+        data: { name: 'Slow Task' },
       };
 
       // Mock a slow process by adding artificial delay
@@ -108,7 +108,7 @@ describe('RealTimeProcessingEngine', () => {
       expect(violationSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           latency: 2500,
-          maxLatency: 2000
+          maxLatency: 2000,
         })
       );
     });
@@ -137,7 +137,7 @@ describe('RealTimeProcessingEngine', () => {
         eventType: 'task_created' as const,
         condition: () => true,
         action: async () => { /* test action */ },
-        priority: 5
+        priority: 5,
       };
 
       expect(() => engine.addProcessingRule(customRule)).not.toThrow();
@@ -149,7 +149,7 @@ describe('RealTimeProcessingEngine', () => {
         eventType: 'task_update' as const,
         condition: () => true,
         action: async () => { /* test action */ },
-        priority: 1
+        priority: 1,
       };
 
       engine.addProcessingRule(customRule);
@@ -175,8 +175,8 @@ describe('RealTimeProcessingEngine', () => {
         task_id: 'cached-task-123',
         data: {
           name: 'Cached Task',
-          status: 'in_progress'
-        }
+          status: 'in_progress',
+        },
       };
 
       await engine.processWebhookEvent(mockPayload);
@@ -210,7 +210,7 @@ describe('RealTimeProcessingEngine', () => {
           activeConnections: expect.any(Number),
           cacheHitRate: expect.any(Number),
           uptime: expect.any(Number),
-          memoryUsage: expect.any(Number)
+          memoryUsage: expect.any(Number),
         })
       );
     });
@@ -224,7 +224,7 @@ describe('RealTimeProcessingEngine', () => {
           dataService: expect.any(Object),
           streamProcessor: expect.any(Object),
           cache: expect.any(Object),
-          websocket: null // Disabled in test config
+          websocket: null, // Disabled in test config
         })
       );
     });
@@ -236,7 +236,7 @@ describe('RealTimeProcessingEngine', () => {
       const mockPayload = {
         event: 'taskCreated',
         task_id: 'success-task-123',
-        data: { name: 'Success Task' }
+        data: { name: 'Success Task' },
       };
 
       await engine.processWebhookEvent(mockPayload);
@@ -263,8 +263,8 @@ describe('RealTimeProcessingEngine', () => {
         task_id: 'urgent-task-123',
         data: {
           name: 'Urgent Task',
-          priority: { priority: 'urgent' }
-        }
+          priority: { priority: 'urgent' },
+        },
       };
 
       await engine.processWebhookEvent(urgentPayload);
@@ -287,8 +287,8 @@ describe('RealTimeProcessingEngine', () => {
         task_id: 'completed-task-123',
         data: {
           name: 'Completed Task',
-          status: { status: 'complete' }
-        }
+          status: { status: 'complete' },
+        },
       };
 
       await engine.processWebhookEvent(completedPayload);
@@ -317,13 +317,13 @@ describe('RealTimeProcessingEngine', () => {
         action: async () => {
           throw new Error('Test error');
         },
-        priority: 1
+        priority: 1,
       });
 
       const mockPayload = {
         event: 'taskUpdated',
         task_id: 'error-task-123',
-        data: { name: 'Error Task' }
+        data: { name: 'Error Task' },
       };
 
       await engine.processWebhookEvent(mockPayload);
@@ -375,7 +375,7 @@ describe('RealTimeDataService', () => {
       batchSize: 5,
       flushInterval: 100,
       maxRetries: 3,
-      enableAnalytics: true
+      enableAnalytics: true,
     });
   });
 
@@ -390,7 +390,7 @@ describe('RealTimeDataService', () => {
     const mockPayload = {
       event: 'taskCreated',
       task_id: 'test-123',
-      data: { name: 'Test' }
+      data: { name: 'Test' },
     };
 
     await dataService.processWebhookEvent(mockPayload);
@@ -399,7 +399,7 @@ describe('RealTimeDataService', () => {
       expect.objectContaining({
         type: 'task_created',
         taskId: 'test-123',
-        source: 'webhook'
+        source: 'webhook',
       })
     );
   });
@@ -412,7 +412,7 @@ describe('RealTimeDataService', () => {
         queueSize: expect.any(Number),
         cacheSize: expect.any(Number),
         wsConnections: expect.any(Number),
-        uptime: expect.any(Number)
+        uptime: expect.any(Number),
       })
     );
   });
@@ -426,7 +426,7 @@ describe('DataCacheService', () => {
       defaultTTL: 1000,
       maxSize: 100,
       cleanupInterval: 500,
-      enableMetrics: true
+      enableMetrics: true,
     });
   });
 

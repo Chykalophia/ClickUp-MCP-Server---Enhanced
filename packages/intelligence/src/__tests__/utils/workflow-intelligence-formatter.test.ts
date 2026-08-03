@@ -12,7 +12,7 @@ import { WorkflowIntelligenceFormatter } from '../../utils/workflow-intelligence
 import { 
   WorkflowAnalysisResult, 
   AutomationOpportunity, 
-  IntegrationRecommendation 
+  IntegrationRecommendation, 
 } from '../../services/workflow-intelligence-service';
 
 describe('WorkflowIntelligenceFormatter', () => {
@@ -34,12 +34,12 @@ describe('WorkflowIntelligenceFormatter', () => {
                 tool: 'clickup_test_tool',
                 averageTime: 30,
                 errorRate: 0.05,
-                automationPotential: 0.8
-              }
+                automationPotential: 0.8,
+              },
             ],
             bottlenecks: ['Test bottleneck'],
-            optimizationPotential: 0.7
-          }
+            optimizationPotential: 0.7,
+          },
         ],
         automationOpportunities: [
           {
@@ -50,8 +50,8 @@ describe('WorkflowIntelligenceFormatter', () => {
             impact: 'high',
             estimatedTimeSavings: 120,
             implementationSteps: ['Step 1', 'Step 2'],
-            requiredTools: ['clickup_test_tool']
-          }
+            requiredTools: ['clickup_test_tool'],
+          },
         ],
         integrationRecommendations: [
           {
@@ -60,16 +60,16 @@ describe('WorkflowIntelligenceFormatter', () => {
             benefits: ['Benefit 1', 'Benefit 2'],
             implementation: 'Test implementation',
             cost: 'free',
-            priority: 8
-          }
+            priority: 8,
+          },
         ],
         overallEfficiencyScore: 75,
         recommendations: ['Test recommendation'],
         metadata: {
           version: '4.1.0',
           analysisDepth: 'standard',
-          dataPoints: 1000
-        }
+          dataPoints: 1000,
+        },
       };
 
       const report = WorkflowIntelligenceFormatter.generateWorkflowReport(mockAnalysis);
@@ -103,8 +103,8 @@ describe('WorkflowIntelligenceFormatter', () => {
         metadata: {
           version: '4.1.0',
           analysisDepth: 'quick',
-          dataPoints: 0
-        }
+          dataPoints: 0,
+        },
       };
 
       const report = WorkflowIntelligenceFormatter.generateWorkflowReport(mockAnalysis);
@@ -127,8 +127,8 @@ describe('WorkflowIntelligenceFormatter', () => {
         metadata: {
           version: '4.1.0',
           analysisDepth: 'standard',
-          dataPoints: 500
-        }
+          dataPoints: 500,
+        },
       };
 
       const report = WorkflowIntelligenceFormatter.generateWorkflowReport(highEfficiencyAnalysis);
@@ -147,7 +147,7 @@ describe('WorkflowIntelligenceFormatter', () => {
           impact: 'high',
           estimatedTimeSavings: 180,
           implementationSteps: ['Step 1', 'Step 2'],
-          requiredTools: ['clickup_tool_1']
+          requiredTools: ['clickup_tool_1'],
         },
         {
           id: 'test-automation-2',
@@ -157,8 +157,8 @@ describe('WorkflowIntelligenceFormatter', () => {
           impact: 'medium',
           estimatedTimeSavings: 90,
           implementationSteps: ['Step A', 'Step B'],
-          requiredTools: ['clickup_tool_2']
-        }
+          requiredTools: ['clickup_tool_2'],
+        },
       ];
 
       const report = WorkflowIntelligenceFormatter.generateAutomationReport(mockAutomations);
@@ -184,7 +184,7 @@ describe('WorkflowIntelligenceFormatter', () => {
           impact: 'high',
           estimatedTimeSavings: 100,
           implementationSteps: ['Step 1'],
-          requiredTools: ['tool1']
+          requiredTools: ['tool1'],
         },
         {
           id: 'auto-2',
@@ -194,8 +194,8 @@ describe('WorkflowIntelligenceFormatter', () => {
           impact: 'medium',
           estimatedTimeSavings: 50,
           implementationSteps: ['Step 2'],
-          requiredTools: ['tool2']
-        }
+          requiredTools: ['tool2'],
+        },
       ];
 
       const report = WorkflowIntelligenceFormatter.generateAutomationReport(automations);
@@ -222,7 +222,7 @@ describe('WorkflowIntelligenceFormatter', () => {
           benefits: ['Real-time notifications', 'Team collaboration'],
           implementation: 'Native integration',
           cost: 'free',
-          priority: 9
+          priority: 9,
         },
         {
           tool: 'GitHub',
@@ -230,8 +230,8 @@ describe('WorkflowIntelligenceFormatter', () => {
           benefits: ['Code tracking', 'Automated updates'],
           implementation: 'API integration',
           cost: 'free',
-          priority: 8
-        }
+          priority: 8,
+        },
       ];
 
       const report = WorkflowIntelligenceFormatter.generateIntegrationReport(mockIntegrations);
@@ -254,7 +254,7 @@ describe('WorkflowIntelligenceFormatter', () => {
           benefits: ['Critical benefit'],
           implementation: 'Easy setup',
           cost: 'free',
-          priority: 9
+          priority: 9,
         },
         {
           tool: 'Medium Priority Tool',
@@ -262,7 +262,7 @@ describe('WorkflowIntelligenceFormatter', () => {
           benefits: ['Nice benefit'],
           implementation: 'Moderate setup',
           cost: 'low',
-          priority: 7
+          priority: 7,
         },
         {
           tool: 'Low Priority Tool',
@@ -270,8 +270,8 @@ describe('WorkflowIntelligenceFormatter', () => {
           benefits: ['Advanced benefit'],
           implementation: 'Complex setup',
           cost: 'high',
-          priority: 4
-        }
+          priority: 4,
+        },
       ];
 
       const report = WorkflowIntelligenceFormatter.generateIntegrationReport(integrations);
@@ -299,7 +299,7 @@ describe('WorkflowIntelligenceFormatter', () => {
           benefits: ['Benefit'],
           implementation: 'Easy',
           cost: 'free',
-          priority: 8
+          priority: 8,
         },
         {
           tool: 'Expensive Tool',
@@ -307,8 +307,8 @@ describe('WorkflowIntelligenceFormatter', () => {
           benefits: ['Benefit'],
           implementation: 'Complex',
           cost: 'high',
-          priority: 6
-        }
+          priority: 6,
+        },
       ];
 
       const report = WorkflowIntelligenceFormatter.generateIntegrationReport(integrations);
@@ -333,8 +333,8 @@ describe('WorkflowIntelligenceFormatter', () => {
             efficiency: 'high',
             steps: [],
             bottlenecks: [],
-            optimizationPotential: 0.9
-          }
+            optimizationPotential: 0.9,
+          },
         ],
         automationOpportunities: [],
         integrationRecommendations: [],
@@ -343,8 +343,8 @@ describe('WorkflowIntelligenceFormatter', () => {
         metadata: {
           version: '4.1.0',
           analysisDepth: 'standard',
-          dataPoints: 100
-        }
+          dataPoints: 100,
+        },
       };
 
       const report = WorkflowIntelligenceFormatter.generateWorkflowReport(highEfficiencyAnalysis);
@@ -361,13 +361,13 @@ describe('WorkflowIntelligenceFormatter', () => {
           impact: 'high',
           estimatedTimeSavings: 100,
           implementationSteps: ['Step'],
-          requiredTools: ['tool']
-        }
+          requiredTools: ['tool'],
+        },
       ];
 
       const report = WorkflowIntelligenceFormatter.generateAutomationReport(automations);
       expect(report).toContain('🚀 HIGH'); // Impact emoji
-      expect(report).toContain('🟢 LOW');  // Complexity emoji
+      expect(report).toContain('🟢 LOW'); // Complexity emoji
     });
   });
 });

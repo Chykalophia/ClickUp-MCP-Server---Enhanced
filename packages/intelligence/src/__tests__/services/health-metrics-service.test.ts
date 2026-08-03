@@ -16,7 +16,7 @@ describe('HealthMetricsService', () => {
       const input: HealthMetricsInput = {
         tasks: mockTasks as any,
         workspaceId: 'test-workspace',
-        teamMembers: mockUsers.map(u => ({ id: parseInt(u.id.split('_')[1]), username: u.username, email: u.email }))
+        teamMembers: mockUsers.map(u => ({ id: parseInt(u.id.split('_')[1], 10), username: u.username, email: u.email })),
       };
 
       const result = service.calculateHealthScore(input);
@@ -35,7 +35,7 @@ describe('HealthMetricsService', () => {
       const input: HealthMetricsInput = {
         tasks: [],
         workspaceId: 'test-workspace',
-        teamMembers: []
+        teamMembers: [],
       };
 
       const result = service.calculateHealthScore(input);
@@ -50,12 +50,12 @@ describe('HealthMetricsService', () => {
       const overdueTasks = TestDataGenerator.generateOverdueTasks(3);
       const tasks = [
         ...TestDataGenerator.generateMockTasks(2),
-        ...overdueTasks
+        ...overdueTasks,
       ];
 
       const input: HealthMetricsInput = {
         tasks: tasks as any,
-        workspaceId: 'test-workspace'
+        workspaceId: 'test-workspace',
       };
 
       const result = service.calculateHealthScore(input);
@@ -69,7 +69,7 @@ describe('HealthMetricsService', () => {
 
       const input: HealthMetricsInput = {
         tasks: healthyTasks as any,
-        workspaceId: 'test-workspace'
+        workspaceId: 'test-workspace',
       };
 
       const result = service.calculateHealthScore(input);
@@ -83,7 +83,7 @@ describe('HealthMetricsService', () => {
 
       const input: HealthMetricsInput = {
         tasks: mockTasks as any,
-        workspaceId: 'test-workspace'
+        workspaceId: 'test-workspace',
       };
 
       const result = service.calculateHealthScore(input);
@@ -97,7 +97,7 @@ describe('HealthMetricsService', () => {
       const mockTasks = TestDataGenerator.generateMockTasks(5);
       const input: HealthMetricsInput = {
         tasks: mockTasks as any,
-        workspaceId: 'test-workspace'
+        workspaceId: 'test-workspace',
       };
 
       const healthMetrics = service.calculateHealthScore(input);

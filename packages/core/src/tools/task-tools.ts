@@ -27,13 +27,13 @@ export function setupTaskTools(server: McpServer): void {
         .describe('Whether to return task descriptions in Markdown format'),
       page: z.number().optional().describe('The page number to get'),
       order_by: z.string().optional().describe('The field to order by'),
-      reverse: z.boolean().optional().describe('Whether to reverse the order')
+      reverse: z.boolean().optional().describe('Whether to reverse the order'),
     },
     async ({ list_id, ...params }) => {
       try {
         const result = await tasksClient.getTasksFromList(list_id, params);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('getting tasks', error);
@@ -61,7 +61,7 @@ export function setupTaskTools(server: McpServer): void {
       team_id: z
         .string()
         .optional()
-        .describe('Workspace (team) ID — required when custom_task_ids is true')
+        .describe('Workspace (team) ID — required when custom_task_ids is true'),
     },
     async ({ task_id, include_subtasks, include_markdown_description, custom_task_ids, team_id }) => {
       try {
@@ -69,10 +69,10 @@ export function setupTaskTools(server: McpServer): void {
           include_subtasks,
           include_markdown_description,
           custom_task_ids,
-          team_id
+          team_id,
         });
         return {
-          content: [{ type: 'text', text: JSON.stringify(task, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(task, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('getting task details', error);
@@ -122,7 +122,7 @@ export function setupTaskTools(server: McpServer): void {
       team_id: z
         .string()
         .optional()
-        .describe('Workspace (team) ID — required when custom_task_ids is true')
+        .describe('Workspace (team) ID — required when custom_task_ids is true'),
     },
     async ({ list_id, custom_task_ids, team_id, ...taskParams }) => {
       try {
@@ -134,10 +134,10 @@ export function setupTaskTools(server: McpServer): void {
 
         const result = await tasksClient.createTask(list_id, taskParams as CreateTaskParams, {
           custom_task_ids,
-          team_id
+          team_id,
         });
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('creating task', error);
@@ -184,7 +184,7 @@ export function setupTaskTools(server: McpServer): void {
       team_id: z
         .string()
         .optional()
-        .describe('Workspace (team) ID — required when custom_task_ids is true')
+        .describe('Workspace (team) ID — required when custom_task_ids is true'),
     },
     async ({ task_id, custom_task_ids, team_id, ...taskParams }) => {
       try {
@@ -196,10 +196,10 @@ export function setupTaskTools(server: McpServer): void {
 
         const result = await tasksClient.updateTask(task_id, taskParams as UpdateTaskParams, {
           custom_task_ids,
-          team_id
+          team_id,
         });
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('updating task', error);
@@ -222,7 +222,7 @@ export function setupTaskTools(server: McpServer): void {
       team_id: z
         .string()
         .optional()
-        .describe('Workspace (team) ID — required when custom_task_ids is true')
+        .describe('Workspace (team) ID — required when custom_task_ids is true'),
     },
     async ({ task_id, confirm_deletion, custom_task_ids, team_id }) => {
       try {
@@ -231,10 +231,10 @@ export function setupTaskTools(server: McpServer): void {
             content: [
               {
                 type: 'text',
-                text: '❌ Task deletion cancelled. You must set confirm_deletion to true to proceed with this destructive operation.'
-              }
+                text: '❌ Task deletion cancelled. You must set confirm_deletion to true to proceed with this destructive operation.',
+              },
             ],
-            isError: true
+            isError: true,
           };
         }
 
@@ -248,9 +248,9 @@ export function setupTaskTools(server: McpServer): void {
               type: 'text',
               text:
                 `✅ Task "${taskDetails.name}" (ID: ${task_id}) has been permanently deleted.\n\n` +
-                '⚠️ This action cannot be undone. The task and all its data have been removed from ClickUp.'
-            }
-          ]
+                '⚠️ This action cannot be undone. The task and all its data have been removed from ClickUp.',
+            },
+          ],
         };
       } catch (error: unknown) {
         return mcpError('deleting task', error);
@@ -263,13 +263,13 @@ export function setupTaskTools(server: McpServer): void {
     'Add an existing task to a ClickUp list.',
     {
       list_id: idSchema().describe('The ID of the list to add the task to'),
-      task_id: idSchema().describe('The ID of the task to add')
+      task_id: idSchema().describe('The ID of the task to add'),
     },
     async ({ list_id, task_id }) => {
       try {
         const result = await listsClient.addTaskToList(list_id, task_id);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('adding task to list', error);
@@ -282,13 +282,13 @@ export function setupTaskTools(server: McpServer): void {
     'Remove a task from a ClickUp list without deleting the task.',
     {
       list_id: idSchema().describe('The ID of the list to remove the task from'),
-      task_id: idSchema().describe('The ID of the task to remove')
+      task_id: idSchema().describe('The ID of the task to remove'),
     },
     async ({ list_id, task_id }) => {
       try {
         const result = await listsClient.removeTaskFromList(list_id, task_id);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('removing task from list', error);
@@ -308,16 +308,16 @@ export function setupTaskTools(server: McpServer): void {
       team_id: z
         .string()
         .optional()
-        .describe('Workspace (team) ID — required when custom_task_ids is true')
+        .describe('Workspace (team) ID — required when custom_task_ids is true'),
     },
     async ({ task_id, custom_task_ids, team_id }) => {
       try {
         const result = await tasksClient.getTaskTimeInStatus(task_id, {
           custom_task_ids,
-          team_id
+          team_id,
         });
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('getting task time in status', error);
@@ -341,16 +341,16 @@ export function setupTaskTools(server: McpServer): void {
       team_id: z
         .string()
         .optional()
-        .describe('Workspace (team) ID — required when custom_task_ids is true')
+        .describe('Workspace (team) ID — required when custom_task_ids is true'),
     },
     async ({ task_ids, custom_task_ids, team_id }) => {
       try {
         const result = await tasksClient.getBulkTasksTimeInStatus(task_ids, {
           custom_task_ids,
-          team_id
+          team_id,
         });
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('getting bulk tasks time in status', error);
@@ -384,13 +384,13 @@ export function setupTaskTools(server: McpServer): void {
       date_created_lt: z.number().optional().describe('Filter by created date less than (Unix timestamp in ms)'),
       date_updated_gt: z.number().optional().describe('Filter by updated date greater than (Unix timestamp in ms)'),
       date_updated_lt: z.number().optional().describe('Filter by updated date less than (Unix timestamp in ms)'),
-      parent: idSchema().optional().describe('Filter by parent task ID')
+      parent: idSchema().optional().describe('Filter by parent task ID'),
     },
     async ({ team_id, ...params }) => {
       try {
         const result = await tasksClient.getFilteredTeamTasks(team_id, params);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('getting filtered team tasks', error);
@@ -411,15 +411,15 @@ export function setupTaskTools(server: McpServer): void {
       team_id: z
         .string()
         .optional()
-        .describe('Workspace (team) ID — required when custom_task_ids is true')
+        .describe('Workspace (team) ID — required when custom_task_ids is true'),
     },
     async ({ task_id, tag_name, custom_task_ids, team_id }) => {
       try {
         await tasksClient.addTagToTask(task_id, tag_name, { custom_task_ids, team_id });
         return {
           content: [
-            { type: 'text', text: `✅ Tag "${tag_name}" added to task ${task_id}.` }
-          ]
+            { type: 'text', text: `✅ Tag "${tag_name}" added to task ${task_id}.` },
+          ],
         };
       } catch (error: unknown) {
         return mcpError('adding tag to task', error);
@@ -440,15 +440,15 @@ export function setupTaskTools(server: McpServer): void {
       team_id: z
         .string()
         .optional()
-        .describe('Workspace (team) ID — required when custom_task_ids is true')
+        .describe('Workspace (team) ID — required when custom_task_ids is true'),
     },
     async ({ task_id, tag_name, custom_task_ids, team_id }) => {
       try {
         await tasksClient.removeTagFromTask(task_id, tag_name, { custom_task_ids, team_id });
         return {
           content: [
-            { type: 'text', text: `✅ Tag "${tag_name}" removed from task ${task_id}.` }
-          ]
+            { type: 'text', text: `✅ Tag "${tag_name}" removed from task ${task_id}.` },
+          ],
         };
       } catch (error: unknown) {
         return mcpError('removing tag from task', error);
@@ -462,13 +462,13 @@ export function setupTaskTools(server: McpServer): void {
     {
       list_id: idSchema().describe('The ID of the list to create the task in'),
       template_id: idSchema().describe('The ID of the task template to instantiate'),
-      name: z.string().describe('The name of the new task')
+      name: z.string().describe('The name of the new task'),
     },
     async ({ list_id, template_id, name }) => {
       try {
         const result = await tasksClient.createTaskFromTemplate(list_id, template_id, { name });
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('creating task from template', error);

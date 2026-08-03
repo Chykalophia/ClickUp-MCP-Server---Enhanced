@@ -79,7 +79,7 @@ export class TestDataGenerator {
       dateCompleted: Math.random() > 0.7 ? new Date().toISOString() : undefined,
       tags: ['test', 'mock'],
       customFields: {},
-      ...overrides
+      ...overrides,
     };
   }
 
@@ -103,7 +103,7 @@ export class TestDataGenerator {
       role: 'developer',
       skills: ['javascript', 'typescript', 'react'],
       capacity: 40, // hours per week
-      ...overrides
+      ...overrides,
     };
   }
 
@@ -128,7 +128,7 @@ export class TestDataGenerator {
       tasks: this.generateMockTasks(10),
       startDate: new Date(baseDate.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString(),
       endDate: new Date(baseDate.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      ...overrides
+      ...overrides,
     };
   }
 
@@ -141,7 +141,7 @@ export class TestDataGenerator {
       name: 'Test Workspace',
       members: this.generateMockUsers(5),
       projects: [this.generateMockProject()],
-      ...overrides
+      ...overrides,
     };
   }
 
@@ -157,7 +157,7 @@ export class TestDataGenerator {
       description: mockTask.description,
       timeEstimate: mockTask.timeEstimate,
       priority: mockTask.priority,
-      ...overrides
+      ...overrides,
     };
   }
 
@@ -175,7 +175,7 @@ export class TestDataGenerator {
       capacity,
       sprintLength,
       teamSize: 5,
-      historicalVelocity: Array.from({ length: 6 }, () => Math.floor(Math.random() * 20) + 40)
+      historicalVelocity: Array.from({ length: 6 }, () => Math.floor(Math.random() * 20) + 40),
     };
   }
 

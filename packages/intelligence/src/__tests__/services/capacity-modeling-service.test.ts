@@ -26,12 +26,12 @@ describe('CapacityModelingService', () => {
           skills: user.skills || ['javascript'],
           experienceLevel: 'mid' as const,
           availabilityHours: user.capacity || 40,
-          focusFactor: 0.75
+          focusFactor: 0.75,
         })),
         constraints: [],
         skillRequirements: [],
         includeBufferTime: true,
-        bufferPercentage: 0.15
+        bufferPercentage: 0.15,
       };
 
       const result = await service.modelCapacity(input);
@@ -67,7 +67,7 @@ describe('CapacityModelingService', () => {
           skills: user.skills || ['javascript'],
           experienceLevel: 'senior' as const,
           availabilityHours: 40,
-          focusFactor: 0.8
+          focusFactor: 0.8,
         })),
         constraints: [
           {
@@ -76,16 +76,16 @@ describe('CapacityModelingService', () => {
             startDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
             endDate: new Date(Date.now() + 9 * 24 * 60 * 60 * 1000).toISOString(),
             hoursImpact: 16,
-            description: 'Vacation time'
-          }
+            description: 'Vacation time',
+          },
         ],
         skillRequirements: [
           {
             skill: 'javascript',
             importance: 'required' as const,
-            estimatedHours: 40
-          }
-        ]
+            estimatedHours: 40,
+          },
+        ],
       };
 
       const result = await service.modelCapacity(input);
@@ -106,7 +106,7 @@ describe('CapacityModelingService', () => {
         sprintEndDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
         teamMembers: [],
         constraints: [],
-        skillRequirements: []
+        skillRequirements: [],
       };
 
       const result = await service.modelCapacity(input);
@@ -124,7 +124,7 @@ describe('CapacityModelingService', () => {
         sprintStartDate: 'invalid-date',
         sprintEndDate: new Date().toISOString(),
         teamMembers: [],
-        bufferPercentage: 1.5 // Invalid: exceeds max of 0.5
+        bufferPercentage: 1.5, // Invalid: exceeds max of 0.5
       };
 
       await expect(service.modelCapacity(invalidInput)).rejects.toThrow();
@@ -144,20 +144,20 @@ describe('CapacityModelingService', () => {
           skills: index === 0 ? ['react', 'javascript'] : ['node.js', 'javascript'],
           experienceLevel: 'mid' as const,
           availabilityHours: 40,
-          focusFactor: 0.75
+          focusFactor: 0.75,
         })),
         skillRequirements: [
           {
             skill: 'react',
             importance: 'required' as const,
-            estimatedHours: 20
+            estimatedHours: 20,
           },
           {
             skill: 'node.js',
             importance: 'preferred' as const,
-            estimatedHours: 15
-          }
-        ]
+            estimatedHours: 15,
+          },
+        ],
       };
 
       const result = await service.modelCapacity(input);

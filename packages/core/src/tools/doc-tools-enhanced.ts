@@ -34,7 +34,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
       content_format: contentFormatEnum
         .optional()
         .default('text/md')
-        .describe('The format to return the content in (markdown maps to text/md, html to text/html)')
+        .describe('The format to return the content in (markdown maps to text/md, html to text/html)'),
     },
     async ({ doc_id, workspace_id, content_format }) => {
       try {
@@ -50,7 +50,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
         }
 
         return {
-          content: [{ type: 'text', text: combinedContent || 'No content found in this doc.' }]
+          content: [{ type: 'text', text: combinedContent || 'No content found in this doc.' }],
         };
       } catch (error: unknown) {
         return mcpError('getting doc content', error);
@@ -74,7 +74,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
       parent_id: idSchema().optional().describe('Filter docs by parent ID'),
       parent_type: parentTypeEnum.optional().describe('Filter docs by parent type'),
       limit: z.number().int().min(1).max(100).optional().describe('Maximum number of docs to return'),
-      cursor: z.string().optional().describe('Cursor for pagination (next_cursor from a previous response)')
+      cursor: z.string().optional().describe('Cursor for pagination (next_cursor from a previous response)'),
     },
     async ({ workspace_id, query, doc_id, creator, deleted, archived, parent_id, parent_type, limit, cursor }) => {
       try {
@@ -87,10 +87,10 @@ export function setupEnhancedDocTools(server: McpServer): void {
           parent_id,
           parent_type,
           limit,
-          cursor
+          cursor,
         });
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('searching docs', error);
@@ -115,7 +115,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
         .max(100)
         .optional()
         .default(25)
-        .describe('The maximum number of docs to return')
+        .describe('The maximum number of docs to return'),
     },
     async ({ workspace_id, cursor, deleted, archived, creator, parent_id, parent_type, limit }) => {
       try {
@@ -126,11 +126,11 @@ export function setupEnhancedDocTools(server: McpServer): void {
           creator,
           parent_id,
           parent_type,
-          limit
+          limit,
         });
 
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('getting docs from workspace', error);
@@ -147,13 +147,13 @@ export function setupEnhancedDocTools(server: McpServer): void {
       content_format: contentFormatEnum
         .optional()
         .default('text/md')
-        .describe('The format to return the content in (markdown maps to text/md, html to text/html)')
+        .describe('The format to return the content in (markdown maps to text/md, html to text/html)'),
     },
     async ({ doc_id, workspace_id, content_format }) => {
       try {
         const pages = await enhancedDocsClient.getDocPages(workspace_id, doc_id, content_format);
         return {
-          content: [{ type: 'text', text: JSON.stringify(pages, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(pages, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('getting doc pages', error);
@@ -172,7 +172,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
         .int()
         .optional()
         .default(-1)
-        .describe('Maximum depth of nested pages to return (-1 for unlimited)')
+        .describe('Maximum depth of nested pages to return (-1 for unlimited)'),
     },
     async ({ workspace_id, doc_id, max_page_depth }) => {
       try {
@@ -182,7 +182,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
           max_page_depth
         );
         return {
-          content: [{ type: 'text', text: JSON.stringify(listing, null, 2) }]
+          content: [{ type: 'text', text: JSON.stringify(listing, null, 2) }],
         };
       } catch (error: unknown) {
         return mcpError('listing doc pages', error);
@@ -195,7 +195,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'Get detailed information about a specific ClickUp document including metadata.',
     {
       workspace_id: idSchema().describe('The ID of the workspace containing the document'),
-      doc_id: idSchema().describe('The ID of the document to get')
+      doc_id: idSchema().describe('The ID of the document to get'),
     },
     async ({ workspace_id, doc_id }) => {
       try {
@@ -205,9 +205,9 @@ export function setupEnhancedDocTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: JSON.stringify(doc, null, 2)
-            }
-          ]
+              text: JSON.stringify(doc, null, 2),
+            },
+          ],
         };
       } catch (error: unknown) {
         return mcpError('getting document', error);
@@ -250,7 +250,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
       create_page: z
         .boolean()
         .optional()
-        .describe('Whether ClickUp should create an initial empty page (default true; ignored when content is supplied)')
+        .describe('Whether ClickUp should create an initial empty page (default true; ignored when content is supplied)'),
     },
     async ({ workspace_id, name, space_id, folder_id, parent_id, parent_type, content, content_format, public: isPublic, create_page }) => {
       try {
@@ -269,16 +269,16 @@ export function setupEnhancedDocTools(server: McpServer): void {
           content,
           content_format,
           public: isPublic,
-          create_page
+          create_page,
         });
 
         return {
           content: [
             {
               type: 'text',
-              text: `Document created successfully!\n\n${JSON.stringify(doc, null, 2)}`
-            }
-          ]
+              text: `Document created successfully!\n\n${JSON.stringify(doc, null, 2)}`,
+            },
+          ],
         };
       } catch (error: unknown) {
         return mcpError('creating document', error);
@@ -303,7 +303,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
         .optional()
         .default('text/md')
         .describe('The format of the content (markdown maps to text/md, html to text/html)'),
-      parent_page_id: idSchema().optional().describe('ID of parent page for nesting')
+      parent_page_id: idSchema().optional().describe('ID of parent page for nesting'),
     },
     async ({ workspace_id, doc_id, name, content, sub_title, content_format, parent_page_id }) => {
       try {
@@ -312,16 +312,16 @@ export function setupEnhancedDocTools(server: McpServer): void {
           content,
           sub_title,
           content_format,
-          parent_page_id
+          parent_page_id,
         });
 
         return {
           content: [
             {
               type: 'text',
-              text: `Page created successfully!\n\n${JSON.stringify(page, null, 2)}`
-            }
-          ]
+              text: `Page created successfully!\n\n${JSON.stringify(page, null, 2)}`,
+            },
+          ],
         };
       } catch (error: unknown) {
         return mcpError('creating page', error);
@@ -346,7 +346,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
         .describe('How to apply the content: replace (default), append, or prepend'),
       content_format: contentFormatEnum
         .optional()
-        .describe('Format of the content (markdown maps to text/md, html to text/html)')
+        .describe('Format of the content (markdown maps to text/md, html to text/html)'),
     },
     async ({ workspace_id, doc_id, page_id, name, sub_title, content, content_edit_mode, content_format }) => {
       try {
@@ -356,10 +356,10 @@ export function setupEnhancedDocTools(server: McpServer): void {
             content: [
               {
                 type: 'text',
-                text: 'Error: Must specify at least one field to update (name, sub_title, or content)'
-              }
+                text: 'Error: Must specify at least one field to update (name, sub_title, or content)',
+              },
             ],
-            isError: true
+            isError: true,
           };
         }
 
@@ -368,16 +368,16 @@ export function setupEnhancedDocTools(server: McpServer): void {
           sub_title,
           content,
           content_edit_mode,
-          content_format
+          content_format,
         });
 
         return {
           content: [
             {
               type: 'text',
-              text: `Page updated successfully!\n\n${JSON.stringify(updatedPage, null, 2)}`
-            }
-          ]
+              text: `Page updated successfully!\n\n${JSON.stringify(updatedPage, null, 2)}`,
+            },
+          ],
         };
       } catch (error: unknown) {
         return mcpError('updating page', error);

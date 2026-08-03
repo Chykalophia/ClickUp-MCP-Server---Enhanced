@@ -11,7 +11,7 @@ export const ClickUpTaskSchema = z.object({
   assignees: z.array(z.object({
     id: z.number(),
     username: z.string(),
-    email: z.string()
+    email: z.string(),
   })).optional(),
   due_date: z.string().optional(),
   start_date: z.string().optional(),
@@ -19,8 +19,8 @@ export const ClickUpTaskSchema = z.object({
   custom_fields: z.array(z.object({
     id: z.string(),
     name: z.string(),
-    value: z.any()
-  })).optional()
+    value: z.any(),
+  })).optional(),
 });
 
 export const ProjectHealthMetricsSchema = z.object({
@@ -31,7 +31,7 @@ export const ProjectHealthMetricsSchema = z.object({
   averageTaskAge: z.number().min(0),
   teamVelocity: z.number().min(0),
   riskFactors: z.array(z.string()),
-  recommendations: z.array(z.string())
+  recommendations: z.array(z.string()),
 });
 
 export const SprintPlanningDataSchema = z.object({
@@ -40,5 +40,5 @@ export const SprintPlanningDataSchema = z.object({
   suggestedTasks: z.array(ClickUpTaskSchema),
   estimatedCompletion: z.string(),
   riskAssessment: z.string(),
-  recommendations: z.array(z.string())
+  recommendations: z.array(z.string()),
 });

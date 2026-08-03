@@ -12,14 +12,14 @@ export const startRealTimeEngineSchema = z.object({
   enableAnalytics: z.boolean().optional().default(true),
   wsPort: z.number().optional().default(8080),
   maxLatency: z.number().optional().default(2000),
-  targetDeliveryRate: z.number().optional().default(0.999)
+  targetDeliveryRate: z.number().optional().default(0.999),
 });
 
 export const processWebhookSchema = z.object({
   payload: z.any(),
   validateSignature: z.boolean().optional().default(false),
   signature: z.string().optional(),
-  secret: z.string().optional()
+  secret: z.string().optional(),
 });
 
 export const addProcessingRuleSchema = z.object({
@@ -27,11 +27,11 @@ export const addProcessingRuleSchema = z.object({
   eventType: z.enum(['task_update', 'task_created', 'task_deleted', 'comment_added', 'status_changed']),
   condition: z.string().describe('JavaScript condition function as string'),
   action: z.string().describe('JavaScript action function as string'),
-  priority: z.number().default(1)
+  priority: z.number().default(1),
 });
 
 export const getRealTimeMetricsSchema = z.object({
-  detailed: z.boolean().optional().default(false)
+  detailed: z.boolean().optional().default(false),
 });
 
 export async function startRealTimeEngine(params: z.infer<typeof startRealTimeEngineSchema>) {
@@ -40,8 +40,8 @@ export async function startRealTimeEngine(params: z.infer<typeof startRealTimeEn
       return {
         content: [{
           type: 'text',
-          text: 'Real-time processing engine is already running'
-        }]
+          text: 'Real-time processing engine is already running',
+        }],
       };
     }
 
@@ -52,7 +52,7 @@ export async function startRealTimeEngine(params: z.infer<typeof startRealTimeEn
       webhookEndpoint: '/webhook',
       wsPort: params.wsPort,
       maxLatency: params.maxLatency,
-      targetDeliveryRate: params.targetDeliveryRate
+      targetDeliveryRate: params.targetDeliveryRate,
     });
 
     await engineInstance.start();
@@ -79,18 +79,18 @@ export async function startRealTimeEngine(params: z.infer<typeof startRealTimeEn
           status: 'started',
           config: params,
           initialMetrics: metrics,
-          timestamp: new Date().toISOString()
-        }, null, 2)
-      }]
+          timestamp: new Date().toISOString(),
+        }, null, 2),
+      }],
     };
 
   } catch (error: any) {
     return {
       content: [{
         type: 'text',
-        text: `Error starting real-time engine: ${error.message}`
+        text: `Error starting real-time engine: ${error.message}`,
       }],
-      isError: true
+      isError: true,
     };
   }
 }
@@ -101,9 +101,9 @@ export async function processWebhookEvent(params: z.infer<typeof processWebhookS
       return {
         content: [{
           type: 'text',
-          text: 'Real-time processing engine is not running. Start it first with startRealTimeEngine.'
+          text: 'Real-time processing engine is not running. Start it first with startRealTimeEngine.',
         }],
-        isError: true
+        isError: true,
       };
     }
 
@@ -121,18 +121,18 @@ export async function processWebhookEvent(params: z.infer<typeof processWebhookS
           processed: result.success,
           latency: result.latency,
           timestamp: new Date().toISOString(),
-          slaCompliant: result.latency <= 2000
-        }, null, 2)
-      }]
+          slaCompliant: result.latency <= 2000,
+        }, null, 2),
+      }],
     };
 
   } catch (error: any) {
     return {
       content: [{
         type: 'text',
-        text: `Error processing webhook: ${error.message}`
+        text: `Error processing webhook: ${error.message}`,
       }],
-      isError: true
+      isError: true,
     };
   }
 }
@@ -143,9 +143,9 @@ export async function addProcessingRule(params: z.infer<typeof addProcessingRule
       return {
         content: [{
           type: 'text',
-          text: 'Real-time processing engine is not running. Start it first with startRealTimeEngine.'
+          text: 'Real-time processing engine is not running. Start it first with startRealTimeEngine.',
         }],
-        isError: true
+        isError: true,
       };
     }
 
@@ -160,7 +160,7 @@ export async function addProcessingRule(params: z.infer<typeof addProcessingRule
       eventType: params.eventType,
       condition: conditionFn,
       action: actionFn,
-      priority: params.priority
+      priority: params.priority,
     };
 
     engineInstance.addProcessingRule(rule);
@@ -173,18 +173,18 @@ export async function addProcessingRule(params: z.infer<typeof addProcessingRule
           ruleId: params.id,
           eventType: params.eventType,
           priority: params.priority,
-          timestamp: new Date().toISOString()
-        }, null, 2)
-      }]
+          timestamp: new Date().toISOString(),
+        }, null, 2),
+      }],
     };
 
   } catch (error: any) {
     return {
       content: [{
         type: 'text',
-        text: `Error adding processing rule: ${error.message}`
+        text: `Error adding processing rule: ${error.message}`,
       }],
-      isError: true
+      isError: true,
     };
   }
 }
@@ -195,9 +195,9 @@ export async function getRealTimeMetrics(params: z.infer<typeof getRealTimeMetri
       return {
         content: [{
           type: 'text',
-          text: 'Real-time processing engine is not running. Start it first with startRealTimeEngine.'
+          text: 'Real-time processing engine is not running. Start it first with startRealTimeEngine.',
         }],
-        isError: true
+        isError: true,
       };
     }
 
@@ -213,19 +213,19 @@ export async function getRealTimeMetrics(params: z.infer<typeof getRealTimeMetri
           timestamp: new Date().toISOString(),
           slaStatus: {
             latencyCompliant: metrics.averageLatency <= 2000,
-            deliveryRateCompliant: metrics.deliverySuccessRate >= 0.999
-          }
-        }, null, 2)
-      }]
+            deliveryRateCompliant: metrics.deliverySuccessRate >= 0.999,
+          },
+        }, null, 2),
+      }],
     };
 
   } catch (error: any) {
     return {
       content: [{
         type: 'text',
-        text: `Error getting metrics: ${error.message}`
+        text: `Error getting metrics: ${error.message}`,
       }],
-      isError: true
+      isError: true,
     };
   }
 }
@@ -236,8 +236,8 @@ export async function stopRealTimeEngine() {
       return {
         content: [{
           type: 'text',
-          text: 'Real-time processing engine is not running'
-        }]
+          text: 'Real-time processing engine is not running',
+        }],
       };
     }
 
@@ -251,18 +251,18 @@ export async function stopRealTimeEngine() {
         text: JSON.stringify({
           status: 'stopped',
           finalMetrics,
-          timestamp: new Date().toISOString()
-        }, null, 2)
-      }]
+          timestamp: new Date().toISOString(),
+        }, null, 2),
+      }],
     };
 
   } catch (error: any) {
     return {
       content: [{
         type: 'text',
-        text: `Error stopping real-time engine: ${error.message}`
+        text: `Error stopping real-time engine: ${error.message}`,
       }],
-      isError: true
+      isError: true,
     };
   }
 }
@@ -273,9 +273,9 @@ export async function getCachedTaskData(params: { taskId: string }) {
       return {
         content: [{
           type: 'text',
-          text: 'Real-time processing engine is not running. Start it first with startRealTimeEngine.'
+          text: 'Real-time processing engine is not running. Start it first with startRealTimeEngine.',
         }],
-        isError: true
+        isError: true,
       };
     }
 
@@ -288,18 +288,18 @@ export async function getCachedTaskData(params: { taskId: string }) {
           taskId: params.taskId,
           cached: cachedData !== null,
           data: cachedData,
-          timestamp: new Date().toISOString()
-        }, null, 2)
-      }]
+          timestamp: new Date().toISOString(),
+        }, null, 2),
+      }],
     };
 
   } catch (error: any) {
     return {
       content: [{
         type: 'text',
-        text: `Error getting cached data: ${error.message}`
+        text: `Error getting cached data: ${error.message}`,
       }],
-      isError: true
+      isError: true,
     };
   }
 }

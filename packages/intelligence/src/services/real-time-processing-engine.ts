@@ -42,7 +42,7 @@ export class RealTimeProcessingEngine extends EventEmitter {
     webhookEndpoint: '/webhook',
     wsPort: 8080,
     maxLatency: 2000,
-    targetDeliveryRate: 0.999
+    targetDeliveryRate: 0.999,
   }) {
     super();
     this.config = config;
@@ -51,7 +51,7 @@ export class RealTimeProcessingEngine extends EventEmitter {
       batchSize: 100,
       flushInterval: 1000,
       maxRetries: 3,
-      enableAnalytics: config.enableAnalytics
+      enableAnalytics: config.enableAnalytics,
     });
 
     this.streamProcessor = new EventStreamProcessor();
@@ -61,7 +61,7 @@ export class RealTimeProcessingEngine extends EventEmitter {
         defaultTTL: 300000,
         maxSize: 10000,
         cleanupInterval: 60000,
-        enableMetrics: true
+        enableMetrics: true,
       });
     } else {
       this.cacheService = new DataCacheService({ defaultTTL: 0, maxSize: 0, cleanupInterval: 0, enableMetrics: false });
@@ -73,7 +73,7 @@ export class RealTimeProcessingEngine extends EventEmitter {
         pingInterval: 30000,
         connectionTimeout: 60000,
         maxConnections: 1000,
-        enableCompression: true
+        enableCompression: true,
       });
     }
 
@@ -90,7 +90,7 @@ export class RealTimeProcessingEngine extends EventEmitter {
 
       this.emit('engine_started', {
         config: this.config,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
 
     } catch (error) {
@@ -160,7 +160,7 @@ export class RealTimeProcessingEngine extends EventEmitter {
         this.wsService.broadcast(`task:${event.taskId}`, {
           type: event.type,
           data: event.data,
-          timestamp: event.timestamp
+          timestamp: event.timestamp,
         });
       }
     });
@@ -193,11 +193,11 @@ export class RealTimeProcessingEngine extends EventEmitter {
           this.wsService.broadcastToAll({
             type: 'urgent_task_created',
             task: event.data,
-            timestamp: event.timestamp
+            timestamp: event.timestamp,
           });
         }
       },
-      priority: 10
+      priority: 10,
     });
 
     // Task completion tracking rule
@@ -213,12 +213,12 @@ export class RealTimeProcessingEngine extends EventEmitter {
           const completionData = {
             taskId: event.taskId,
             completedAt: event.timestamp,
-            duration: event.data.time_spent || 0
+            duration: event.data.time_spent || 0,
           };
           this.cacheService.cacheAnalytics(`completion:${event.taskId}`, completionData);
         }
       },
-      priority: 5
+      priority: 5,
     });
 
     // Real-time analytics rule
@@ -234,7 +234,7 @@ export class RealTimeProcessingEngine extends EventEmitter {
           this.wsService.broadcast('analytics', analytics);
         }
       },
-      priority: 1
+      priority: 1,
     });
   }
 
@@ -246,8 +246,8 @@ export class RealTimeProcessingEngine extends EventEmitter {
       metrics: {
         processingLatency: Date.now() - event.timestamp,
         queueSize: this.dataService.getQueueSize(),
-        cacheHitRate: this.config.enableCaching ? this.cacheService.getMetrics().hitRate : 0
-      }
+        cacheHitRate: this.config.enableCaching ? this.cacheService.getMetrics().hitRate : 0,
+      },
     };
   }
 
@@ -287,7 +287,7 @@ export class RealTimeProcessingEngine extends EventEmitter {
       activeConnections: this.wsService?.getConnectionCount() || 0,
       cacheHitRate: this.config.enableCaching ? this.cacheService.getMetrics().hitRate : 0,
       uptime: Date.now() - this.startTime,
-      memoryUsage: process.memoryUsage().heapUsed
+      memoryUsage: process.memoryUsage().heapUsed,
     };
   }
 
@@ -297,7 +297,7 @@ export class RealTimeProcessingEngine extends EventEmitter {
       dataService: this.dataService.getMetrics(),
       streamProcessor: this.streamProcessor.getMetrics(),
       cache: this.config.enableCaching ? this.cacheService.getMetrics() : null,
-      websocket: this.wsService?.getMetrics() || null
+      websocket: this.wsService?.getMetrics() || null,
     };
   }
 

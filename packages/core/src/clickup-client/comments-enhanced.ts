@@ -4,7 +4,7 @@ import { ClickUpClient } from './index.js';
 import {
   prepareCommentForClickUp,
   clickUpCommentToMarkdown,
-  ClickUpCommentBlock
+  ClickUpCommentBlock,
 } from '../utils/clickup-comment-formatter.js';
 
 export interface Comment {
@@ -238,7 +238,7 @@ export class CommentsEnhancedClient {
     // Exact match to ClickUp's official Node.js example
     const payload = {
       notify_all: false,
-      comment_text: commentText
+      comment_text: commentText,
     };
 
     // Send raw request without any processing
@@ -258,7 +258,7 @@ export class CommentsEnhancedClient {
     const payload = {
       notify_all: params.notify_all || false,
       assignee: params.assignee,
-      ...structuredComment // This adds the 'comment' array, NOT comment_text
+      ...structuredComment, // This adds the 'comment' array, NOT comment_text
     };
 
     // Create responses only contain { id, hist_id, date } - no comment array to post-process
@@ -300,7 +300,7 @@ export class CommentsEnhancedClient {
   ): Promise<CreateCommentResponse> {
     const payload = {
       notify_all: params.notify_all || false,
-      ...buildCommentBody(params) // This adds the 'comment' array, NOT comment_text
+      ...buildCommentBody(params), // This adds the 'comment' array, NOT comment_text
     };
 
     // Create responses only contain { id, hist_id, date } - no comment array to post-process
@@ -340,7 +340,7 @@ export class CommentsEnhancedClient {
     const payload = {
       notify_all: params.notify_all || false,
       assignee: params.assignee,
-      ...buildCommentBody(params) // This adds the 'comment' array, NOT comment_text
+      ...buildCommentBody(params), // This adds the 'comment' array, NOT comment_text
     };
 
     // Create responses only contain { id, hist_id, date } - no comment array to post-process
@@ -356,7 +356,7 @@ export class CommentsEnhancedClient {
   async updateComment(commentId: string, params: UpdateCommentParams): Promise<Comment> {
     const payload: Record<string, unknown> = {
       assignee: params.assignee,
-      resolved: params.resolved
+      resolved: params.resolved,
     };
 
     // Only send a new comment body when one was provided, so resolve/assign-only
@@ -412,7 +412,7 @@ export class CommentsEnhancedClient {
   ): Promise<CreateCommentResponse> {
     const payload = {
       notify_all: params.notify_all || false,
-      ...buildCommentBody(params) // This adds the 'comment' array, NOT comment_text
+      ...buildCommentBody(params), // This adds the 'comment' array, NOT comment_text
     };
 
     // Create responses only contain { id, hist_id, date } - no comment array to post-process

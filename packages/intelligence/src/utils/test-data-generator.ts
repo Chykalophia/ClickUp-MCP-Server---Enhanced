@@ -46,7 +46,7 @@ export class TestDataGenerator {
         time_estimate: (i + 1) * 3600000, // hours in milliseconds
         time_spent: i * 1800000, // half the estimate
         tags: [`tag_${i % 3}`, 'test'],
-        custom_fields: []
+        custom_fields: [],
       });
     }
     
@@ -59,7 +59,7 @@ export class TestDataGenerator {
     const skills = [
       ['javascript', 'react', 'node.js'],
       ['figma', 'sketch', 'ui/ux'],
-      ['project-management', 'strategy', 'leadership']
+      ['project-management', 'strategy', 'leadership'],
     ];
     
     for (let i = 0; i < count; i++) {
@@ -70,7 +70,7 @@ export class TestDataGenerator {
         role: roles[i % roles.length],
         availability: 0.8 + (i * 0.1), // 80-100% availability
         skills: skills[i % skills.length],
-        capacity: 40 - (i * 5) // 40, 35, 30 hours per week
+        capacity: 40 - (i * 5), // 40, 35, 30 hours per week
       });
     }
     
@@ -82,7 +82,7 @@ export class TestDataGenerator {
     return tasks.map(task => ({
       ...task,
       due_date: new Date(Date.now() - (24 * 60 * 60 * 1000)).toISOString(), // Yesterday
-      status: 'in progress'
+      status: 'in progress',
     }));
   }
 
@@ -92,7 +92,7 @@ export class TestDataGenerator {
       ...task,
       status: 'completed',
       completed_date: new Date().toISOString(),
-      time_spent: task.time_estimate || 3600000
+      time_spent: task.time_estimate || 3600000,
     }));
   }
 
@@ -101,7 +101,7 @@ export class TestDataGenerator {
     return users.map(user => ({
       ...user,
       availability: 0, // No availability
-      capacity: 0
+      capacity: 0,
     }));
   }
 
@@ -119,8 +119,8 @@ export class TestDataGenerator {
       tags: ['backend', 'api', 'integration', 'complex'],
       custom_fields: [
         { id: 'complexity', value: 'high' },
-        { id: 'risk_level', value: 'medium' }
-      ]
+        { id: 'risk_level', value: 'medium' },
+      ],
     };
   }
 
@@ -136,7 +136,7 @@ export class TestDataGenerator {
       time_estimate: 2 * 3600000, // 2 hours
       time_spent: 0,
       tags: ['documentation', 'simple'],
-      custom_fields: []
+      custom_fields: [],
     };
   }
 
@@ -146,8 +146,8 @@ export class TestDataGenerator {
       users: this.generateMockUsers(5),
       timeframe: {
         start: new Date(Date.now() - (30 * 24 * 60 * 60 * 1000)).toISOString(),
-        end: new Date().toISOString()
-      }
+        end: new Date().toISOString(),
+      },
     };
   }
 }

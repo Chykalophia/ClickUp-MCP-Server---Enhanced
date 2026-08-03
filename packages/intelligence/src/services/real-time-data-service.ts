@@ -27,7 +27,7 @@ export class RealTimeDataService extends EventEmitter {
     batchSize: 100,
     flushInterval: 1000,
     maxRetries: 3,
-    enableAnalytics: true
+    enableAnalytics: true,
   }) {
     super();
     this.config = config;
@@ -43,7 +43,7 @@ export class RealTimeDataService extends EventEmitter {
       taskId: payload.task_id || payload.id,
       timestamp: Date.now(),
       data: payload,
-      source: 'webhook'
+      source: 'webhook',
     };
 
     this.queueEvent(event);
@@ -56,7 +56,7 @@ export class RealTimeDataService extends EventEmitter {
       'taskUpdated': 'task_update',
       'taskDeleted': 'task_deleted',
       'taskCommentPosted': 'comment_added',
-      'taskStatusUpdated': 'status_changed'
+      'taskStatusUpdated': 'status_changed',
     };
     return mapping[eventType] || 'task_update';
   }
@@ -88,7 +88,7 @@ export class RealTimeDataService extends EventEmitter {
       events.forEach(event => {
         this.dataCache.set(event.taskId, {
           ...event.data,
-          lastUpdated: event.timestamp
+          lastUpdated: event.timestamp,
         });
       });
 
@@ -96,7 +96,7 @@ export class RealTimeDataService extends EventEmitter {
       this.emit('batch_processed', {
         count: events.length,
         timestamp: Date.now(),
-        latency: this.calculateAverageLatency(events)
+        latency: this.calculateAverageLatency(events),
       });
 
       // Process analytics if enabled
@@ -119,7 +119,7 @@ export class RealTimeDataService extends EventEmitter {
     const analytics = {
       eventCounts: this.countEventTypes(events),
       averageLatency: this.calculateAverageLatency(events),
-      throughput: events.length / (this.config.flushInterval / 1000)
+      throughput: events.length / (this.config.flushInterval / 1000),
     };
 
     this.emit('analytics_update', analytics);
@@ -145,7 +145,7 @@ export class RealTimeDataService extends EventEmitter {
       queueSize: this.processingQueue.length,
       cacheSize: this.dataCache.size,
       wsConnections: this.wsConnections.size,
-      uptime: process.uptime()
+      uptime: process.uptime(),
     };
   }
 

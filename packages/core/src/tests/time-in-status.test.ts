@@ -1,7 +1,7 @@
 import { describe, it, expect } from '@jest/globals';
 import {
   TaskTimeInStatusResponseSchema,
-  BulkTasksTimeInStatusResponseSchema
+  BulkTasksTimeInStatusResponseSchema,
 } from '../schemas/response-schemas.js';
 
 /**
@@ -17,7 +17,7 @@ describe('TaskTimeInStatusResponseSchema', () => {
       current_status: {
         status: 'in progress',
         color: '#4194f6',
-        total_time: { by_minute: 1234, since: '1700000000000' }
+        total_time: { by_minute: 1234, since: '1700000000000' },
       },
       status_history: [
         {
@@ -25,16 +25,16 @@ describe('TaskTimeInStatusResponseSchema', () => {
           color: '#d3d3d3',
           type: 'open',
           total_time: { by_minute: 500, since: '1699000000000' },
-          orderindex: 0
+          orderindex: 0,
         },
         {
           status: 'in progress',
           color: '#4194f6',
           type: 'custom',
           total_time: { by_minute: 734, since: '1699500000000' },
-          orderindex: 1
-        }
-      ]
+          orderindex: 1,
+        },
+      ],
     };
 
     expect(() => TaskTimeInStatusResponseSchema.parse(response)).not.toThrow();
@@ -46,8 +46,8 @@ describe('TaskTimeInStatusResponseSchema', () => {
       status_history: [
         { status: 'open', total_time: { by_minute: 100 } },
         { status: 'in progress', total_time: { by_minute: 200 } },
-        { status: 'in review', total_time: { by_minute: 300 } }
-      ]
+        { status: 'in review', total_time: { by_minute: 300 } },
+      ],
     };
 
     expect(() => TaskTimeInStatusResponseSchema.parse(response)).not.toThrow();
@@ -57,8 +57,8 @@ describe('TaskTimeInStatusResponseSchema', () => {
     const response = {
       status_history: [
         { status: 'open', orderindex: '0' },
-        { status: 'closed', orderindex: 1 }
-      ]
+        { status: 'closed', orderindex: 1 },
+      ],
     };
 
     expect(() => TaskTimeInStatusResponseSchema.parse(response)).not.toThrow();
@@ -74,7 +74,7 @@ describe('TaskTimeInStatusResponseSchema', () => {
   it('preserves unknown forward-compat fields via passthrough', () => {
     const parsed = TaskTimeInStatusResponseSchema.parse({
       status_history: [{ status: 'open', new_field: 'value' }],
-      extra_top_level: 'also kept'
+      extra_top_level: 'also kept',
     });
 
     expect((parsed as any).extra_top_level).toBe('also kept');
@@ -89,13 +89,13 @@ describe('BulkTasksTimeInStatusResponseSchema', () => {
         current_status: { status: 'in progress' },
         status_history: [
           { status: 'open', orderindex: 0 },
-          { status: 'in progress', orderindex: 1 }
-        ]
+          { status: 'in progress', orderindex: 1 },
+        ],
       },
       '868jfqmqf': {
         current_status: { status: 'closed' },
-        status_history: [{ status: 'open' }, { status: 'closed' }]
-      }
+        status_history: [{ status: 'open' }, { status: 'closed' }],
+      },
     };
 
     expect(() => BulkTasksTimeInStatusResponseSchema.parse(response)).not.toThrow();
@@ -108,12 +108,12 @@ describe('BulkTasksTimeInStatusResponseSchema', () => {
           { status: 'open' },
           { status: 'in progress' },
           // Notably: no orderindex on this row. The pre-fix wrapper rejected here.
-          { status: 'in review' }
-        ]
+          { status: 'in review' },
+        ],
       },
       '868gw8b31': {
-        status_history: [{ status: 'open' }, { status: 'closed' }]
-      }
+        status_history: [{ status: 'open' }, { status: 'closed' }],
+      },
     };
 
     expect(() => BulkTasksTimeInStatusResponseSchema.parse(response)).not.toThrow();

@@ -238,7 +238,8 @@ export class EnhancedTimeTrackingClient {
       const response = await this.getAxiosInstance().get(endpoint);
 
       const validated = validateResponse(TimeEntryResponseSchema, response.data, 'getTimeEntry');
-      return validated.data as unknown as TimeEntry;
+      const entry = Array.isArray(validated.data) ? validated.data[0] : validated.data;
+      return entry as unknown as TimeEntry;
     } catch (error) {
       console.error('Error getting time entry:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to get time entry ${timerId} for team ${teamId}`);
@@ -287,7 +288,8 @@ export class EnhancedTimeTrackingClient {
       const response = await this.getAxiosInstance().post(endpoint, body);
 
       const validated = validateResponse(TimeEntryResponseSchema, response.data, 'createTimeEntry');
-      return validated.data as unknown as TimeEntry;
+      const entry = Array.isArray(validated.data) ? validated.data[0] : validated.data;
+      return entry as unknown as TimeEntry;
     } catch (error) {
       console.error('Error creating time entry:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to create time entry for team ${teamId}`);
@@ -327,6 +329,10 @@ export class EnhancedTimeTrackingClient {
           const currentEntry = await this.getTimeEntry(teamId, timerId);
           if (currentEntry.end) {
             body.end = parseInt(currentEntry.end, 10);
+          } else {
+            throw new Error(
+              `Cannot update the start of a running time entry (${timerId}) without an end: provide 'end' or 'duration', or stop the timer first.`
+            );
           }
         }
       }
@@ -340,7 +346,8 @@ export class EnhancedTimeTrackingClient {
       const response = await this.getAxiosInstance().put(endpoint, body);
 
       const validated = validateResponse(TimeEntryResponseSchema, response.data, 'updateTimeEntry');
-      return validated.data as unknown as TimeEntry;
+      const entry = Array.isArray(validated.data) ? validated.data[0] : validated.data;
+      return entry as unknown as TimeEntry;
     } catch (error) {
       console.error('Error updating time entry:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to update time entry ${timerId} for team ${teamId}`);
@@ -401,7 +408,8 @@ export class EnhancedTimeTrackingClient {
       const response = await this.getAxiosInstance().post(endpoint, body);
 
       const validated = validateResponse(TimeEntryResponseSchema, response.data, 'startTimer');
-      return validated.data as unknown as TimeEntry;
+      const entry = Array.isArray(validated.data) ? validated.data[0] : validated.data;
+      return entry as unknown as TimeEntry;
     } catch (error) {
       console.error('Error starting timer:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to start timer for team ${teamId}`);
@@ -419,7 +427,8 @@ export class EnhancedTimeTrackingClient {
       const response = await this.getAxiosInstance().post(endpoint);
 
       const validated = validateResponse(TimeEntryResponseSchema, response.data, 'stopTimer');
-      return validated.data as unknown as TimeEntry;
+      const entry = Array.isArray(validated.data) ? validated.data[0] : validated.data;
+      return entry as unknown as TimeEntry;
     } catch (error) {
       console.error('Error stopping timer:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to stop timer for team ${teamId}`);

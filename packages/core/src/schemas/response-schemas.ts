@@ -157,7 +157,9 @@ export const TimeEntryResponseSchema = z.object({
  * or { data: null } when no timer is running (a single entry, never an array).
  */
 export const CurrentTimeEntryResponseSchema = z.object({
-  data: z.record(z.unknown()).nullable().optional()
+  // `data` is required (nullable): a null means "no running timer", whereas a
+  // missing `data` indicates a malformed response and should fail validation.
+  data: z.record(z.unknown()).nullable()
 }).passthrough();
 
 // ========================================

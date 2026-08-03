@@ -290,7 +290,7 @@ export class EnhancedGoalsClient {
       const now = Date.now();
 
       for (const goal of goals) {
-        const dueDate = new Date(Number(goal.due_date)).getTime();
+        const dueDate = this.normalizeGoalDate(Number(goal.due_date));
         const progress = goal.percent_completed;
         totalProgress += progress;
 
@@ -403,8 +403,8 @@ export class EnhancedGoalsClient {
     dueDate: string
   ): 'completed' | 'on_track' | 'at_risk' | 'overdue' {
     const now = Date.now();
-    // due_date is a string containing a unix ms timestamp; new Date(string) would yield Invalid Date
-    const due = new Date(Number(dueDate)).getTime();
+    // due_date is a string containing a unix (seconds or ms) timestamp; normalize to ms
+    const due = this.normalizeGoalDate(Number(dueDate));
 
     if (percentCompleted >= 100) return 'completed';
     if (now > due) return 'overdue';
@@ -425,8 +425,8 @@ export class EnhancedGoalsClient {
    */
   getDaysUntilDue(dueDate: string): number {
     const now = Date.now();
-    // due_date is a string containing a unix ms timestamp; new Date(string) would yield Invalid Date
-    const due = new Date(Number(dueDate)).getTime();
+    // due_date is a string containing a unix (seconds or ms) timestamp; normalize to ms
+    const due = this.normalizeGoalDate(Number(dueDate));
     return Math.ceil((due - now) / (1000 * 60 * 60 * 24));
   }
 

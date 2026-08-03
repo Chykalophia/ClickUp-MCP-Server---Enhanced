@@ -297,17 +297,17 @@ export class AuthClient {
    * @returns Seats information including used, total, and available seats
    */
   async getWorkspaceSeats(workspaceId: string): Promise<{
-    members: {
-      filled_member_seats: number;
-      total_member_seats: number;
-      empty_member_seats: number;
-    };
-    guests: {
-      filled_guest_seats: number;
-      // Unlimited-guest plans return the string 'Infinity'
-      total_guest_seats: number | 'Infinity';
-      empty_guest_seats: number | 'Infinity';
-    };
+    // Seat counts are returned at the TOP LEVEL of the response body.
+    filled_member_seats: number;
+    total_member_seats: number;
+    empty_member_seats: number;
+    filled_guest_seats: number;
+    // Unlimited-guest plans return the string 'Infinity'
+    total_guest_seats: number | 'Infinity';
+    empty_guest_seats: number | 'Infinity';
+    // The API may also return the member/guest collections alongside the counts.
+    members?: Array<Record<string, unknown>>;
+    guests?: Array<Record<string, unknown>>;
   }> {
     try {
       return await this.client.get(`/team/${workspaceId}/seats`);

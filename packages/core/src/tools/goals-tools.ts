@@ -68,8 +68,9 @@ export function setupGoalsTools(server: McpServer): void {
     },
     async ({ team_id, name, due_date, description, multiple_owners, owners, color }) => {
       try {
-        // Validate due date is in the future
-        if (!goalsClient.validateGoalDate(due_date)) {
+        // Normalize first (seconds-scale input -> ms), then validate the normalized value
+        const normalizedDueDate = goalsClient.normalizeGoalDate(due_date);
+        if (!goalsClient.validateGoalDate(normalizedDueDate)) {
           return {
             content: [{ type: 'text', text: 'Error: Due date must be in the future' }],
             isError: true,
@@ -79,7 +80,7 @@ export function setupGoalsTools(server: McpServer): void {
         const params = {
           name,
           // The API expects unix milliseconds; normalize seconds-scale input
-          due_date: goalsClient.normalizeGoalDate(due_date),
+          due_date: normalizedDueDate,
           description,
           multiple_owners: multiple_owners ?? owners.length > 1,
           owners,
@@ -122,8 +123,10 @@ export function setupGoalsTools(server: McpServer): void {
     },
     async ({ goal_id, name, due_date, description, rem_owners, add_owners, color }) => {
       try {
-        // Validate due date if provided
-        if (due_date && !goalsClient.validateGoalDate(due_date)) {
+        // Normalize first (seconds-scale input -> ms), then validate the normalized value
+        const normalizedDueDate =
+          due_date !== undefined ? goalsClient.normalizeGoalDate(due_date) : undefined;
+        if (normalizedDueDate !== undefined && !goalsClient.validateGoalDate(normalizedDueDate)) {
           return {
             content: [{ type: 'text', text: 'Error: Due date must be in the future' }],
             isError: true,
@@ -133,7 +136,7 @@ export function setupGoalsTools(server: McpServer): void {
         const params = {
           name,
           // The API expects unix milliseconds; normalize seconds-scale input
-          due_date: due_date !== undefined ? goalsClient.normalizeGoalDate(due_date) : undefined,
+          due_date: normalizedDueDate,
           description,
           rem_owners,
           add_owners,

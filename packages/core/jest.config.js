@@ -38,7 +38,16 @@ const config = {
   ],
   
   // Coverage configuration
-  collectCoverage: true,
+  //
+  // Coverage instrumentation is disabled: Istanbul instruments every source
+  // file, and the MCP tool-registration modules (src/tools/*-setup.ts) combine
+  // the SDK's tool() generics with zod across dozens of registrations. Building
+  // a coverage map for those files exhausts the jest worker's memory and the OS
+  // OOM-kills it (SIGTERM), which fails the suite after ~40 min even though all
+  // tests pass. This is the same type-graph explosion that forces the esbuild
+  // transpile-only build. The 157 unit tests still run (in ~15s); type safety is
+  // enforced separately by `npm run typecheck`.
+  collectCoverage: false,
   coverageDirectory: 'coverage',
   coverageReporters: [
     'text',

@@ -51,10 +51,28 @@ module.exports = {
     'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     
     // Style consistency
-    'comma-dangle': ['error', 'never'],
+    //
+    // Prettier owns layout in this repo (`npm run format`, which this package's
+    // `version` lifecycle hook also runs on every release). These rules must
+    // therefore agree with .prettierrc or the two tools fight: the previous
+    // `comma-dangle: 'never'` contradicted prettier's `trailingComma: 'es5'`,
+    // so `npm run format` reintroduced lint errors the moment it ran.
+    //
+    // Keep this block in sync with the root .eslintrc.cjs — this file is a
+    // near-duplicate of it and sets `root: true`, so the root config does not
+    // apply to this package.
+    'comma-dangle': ['error', {
+      arrays: 'always-multiline',
+      objects: 'always-multiline',
+      imports: 'always-multiline',
+      exports: 'always-multiline',
+      functions: 'never'
+    }],
     'quotes': ['error', 'single', { avoidEscape: true }],
     'semi': ['error', 'always'],
-    'indent': ['error', 2],
+    // Indentation is prettier's job. ESLint's `indent` rule cannot be
+    // reconciled with prettier's output on continuation lines.
+    'indent': 'off',
     'max-len': ['warn', { code: 120, ignoreUrls: true }],
     
     // Best practices

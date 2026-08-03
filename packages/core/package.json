@@ -88,7 +88,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.26.0",
+    "@modelcontextprotocol/sdk": "^1.30.0",
     "axios": "^1.18.1",
     "dotenv": "^16.3.1",
     "express": "^4.22.2",

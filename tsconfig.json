@@ -1,24 +1,19 @@
 {
-  "compilerOptions": {
-    "target": "ES2020",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "esModuleInterop": true,
-    "strict": true,
-    "outDir": "build",
-    "rootDir": "src",
-    "declaration": true,
-    "sourceMap": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "allowSyntheticDefaultImports": true
-  },
-  "include": ["src/**/*"],
-  "exclude": [
-    "node_modules", 
-    "build",
-    "src/tests/**/*",
-    "**/*.test.ts",
-    "**/*.spec.ts"
+  // Solution-style config for the monorepo root. It deliberately compiles
+  // nothing itself: there is no src/ directory here, and the previous
+  // `"include": ["src/**/*"]` meant every root-level `tsc` invocation failed
+  // with TS18003 ("No inputs were found in config file"). Each package owns its
+  // own tsconfig; this file only wires them together so `tsc -b` works from the
+  // root.
+  //
+  // packages/core is intentionally NOT referenced. Its build is esbuild
+  // transpile-only because type-checking all 157 MCP tool registrations at once
+  // exhausts tsc's memory (see packages/core/scripts/esbuild-build.mjs); it is
+  // type-checked separately and partially via `npm run typecheck --workspace
+  // packages/core`.
+  "files": [],
+  "references": [
+    { "path": "packages/shared" },
+    { "path": "packages/intelligence" }
   ]
 }

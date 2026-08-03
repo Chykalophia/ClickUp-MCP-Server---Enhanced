@@ -76,6 +76,10 @@ describe('server version reporting', () => {
   it('package.json declares a valid semver version', () => {
     const pkg = JSON.parse(readSource('package.json')) as { version: string };
 
-    expect(pkg.version).toMatch(/^\d+\.\d+\.\d+/);
+    // Anchored at both ends, or the guard passes on mangled values like
+    // '1.2.3.4' and '1.2.3rc1' — the same class of corruption it exists to
+    // catch. The optional groups keep legitimate prerelease and build metadata
+    // (6.0.1-beta.1, 6.0.1+build.5) valid.
+    expect(pkg.version).toMatch(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/);
   });
 });

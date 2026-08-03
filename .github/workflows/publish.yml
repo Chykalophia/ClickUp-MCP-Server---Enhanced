@@ -5,7 +5,7 @@ on:
     types: [created]
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -13,14 +13,36 @@ jobs:
         with:
           node-version: '18.x'
           registry-url: 'https://registry.npmjs.org'
-      
+
       - name: Install dependencies
         run: npm install
-      
+
       - name: Build
         run: npm run build
-      
-      - name: Publish
-        run: npm publish
+
+      # The repository root is a private monorepo (`private: true`), so a bare
+      # `npm publish` fails. Publish each public workspace package instead, and
+      # skip any version already on the registry so re-running the release (or
+      # an unchanged supporting package) does not fail the job.
+      - name: Publish workspace packages
+        run: |
+          set -euo pipefail
+          for dir in packages/*/; do
+            pkg="${dir}package.json"
+            [ -f "$pkg" ] || continue
+            name=$(node -p "require('./$pkg').name")
+            version=$(node -p "require('./$pkg').version")
+            private=$(node -p "require('./$pkg').private === true")
+            if [ "$private" = "true" ]; then
+              echo "Skipping private package $name"
+              continue
+            fi
+            if npm view "$name@$version" version >/dev/null 2>&1; then
+              echo "Skipping $name@$version (already published)"
+            else
+              echo "Publishing $name@$version"
+              npm publish -w "$name" --access public
+            fi
+          done
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

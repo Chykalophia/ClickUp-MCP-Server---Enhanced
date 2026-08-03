@@ -114,7 +114,7 @@ export function setupTaskTools(server: McpServer): void {
       start_date: z.number().optional().describe('The start date of the task (Unix timestamp)'),
       start_date_time: z.boolean().optional().describe('Whether the start date includes a time'),
       notify_all: z.boolean().optional().describe('Whether to notify all assignees'),
-      parent: z.string().optional().describe('The ID of the parent task'),
+      parent: idSchema().optional().describe('The ID of the parent task'),
       custom_task_ids: z
         .boolean()
         .optional()
@@ -367,16 +367,16 @@ export function setupTaskTools(server: McpServer): void {
       order_by: z.string().optional().describe('The field to order by (id, created, updated, due_date)'),
       reverse: z.boolean().optional().describe('Whether to reverse the order'),
       subtasks: z.boolean().optional().describe('Whether to include subtasks in the results'),
-      space_ids: z.array(z.string()).optional().describe('Filter by space IDs'),
-      project_ids: z.array(z.string()).optional().describe('Filter by folder (project) IDs'),
-      list_ids: z.array(z.string()).optional().describe('Filter by list IDs'),
+      space_ids: z.array(idSchema()).optional().describe('Filter by space IDs'),
+      project_ids: z.array(idSchema()).optional().describe('Filter by folder (project) IDs'),
+      list_ids: z.array(idSchema()).optional().describe('Filter by list IDs'),
       statuses: z.array(z.string()).optional().describe('Filter by status names'),
       include_closed: z.boolean().optional().describe('Whether to include closed tasks'),
       include_markdown_description: z
         .boolean()
         .optional()
         .describe('Whether to return task descriptions in Markdown format'),
-      assignees: z.array(z.string()).optional().describe('Filter by assignee user IDs'),
+      assignees: z.array(idSchema()).optional().describe('Filter by assignee user IDs'),
       tags: z.array(z.string()).optional().describe('Filter by tag names'),
       due_date_gt: z.number().optional().describe('Filter by due date greater than (Unix timestamp in ms)'),
       due_date_lt: z.number().optional().describe('Filter by due date less than (Unix timestamp in ms)'),
@@ -384,7 +384,7 @@ export function setupTaskTools(server: McpServer): void {
       date_created_lt: z.number().optional().describe('Filter by created date less than (Unix timestamp in ms)'),
       date_updated_gt: z.number().optional().describe('Filter by updated date greater than (Unix timestamp in ms)'),
       date_updated_lt: z.number().optional().describe('Filter by updated date less than (Unix timestamp in ms)'),
-      parent: z.string().optional().describe('Filter by parent task ID')
+      parent: idSchema().optional().describe('Filter by parent task ID')
     },
     async ({ team_id, ...params }) => {
       try {

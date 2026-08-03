@@ -76,7 +76,7 @@ export function setupChatTools(server: McpServer): void {
       name: z.string().min(1).max(255).describe('The name of the channel'),
       description: z.string().optional().describe('Optional description of the channel'),
       topic: z.string().optional().describe('Optional topic of the channel'),
-      user_ids: z.array(z.string()).max(100).optional().describe('User IDs (as strings) to add to the channel (up to 100)'),
+      user_ids: z.array(idSchema()).max(100).optional().describe('User IDs (as strings) to add to the channel (up to 100)'),
       visibility: ChannelVisibilitySchema.optional().describe('Channel visibility: PUBLIC or PRIVATE'),
     },
     async args => {
@@ -107,7 +107,7 @@ export function setupChatTools(server: McpServer): void {
       parent_type: ChannelLocationTypeSchema.describe('The type of parent location'),
       description: z.string().optional().describe('Optional description of the channel'),
       topic: z.string().optional().describe('Optional topic of the channel'),
-      user_ids: z.array(z.string()).max(100).optional().describe('User IDs (as strings) to add to the channel (up to 100)'),
+      user_ids: z.array(idSchema()).max(100).optional().describe('User IDs (as strings) to add to the channel (up to 100)'),
       visibility: ChannelVisibilitySchema.optional().describe('Channel visibility: PUBLIC or PRIVATE'),
     },
     async args => {
@@ -135,7 +135,7 @@ export function setupChatTools(server: McpServer): void {
     {
       workspace_id: idSchema().describe('The ID of the workspace'),
       user_ids: z
-        .array(z.string())
+        .array(idSchema())
         .max(15)
         .optional()
         .describe('User IDs (as strings) to include in the direct message, up to 15. Omit or leave empty for a self-DM'),
@@ -323,9 +323,9 @@ export function setupChatTools(server: McpServer): void {
       content: z.string().min(1).describe('The content of the message'),
       type: MessageTypeSchema.optional().describe("The type of message: 'message' (default) or 'post'"),
       content_format: ContentFormatSchema.optional().describe('Format of the content: text/md (default) or text/plain'),
-      assignee: z.string().optional().describe('User ID to assign the message to'),
-      group_assignee: z.string().optional().describe('Group ID to assign the message to'),
-      followers: z.array(z.string()).optional().describe('User IDs (as strings) to add as followers of the message'),
+      assignee: idSchema().optional().describe('User ID to assign the message to'),
+      group_assignee: idSchema().optional().describe('Group ID to assign the message to'),
+      followers: z.array(idSchema()).optional().describe('User IDs (as strings) to add as followers of the message'),
       post_data: z
         .object({
           title: z.string().max(255).describe('Post title'),
@@ -362,8 +362,8 @@ export function setupChatTools(server: McpServer): void {
       message_id: idSchema().describe('The ID of the message to update'),
       content: z.string().min(1).optional().describe('The new content of the message'),
       content_format: ContentFormatSchema.optional().describe('Format of the content: text/md (default) or text/plain'),
-      assignee: z.string().optional().describe('User ID to assign the message to'),
-      group_assignee: z.string().optional().describe('Group ID to assign the message to'),
+      assignee: idSchema().optional().describe('User ID to assign the message to'),
+      group_assignee: idSchema().optional().describe('Group ID to assign the message to'),
       resolved: z.boolean().optional().describe('Mark the message as resolved or unresolved'),
       post_data: z
         .object({
@@ -460,9 +460,9 @@ export function setupChatTools(server: McpServer): void {
       content: z.string().min(1).describe('The content of the reply'),
       type: MessageTypeSchema.optional().describe("The type of message: 'message' (default) or 'post'"),
       content_format: ContentFormatSchema.optional().describe('Format of the content: text/md (default) or text/plain'),
-      assignee: z.string().optional().describe('User ID to assign the reply to'),
-      group_assignee: z.string().optional().describe('Group ID to assign the reply to'),
-      followers: z.array(z.string()).optional().describe('User IDs (as strings) to add as followers of the reply'),
+      assignee: idSchema().optional().describe('User ID to assign the reply to'),
+      group_assignee: idSchema().optional().describe('Group ID to assign the reply to'),
+      followers: z.array(idSchema()).optional().describe('User IDs (as strings) to add as followers of the reply'),
       post_data: z
         .object({
           title: z.string().max(255).describe('Post title'),

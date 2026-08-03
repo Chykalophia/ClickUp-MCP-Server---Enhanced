@@ -46,8 +46,7 @@ export function setupWebhookTools(server: McpServer): void {
         .number()
         .optional()
         .describe('Optional list ID to scope webhook events to a specific list'),
-      task_id: z
-        .string()
+      task_id: idSchema()
         .optional()
         .describe('Optional task ID to scope webhook events to a specific task'),
     },
@@ -133,9 +132,7 @@ export function setupWebhookTools(server: McpServer): void {
     "Update an existing webhook's configuration including endpoint, events, and status. ClickUp requires the full endpoint/events/status body, so unspecified fields are filled in from the webhook's current configuration.",
     {
       webhook_id: idSchema().describe('The ID of the webhook to update'),
-      workspace_id: z
-        .string()
-        .min(1)
+      workspace_id: idSchema()
         .describe("The ID of the workspace the webhook belongs to (used to fetch the webhook's current configuration)"),
       endpoint: z
         .string()

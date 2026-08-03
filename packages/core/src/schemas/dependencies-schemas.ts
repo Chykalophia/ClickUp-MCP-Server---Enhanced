@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { idSchema } from './common.js';
 
 // ============================================================================
 // The real ClickUp Task Relationships API surface is exactly four endpoints:
@@ -43,14 +44,10 @@ const DIRECTION_ERROR = 'Provide exactly one of depends_on or dependency_of';
 export const CreateDependencySchema = z
   .object({
     task_id: z.string().min(1).describe('The ID of the task to add the dependency to'),
-    depends_on: z
-      .string()
-      .min(1)
+    depends_on: idSchema()
       .optional()
       .describe('ID of the task this task is WAITING ON (must finish before this task)'),
-    dependency_of: z
-      .string()
-      .min(1)
+    dependency_of: idSchema()
       .optional()
       .describe('ID of the task this task is BLOCKING (cannot start until this task finishes)'),
     ...customTaskIdFields,
@@ -62,14 +59,10 @@ export const CreateDependencySchema = z
 export const DeleteDependencySchema = z
   .object({
     task_id: z.string().min(1).describe('The ID of the task to remove the dependency from'),
-    depends_on: z
-      .string()
-      .min(1)
+    depends_on: idSchema()
       .optional()
       .describe('ID of the "waiting on" task in the dependency to remove'),
-    dependency_of: z
-      .string()
-      .min(1)
+    dependency_of: idSchema()
       .optional()
       .describe('ID of the "blocking" task in the dependency to remove'),
     ...customTaskIdFields,
@@ -115,8 +108,8 @@ export const DependencyConflictCheckSchema = z.object({
     .array(
       z
         .object({
-          depends_on: z.string().min(1).optional(),
-          dependency_of: z.string().min(1).optional(),
+          depends_on: idSchema().optional(),
+          dependency_of: idSchema().optional(),
         })
         .refine(exactlyOneDirection, { message: DIRECTION_ERROR })
     )
@@ -132,8 +125,8 @@ export const BulkDependencyOperationSchema = z.object({
       z
         .object({
           task_id: z.string().min(1),
-          depends_on: z.string().min(1).optional(),
-          dependency_of: z.string().min(1).optional(),
+          depends_on: idSchema().optional(),
+          dependency_of: idSchema().optional(),
           ...customTaskIdFields,
         })
         .refine(exactlyOneDirection, { message: DIRECTION_ERROR })

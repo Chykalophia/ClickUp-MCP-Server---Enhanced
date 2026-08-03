@@ -28,8 +28,7 @@ export function setupChecklistTools(server: McpServer): void {
         .boolean()
         .optional()
         .describe('Set true when task_id is a custom task ID (also requires team_id)'),
-      team_id: z
-        .string()
+      team_id: idSchema()
         .optional()
         .describe('Workspace (team) ID — required when custom_task_ids is true'),
     },
@@ -177,8 +176,7 @@ export function setupChecklistTools(server: McpServer): void {
         .optional()
         .describe('The ID of the user to assign to the checklist item, or null to unassign'),
       resolved: z.boolean().optional().describe('Whether the checklist item is resolved'),
-      parent: z
-        .string()
+      parent: idSchema()
         .nullable()
         .optional()
         .describe(

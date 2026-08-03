@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { idSchema } from './common.js';
 
 // The 27 webhook events supported by the ClickUp API, plus the '*' wildcard
 // which subscribes a webhook to all events.
@@ -79,8 +80,8 @@ export const CreateWebhookSchema = z.object({
 // body; workspace_id is required so the current webhook can be fetched (via the
 // list endpoint) and merged with the caller's changes before sending the PUT.
 export const UpdateWebhookSchema = z.object({
-  webhook_id: z.string(),
-  workspace_id: z.string(),
+  webhook_id: idSchema(),
+  workspace_id: idSchema(),
   endpoint: z.string().url().optional(),
   events: z.array(WebhookEventSchema).optional(),
   status: z.enum(['active', 'inactive']).optional(),

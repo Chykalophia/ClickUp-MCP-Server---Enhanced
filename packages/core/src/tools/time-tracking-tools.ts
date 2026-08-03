@@ -394,7 +394,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
     {
       team_id: idSchema().describe('The ID of the team (Workspace)'),
       time_entry_ids: z
-        .array(z.string().min(1))
+        .array(idSchema())
         .min(1)
         .describe('Array of time entry IDs to add the tags to'),
       tags: z

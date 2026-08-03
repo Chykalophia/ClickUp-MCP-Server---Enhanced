@@ -45,9 +45,7 @@ export function setupCustomFieldTools(server: McpServer): void {
         .describe(
           'The type of container to get custom fields from ("team" and "workspace" are synonyms)'
         ),
-      container_id: z
-        .string()
-        .min(1)
+      container_id: idSchema()
         .describe('The ID of the container (list, folder, space, or team/workspace)'),
     },
     async ({ container_type, container_id }) => {

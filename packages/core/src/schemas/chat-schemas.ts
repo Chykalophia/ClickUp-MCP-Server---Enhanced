@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { idSchema } from './common.js';
 
 // ========================================
 // SHARED ENUMS (ClickUp Chat API v3)
@@ -34,7 +35,7 @@ export const CreateChannelSchema = z.object({
   name: z.string().min(1).max(255),
   description: z.string().optional(),
   topic: z.string().optional(),
-  user_ids: z.array(z.string()).max(100).optional(),
+  user_ids: z.array(idSchema()).max(100).optional(),
   visibility: ChannelVisibilitySchema.optional(),
 });
 
@@ -44,13 +45,13 @@ export const CreateChannelOnParentSchema = z.object({
   parent_type: ChannelLocationTypeSchema,
   description: z.string().optional(),
   topic: z.string().optional(),
-  user_ids: z.array(z.string()).max(100).optional(),
+  user_ids: z.array(idSchema()).max(100).optional(),
   visibility: ChannelVisibilitySchema.optional(),
 });
 
 export const CreateDirectMessageSchema = z.object({
   workspace_id: z.string().min(1),
-  user_ids: z.array(z.string()).max(15).optional(),
+  user_ids: z.array(idSchema()).max(15).optional(),
 });
 
 export const UpdateChannelSchema = z.object({
@@ -93,9 +94,9 @@ export const SendMessageSchema = z.object({
   type: MessageTypeSchema.default('message'),
   content: z.string().min(1),
   content_format: ContentFormatSchema.optional(),
-  assignee: z.string().optional(),
-  group_assignee: z.string().optional(),
-  followers: z.array(z.string()).optional(),
+  assignee: idSchema().optional(),
+  group_assignee: idSchema().optional(),
+  followers: z.array(idSchema()).optional(),
   post_data: z
     .object({
       title: z.string().max(255),
@@ -110,8 +111,8 @@ export const UpdateMessageSchema = z.object({
   message_id: z.string().min(1),
   content: z.string().min(1).optional(),
   content_format: ContentFormatSchema.optional(),
-  assignee: z.string().optional(),
-  group_assignee: z.string().optional(),
+  assignee: idSchema().optional(),
+  group_assignee: idSchema().optional(),
   resolved: z.boolean().optional(),
   post_data: z
     .object({
@@ -136,9 +137,9 @@ export const CreateReplySchema = z.object({
   type: MessageTypeSchema.default('message'),
   content: z.string().min(1),
   content_format: ContentFormatSchema.optional(),
-  assignee: z.string().optional(),
-  group_assignee: z.string().optional(),
-  followers: z.array(z.string()).optional(),
+  assignee: idSchema().optional(),
+  group_assignee: idSchema().optional(),
+  followers: z.array(idSchema()).optional(),
   post_data: z
     .object({
       title: z.string().max(255),

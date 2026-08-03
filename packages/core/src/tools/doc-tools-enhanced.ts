@@ -227,8 +227,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
       name: z.string().min(1).max(255).describe('The name of the document'),
       space_id: idSchema().optional().describe('Place the doc in this space (parent type 4)'),
       folder_id: idSchema().optional().describe('Place the doc in this folder (parent type 5)'),
-      parent_id: z
-        .string()
+      parent_id: idSchema()
         .optional()
         .describe('Explicit parent ID (used with parent_type; overrides space_id/folder_id)'),
       parent_type: z
@@ -259,7 +258,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
           throw new Error('parent_id and parent_type must be provided together');
         }
         const parent =
-          parent_id && parent_type !== undefined ? { id: parent_id, type: parent_type } : undefined;
+          parent_id !== undefined && parent_type !== undefined ? { id: parent_id, type: parent_type } : undefined;
 
         const doc = await enhancedDocsClient.createDoc({
           workspace_id,

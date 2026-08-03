@@ -1,8 +1,8 @@
 import { EventEmitter } from 'events';
-import { RealTimeDataService, RealTimeDataEvent } from './real-time-data-service';
-import { EventStreamProcessor, ProcessingRule } from './event-stream-processor';
-import { DataCacheService } from './data-cache-service';
-import { WebSocketService } from './websocket-service';
+import { RealTimeDataService, RealTimeDataEvent } from './real-time-data-service.js';
+import { EventStreamProcessor, ProcessingRule } from './event-stream-processor.js';
+import { DataCacheService } from './data-cache-service.js';
+import { WebSocketService } from './websocket-service.js';
 
 export interface ProcessingEngineConfig {
   enableWebSocket: boolean;

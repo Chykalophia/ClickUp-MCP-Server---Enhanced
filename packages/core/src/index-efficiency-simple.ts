@@ -30,6 +30,7 @@ import { setupListResources } from './resources/list-resources.js';
 
 // Import efficiency utilities
 import { createClickUpClient } from './clickup-client/index.js';
+import { VERSION } from './version.js';
 
 /**
  * Enhanced ClickUp MCP Server with Basic Efficiency Tools
@@ -44,7 +45,7 @@ class EfficiencyEnhancedClickUpServer {
   constructor() {
     this.server = new McpServer({
       name: 'clickup-mcp-server-efficiency',
-      version: '3.4.0',
+      version: VERSION,
     });
 
     this.client = createClickUpClient();

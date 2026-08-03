@@ -8,7 +8,7 @@ import {
   EstimationSummary,
   TaskType,
   ComplexityAnalysis
-} from '../services/task-analysis-service';
+} from '../services/task-analysis-service.js';
 
 // Zod schemas for validation
 const TaskSchema = z.object({

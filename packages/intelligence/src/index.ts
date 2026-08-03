@@ -5,13 +5,13 @@
  * AI-powered project management intelligence and workflow optimization.
  * Provides advanced analytics, predictive insights, and optimization tools.
  * 
- * @version 4.1.0
  * @package @chykalophia/clickup-intelligence-mcp-server
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import { VERSION } from './version.js';
 
 // Phase 1.1 - Project Health Analyzer (COMPLETED)
 import { setupProjectHealthAnalyzer } from './tools/project-health-analyzer.js';
@@ -79,7 +79,7 @@ class ClickUpIntelligenceServer {
     this.server = new Server(
       {
         name: 'clickup-intelligence-mcp-server',
-        version: '4.1.0'
+        version: VERSION
       },
       {
         capabilities: {

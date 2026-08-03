@@ -455,10 +455,11 @@ export class EnhancedCustomFieldsClient {
   private buildTaskAddressingParams(options?: TaskAddressingOptions): Record<string, any> {
     const params: Record<string, any> = {};
     if (options?.customTaskIds) {
-      params.custom_task_ids = true;
-      if (options.teamId !== undefined) {
-        params.team_id = options.teamId;
+      if (options.teamId === undefined) {
+        throw new Error('team_id is required when custom_task_ids is true');
       }
+      params.custom_task_ids = true;
+      params.team_id = options.teamId;
     }
     return params;
   }

@@ -79,6 +79,9 @@ export class ChecklistsClient {
     params: CreateChecklistParams,
     options?: CreateChecklistOptions
   ): Promise<Checklist> {
+    if (options?.custom_task_ids && !options.team_id) {
+      throw new Error('team_id is required when custom_task_ids is true');
+    }
     // ClickUpClient.post has no query-param passthrough, so build the query
     // string manually (same approach as tasks.ts getBulkTasksTimeInStatus).
     const search = new URLSearchParams();

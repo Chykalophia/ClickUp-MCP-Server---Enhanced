@@ -184,6 +184,9 @@ export function setupCommentTools(server: McpServer): void {
     },
     async ({ task_id, ...params }) => {
       try {
+        if (params.custom_task_ids && params.team_id === undefined) {
+          throw new Error('team_id is required when custom_task_ids is true');
+        }
         const result = await commentsClient.getTaskComments(task_id, params);
         const styledResult = formatCommentResponse(result, 'Task Comments');
         return {

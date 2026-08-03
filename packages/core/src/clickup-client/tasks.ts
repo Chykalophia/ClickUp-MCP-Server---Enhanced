@@ -259,6 +259,9 @@ export class TasksClient {
       include_markdown_description?: boolean;
     } & CustomTaskIdParams
   ): Promise<Task> {
+    if (params?.custom_task_ids && !params.team_id) {
+      throw new Error('team_id is required when custom_task_ids is true');
+    }
     const result = await this.client.get(`/task/${taskId}`, params);
     return processClickUpResponse(result);
   }

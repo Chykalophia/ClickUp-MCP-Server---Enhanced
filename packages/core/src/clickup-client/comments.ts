@@ -152,6 +152,9 @@ export class CommentsClient {
    * @returns The created comment with processed content
    */
   async createTaskComment(taskId: string, params: CreateTaskCommentParams): Promise<Comment> {
+    if (params.custom_task_ids && params.team_id === undefined) {
+      throw new Error('team_id is required when custom_task_ids is true');
+    }
     // Use ONLY structured format - no comment_text to avoid duplication
     const processedParams: any = { ...params };
 

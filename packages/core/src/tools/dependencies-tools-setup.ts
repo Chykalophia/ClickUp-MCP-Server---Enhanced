@@ -41,14 +41,10 @@ export function setupDependenciesTools(server: McpServer): void {
     'Create a dependency between two tasks. Provide exactly one of depends_on (this task is WAITING ON the other task) or dependency_of (this task is BLOCKING the other task).',
     {
       task_id: idSchema().describe('The ID of the task to add the dependency to'),
-      depends_on: z
-        .string()
-        .min(1)
+      depends_on: idSchema()
         .optional()
         .describe('ID of the task this task is waiting on (must finish before this task)'),
-      dependency_of: z
-        .string()
-        .min(1)
+      dependency_of: idSchema()
         .optional()
         .describe('ID of the task this task is blocking (cannot start until this task finishes)'),
       ...customTaskIdInputs,
@@ -107,14 +103,10 @@ export function setupDependenciesTools(server: McpServer): void {
     'Delete a dependency between two tasks. Provide exactly one of depends_on or dependency_of to identify which dependency to remove.',
     {
       task_id: idSchema().describe('The ID of the task to remove the dependency from'),
-      depends_on: z
-        .string()
-        .min(1)
+      depends_on: idSchema()
         .optional()
         .describe('ID of the "waiting on" task in the dependency to remove'),
-      dependency_of: z
-        .string()
-        .min(1)
+      dependency_of: idSchema()
         .optional()
         .describe('ID of the "blocking" task in the dependency to remove'),
       ...customTaskIdInputs,
@@ -239,14 +231,10 @@ export function setupDependenciesTools(server: McpServer): void {
       proposed_dependencies: z
         .array(
           z.object({
-            depends_on: z
-              .string()
-              .min(1)
+            depends_on: idSchema()
               .optional()
               .describe('ID of a task this task would be waiting on'),
-            dependency_of: z
-              .string()
-              .min(1)
+            dependency_of: idSchema()
               .optional()
               .describe('ID of a task this task would be blocking'),
           })
@@ -284,14 +272,10 @@ export function setupDependenciesTools(server: McpServer): void {
         .array(
           z.object({
             task_id: idSchema().describe('The task to add/remove the dependency on'),
-            depends_on: z
-              .string()
-              .min(1)
+            depends_on: idSchema()
               .optional()
               .describe('ID of the task being waited on'),
-            dependency_of: z
-              .string()
-              .min(1)
+            dependency_of: idSchema()
               .optional()
               .describe('ID of the task being blocked'),
           })

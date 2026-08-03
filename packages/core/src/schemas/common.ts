@@ -11,7 +11,7 @@ import { z } from 'zod';
  * non-empty string — so `null`, `undefined`, booleans, arrays and objects are
  * rejected at the boundary. The exposed JSON schema stays `type: string`.
  */
-export const idSchema = (message = 'ID is required'): z.ZodTypeAny =>
+export const idSchema = (message = 'ID is required') =>
   z.preprocess(
     (value) => (typeof value === 'number' ? String(value) : value),
     z.string().min(1, message)

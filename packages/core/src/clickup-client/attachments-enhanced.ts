@@ -38,8 +38,16 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
     const fileBytes = await this.resolveFileBytes(request);
 
     const form = new FormData();
-    // Wrap in a plain Uint8Array view so it is a valid BlobPart under the DOM types.
-    form.append('attachment', new Blob([new Uint8Array(fileBytes)]), request.filename);
+    // Wrap the Buffer in a Uint8Array view over the same memory (no copy) so it
+    // is a valid BlobPart under the DOM types without duplicating the payload.
+    // A Node Buffer is always backed by a real ArrayBuffer (never a
+    // SharedArrayBuffer), so the cast is sound and satisfies the DOM BlobPart type.
+    const bytesView = new Uint8Array(
+      fileBytes.buffer as ArrayBuffer,
+      fileBytes.byteOffset,
+      fileBytes.byteLength
+    );
+    form.append('attachment', new Blob([bytesView]), request.filename);
     form.append('filename', request.filename);
 
     const params: Record<string, string> = {};

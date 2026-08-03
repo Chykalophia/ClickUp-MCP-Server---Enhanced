@@ -204,11 +204,22 @@ export class DocsClient {
     );
     const doc: Doc = response.data;
 
+    // The doc already exists at this point, so an initial-page failure must not
+    // be reported as a failed creation (a retry would duplicate the doc).
     if (content && doc?.id) {
-      await axiosInstance.post(
-        `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${doc.id}/pages`,
-        { name: title, content, content_format: 'text/md' }
-      );
+      try {
+        await axiosInstance.post(
+          `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${doc.id}/pages`,
+          { name: title, content, content_format: 'text/md' }
+        );
+      } catch (pageError) {
+        const message = pageError instanceof Error ? pageError.message : String(pageError);
+        console.error('Error creating initial doc page:', message);
+        return {
+          ...doc,
+          warning: `Document created (id: ${doc.id}) but the initial content page failed: ${message}. Add the content with a page-create call instead of retrying the doc creation.`,
+        } as Doc;
+      }
     }
 
     return doc;

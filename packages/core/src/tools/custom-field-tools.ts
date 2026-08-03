@@ -146,10 +146,7 @@ export function setupCustomFieldTools(server: McpServer): void {
     'clickup_remove_custom_field_value',
     'Remove a custom field value from a ClickUp task. This clears the field value but keeps the field definition.',
     {
-      task_id: z
-        .string()
-        .min(1)
-        .describe('The ID of the task to remove the custom field value from'),
+      task_id: idSchema().describe('The ID of the task to remove the custom field value from'),
       field_id: idSchema().describe('The ID of the custom field to clear'),
       custom_task_ids: z
         .boolean()

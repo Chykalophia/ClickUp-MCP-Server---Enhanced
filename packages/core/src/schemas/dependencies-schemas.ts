@@ -1,224 +1,227 @@
 import { z } from 'zod';
+import { idSchema } from './common.js';
 
-// Dependency types
-export const DependencyTypeSchema = z.enum([
-  'blocking', // Task A blocks Task B (A must finish before B can start)
-  'waiting_on', // Task A is waiting on Task B (A cannot start until B finishes)
-  'linked', // Tasks are linked but not blocking
-]);
+// ============================================================================
+// The real ClickUp Task Relationships API surface is exactly four endpoints:
+//   POST   /task/{task_id}/dependency        (body: depends_on XOR dependency_of)
+//   DELETE /task/{task_id}/dependency        (query: depends_on XOR dependency_of)
+//   POST   /task/{task_id}/link/{links_to}
+//   DELETE /task/{task_id}/link/{links_to}
+// All four accept custom_task_ids & team_id query params. Dependencies and
+// links are read from the `dependencies` / `linked_tasks` arrays embedded in
+// the Get Task (GET /task/{task_id}) response — there is no dependency read,
+// update, bulk, graph, or stats endpoint.
+// ============================================================================
 
-// Dependency status
-export const DependencyStatusSchema = z.enum(['active', 'resolved', 'broken', 'ignored']);
+// Shared custom-task-ID query params (accepted by all four relationship endpoints)
+const customTaskIdFields = {
+  custom_task_ids: z
+    .boolean()
+    .optional()
+    .describe('Set true when the task IDs are custom task IDs (also requires team_id)'),
+  team_id: z
+    .union([z.string(), z.number()])
+    .optional()
+    .transform(v => (v === undefined ? undefined : String(v)))
+    .describe('Workspace (team) ID — required when custom_task_ids is true'),
+};
 
-// Create dependency schema
-export const CreateDependencySchema = z.object({
-  task_id: z.string().min(1).describe('The ID of the task that depends on another'),
-  depends_on: z.string().min(1).describe('The ID of the task that this task depends on'),
-  type: DependencyTypeSchema.default('blocking').describe('The type of dependency relationship'),
-  link_id: z.string().optional().describe('Optional link ID for grouping related dependencies'),
-});
+// custom_task_ids=true is invalid without the workspace ID (API requirement)
+const requiresTeamIdWithCustomIds = (data: {
+  custom_task_ids?: boolean;
+  team_id?: string;
+}): boolean => !data.custom_task_ids || !!data.team_id;
 
-// Update dependency schema
-export const UpdateDependencySchema = z.object({
-  dependency_id: z.string().min(1).describe('The ID of the dependency to update'),
-  type: DependencyTypeSchema.optional().describe('New dependency type'),
-  status: DependencyStatusSchema.optional().describe('New dependency status'),
-});
+const TEAM_ID_ERROR = 'team_id is required when custom_task_ids is true';
 
-// Get dependencies filter schema
-export const GetDependenciesFilterSchema = z.object({
-  task_id: z.string().min(1).describe('The ID of the task to get dependencies for'),
-  type: DependencyTypeSchema.optional().describe('Filter by dependency type'),
-  status: DependencyStatusSchema.optional().describe('Filter by dependency status'),
-  include_resolved: z.boolean().default(false).describe('Whether to include resolved dependencies'),
-});
+// Exactly one of depends_on / dependency_of must be provided (API requirement)
+const exactlyOneDirection = (data: { depends_on?: string; dependency_of?: string }): boolean =>
+  (data.depends_on ? 1 : 0) + (data.dependency_of ? 1 : 0) === 1;
 
-// Dependency graph options schema
+const DIRECTION_ERROR = 'Provide exactly one of depends_on or dependency_of';
+
+// Create dependency schema (POST /task/{task_id}/dependency)
+export const CreateDependencySchema = z
+  .object({
+    task_id: z.string().min(1).describe('The ID of the task to add the dependency to'),
+    depends_on: idSchema()
+      .optional()
+      .describe('ID of the task this task is WAITING ON (must finish before this task)'),
+    dependency_of: idSchema()
+      .optional()
+      .describe('ID of the task this task is BLOCKING (cannot start until this task finishes)'),
+    ...customTaskIdFields,
+  })
+  .refine(exactlyOneDirection, { message: DIRECTION_ERROR })
+  .refine(requiresTeamIdWithCustomIds, { message: TEAM_ID_ERROR });
+
+// Delete dependency schema (DELETE /task/{task_id}/dependency, query params)
+export const DeleteDependencySchema = z
+  .object({
+    task_id: z.string().min(1).describe('The ID of the task to remove the dependency from'),
+    depends_on: idSchema()
+      .optional()
+      .describe('ID of the "waiting on" task in the dependency to remove'),
+    dependency_of: idSchema()
+      .optional()
+      .describe('ID of the "blocking" task in the dependency to remove'),
+    ...customTaskIdFields,
+  })
+  .refine(exactlyOneDirection, { message: DIRECTION_ERROR })
+  .refine(requiresTeamIdWithCustomIds, { message: TEAM_ID_ERROR });
+
+// Get task dependencies schema (reads GET /task/{task_id} embedded arrays)
+export const GetTaskDependenciesSchema = z
+  .object({
+    task_id: z.string().min(1).describe('The ID of the task to get dependencies and links for'),
+    ...customTaskIdFields,
+  })
+  .refine(requiresTeamIdWithCustomIds, { message: TEAM_ID_ERROR });
+
+// Task link schemas (POST/DELETE /task/{task_id}/link/{links_to})
+export const AddTaskLinkSchema = z
+  .object({
+    task_id: z.string().min(1).describe('The ID of the task to add the link to'),
+    links_to: z.string().min(1).describe('The ID of the task to link to'),
+    ...customTaskIdFields,
+  })
+  .refine(requiresTeamIdWithCustomIds, { message: TEAM_ID_ERROR });
+
+export const DeleteTaskLinkSchema = z
+  .object({
+    task_id: z.string().min(1).describe('The ID of the task to remove the link from'),
+    links_to: z.string().min(1).describe('The ID of the linked task to unlink'),
+    ...customTaskIdFields,
+  })
+  .refine(requiresTeamIdWithCustomIds, { message: TEAM_ID_ERROR });
+
+// Dependency graph options schema (client-side traversal of Get Task data)
 export const DependencyGraphOptionsSchema = z.object({
   task_id: z.string().min(1).describe('The root task ID for the dependency graph'),
   depth: z.number().min(1).max(10).default(3).describe('Maximum depth to traverse in the graph'),
-  direction: z
-    .enum(['upstream', 'downstream', 'both'])
-    .default('both')
-    .describe('Direction to traverse dependencies'),
-  include_resolved: z.boolean().default(false).describe('Whether to include resolved dependencies'),
-  include_broken: z.boolean().default(true).describe('Whether to include broken dependencies'),
 });
 
-// Dependency conflict check schema
+// Dependency conflict check schema (client-side cycle/duplicate detection)
 export const DependencyConflictCheckSchema = z.object({
   task_id: z.string().min(1).describe('The task ID to check for conflicts'),
   proposed_dependencies: z
     .array(
-      z.object({
-        depends_on: z.string(),
-        type: DependencyTypeSchema,
-      })
+      z
+        .object({
+          depends_on: idSchema().optional(),
+          dependency_of: idSchema().optional(),
+        })
+        .refine(exactlyOneDirection, { message: DIRECTION_ERROR })
     )
     .optional()
-    .describe('Proposed new dependencies to check for conflicts'),
+    .describe('Proposed new dependencies for the task, to check for conflicts before creating'),
 });
 
-// Bulk dependency operations schema
+// Bulk dependency operations schema (client-side loop of real per-task calls)
 export const BulkDependencyOperationSchema = z.object({
-  operation: z.enum(['create', 'delete', 'update']).describe('The bulk operation to perform'),
+  operation: z.enum(['create', 'delete']).describe('The bulk operation to perform'),
   dependencies: z
     .array(
-      z.union([
-        CreateDependencySchema,
-        z.object({ dependency_id: z.string() }), // For delete operations
-        UpdateDependencySchema,
-      ])
+      z
+        .object({
+          task_id: z.string().min(1),
+          depends_on: idSchema().optional(),
+          dependency_of: idSchema().optional(),
+          ...customTaskIdFields,
+        })
+        .refine(exactlyOneDirection, { message: DIRECTION_ERROR })
+        .refine(requiresTeamIdWithCustomIds, { message: TEAM_ID_ERROR })
     )
-    .describe('Array of dependency operations to perform'),
+    .min(1)
+    .max(100, 'Bulk dependency operations are limited to 100 items per call')
+    .describe('Array of dependencies to create or delete'),
 });
 
 // Type exports
-export type DependencyType = z.infer<typeof DependencyTypeSchema>;
-export type DependencyStatus = z.infer<typeof DependencyStatusSchema>;
 export type CreateDependencyRequest = z.infer<typeof CreateDependencySchema>;
-export type UpdateDependencyRequest = z.infer<typeof UpdateDependencySchema>;
-export type GetDependenciesFilter = z.infer<typeof GetDependenciesFilterSchema>;
+export type DeleteDependencyRequest = z.infer<typeof DeleteDependencySchema>;
+export type GetTaskDependenciesRequest = z.infer<typeof GetTaskDependenciesSchema>;
+export type AddTaskLinkRequest = z.infer<typeof AddTaskLinkSchema>;
+export type DeleteTaskLinkRequest = z.infer<typeof DeleteTaskLinkSchema>;
 export type DependencyGraphOptions = z.infer<typeof DependencyGraphOptionsSchema>;
 export type DependencyConflictCheck = z.infer<typeof DependencyConflictCheckSchema>;
 export type BulkDependencyOperation = z.infer<typeof BulkDependencyOperationSchema>;
 
-// Dependency response interfaces
-export interface DependencyResponse {
-  id: string;
+// ============================================================================
+// API response shapes
+// ============================================================================
+
+// Entry in the `dependencies` array of a Get Task response.
+// `task_id` waits on `depends_on`; `type` is ClickUp's numeric relationship type.
+export interface TaskDependency {
   task_id: string;
   depends_on: string;
-  type: DependencyType;
-  status: DependencyStatus;
-  link_id?: string;
-  date_created: string;
-  date_updated: string;
-  created_by: {
-    id: number;
-    username: string;
-    email: string;
-  };
-  task_info: {
-    id: string;
-    name: string;
-    status: {
-      status: string;
-      color: string;
-    };
-    assignees: Array<{
-      id: number;
-      username: string;
-    }>;
-    due_date?: string;
-    url: string;
-  };
-  depends_on_info: {
-    id: string;
-    name: string;
-    status: {
-      status: string;
-      color: string;
-    };
-    assignees: Array<{
-      id: number;
-      username: string;
-    }>;
-    due_date?: string;
-    url: string;
-  };
+  type?: number;
+  date_created?: string;
+  userid?: string;
 }
 
-export interface DependencyListResponse {
-  dependencies: DependencyResponse[];
-  total_count: number;
+// Entry in the `linked_tasks` array of a Get Task response
+export interface LinkedTask {
+  task_id: string;
+  link_id: string;
+  date_created?: string;
+  userid?: string;
 }
 
+// Result of reading a task's relationships from Get Task
+export interface TaskRelationships {
+  task_id: string;
+  dependencies: TaskDependency[];
+  linked_tasks: LinkedTask[];
+}
+
+// Client-side dependency graph shapes
 export interface DependencyGraphNode {
   task_id: string;
-  task_name: string;
-  task_status: string;
-  task_url: string;
-  level: number;
-  dependencies: Array<{
-    id: string;
-    type: DependencyType;
-    status: DependencyStatus;
-    target_task_id: string;
-  }>;
-  dependents: Array<{
-    id: string;
-    type: DependencyType;
-    status: DependencyStatus;
-    source_task_id: string;
-  }>;
+  name?: string;
+  status?: string;
+  url?: string;
+}
+
+export interface DependencyGraphEdge {
+  task_id: string;
+  depends_on: string;
+  type?: number;
 }
 
 export interface DependencyGraphResponse {
   root_task_id: string;
+  depth: number;
   nodes: DependencyGraphNode[];
-  edges: Array<{
-    id: string;
-    source: string;
-    target: string;
-    type: DependencyType;
-    status: DependencyStatus;
-  }>;
-  cycles: Array<{
-    cycle_id: string;
-    task_ids: string[];
-    description: string;
-  }>;
-  critical_path?: Array<{
-    task_id: string;
-    task_name: string;
-    duration_days: number;
-  }>;
+  edges: DependencyGraphEdge[];
+  cycles: string[][];
 }
 
 export interface DependencyConflictResponse {
   has_conflicts: boolean;
   conflicts: Array<{
-    type: 'circular' | 'duplicate' | 'invalid_status';
-    description: string;
-    affected_tasks: string[];
-    suggested_resolution: string;
-  }>;
-  warnings: Array<{
-    type: 'performance' | 'complexity' | 'timeline';
+    type: 'circular' | 'duplicate';
     description: string;
     affected_tasks: string[];
   }>;
 }
 
-// Utility functions
-export const getDependencyDirection = (type: DependencyType): 'forward' | 'backward' => {
-  switch (type) {
-    case 'blocking':
-      return 'forward';
-    case 'waiting_on':
-      return 'backward';
-    case 'linked':
-      return 'forward';
-    default:
-      return 'forward';
-  }
-};
+// ============================================================================
+// Utility functions (client-side, no HTTP)
+// ============================================================================
 
-export const getOppositeDependencyType = (type: DependencyType): DependencyType => {
-  switch (type) {
-    case 'blocking':
-      return 'waiting_on';
-    case 'waiting_on':
-      return 'blocking';
-    case 'linked':
-      return 'linked';
-    default:
-      return type;
-  }
-};
+// A directed dependency edge: `task_id` waits on `depends_on`
+export interface DependencyEdge {
+  task_id: string;
+  depends_on: string;
+}
 
+/**
+ * Detect circular dependencies in a set of dependency edges using DFS.
+ */
 export const validateDependencyChain = (
-  dependencies: CreateDependencyRequest[]
+  edges: DependencyEdge[]
 ): {
   isValid: boolean;
   cycles: string[][];
@@ -227,20 +230,15 @@ export const validateDependencyChain = (
   const graph = new Map<string, Set<string>>();
   const errors: string[] = [];
 
-  // Build adjacency list
-  dependencies.forEach(dep => {
-    if (!graph.has(dep.task_id)) {
-      graph.set(dep.task_id, new Set());
+  // Build adjacency list (task -> tasks it waits on)
+  edges.forEach(edge => {
+    if (!graph.has(edge.task_id)) {
+      graph.set(edge.task_id, new Set());
     }
-    if (!graph.has(dep.depends_on)) {
-      graph.set(dep.depends_on, new Set());
+    if (!graph.has(edge.depends_on)) {
+      graph.set(edge.depends_on, new Set());
     }
-
-    if (dep.type === 'blocking') {
-      graph.get(dep.depends_on)?.add(dep.task_id);
-    } else if (dep.type === 'waiting_on') {
-      graph.get(dep.task_id)?.add(dep.depends_on);
-    }
+    graph.get(edge.task_id)?.add(edge.depends_on);
   });
 
   // Detect cycles using DFS
@@ -287,49 +285,4 @@ export const validateDependencyChain = (
     cycles,
     errors,
   };
-};
-
-export const calculateCriticalPath = (nodes: DependencyGraphNode[]): DependencyGraphNode[] => {
-  // Simplified critical path calculation
-  // In a real implementation, this would consider task durations and dates
-  const nodeMap = new Map(nodes.map(node => [node.task_id, node]));
-  const visited = new Set<string>();
-  const criticalPath: DependencyGraphNode[] = [];
-
-  // Find the longest path through the dependency graph
-  const findLongestPath = (
-    nodeId: string,
-    currentPath: DependencyGraphNode[]
-  ): DependencyGraphNode[] => {
-    if (visited.has(nodeId)) return currentPath;
-
-    visited.add(nodeId);
-    const node = nodeMap.get(nodeId);
-    if (!node) return currentPath;
-
-    const pathWithNode = [...currentPath, node];
-    let longestPath = pathWithNode;
-
-    // Explore all dependencies
-    for (const dep of node.dependencies) {
-      const childPath = findLongestPath(dep.target_task_id, pathWithNode);
-      if (childPath.length > longestPath.length) {
-        longestPath = childPath;
-      }
-    }
-
-    return longestPath;
-  };
-
-  // Start from nodes with no dependencies (root nodes)
-  const rootNodes = nodes.filter(node => node.dependencies.length === 0);
-
-  for (const rootNode of rootNodes) {
-    const path = findLongestPath(rootNode.task_id, []);
-    if (path.length > criticalPath.length) {
-      criticalPath.splice(0, criticalPath.length, ...path);
-    }
-  }
-
-  return criticalPath;
 };

@@ -1,15 +1,21 @@
 /* eslint-disable no-console, max-len */
+import crypto from 'crypto';
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import {
   validateApiToken,
-  sanitizeInput,
   rateLimiter,
   DEFAULT_RATE_LIMITS,
+  RateLimitConfig,
 } from '../utils/security.js';
 import { handleClickUpApiError, RetryManager, generateRequestId } from '../utils/error-handling.js';
+import { formatAuthorizationHeader } from './index.js';
 
 // ClickUp API base URL
 const API_BASE_URL = 'https://api.clickup.com/api/v2';
+
+// ClickUp enforces rate limits per token across ALL endpoints
+// (100 requests/minute on Free/Unlimited/Business plans)
+const CLICKUP_TOKEN_RATE_LIMIT: RateLimitConfig = { windowMs: 60000, maxRequests: 100 };
 
 export interface SecureClickUpClientConfig {
   apiToken: string;
@@ -25,6 +31,7 @@ export class SecureClickUpClient {
   private retryManager: RetryManager;
   private enableRateLimit: boolean;
   private userAgent: string;
+  private rateLimitKey: string;
 
   constructor(config: SecureClickUpClientConfig) {
     // Validate API token
@@ -36,12 +43,15 @@ export class SecureClickUpClient {
     this.enableRateLimit = config.enableRateLimit ?? true;
     this.userAgent = config.userAgent || 'ClickUp-MCP-Server/3.0.0';
     this.retryManager = new RetryManager(config.maxRetries || 3);
+    // ClickUp rate limits are enforced per token across all endpoints,
+    // so use a single bucket keyed by (a hash of) the token
+    this.rateLimitKey = SecureClickUpClient.buildRateLimitKey(config.apiToken);
 
     this.axiosInstance = axios.create({
       baseURL: config.baseUrl || API_BASE_URL,
       timeout: config.timeout || 30000, // 30 second timeout
       headers: {
-        Authorization: config.apiToken,
+        Authorization: formatAuthorizationHeader(config.apiToken),
         'Content-Type': 'application/json',
         'User-Agent': this.userAgent,
         Accept: 'application/json',
@@ -49,30 +59,21 @@ export class SecureClickUpClient {
       },
     });
 
-    // Add request interceptor for security and rate limiting
+    // Add request interceptor for request tracking and rate limiting
     this.axiosInstance.interceptors.request.use(
-      config => {
+      async config => {
         // Generate request ID for tracking
         const requestId = generateRequestId();
         config.headers['X-Request-ID'] = requestId;
 
-        // Rate limiting
+        // Rate limiting: delay until the window frees instead of failing the request
         if (this.enableRateLimit) {
-          const rateLimitKey = `api_${config.url}`;
-          if (!rateLimiter.isAllowed(rateLimitKey, DEFAULT_RATE_LIMITS.api)) {
-            throw new Error('Rate limit exceeded. Please slow down your requests.');
-          }
+          await this.waitForRateLimit();
         }
 
-        // Sanitize request data
-        if (config.data) {
-          config.data = sanitizeInput(config.data);
-        }
-
-        // Sanitize query parameters
-        if (config.params) {
-          config.params = sanitizeInput(config.params);
-        }
+        // NOTE: outbound payloads are intentionally NOT sanitized — ClickUp accepts
+        // arbitrary string content (markdown, quotes, code snippets) and mutating it
+        // would silently corrupt user data. sanitizeInput is reserved for log output.
 
         return config;
       },
@@ -106,13 +107,35 @@ export class SecureClickUpClient {
   }
 
   /**
+   * Derive a non-reversible rate-limit bucket key from the API token.
+   */
+  private static buildRateLimitKey(apiToken: string): string {
+    const tokenHash = crypto.createHash('sha256').update(apiToken).digest('hex').substring(0, 16);
+    return `api_token_${tokenHash}`;
+  }
+
+  /**
+   * Wait until the per-token rate limit window allows another request.
+   */
+  private async waitForRateLimit(maxWaitMs = 60000): Promise<void> {
+    const deadline = Date.now() + maxWaitMs;
+    while (!rateLimiter.isAllowed(this.rateLimitKey, CLICKUP_TOKEN_RATE_LIMIT)) {
+      if (Date.now() >= deadline) {
+        throw new Error('Rate limit wait exceeded maximum duration');
+      }
+      // Jitter avoids synchronized polling across queued requests.
+      await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 250));
+    }
+  }
+
+  /**
    * Secure GET request with retry logic
    */
   async get<T = any>(endpoint: string, params?: any, config?: AxiosRequestConfig): Promise<T> {
     return this.retryManager.executeWithRetry(
       async () => {
         const response = await this.axiosInstance.get(endpoint, {
-          params: sanitizeInput(params),
+          params,
           ...config,
         });
         return response.data;
@@ -127,7 +150,7 @@ export class SecureClickUpClient {
   async post<T = any>(endpoint: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
     return this.retryManager.executeWithRetry(
       async () => {
-        const response = await this.axiosInstance.post(endpoint, sanitizeInput(data), config);
+        const response = await this.axiosInstance.post(endpoint, data, config);
         return response.data;
       },
       { operationName: `POST ${endpoint}` }
@@ -140,7 +163,7 @@ export class SecureClickUpClient {
   async put<T = any>(endpoint: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
     return this.retryManager.executeWithRetry(
       async () => {
-        const response = await this.axiosInstance.put(endpoint, sanitizeInput(data), config);
+        const response = await this.axiosInstance.put(endpoint, data, config);
         return response.data;
       },
       { operationName: `PUT ${endpoint}` }
@@ -166,7 +189,7 @@ export class SecureClickUpClient {
   async patch<T = any>(endpoint: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
     return this.retryManager.executeWithRetry(
       async () => {
-        const response = await this.axiosInstance.patch(endpoint, sanitizeInput(data), config);
+        const response = await this.axiosInstance.patch(endpoint, data, config);
         return response.data;
       },
       { operationName: `PATCH ${endpoint}` }
@@ -207,13 +230,15 @@ export class SecureClickUpClient {
 
     const formData = new FormData();
 
-    // Add file
-    const blob = new Blob([file.data], { type: file.mimetype });
+    // Add file. Wrap a Buffer in a plain Uint8Array view so it is a valid
+    // BlobPart under the DOM types (a string is already a valid BlobPart).
+    const filePart = typeof file.data === 'string' ? file.data : new Uint8Array(file.data);
+    const blob = new Blob([filePart], { type: file.mimetype });
     formData.append('file', blob, file.filename);
 
     // Add additional data
     if (additionalData) {
-      Object.entries(sanitizeInput(additionalData)).forEach(([key, value]) => {
+      Object.entries(additionalData).forEach(([key, value]) => {
         formData.append(key, String(value));
       });
     }
@@ -352,7 +377,10 @@ export class SecureClickUpClient {
       if (!tokenValidation.isValid) {
         throw new Error(`Invalid API token: ${tokenValidation.error}`);
       }
-      this.axiosInstance.defaults.headers['Authorization'] = config.apiToken;
+      this.axiosInstance.defaults.headers['Authorization'] = formatAuthorizationHeader(
+        config.apiToken
+      );
+      this.rateLimitKey = SecureClickUpClient.buildRateLimitKey(config.apiToken);
     }
 
     if (config.timeout) {
@@ -376,8 +404,9 @@ export class SecureClickUpClient {
     // Clear any pending requests
     this.axiosInstance.defaults.timeout = 1;
 
-    // Reset rate limiter
-    rateLimiter.reset();
+    // Reset only this client's rate-limit bucket; a global reset would wipe
+    // history for other live clients sharing the process.
+    rateLimiter.reset(this.rateLimitKey);
   }
 }
 

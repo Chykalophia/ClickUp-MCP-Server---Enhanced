@@ -2,7 +2,7 @@
 import { ClickUpClient } from './index.js';
 import axios, { AxiosInstance } from 'axios';
 
-// Enhanced interfaces based on research
+// Enhanced interfaces based on the public v3 Docs API
 export interface Doc {
   id: string;
   name: string;
@@ -19,93 +19,98 @@ export interface Doc {
   type: number;
   content?: string;
   url?: string;
-  sharing?: SharingConfig;
   page_count?: number;
 }
 
 export interface Page {
   id: string;
   name: string;
+  sub_title?: string;
   content: string;
-  content_format: ContentFormat;
+  content_format?: ApiContentFormat;
   doc_id: string;
   parent_page_id?: string;
-  position: number;
   date_created: number;
   date_updated: number;
   creator: number;
+  pages?: Page[];
 }
 
+export interface PageListingEntry {
+  id: string;
+  name: string;
+  doc_id?: string;
+  parent_page_id?: string;
+  pages?: PageListingEntry[];
+}
+
+// Values accepted by tool inputs ('markdown'/'html' are normalized before sending)
 export type ContentFormat = 'markdown' | 'html' | 'text/md' | 'text/plain' | 'text/html';
+// Values the ClickUp v3 API actually accepts
+export type ApiContentFormat = 'text/md' | 'text/plain' | 'text/html';
 
-export interface SharingConfig {
-  public: boolean;
-  public_share_expires_on?: number;
-  public_fields?: string[];
-  team_sharing?: boolean;
-  guest_sharing?: boolean;
-  token?: string;
-  seo_optimized?: boolean;
-}
+export type ContentEditMode = 'replace' | 'append' | 'prepend';
+
+/**
+ * Parent types documented for Create Doc:
+ * 4 = Space, 5 = Folder, 6 = List, 7 = Everything, 12 = Workspace
+ */
+export type DocParentType = 4 | 5 | 6 | 7 | 12;
 
 // Parameter interfaces
 export interface CreateDocParams {
-  workspace_id?: string;
-  space_id?: string;
-  folder_id?: string;
+  workspace_id: string;
   name: string;
+  /** Explicit parent placement inside the workspace hierarchy */
+  parent?: {
+    id: string;
+    type: DocParentType;
+  };
+  /** Convenience: place the doc in a space (parent type 4) */
+  space_id?: string;
+  /** Convenience: place the doc in a folder (parent type 5) */
+  folder_id?: string;
+  /** Initial content; added as the first page in a follow-up call */
   content?: string;
+  content_format?: ContentFormat;
   public?: boolean;
-  template_id?: string;
-}
-
-export interface UpdateDocParams {
-  name?: string;
-  content?: string;
-  public?: boolean;
+  visibility?: 'PUBLIC' | 'PRIVATE';
+  create_page?: boolean;
 }
 
 export interface CreatePageParams {
   name: string;
   content: string;
+  sub_title?: string;
   content_format?: ContentFormat;
   parent_page_id?: string;
-  position?: number;
 }
 
 export interface UpdatePageParams {
   name?: string;
+  sub_title?: string;
   content?: string;
+  content_edit_mode?: ContentEditMode;
   content_format?: ContentFormat;
-  position?: number;
-}
-
-export interface SharingParams {
-  public?: boolean;
-  public_share_expires_on?: number;
-  public_fields?: string[];
-  team_sharing?: boolean;
-  guest_sharing?: boolean;
-}
-
-export interface CreateFromTemplateParams {
-  workspace_id?: string;
-  space_id?: string;
-  folder_id?: string;
-  name: string;
-  template_variables?: Record<string, any>;
 }
 
 export interface GetDocsParams {
-  cursor?: string;
+  id?: string;
+  creator?: number;
   deleted?: boolean;
   archived?: boolean;
+  parent_id?: string;
+  parent_type?: string;
   limit?: number;
+  cursor?: string;
 }
 
-export interface SearchDocsParams {
-  query: string;
-  cursor?: string;
+export interface SearchDocsParams extends GetDocsParams {
+  /**
+   * Free-text name filter. The v3 API has no query parameter, so this is
+   * applied client-side against the returned doc names.
+   */
+  query?: string;
 }
 
 export interface DocsResponse {
@@ -114,8 +119,20 @@ export interface DocsResponse {
 }
 
 /**
- * Enhanced Documents Client with full CRUD operations
- * Extends the existing read-only functionality with write operations
+ * Enhanced Documents Client aligned with the public ClickUp v3 Docs API.
+ *
+ * Supported operations (all under /api/v3/workspaces/{workspaceId}/):
+ * - GET  docs                      (search/list docs)
+ * - POST docs                      (create doc)
+ * - GET  docs/{docId}              (fetch doc)
+ * - GET  docs/{docId}/page_listing (page hierarchy without content)
+ * - GET  docs/{docId}/pages        (fetch pages with content)
+ * - POST docs/{docId}/pages        (create page)
+ * - GET  docs/{docId}/pages/{pageId}
+ * - PUT  docs/{docId}/pages/{pageId} (edit page, supports append/prepend)
+ *
+ * The public API provides NO doc update/delete, page delete, sharing, or
+ * template endpoints.
  */
 export class EnhancedDocsClient {
   private client: ClickUpClient;
@@ -128,7 +145,7 @@ export class EnhancedDocsClient {
   }
 
   // ========================================
-  // EXISTING READ OPERATIONS (Enhanced)
+  // READ OPERATIONS
   // ========================================
 
   /**
@@ -146,7 +163,7 @@ export class EnhancedDocsClient {
   }
 
   /**
-   * Get the pages of a doc
+   * Get the pages of a doc (with content)
    */
   async getDocPages(
     workspaceId: string,
@@ -157,7 +174,7 @@ export class EnhancedDocsClient {
       const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/pages`;
       const params = {
         max_page_depth: -1,
-        content_format: contentFormat
+        content_format: normalizeContentFormat(contentFormat)
       };
 
       const response = await this.http.get(url, { params });
@@ -170,109 +187,49 @@ export class EnhancedDocsClient {
   }
 
   /**
-   * Search for docs in a workspace
+   * Get the page hierarchy of a doc (IDs and names, no content).
+   * Cheap table-of-contents call compared to getDocPages.
+   */
+  async getDocPageListing(
+    workspaceId: string,
+    docId: string,
+    maxPageDepth: number = -1
+  ): Promise<PageListingEntry[]> {
+    try {
+      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/page_listing`;
+      const response = await this.http.get(url, { params: { max_page_depth: maxPageDepth } });
+      return response.data;
+    } catch (error) {
+      console.error('Error getting doc page listing:', error instanceof Error ? error.message : error);
+      throw this.handleError(error, 'Failed to get doc page listing');
+    }
+  }
+
+  /**
+   * Search for docs in a workspace.
+   *
+   * Uses GET /api/v3/workspaces/{workspaceId}/docs with the documented
+   * filters (id, creator, deleted, archived, parent_id, parent_type, limit,
+   * cursor). The API has no free-text search parameter, so `query` is
+   * matched client-side against doc names.
    */
   async searchDocs(workspaceId: string, params: SearchDocsParams): Promise<DocsResponse> {
     try {
-      const url = `https://api.clickup.com/api/v2/team/${workspaceId}/docs/search`;
-      const queryParams: any = {
-        doc_name: params.query,
-        cursor: params.cursor
-      };
+      const { query, ...filters } = params;
+      const result = await this.getDocsFromWorkspace(workspaceId, filters);
 
-      if (params.query.startsWith('space:')) {
-        const spaceId = params.query.substring(6);
-        queryParams.space_id = spaceId;
-        delete queryParams.doc_name;
+      if (query && Array.isArray(result.docs)) {
+        const lowerQuery = query.toLowerCase();
+        return {
+          ...result,
+          docs: result.docs.filter(doc => doc.name?.toLowerCase().includes(lowerQuery))
+        };
       }
 
-      const response = await this.http.get(url, { params: queryParams });
-
-      return response.data;
+      return result;
     } catch (error) {
       console.error('Error searching docs:', error instanceof Error ? error.message : error);
       throw this.handleError(error, 'Failed to search docs');
-    }
-  }
-
-  // ========================================
-  // NEW: DOCUMENT CRUD OPERATIONS
-  // ========================================
-
-  /**
-   * Create a new document
-   */
-  async createDoc(params: CreateDocParams): Promise<Doc> {
-    try {
-      let url: string;
-
-      // Determine the correct endpoint based on parent
-      if (params.workspace_id) {
-        url = `https://api.clickup.com/api/v3/workspaces/${params.workspace_id}/docs`;
-      } else if (params.space_id) {
-        url = `https://api.clickup.com/api/v3/spaces/${params.space_id}/docs`;
-      } else if (params.folder_id) {
-        url = `https://api.clickup.com/api/v3/folders/${params.folder_id}/docs`;
-      } else {
-        throw new Error('Must specify workspace_id, space_id, or folder_id');
-      }
-
-      const requestBody = {
-        name: params.name,
-        content: params.content || '',
-        public: params.public || false
-      };
-
-      // Add template_id if provided
-      if (params.template_id) {
-        (requestBody as any).template_id = params.template_id;
-      }
-
-      const response = await this.http.post(url, requestBody);
-
-      return response.data;
-    } catch (error) {
-      console.error('Error creating document:', error instanceof Error ? error.message : error);
-      throw this.handleError(error, 'Failed to create document');
-    }
-  }
-
-  /**
-   * Update an existing document
-   * @param workspaceId The workspace ID containing the document (required by ClickUp v3 API)
-   * @param docId The document ID
-   */
-  async updateDoc(workspaceId: string, docId: string, params: UpdateDocParams): Promise<Doc> {
-    try {
-      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}`;
-
-      const requestBody: any = {};
-      if (params.name !== undefined) requestBody.name = params.name;
-      if (params.content !== undefined) requestBody.content = params.content;
-      if (params.public !== undefined) requestBody.public = params.public;
-
-      const response = await this.http.put(url, requestBody);
-
-      return response.data;
-    } catch (error) {
-      console.error('Error updating document:', error instanceof Error ? error.message : error);
-      throw this.handleError(error, `Failed to update document ${docId}`);
-    }
-  }
-
-  /**
-   * Delete a document
-   * @param workspaceId The workspace ID containing the document (required by ClickUp v3 API)
-   * @param docId The document ID
-   */
-  async deleteDoc(workspaceId: string, docId: string): Promise<void> {
-    try {
-      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}`;
-
-      await this.http.delete(url);
-    } catch (error) {
-      console.error('Error deleting document:', error instanceof Error ? error.message : error);
-      throw this.handleError(error, `Failed to delete document ${docId}`);
     }
   }
 
@@ -295,7 +252,81 @@ export class EnhancedDocsClient {
   }
 
   // ========================================
-  // NEW: PAGE MANAGEMENT OPERATIONS
+  // DOCUMENT CREATION
+  // ========================================
+
+  /**
+   * Create a new document.
+   *
+   * Always POSTs to /api/v3/workspaces/{workspaceId}/docs; placement in the
+   * hierarchy is expressed via the `parent` body field ({id, type} with
+   * 4=space, 5=folder, 6=list, 7=everything, 12=workspace).
+   *
+   * If `content` is supplied, an initial page is created in a follow-up call
+   * (the create-doc endpoint does not accept content).
+   */
+  async createDoc(params: CreateDocParams): Promise<Doc> {
+    try {
+      const url = `https://api.clickup.com/api/v3/workspaces/${params.workspace_id}/docs`;
+
+      const placements = [params.parent, params.space_id, params.folder_id].filter(
+        value => value !== undefined
+      );
+      if (placements.length > 1) {
+        throw new Error('Provide at most one of parent, space_id, or folder_id');
+      }
+
+      let parent = params.parent;
+      if (!parent && params.space_id) {
+        parent = { id: params.space_id, type: 4 };
+      }
+      if (!parent && params.folder_id) {
+        parent = { id: params.folder_id, type: 5 };
+      }
+
+      const visibility = params.visibility || (params.public ? 'PUBLIC' : 'PRIVATE');
+
+      const requestBody: Record<string, unknown> = {
+        name: params.name,
+        visibility,
+        // When content is supplied we create the first page ourselves
+        create_page: params.content ? false : params.create_page !== false
+      };
+      if (parent) {
+        requestBody.parent = parent;
+      }
+
+      const response = await this.http.post(url, requestBody);
+      const doc: Doc = response.data;
+
+      // The create endpoint does not accept content; add it as the first page.
+      // The doc already exists at this point, so a page failure must not be
+      // reported as a failed creation (a retry would duplicate the doc).
+      if (params.content && doc?.id) {
+        try {
+          await this.createPage(params.workspace_id, doc.id, {
+            name: params.name,
+            content: params.content,
+            content_format: params.content_format || 'text/md'
+          });
+        } catch (pageError) {
+          const message = pageError instanceof Error ? pageError.message : String(pageError);
+          return {
+            ...doc,
+            warning: `Document created (id: ${doc.id}) but the initial content page failed: ${message}. Add the content with clickup_create_doc_page instead of retrying the creation.`
+          } as Doc;
+        }
+      }
+
+      return doc;
+    } catch (error) {
+      console.error('Error creating document:', error instanceof Error ? error.message : error);
+      throw this.handleError(error, 'Failed to create document');
+    }
+  }
+
+  // ========================================
+  // PAGE MANAGEMENT OPERATIONS
   // ========================================
 
   /**
@@ -307,17 +338,17 @@ export class EnhancedDocsClient {
     try {
       const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/pages`;
 
-      const requestBody = {
+      const requestBody: Record<string, unknown> = {
         name: params.name,
         content: params.content,
-        content_format: params.content_format || 'markdown'
+        content_format: normalizeContentFormat(params.content_format)
       };
 
-      if (params.parent_page_id) {
-        (requestBody as any).parent_page_id = params.parent_page_id;
+      if (params.sub_title) {
+        requestBody.sub_title = params.sub_title;
       }
-      if (params.position !== undefined) {
-        (requestBody as any).position = params.position;
+      if (params.parent_page_id) {
+        requestBody.parent_page_id = params.parent_page_id;
       }
 
       const response = await this.http.post(url, requestBody);
@@ -330,7 +361,8 @@ export class EnhancedDocsClient {
   }
 
   /**
-   * Update an existing page
+   * Update an existing page (Edit Page).
+   * Supports content_edit_mode 'replace' (default), 'append', and 'prepend'.
    * @param workspaceId The workspace ID containing the document (required by ClickUp v3 API)
    * @param docId The document ID
    * @param pageId The page ID
@@ -344,11 +376,14 @@ export class EnhancedDocsClient {
     try {
       const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/pages/${pageId}`;
 
-      const requestBody: any = {};
+      const requestBody: Record<string, unknown> = {};
       if (params.name !== undefined) requestBody.name = params.name;
-      if (params.content !== undefined) requestBody.content = params.content;
-      if (params.content_format !== undefined) requestBody.content_format = params.content_format;
-      if (params.position !== undefined) requestBody.position = params.position;
+      if (params.sub_title !== undefined) requestBody.sub_title = params.sub_title;
+      if (params.content !== undefined) {
+        requestBody.content = params.content;
+        requestBody.content_edit_mode = params.content_edit_mode || 'replace';
+        requestBody.content_format = normalizeContentFormat(params.content_format);
+      }
 
       const response = await this.http.put(url, requestBody);
 
@@ -356,23 +391,6 @@ export class EnhancedDocsClient {
     } catch (error) {
       console.error('Error updating page:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to update page ${pageId} in document ${docId}`);
-    }
-  }
-
-  /**
-   * Delete a page from a document
-   * @param workspaceId The workspace ID containing the document (required by ClickUp v3 API)
-   * @param docId The document ID
-   * @param pageId The page ID
-   */
-  async deletePage(workspaceId: string, docId: string, pageId: string): Promise<void> {
-    try {
-      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/pages/${pageId}`;
-
-      await this.http.delete(url);
-    } catch (error) {
-      console.error('Error deleting page:', error instanceof Error ? error.message : error);
-      throw this.handleError(error, `Failed to delete page ${pageId} from document ${docId}`);
     }
   }
 
@@ -390,7 +408,9 @@ export class EnhancedDocsClient {
   ): Promise<Page> {
     try {
       const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/pages/${pageId}`;
-      const params = contentFormat ? { content_format: contentFormat } : {};
+      const params = contentFormat
+        ? { content_format: normalizeContentFormat(contentFormat) }
+        : {};
 
       const response = await this.http.get(url, { params });
 
@@ -398,71 +418,6 @@ export class EnhancedDocsClient {
     } catch (error) {
       console.error('Error getting page:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to get page ${pageId} from document ${docId}`);
-    }
-  }
-
-  // ========================================
-  // NEW: SHARING MANAGEMENT
-  // ========================================
-
-  /**
-   * Get document sharing settings
-   * @param workspaceId The workspace ID containing the document (required by ClickUp v3 API)
-   * @param docId The document ID
-   */
-  async getDocSharing(workspaceId: string, docId: string): Promise<SharingConfig> {
-    try {
-      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/sharing`;
-
-      const response = await this.http.get(url);
-
-      return response.data;
-    } catch (error) {
-      console.error('Error getting document sharing:', error instanceof Error ? error.message : error);
-      throw this.handleError(error, `Failed to get sharing settings for document ${docId}`);
-    }
-  }
-
-  /**
-   * Update document sharing settings
-   * @param workspaceId The workspace ID containing the document (required by ClickUp v3 API)
-   * @param docId The document ID
-   */
-  async updateDocSharing(
-    workspaceId: string,
-    docId: string,
-    params: SharingParams
-  ): Promise<SharingConfig> {
-    try {
-      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/sharing`;
-
-      const response = await this.http.put(url, params);
-
-      return response.data;
-    } catch (error) {
-      console.error('Error updating document sharing:', error instanceof Error ? error.message : error);
-      throw this.handleError(error, `Failed to update sharing settings for document ${docId}`);
-    }
-  }
-
-  // ========================================
-  // NEW: TEMPLATE OPERATIONS
-  // ========================================
-
-  /**
-   * Create document from template
-   */
-  async createDocFromTemplate(templateId: string, params: CreateFromTemplateParams): Promise<Doc> {
-    try {
-      const createParams: CreateDocParams = {
-        ...params,
-        template_id: templateId
-      };
-
-      return await this.createDoc(createParams);
-    } catch (error) {
-      console.error('Error creating document from template:', error instanceof Error ? error.message : error);
-      throw this.handleError(error, `Failed to create document from template ${templateId}`);
     }
   }
 
@@ -500,57 +455,25 @@ export class EnhancedDocsClient {
 
     return new Error(`${context}: ${error.message || 'Unknown error'}`);
   }
+}
 
-  /**
-   * Validate content format
-   */
-  private validateContentFormat(format: ContentFormat): boolean {
-    const validFormats: ContentFormat[] = [
-      'markdown',
-      'html',
-      'text/md',
-      'text/plain',
-      'text/html'
-    ];
-    return validFormats.includes(format);
-  }
-
-  /**
-   * Sanitize HTML content with comprehensive security measures
-   */
-  private sanitizeHtml(html: string): string {
-    if (!html || typeof html !== 'string') {
-      return '';
-    }
-
-    // Comprehensive HTML sanitization
-    return (
-      html
-        // Remove script tags and their content
-        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-        // Remove style tags and their content
-        .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
-        // Remove all event handlers
-        .replace(/\s*on\w+\s*=\s*["'][^"']*["']/gi, '')
-        // Remove javascript: protocol
-        .replace(/javascript:/gi, '')
-        // Remove vbscript: protocol
-        .replace(/vbscript:/gi, '')
-        // Remove data: protocol (can be used for XSS)
-        .replace(/data:/gi, '')
-        // Remove dangerous tags
-        .replace(
-          /<(iframe|object|embed|applet|meta|link|base|form|input|button|textarea|select|option)\b[^>]*>/gi,
-          ''
-        )
-        // Remove closing tags for dangerous elements
-        .replace(
-          /<\/(iframe|object|embed|applet|meta|link|base|form|input|button|textarea|select|option)>/gi,
-          ''
-        )
-        // Limit to reasonable length to prevent DoS
-        .substring(0, 100000)
-    );
+/**
+ * Map friendly content format aliases to the values the v3 API accepts.
+ * markdown -> text/md, html -> text/html; defaults to text/md.
+ */
+export function normalizeContentFormat(format?: string): ApiContentFormat {
+  switch (format) {
+  case 'markdown':
+  case 'text/md':
+  case undefined:
+    return 'text/md';
+  case 'html':
+  case 'text/html':
+    return 'text/html';
+  case 'text/plain':
+    return 'text/plain';
+  default:
+    return 'text/md';
   }
 }
 

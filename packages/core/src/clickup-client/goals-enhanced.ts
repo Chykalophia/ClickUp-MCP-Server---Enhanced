@@ -39,14 +39,15 @@ export interface GoalTarget {
   goal_id: string;
   name: string;
   creator: number;
-  type: 'number' | 'currency' | 'boolean' | 'task' | 'list';
+  type: 'number' | 'currency' | 'boolean' | 'percentage' | 'automatic';
   date_created: string;
-  start_value: number;
-  target_value: number;
-  current_value: number;
+  steps_start: number;
+  steps_end: number;
+  steps_current: number;
   unit: string | null;
-  task_statuses: string[] | null;
+  task_ids: string[] | null;
   list_ids: string[] | null;
+  owners?: GoalMember[];
   completed: boolean;
   percent_completed: number;
 }
@@ -75,20 +76,18 @@ export interface Goal {
 
 export interface CreateGoalTargetParams {
   name: string;
-  type: 'number' | 'currency' | 'boolean' | 'task' | 'list';
-  target_value: number;
-  start_value?: number;
+  type: 'number' | 'currency' | 'boolean' | 'percentage' | 'automatic';
+  steps_end?: number;
+  steps_start?: number;
   unit?: string;
-  task_statuses?: string[];
+  owners?: number[];
+  task_ids?: string[];
   list_ids?: string[];
 }
 
 export interface UpdateGoalTargetParams {
-  name?: string;
-  target_value?: number;
-  unit?: string;
-  task_statuses?: string[];
-  list_ids?: string[];
+  steps_current?: number;
+  note?: string;
 }
 
 export interface GoalSummary {
@@ -137,7 +136,17 @@ export class EnhancedGoalsClient {
       const response = await this.getAxiosInstance().get(endpoint);
 
       const validated = validateResponse(GoalsResponseSchema, response.data, 'getGoals');
-      return validated.goals as unknown as Goal[] || [];
+      const goals = (validated.goals as unknown as Goal[]) || [];
+
+      // Goals nested inside Goal Folders arrive in a sibling `folders` array
+      const folders = ((validated as Record<string, unknown>).folders as Array<{ goals?: Goal[] }>) || [];
+      for (const folder of folders) {
+        if (Array.isArray(folder.goals)) {
+          goals.push(...folder.goals);
+        }
+      }
+
+      return goals;
     } catch (error) {
       console.error('Error getting goals:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to get goals for team ${teamId}`);
@@ -214,11 +223,11 @@ export class EnhancedGoalsClient {
    */
   async createGoalTarget(goalId: string, params: CreateGoalTargetParams): Promise<GoalTarget> {
     try {
-      const endpoint = `/goal/${goalId}/target`;
+      const endpoint = `/goal/${goalId}/key_result`;
       const response = await this.getAxiosInstance().post(endpoint, params);
 
       const validated = validateResponse(GoalTargetResponseSchema, response.data, 'createGoalTarget');
-      return validated.target as unknown as GoalTarget;
+      return validated.key_result as unknown as GoalTarget;
     } catch (error) {
       console.error('Error creating goal target:', error instanceof Error ? error.message : error);
       throw this.handleError(error, `Failed to create target for goal ${goalId}`);
@@ -226,35 +235,31 @@ export class EnhancedGoalsClient {
   }
 
   /**
-   * Update a goal target
+   * Update a goal target (key result)
    */
-  async updateGoalTarget(
-    goalId: string,
-    targetId: string,
-    params: UpdateGoalTargetParams
-  ): Promise<GoalTarget> {
+  async updateGoalTarget(targetId: string, params: UpdateGoalTargetParams): Promise<GoalTarget> {
     try {
-      const endpoint = `/goal/${goalId}/target/${targetId}`;
+      const endpoint = `/key_result/${targetId}`;
       const response = await this.getAxiosInstance().put(endpoint, params);
 
       const validated = validateResponse(GoalTargetResponseSchema, response.data, 'updateGoalTarget');
-      return validated.target as unknown as GoalTarget;
+      return validated.key_result as unknown as GoalTarget;
     } catch (error) {
       console.error('Error updating goal target:', error instanceof Error ? error.message : error);
-      throw this.handleError(error, `Failed to update target ${targetId} for goal ${goalId}`);
+      throw this.handleError(error, `Failed to update target ${targetId}`);
     }
   }
 
   /**
-   * Delete a goal target
+   * Delete a goal target (key result)
    */
-  async deleteGoalTarget(goalId: string, targetId: string): Promise<void> {
+  async deleteGoalTarget(targetId: string): Promise<void> {
     try {
-      const endpoint = `/goal/${goalId}/target/${targetId}`;
+      const endpoint = `/key_result/${targetId}`;
       await this.getAxiosInstance().delete(endpoint);
     } catch (error) {
       console.error('Error deleting goal target:', error instanceof Error ? error.message : error);
-      throw this.handleError(error, `Failed to delete target ${targetId} for goal ${goalId}`);
+      throw this.handleError(error, `Failed to delete target ${targetId}`);
     }
   }
 
@@ -285,7 +290,7 @@ export class EnhancedGoalsClient {
       const now = Date.now();
 
       for (const goal of goals) {
-        const dueDate = new Date(goal.due_date).getTime();
+        const dueDate = this.normalizeGoalDate(Number(goal.due_date));
         const progress = goal.percent_completed;
         totalProgress += progress;
 
@@ -355,8 +360,8 @@ export class EnhancedGoalsClient {
       return currentValue >= 1;
     case 'number':
     case 'currency':
-    case 'task':
-    case 'list':
+    case 'percentage':
+    case 'automatic':
       return currentValue >= targetValue;
     default:
       return false;
@@ -398,7 +403,8 @@ export class EnhancedGoalsClient {
     dueDate: string
   ): 'completed' | 'on_track' | 'at_risk' | 'overdue' {
     const now = Date.now();
-    const due = new Date(dueDate).getTime();
+    // due_date is a string containing a unix (seconds or ms) timestamp; normalize to ms
+    const due = this.normalizeGoalDate(Number(dueDate));
 
     if (percentCompleted >= 100) return 'completed';
     if (now > due) return 'overdue';
@@ -419,8 +425,17 @@ export class EnhancedGoalsClient {
    */
   getDaysUntilDue(dueDate: string): number {
     const now = Date.now();
-    const due = new Date(dueDate).getTime();
+    // due_date is a string containing a unix (seconds or ms) timestamp; normalize to ms
+    const due = this.normalizeGoalDate(Number(dueDate));
     return Math.ceil((due - now) / (1000 * 60 * 60 * 24));
+  }
+
+  /**
+   * Normalize a due date to unix milliseconds (the API requires ms).
+   * Seconds-scale timestamps are multiplied by 1000.
+   */
+  normalizeGoalDate(dueDate: number): number {
+    return dueDate < 1e12 ? dueDate * 1000 : dueDate;
   }
 
   /**
@@ -429,7 +444,7 @@ export class EnhancedGoalsClient {
   validateGoalDate(dueDate: number): boolean {
     const now = Date.now();
     // Handle both seconds and milliseconds timestamps
-    const dueDateMs = dueDate < 1e12 ? dueDate * 1000 : dueDate;
+    const dueDateMs = this.normalizeGoalDate(dueDate);
     return dueDateMs > now;
   }
 

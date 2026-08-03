@@ -1,7 +1,20 @@
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
 // ClickUp API base URL
 const API_BASE_URL = 'https://api.clickup.com/api/v2';
+
+// Maximum automatic retries after a 429 rate-limit response
+const MAX_RATE_LIMIT_RETRIES = 2;
+// Cap the wait on a single retry so a bad Retry-After header can't hang a request forever
+const MAX_RETRY_AFTER_MS = 60000;
+
+/**
+ * Build the Authorization header value for a ClickUp token.
+ * Personal API tokens (pk_...) are sent raw; OAuth access tokens require the Bearer prefix.
+ */
+export const formatAuthorizationHeader = (apiToken: string): string => {
+  return apiToken.startsWith('pk_') ? apiToken : `Bearer ${apiToken}`;
+};
 
 export interface ClickUpClientConfig {
   apiToken: string;
@@ -22,17 +35,45 @@ export class ClickUpClient {
       headers: {
         accept: 'application/json',
         'content-type': 'application/json',
-        Authorization: config.apiToken
+        Authorization: formatAuthorizationHeader(config.apiToken)
       }
     });
 
-    // Add response interceptor for error handling
+    // Add response interceptor for rate-limit retries and error handling
     this.axiosInstance.interceptors.response.use(
       response => response,
-      error => {
+      async error => {
+        // Retry 429s, honoring the server-mandated Retry-After wait (a minimum, per RFC 9110)
+        const requestConfig = error.config as (AxiosRequestConfig & { _retryCount?: number }) | undefined;
+        if (error.response?.status === 429 && requestConfig) {
+          const retryCount = requestConfig._retryCount ?? 0;
+          if (retryCount < MAX_RATE_LIMIT_RETRIES) {
+            requestConfig._retryCount = retryCount + 1;
+            // Retry-After may be delta-seconds or an HTTP-date (RFC 9110); the
+            // computed wait is a minimum. Give up instead of retrying early
+            // when the server asks for longer than we are willing to wait.
+            const retryAfterRaw = error.response.headers?.['retry-after'];
+            let retryAfterMs = 1000;
+            const retryAfterSeconds = parseInt(retryAfterRaw, 10);
+            if (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0) {
+              retryAfterMs = retryAfterSeconds * 1000;
+            } else if (retryAfterRaw) {
+              const retryAfterDate = Date.parse(retryAfterRaw);
+              if (!Number.isNaN(retryAfterDate)) {
+                retryAfterMs = Math.max(retryAfterDate - Date.now(), 1000);
+              }
+            }
+            if (retryAfterMs <= MAX_RETRY_AFTER_MS) {
+              await new Promise(resolve => setTimeout(resolve, retryAfterMs));
+              return this.axiosInstance.request(requestConfig);
+            }
+          }
+        }
+
         if (error.response) {
-          // Format error message with status and data
-          const message = `ClickUp API Error (${error.response.status}): ${
+          // Format error message with status, ClickUp ECODE, and error text
+          const ecode = error.response.data?.ECODE;
+          const message = `ClickUp API Error (${error.response.status}${ecode ? ` ${ecode}` : ''}): ${
             error.response.data?.err || error.message
           }`;
           error.message = message;
@@ -72,8 +113,8 @@ export class ClickUpClient {
     return response.data as T;
   }
 
-  async delete<T = unknown>(endpoint: string): Promise<T> {
-    const response = await this.axiosInstance.delete(endpoint);
+  async delete<T = unknown>(endpoint: string, config?: AxiosRequestConfig): Promise<T> {
+    const response = await this.axiosInstance.delete(endpoint, config);
     return response.data as T;
   }
 }

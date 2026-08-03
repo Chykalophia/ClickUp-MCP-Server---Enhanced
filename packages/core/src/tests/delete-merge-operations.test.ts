@@ -91,10 +91,6 @@ describe('Delete and Merge Task Operations Validation', () => {
         const validMerge = {
           primary_task_id: 'primary123',
           secondary_task_ids: ['secondary1', 'secondary2'],
-          merge_descriptions: true,
-          merge_comments: true,
-          merge_attachments: true,
-          merge_time_tracking: true,
           confirm_merge: true
         };
 
@@ -122,17 +118,13 @@ describe('Delete and Merge Task Operations Validation', () => {
         expect(noSecondaryTasks.secondary_task_ids.length).toBe(0); // Should be rejected
       });
 
-      it('should have default merge options', () => {
-        const mergeOptions = {
-          merge_descriptions: true,
-          merge_comments: true,
-          merge_attachments: true,
-          merge_time_tracking: true
+      it('should use the native merge endpoint request shape', () => {
+        const mergeRequestBody = {
+          source_task_ids: ['secondary1', 'secondary2']
         };
 
-        Object.values(mergeOptions).forEach(option => {
-          expect(option).toBe(true);
-        });
+        expect(Array.isArray(mergeRequestBody.source_task_ids)).toBe(true);
+        expect(mergeRequestBody.source_task_ids.length).toBe(2);
       });
     });
   });
@@ -276,7 +268,7 @@ describe('Delete and Merge Task Operations Validation', () => {
         'has been permanently deleted',
         'This action cannot be undone',
         'Task merge completed',
-        'Secondary tasks have been permanently deleted'
+        'migrated into the primary task'
       ];
 
       confirmationElements.forEach(element => {

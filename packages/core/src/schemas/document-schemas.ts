@@ -1,6 +1,9 @@
 import { z } from 'zod';
+import { idSchema } from './common.js';
 
-// Content format validation
+// Content format values accepted by tool inputs.
+// 'markdown' and 'html' are aliases normalized to 'text/md'/'text/html'
+// before being sent to the API (which accepts the MIME-style values only).
 export const ContentFormatSchema = z.enum([
   'markdown',
   'html',
@@ -9,207 +12,156 @@ export const ContentFormatSchema = z.enum([
   'text/html',
 ]);
 
-// Document creation schema
-export const CreateDocSchema = z
-  .object({
-    workspace_id: z.string().optional(),
-    space_id: z.string().optional(),
-    folder_id: z.string().optional(),
-    name: z.string().min(1, 'Document name is required').max(255, 'Document name too long'),
-    content: z.string().optional(),
-    public: z.boolean().optional().default(false),
-    template_id: z.string().optional(),
-  })
-  .refine(data => data.workspace_id || data.space_id || data.folder_id, {
-    message: 'Must specify workspace_id, space_id, or folder_id',
-    path: ['workspace_id'],
-  });
+// API-native content format values
+export const ApiContentFormatSchema = z.enum(['text/md', 'text/plain', 'text/html']);
 
-// Document update schema
-export const UpdateDocSchema = z
-  .object({
-    name: z
-      .string()
-      .min(1, 'Document name cannot be empty')
-      .max(255, 'Document name too long')
-      .optional(),
-    content: z.string().optional(),
-    public: z.boolean().optional(),
-  })
-  .refine(
-    data => data.name !== undefined || data.content !== undefined || data.public !== undefined,
-    {
-      message: 'Must specify at least one field to update',
-      path: ['name'],
-    }
-  );
+// How Edit Page applies new content
+export const ContentEditModeSchema = z.enum(['replace', 'append', 'prepend']);
 
-// Page creation schema
+// Documented parent types for Create Doc:
+// 4 = Space, 5 = Folder, 6 = List, 7 = Everything, 12 = Workspace
+export const DocParentTypeSchema = z.union([
+  z.literal(4),
+  z.literal(5),
+  z.literal(6),
+  z.literal(7),
+  z.literal(12),
+]);
+
+export const DocParentSchema = z.object({
+  id: z.string().min(1, 'Parent ID is required'),
+  type: DocParentTypeSchema,
+});
+
+// Documented parent_type filter values for Search Docs
+export const DocParentTypeFilterSchema = z.enum([
+  'SPACE',
+  'FOLDER',
+  'LIST',
+  'EVERYTHING',
+  'WORKSPACE',
+  '4',
+  '5',
+  '6',
+  '7',
+  '12',
+]);
+
+// Document creation schema (POST /api/v3/workspaces/{workspaceId}/docs)
+export const CreateDocSchema = z.object({
+  workspace_id: z.string().min(1, 'Workspace ID is required'),
+  name: z.string().min(1, 'Document name is required').max(255, 'Document name too long'),
+  parent: DocParentSchema.optional(),
+  visibility: z.enum(['PUBLIC', 'PRIVATE']).optional().default('PRIVATE'),
+  create_page: z.boolean().optional().default(true),
+  // Initial content; added as the doc's first page in a follow-up call
+  content: z.string().optional(),
+  content_format: ContentFormatSchema.optional().default('text/md'),
+});
+
+// Page creation schema (POST /api/v3/workspaces/{workspaceId}/docs/{docId}/pages)
 export const CreatePageSchema = z.object({
   name: z.string().min(1, 'Page name is required').max(255, 'Page name too long'),
   content: z.string().min(1, 'Page content is required'),
-  content_format: z.enum(['markdown', 'html']).optional().default('markdown'),
+  sub_title: z.string().optional(),
+  content_format: ContentFormatSchema.optional().default('text/md'),
   parent_page_id: z.string().optional(),
-  position: z.number().int().min(0, 'Position must be non-negative').optional(),
 });
 
-// Page update schema
+// Page update schema (PUT /api/v3/workspaces/{workspaceId}/docs/{docId}/pages/{pageId})
 export const UpdatePageSchema = z
   .object({
     name: z.string().min(1, 'Page name cannot be empty').max(255, 'Page name too long').optional(),
+    sub_title: z.string().optional(),
     content: z.string().optional(),
-    content_format: z.enum(['markdown', 'html']).optional(),
-    position: z.number().int().min(0, 'Position must be non-negative').optional(),
+    content_edit_mode: ContentEditModeSchema.optional().default('replace'),
+    content_format: ContentFormatSchema.optional(),
   })
   .refine(
     data =>
-      data.name !== undefined ||
-      data.content !== undefined ||
-      data.content_format !== undefined ||
-      data.position !== undefined,
+      data.name !== undefined || data.sub_title !== undefined || data.content !== undefined,
     {
       message: 'Must specify at least one field to update',
       path: ['name'],
     }
   );
 
-// Sharing configuration schema
-export const SharingConfigSchema = z
-  .object({
-    public: z.boolean().optional(),
-    public_share_expires_on: z
-      .number()
-      .int()
-      .positive('Expiration must be a positive timestamp')
-      .optional(),
-    public_fields: z.array(z.string()).optional(),
-    team_sharing: z.boolean().optional(),
-    guest_sharing: z.boolean().optional(),
-  })
-  .refine(data => Object.keys(data).length > 0, {
-    message: 'Must specify at least one sharing setting to update',
-    path: ['public'],
-  });
-
-// Template creation schema
-export const CreateFromTemplateSchema = z
-  .object({
-    workspace_id: z.string().optional(),
-    space_id: z.string().optional(),
-    folder_id: z.string().optional(),
-    name: z.string().min(1, 'Document name is required').max(255, 'Document name too long'),
-    template_variables: z.record(z.any()).optional(),
-  })
-  .refine(data => data.workspace_id || data.space_id || data.folder_id, {
-    message: 'Must specify workspace_id, space_id, or folder_id',
-    path: ['workspace_id'],
-  });
-
-// Get docs parameters schema
+// Get docs parameters schema (GET /api/v3/workspaces/{workspaceId}/docs)
 export const GetDocsParamsSchema = z.object({
-  cursor: z.string().optional(),
+  id: z.string().optional(),
+  creator: z.number().int().optional(),
   deleted: z.boolean().optional().default(false),
   archived: z.boolean().optional().default(false),
+  parent_id: z.string().optional(),
+  parent_type: DocParentTypeFilterSchema.optional(),
   limit: z.number().int().min(1).max(100).optional().default(50),
+  cursor: z.string().optional(),
 });
 
-// Search docs parameters schema
-export const SearchDocsParamsSchema = z.object({
-  query: z.string().min(1, 'Search query is required'),
-  cursor: z.string().optional(),
+// Search docs parameters schema.
+// The v3 API has no free-text query parameter; `query` is applied
+// client-side against doc names on top of the documented filters.
+export const SearchDocsParamsSchema = GetDocsParamsSchema.extend({
+  query: z.string().optional(),
 });
 
 // Document ID validation
-export const DocIdSchema = z.string().min(1, 'Document ID is required');
+export const DocIdSchema = idSchema('Document ID is required');
 
 // Page ID validation
-export const PageIdSchema = z.string().min(1, 'Page ID is required');
+export const PageIdSchema = idSchema('Page ID is required');
 
 // Workspace ID validation
-export const WorkspaceIdSchema = z.string().min(1, 'Workspace ID is required');
+export const WorkspaceIdSchema = idSchema('Workspace ID is required');
 
-// Combined schemas for tool validation
+// Combined schemas for tool validation.
+// Note: the public ClickUp API has no doc update/delete, page delete,
+// sharing, or template endpoints, so no schemas exist for those operations.
 export const DocumentToolSchemas = {
   // Document operations
   createDoc: CreateDocSchema,
-  updateDoc: z.object({
-    doc_id: DocIdSchema,
-    name: z.string().min(1).optional(),
-    content: z.string().optional(),
-    public: z.boolean().optional(),
-  }),
-  deleteDoc: z.object({
-    doc_id: DocIdSchema,
-  }),
   getDoc: z.object({
+    workspace_id: WorkspaceIdSchema,
     doc_id: DocIdSchema,
   }),
 
   // Page operations
-  createPage: z.object({
+  createPage: CreatePageSchema.extend({
+    workspace_id: WorkspaceIdSchema,
     doc_id: DocIdSchema,
-    name: z.string().min(1),
-    content: z.string().optional(),
-    content_format: z.enum(['markdown', 'html']).optional().default('markdown'),
-    position: z.number().min(0).optional(),
   }),
   updatePage: z.object({
+    workspace_id: WorkspaceIdSchema,
     doc_id: DocIdSchema,
     page_id: PageIdSchema,
     name: z.string().min(1).optional(),
+    sub_title: z.string().optional(),
     content: z.string().optional(),
-    content_format: z.enum(['markdown', 'html']).optional(),
-    position: z.number().min(0).optional(),
-  }),
-  deletePage: z.object({
-    doc_id: DocIdSchema,
-    page_id: PageIdSchema,
+    content_edit_mode: ContentEditModeSchema.optional(),
+    content_format: ContentFormatSchema.optional(),
   }),
   getPage: z.object({
+    workspace_id: WorkspaceIdSchema,
     doc_id: DocIdSchema,
     page_id: PageIdSchema,
     content_format: ContentFormatSchema.optional(),
   }),
 
-  // Sharing operations
-  getDocSharing: z.object({
-    doc_id: DocIdSchema,
-  }),
-  updateDocSharing: z.object({
-    doc_id: DocIdSchema,
-    public: z.boolean().optional(),
-    public_share_expires_on: z.number().optional(),
-    public_fields: z.array(z.string()).optional(),
-    team_sharing: z.boolean().optional(),
-    guest_sharing: z.boolean().optional(),
-  }),
-
-  // Template operations
-  createDocFromTemplate: z.object({
-    template_id: z.string().min(1, 'Template ID is required'),
-    workspace_id: z.string().optional(),
-    space_id: z.string().optional(),
-    folder_id: z.string().optional(),
-    name: z.string().min(1),
-    template_variables: z.record(z.any()).optional(),
-  }),
-
   // Read operations
-  getDocsFromWorkspace: z.object({
+  getDocsFromWorkspace: GetDocsParamsSchema.extend({
     workspace_id: WorkspaceIdSchema,
-    cursor: z.string().optional(),
-    deleted: z.boolean().optional().default(false),
-    archived: z.boolean().optional().default(false),
-    limit: z.number().min(1).max(100).optional().default(25),
   }),
   getDocPages: z.object({
     workspace_id: WorkspaceIdSchema,
     doc_id: DocIdSchema,
     content_format: ContentFormatSchema.optional().default('text/md'),
   }),
-  searchDocs: z.object({
+  getDocPageListing: z.object({
     workspace_id: WorkspaceIdSchema,
-    query: z.string().min(1),
-    cursor: z.string().optional(),
+    doc_id: DocIdSchema,
+    max_page_depth: z.number().int().optional().default(-1),
+  }),
+  searchDocs: SearchDocsParamsSchema.extend({
+    workspace_id: WorkspaceIdSchema,
   }),
 };

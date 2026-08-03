@@ -1,18 +1,19 @@
 /* eslint-disable max-len */
 import { z } from 'zod';
+import { idSchema } from './common.js';
 
 // ========================================
 // GOALS VALIDATION SCHEMAS
 // ========================================
 
 // Team ID validation
-export const TeamIdSchema = z.string().min(1, 'Team ID is required');
+export const TeamIdSchema = idSchema('Team ID is required');
 
 // Goal ID validation
-export const GoalIdSchema = z.string().min(1, 'Goal ID is required');
+export const GoalIdSchema = idSchema('Goal ID is required');
 
 // Target ID validation
-export const TargetIdSchema = z.string().min(1, 'Target ID is required');
+export const TargetIdSchema = idSchema('Target ID is required');
 
 // User ID validation
 export const UserIdSchema = z.number().positive('User ID must be positive');
@@ -63,78 +64,31 @@ export const GetGoalsSchema = z.object({
 // GOAL TARGET SCHEMAS
 // ========================================
 
-// Goal target types
-export const GoalTargetTypeSchema = z.enum(['number', 'currency', 'boolean', 'task', 'list']);
+// Goal target (key result) types
+export const GoalTargetTypeSchema = z.enum(['number', 'currency', 'boolean', 'percentage', 'automatic']);
 
-// Base target schema
-export const BaseTargetSchema = z.object({
+// Create target (key result) schema — mirrors CreateKeyResultRequest
+export const CreateGoalTargetSchema = z.object({
+  goal_id: GoalIdSchema,
   name: z.string().min(1, 'Target name is required').max(255, 'Target name too long'),
   type: GoalTargetTypeSchema,
-});
-
-// Number target schema
-export const NumberTargetSchema = BaseTargetSchema.extend({
-  type: z.literal('number'),
-  target_value: z.number().min(0, 'Target value must be non-negative'),
-  start_value: z.number().optional().default(0),
+  steps_start: z.number().optional(),
+  steps_end: z.number().optional(),
   unit: z.string().optional(),
-});
-
-// Currency target schema
-export const CurrencyTargetSchema = BaseTargetSchema.extend({
-  type: z.literal('currency'),
-  target_value: z.number().min(0, 'Target value must be non-negative'),
-  start_value: z.number().optional().default(0),
-  unit: z.string().optional().default('USD'),
-});
-
-// Boolean target schema
-export const BooleanTargetSchema = BaseTargetSchema.extend({
-  type: z.literal('boolean'),
-  target_value: z.literal(1), // Boolean targets are always 1 (true)
-  start_value: z.literal(0).optional().default(0),
-});
-
-// Task target schema
-export const TaskTargetSchema = BaseTargetSchema.extend({
-  type: z.literal('task'),
-  target_value: z.number().min(1, 'Target value must be at least 1'),
-  start_value: z.number().optional().default(0),
-  task_statuses: z.array(z.string()).optional(),
+  owners: z.array(UserIdSchema).optional(),
+  task_ids: z.array(z.string()).optional(),
   list_ids: z.array(z.string()).optional(),
 });
 
-// List target schema
-export const ListTargetSchema = BaseTargetSchema.extend({
-  type: z.literal('list'),
-  target_value: z.number().min(1, 'Target value must be at least 1'),
-  start_value: z.number().optional().default(0),
-  list_ids: z.array(z.string()).min(1, 'At least one list ID is required'),
-});
-
-// Union schema for all target types
-export const CreateGoalTargetSchema = z.discriminatedUnion('type', [
-  NumberTargetSchema,
-  CurrencyTargetSchema,
-  BooleanTargetSchema,
-  TaskTargetSchema,
-  ListTargetSchema,
-]);
-
-// Update target schema
+// Update target (key result) schema — mirrors UpdateKeyResultRequest
 export const UpdateGoalTargetSchema = z.object({
-  goal_id: GoalIdSchema,
   target_id: TargetIdSchema,
-  name: z.string().min(1).max(255).optional(),
-  target_value: z.number().min(0).optional(),
-  unit: z.string().optional(),
-  task_statuses: z.array(z.string()).optional(),
-  list_ids: z.array(z.string()).optional(),
+  steps_current: z.number().optional(),
+  note: z.string().optional(),
 });
 
 // Delete target schema
 export const DeleteGoalTargetSchema = z.object({
-  goal_id: GoalIdSchema,
   target_id: TargetIdSchema,
 });
 
@@ -144,9 +98,9 @@ export const DeleteGoalTargetSchema = z.object({
 
 // Progress update schema
 export const UpdateGoalProgressSchema = z.object({
-  goal_id: GoalIdSchema,
   target_id: TargetIdSchema,
-  current_value: z.number().min(0, 'Current value must be non-negative'),
+  steps_current: z.number().min(0, 'Current value must be non-negative'),
+  note: z.string().optional(),
 });
 
 // Progress calculation schema
@@ -154,9 +108,9 @@ export const GoalProgressSchema = z.object({
   target_id: z.string(),
   name: z.string(),
   type: GoalTargetTypeSchema,
-  start_value: z.number(),
-  target_value: z.number(),
-  current_value: z.number(),
+  steps_start: z.number(),
+  steps_end: z.number(),
+  steps_current: z.number(),
   percent_completed: z.number().min(0).max(100),
   completed: z.boolean(),
   unit: z.string().nullable(),
@@ -176,7 +130,7 @@ export const GoalMemberSchema = z.object({
   profilePicture: z.string(),
 });
 
-// Goal target response schema
+// Goal target (key result) response schema
 export const GoalTargetResponseSchema = z.object({
   id: z.string(),
   goal_id: z.string(),
@@ -184,11 +138,11 @@ export const GoalTargetResponseSchema = z.object({
   creator: z.number(),
   type: GoalTargetTypeSchema,
   date_created: z.string(),
-  start_value: z.number(),
-  target_value: z.number(),
-  current_value: z.number(),
+  steps_start: z.number(),
+  steps_end: z.number(),
+  steps_current: z.number(),
   unit: z.string().nullable(),
-  task_statuses: z.array(z.string()).nullable(),
+  task_ids: z.array(z.string()).nullable(),
   list_ids: z.array(z.string()).nullable(),
   completed: z.boolean(),
   percent_completed: z.number(),
@@ -248,8 +202,8 @@ export function isTargetCompleted(
       return currentValue >= 1;
     case 'number':
     case 'currency':
-    case 'task':
-    case 'list':
+    case 'percentage':
+    case 'automatic':
       return currentValue >= targetValue;
     default:
       return false;
@@ -314,18 +268,18 @@ export function getGoalStatus(
   dueDate: string
 ): 'completed' | 'on_track' | 'at_risk' | 'overdue' {
   const now = Date.now();
-  const due = new Date(dueDate).getTime();
+  // due_date is a string containing a unix ms timestamp; new Date(string) would yield Invalid Date
+  const due = new Date(Number(dueDate)).getTime();
 
   if (percentCompleted >= 100) return 'completed';
   if (now > due) return 'overdue';
 
-  // Calculate if on track (simple heuristic: progress should match time elapsed)
-  const timeElapsed = now;
-  const totalTime = due;
-  const expectedProgress = (timeElapsed / totalTime) * 100;
-
-  if (percentCompleted >= expectedProgress * 0.8) return 'on_track';
-  return 'at_risk';
+  // Simple heuristic: a goal is at risk when the deadline is near (< 7 days)
+  // and completion is still low. Without a start date, elapsed-time ratios
+  // against a bare epoch timestamp are meaningless.
+  const daysLeft = (due - now) / (1000 * 60 * 60 * 24);
+  if (daysLeft < 7 && percentCompleted < 80) return 'at_risk';
+  return 'on_track';
 }
 
 // ========================================
@@ -340,10 +294,7 @@ export const GoalsToolSchemas = {
   deleteGoal: DeleteGoalSchema,
 
   // Target operations
-  createGoalTarget: z.object({
-    goal_id: GoalIdSchema,
-    target: CreateGoalTargetSchema,
-  }),
+  createGoalTarget: CreateGoalTargetSchema,
   updateGoalTarget: UpdateGoalTargetSchema,
   deleteGoalTarget: DeleteGoalTargetSchema,
 

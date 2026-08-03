@@ -55,12 +55,16 @@ export interface Comment {
 export interface GetTaskCommentsParams {
   start?: number;
   start_id?: string;
+  custom_task_ids?: boolean; // Set true to reference the task by its custom task ID
+  team_id?: number; // Workspace ID; required when custom_task_ids is true
 }
 
 export interface CreateTaskCommentParams {
-  comment_text?: string; // Make optional since we'll be using comment array
+  comment_text: string; // Required by the API; converted to the structured comment array before sending
   assignee?: number;
   notify_all?: boolean;
+  custom_task_ids?: boolean; // Set true to reference the task by its custom task ID
+  team_id?: number; // Workspace ID; required when custom_task_ids is true
 }
 
 export interface GetChatViewCommentsParams {
@@ -69,7 +73,7 @@ export interface GetChatViewCommentsParams {
 }
 
 export interface CreateChatViewCommentParams {
-  comment_text?: string; // Make optional since we'll be using comment array
+  comment_text: string; // Required by the API; converted to the structured comment array before sending
   notify_all?: boolean;
 }
 
@@ -79,7 +83,7 @@ export interface GetListCommentsParams {
 }
 
 export interface CreateListCommentParams {
-  comment_text?: string; // Make optional since we'll be using comment array
+  comment_text: string; // Required by the API; converted to the structured comment array before sending
   assignee?: number;
   notify_all?: boolean;
 }
@@ -96,7 +100,7 @@ export interface GetThreadedCommentsParams {
 }
 
 export interface CreateThreadedCommentParams {
-  comment_text?: string; // Make optional since we'll be using comment array
+  comment_text: string; // Required by the API; converted to the structured comment array before sending
   notify_all?: boolean;
 }
 
@@ -142,59 +146,29 @@ export class CommentsClient {
   }
 
   /**
-   * Clean up ClickUp comment response by removing duplicate text blocks
-   * ClickUp automatically appends original text as final block - we remove it
-   */
-  private cleanupCommentResponse(processed: any): any {
-    if (processed.comment && Array.isArray(processed.comment) && processed.comment.length > 1) {
-      const lastBlock = processed.comment[processed.comment.length - 1];
-
-      // Check if the last block is a duplicate of the original markdown
-      if (
-        lastBlock &&
-        typeof lastBlock.text === 'string' &&
-        (!lastBlock.attributes || Object.keys(lastBlock.attributes).length === 0)
-      ) {
-        // If the last block contains markdown syntax, it's likely the duplicate
-        const hasMarkdownSyntax =
-          /[*_`#[\]()>-]/.test(lastBlock.text) ||
-          lastBlock.text.includes('```') ||
-          lastBlock.text.includes('**') ||
-          lastBlock.text.includes('##');
-
-        if (hasMarkdownSyntax && lastBlock.text.length > 50) {
-          // Remove the duplicate block
-          processed.comment = processed.comment.slice(0, -1);
-
-          // Also clean up the comment_text field
-          if (processed.comment_text && processed.comment_text.includes(lastBlock.text)) {
-            processed.comment_text = processed.comment_text.replace(lastBlock.text, '').trim();
-          }
-
-          // Regenerate clean comment_markdown
-          if (processed.comment && Array.isArray(processed.comment)) {
-            try {
-              processed.comment_markdown = clickUpCommentToMarkdown({ comment: processed.comment });
-            } catch (error) {
-              console.warn('Failed to regenerate clean comment markdown:', error);
-            }
-          }
-        }
-      }
-    }
-
-    return processed;
-  }
-
-  /**
    * Create a new comment on a task
    * @param taskId The ID of the task to comment on
    * @param params The comment parameters (supports markdown in comment_text)
    * @returns The created comment with processed content
    */
   async createTaskComment(taskId: string, params: CreateTaskCommentParams): Promise<Comment> {
+    if (params.custom_task_ids && params.team_id === undefined) {
+      throw new Error('team_id is required when custom_task_ids is true');
+    }
     // Use ONLY structured format - no comment_text to avoid duplication
     const processedParams: any = { ...params };
+
+    // custom_task_ids/team_id are query params, not body fields
+    const query = new URLSearchParams();
+    if (params.custom_task_ids) {
+      query.set('custom_task_ids', 'true');
+    }
+    if (params.team_id !== undefined) {
+      query.set('team_id', String(params.team_id));
+    }
+    delete processedParams.custom_task_ids;
+    delete processedParams.team_id;
+    const queryString = query.toString();
 
     if (params.comment_text) {
       const commentData = prepareCommentForClickUp(params.comment_text);
@@ -208,15 +182,13 @@ export class CommentsClient {
       delete processedParams.description;
     }
 
-    const result = await this.client.post(`/task/${taskId}/comment`, processedParams);
+    const result = await this.client.post(
+      `/task/${taskId}/comment${queryString ? `?${queryString}` : ''}`,
+      processedParams
+    );
 
     // Process the response
-    let processed = processClickUpResponse(result);
-
-    // Clean up ClickUp's duplicate text blocks
-    processed = this.cleanupCommentResponse(processed);
-
-    return processed;
+    return processClickUpResponse(result);
   }
 
   /**
@@ -413,7 +385,9 @@ export class CommentsClient {
    * @returns Success message
    */
   async deleteComment(commentId: string): Promise<{ success: boolean }> {
-    return this.client.delete(`/comment/${commentId}`);
+    // ClickUp returns an empty object on success; synthesize success from the 2xx response
+    await this.client.delete(`/comment/${commentId}`);
+    return { success: true };
   }
 
   /**

@@ -21,13 +21,22 @@ export interface Doc {
 }
 
 export interface GetDocsParams {
-  cursor?: string;
+  id?: string;
+  creator?: number;
   deleted?: boolean;
   archived?: boolean;
+  parent_id?: string;
+  parent_type?: string;
   limit?: number;
+  cursor?: string;
 }
 
 export interface SearchDocsParams {
+  /**
+   * Free-text name filter. The v3 API has no query parameter, so this is
+   * applied client-side against the returned doc names. A value of
+   * 'space:{spaceId}' filters docs whose parent is that space instead.
+   */
   query: string;
   cursor?: string;
 }
@@ -116,7 +125,12 @@ export class DocsClient {
   }
 
   /**
-   * Search for docs in a workspace
+   * Search for docs in a workspace.
+   *
+   * Uses the documented v3 endpoint GET /api/v3/workspaces/{workspaceId}/docs.
+   * The API has no free-text search parameter, so the query is matched
+   * client-side against doc names. A 'space:{spaceId}' query filters by
+   * parent instead (parent_id + parent_type SPACE).
    * @param workspaceId The ID of the workspace to search in
    * @param params The search parameters
    * @returns A list of docs matching the search query
@@ -125,41 +139,28 @@ export class DocsClient {
     workspaceId: string,
     params: SearchDocsParams
   ): Promise<{ docs: Doc[]; next_cursor: string }> {
-    // Get the API token directly from the environment variable
-    const apiToken = process.env.CLICKUP_API_TOKEN;
-
     try {
-      // According to the ClickUp API documentation, the endpoint is:
-      // GET /api/v2/team/{team_id}/docs/search
-      // where team_id is the workspace ID
-      const url = `https://api.clickup.com/api/v2/team/${workspaceId}/docs/search`;
+      const queryParams: GetDocsParams = { cursor: params.cursor };
+      let nameFilter: string | undefined = params.query;
 
-      // Use the exact same headers that worked in the successful request
-      const headers = {
-        Authorization: apiToken,
-        Accept: 'application/json',
-      };
-
-      // According to the ClickUp API documentation, this should be a GET request
-      // with the parameters as query parameters
-      const queryParams: any = {
-        doc_name: params.query,
-        cursor: params.cursor,
-      };
-
-      // If the query is a space ID, use it as a space_id parameter
+      // If the query is a space ID, filter by parent instead of name
       if (params.query.startsWith('space:')) {
-        const spaceId = params.query.substring(6);
-        queryParams.space_id = spaceId;
-        delete queryParams.doc_name;
+        queryParams.parent_id = params.query.substring(6);
+        queryParams.parent_type = 'SPACE';
+        nameFilter = undefined;
       }
 
-      const response = await axios.get(url, {
-        headers,
-        params: queryParams,
-      });
+      const result = await this.getDocsFromWorkspace(workspaceId, queryParams);
 
-      return response.data;
+      if (nameFilter && Array.isArray(result.docs)) {
+        const lowerQuery = nameFilter.toLowerCase();
+        return {
+          ...result,
+          docs: result.docs.filter(doc => doc.name?.toLowerCase().includes(lowerQuery)),
+        };
+      }
+
+      return result;
     } catch (error) {
       console.error('Error searching docs:', error instanceof Error ? error.message : error);
       throw error;
@@ -167,58 +168,95 @@ export class DocsClient {
   }
 
   /**
-   * Create a new doc in a list
+   * Create a new doc in a workspace.
+   *
+   * POST /api/v3/workspaces/{workspaceId}/docs — placement in the hierarchy
+   * is expressed via the 'parent' body field ({id, type}: 4=space, 5=folder,
+   * 6=list, 7=everything, 12=workspace). If content is provided, it is added
+   * as the doc's first page in a follow-up call (the create endpoint does
+   * not accept content).
+   * @param workspaceId The ID of the workspace
+   * @param title The title of the doc
+   * @param content Optional initial content (markdown)
+   * @param parent Optional parent placement
+   * @returns The created doc
+   */
+  async createDoc(
+    workspaceId: string,
+    title: string,
+    content?: string,
+    parent?: { id: string; type: number }
+  ): Promise<Doc> {
+    const axiosInstance = this.client.getAxiosInstance();
+
+    const requestBody: Record<string, unknown> = {
+      name: title,
+      visibility: 'PRIVATE',
+      create_page: !content,
+    };
+    if (parent) {
+      requestBody.parent = parent;
+    }
+
+    const response = await axiosInstance.post(
+      `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs`,
+      requestBody
+    );
+    const doc: Doc = response.data;
+
+    // The doc already exists at this point, so an initial-page failure must not
+    // be reported as a failed creation (a retry would duplicate the doc).
+    if (content && doc?.id) {
+      try {
+        await axiosInstance.post(
+          `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${doc.id}/pages`,
+          { name: title, content, content_format: 'text/md' }
+        );
+      } catch (pageError) {
+        const message = pageError instanceof Error ? pageError.message : String(pageError);
+        console.error('Error creating initial doc page:', message);
+        return {
+          ...doc,
+          warning: `Document created (id: ${doc.id}) but the initial content page failed: ${message}. Add the content with a page-create call instead of retrying the doc creation.`,
+        } as Doc;
+      }
+    }
+
+    return doc;
+  }
+
+  /**
+   * Create a new doc in a list (parent type 6)
+   * @param workspaceId The ID of the workspace containing the list
    * @param listId The ID of the list to create the doc in
    * @param title The title of the doc
-   * @param content The content of the doc (HTML format)
+   * @param content Optional initial content (markdown)
    * @returns The created doc
    */
-  async createDocInList(listId: string, title: string, content: string): Promise<Doc> {
-    // Create a custom axios instance for v3 API
-    const axiosInstance = this.client.getAxiosInstance();
-    const response = await axiosInstance.post(
-      `https://api.clickup.com/api/v3/lists/${listId}/docs`,
-      { name: title, content }
-    );
-    return response.data;
+  async createDocInList(
+    workspaceId: string,
+    listId: string,
+    title: string,
+    content?: string
+  ): Promise<Doc> {
+    return this.createDoc(workspaceId, title, content, { id: listId, type: 6 });
   }
 
   /**
-   * Create a new doc in a folder
+   * Create a new doc in a folder (parent type 5)
+   * @param workspaceId The ID of the workspace containing the folder
    * @param folderId The ID of the folder to create the doc in
    * @param title The title of the doc
-   * @param content The content of the doc (HTML format)
+   * @param content Optional initial content (markdown)
    * @returns The created doc
    */
-  async createDocInFolder(folderId: string, title: string, content: string): Promise<Doc> {
-    // Create a custom axios instance for v3 API
-    const axiosInstance = this.client.getAxiosInstance();
-    const response = await axiosInstance.post(
-      `https://api.clickup.com/api/v3/folders/${folderId}/docs`,
-      { name: title, content }
-    );
-    return response.data;
-  }
-
-  /**
-   * Update an existing doc
-   * @param docId The ID of the doc to update
-   * @param title The new title of the doc
-   * @param content The new content of the doc (HTML format)
-   * @returns The updated doc
-   */
-  async updateDoc(docId: string, title?: string, content?: string): Promise<Doc> {
-    const params: any = {};
-    if (title !== undefined) params.name = title;
-    if (content !== undefined) params.content = content;
-
-    // Create a custom axios instance for v3 API
-    const axiosInstance = this.client.getAxiosInstance();
-    const response = await axiosInstance.put(
-      `https://api.clickup.com/api/v3/docs/${docId}`,
-      params
-    );
-    return response.data;
+  async createDocInFolder(
+    workspaceId: string,
+    folderId: string,
+    title: string,
+    content?: string
+  ): Promise<Doc> {
+    return this.createDoc(workspaceId, title, content, { id: folderId, type: 5 });
   }
 }
 

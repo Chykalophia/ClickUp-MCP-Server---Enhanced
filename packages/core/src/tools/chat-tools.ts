@@ -10,19 +10,25 @@ import {
   CreateDirectMessageSchema,
   UpdateChannelSchema,
   GetChannelsFilterSchema,
+  GetChannelUsersFilterSchema,
   SendMessageSchema,
   UpdateMessageSchema,
   CreateReplySchema,
   GetMessagesFilterSchema,
   GetRepliesFilterSchema,
+  GetReactionsFilterSchema,
   CreateReactionSchema,
   DeleteReactionSchema,
-  AddChannelMemberSchema,
-  RemoveChannelMemberSchema,
-  ReactionTypeSchema,
+  GetTaggedUsersFilterSchema,
+  ChannelTypeSchema,
+  ChannelVisibilitySchema,
+  ChannelLocationTypeSchema,
+  ContentFormatSchema,
+  MessageTypeSchema,
 } from '../schemas/chat-schemas.js';
+import { idSchema } from '../schemas/common.js';
 
-// Create enhanced chat client
+// Create enhanced chat client (Chat API is v3-only)
 const chatClient = new ChatEnhancedClient(getApiToken());
 
 export function setupChatTools(server: McpServer): void {
@@ -32,11 +38,16 @@ export function setupChatTools(server: McpServer): void {
 
   server.tool(
     'clickup_get_chat_channels',
-    'Retrieve all chat channels in a workspace with optional filtering by type and archived status.',
+    'Retrieve chat channels in a workspace with cursor pagination and optional filtering by channel type, follower status, and activity.',
     {
-      workspace_id: z.string().min(1).describe('The ID of the workspace to get channels from'),
-      archived: z.boolean().optional().describe('Whether to include archived channels'),
-      type: z.enum(['public', 'private', 'direct']).optional().describe('Filter by channel type'),
+      workspace_id: idSchema().describe('The ID of the workspace to get channels from'),
+      description_format: z.enum(['text/md', 'text/plain']).optional().describe('Format for channel descriptions in the response'),
+      cursor: z.string().optional().describe('Pagination cursor from a previous response (next_cursor)'),
+      limit: z.number().min(1).max(100).optional().describe('Maximum number of channels to return (1-100)'),
+      is_follower: z.boolean().optional().describe('Only return channels the authenticated user follows'),
+      include_closed: z.boolean().optional().describe('Include closed channels in the results'),
+      with_message_since: z.number().optional().describe('Only return channels with messages since this Unix timestamp (ms)'),
+      channel_types: z.array(ChannelTypeSchema).optional().describe('Filter by channel types: CHANNEL, DM, GROUP_DM'),
     },
     async args => {
       try {
@@ -47,7 +58,7 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Found ${result.channels.length} channels:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Found ${result.data.length} channels${result.next_cursor ? ` (more available, next_cursor: ${result.next_cursor})` : ''}:\n\n${JSON.stringify(result, null, 2)}`,
             },
           ],
         };
@@ -59,20 +70,14 @@ export function setupChatTools(server: McpServer): void {
 
   server.tool(
     'clickup_create_chat_channel',
-    'Create a new chat channel in a workspace with specified name, description, and privacy settings.',
+    'Create a new chat channel in a workspace with specified name, description, topic, members, and visibility.',
     {
-      workspace_id: z.string().min(1).describe('The ID of the workspace to create the channel in'),
+      workspace_id: idSchema().describe('The ID of the workspace to create the channel in'),
       name: z.string().min(1).max(255).describe('The name of the channel'),
       description: z.string().optional().describe('Optional description of the channel'),
-      type: z
-        .enum(['public', 'private', 'direct'])
-        .default('public')
-        .describe('The type of channel'),
-      members: z
-        .array(z.number())
-        .optional()
-        .describe('Array of user IDs to add as initial members'),
-      is_private: z.boolean().optional().describe('Whether the channel is private'),
+      topic: z.string().optional().describe('Optional topic of the channel'),
+      user_ids: z.array(idSchema()).max(100).optional().describe('User IDs (as strings) to add to the channel (up to 100)'),
+      visibility: ChannelVisibilitySchema.optional().describe('Channel visibility: PUBLIC or PRIVATE'),
     },
     async args => {
       try {
@@ -95,21 +100,15 @@ export function setupChatTools(server: McpServer): void {
 
   server.tool(
     'clickup_create_chat_channel_on_parent',
-    'Create a chat channel on a specific space, folder, or list for contextual discussions.',
+    'Create a chat channel on a specific space, folder, or list for contextual discussions. The channel name is derived from the location.',
     {
-      parent_id: z.string().min(1).describe('The ID of the parent (space, folder, or list)'),
-      parent_type: z.enum(['space', 'folder', 'list']).describe('The type of parent container'),
-      name: z.string().min(1).max(255).describe('The name of the channel'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      parent_id: idSchema().describe('The ID of the parent location (space, folder, or list)'),
+      parent_type: ChannelLocationTypeSchema.describe('The type of parent location'),
       description: z.string().optional().describe('Optional description of the channel'),
-      type: z
-        .enum(['public', 'private', 'direct'])
-        .default('public')
-        .describe('The type of channel'),
-      members: z
-        .array(z.number())
-        .optional()
-        .describe('Array of user IDs to add as initial members'),
-      is_private: z.boolean().optional().describe('Whether the channel is private'),
+      topic: z.string().optional().describe('Optional topic of the channel'),
+      user_ids: z.array(idSchema()).max(100).optional().describe('User IDs (as strings) to add to the channel (up to 100)'),
+      visibility: ChannelVisibilitySchema.optional().describe('Channel visibility: PUBLIC or PRIVATE'),
     },
     async args => {
       try {
@@ -132,14 +131,14 @@ export function setupChatTools(server: McpServer): void {
 
   server.tool(
     'clickup_create_direct_message',
-    'Create a direct message channel between specific users for private conversations.',
+    'Create a direct message channel with up to 15 users. Provide no user IDs to create a self-DM.',
     {
-      workspace_id: z.string().min(1).describe('The ID of the workspace'),
-      members: z
-        .array(z.number())
-        .min(2)
-        .describe('Array of user IDs to include in the direct message (minimum 2)'),
-      name: z.string().optional().describe('Optional name for the direct message channel'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      user_ids: z
+        .array(idSchema())
+        .max(15)
+        .optional()
+        .describe('User IDs (as strings) to include in the direct message, up to 15. Omit or leave empty for a self-DM'),
     },
     async args => {
       try {
@@ -164,11 +163,12 @@ export function setupChatTools(server: McpServer): void {
     'clickup_get_chat_channel',
     'Retrieve detailed information about a specific chat channel by its ID.',
     {
-      channel_id: z.string().min(1).describe('The ID of the channel to retrieve'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      channel_id: idSchema().describe('The ID of the channel to retrieve'),
     },
     async args => {
       try {
-        const result = await chatClient.getChannel(args.channel_id);
+        const result = await chatClient.getChannel(args.workspace_id, args.channel_id);
 
         return {
           content: [
@@ -186,12 +186,21 @@ export function setupChatTools(server: McpServer): void {
 
   server.tool(
     'clickup_update_chat_channel',
-    "Update a chat channel's name, description, or privacy settings.",
+    "Update a chat channel's name, description, topic, visibility, or location.",
     {
-      channel_id: z.string().min(1).describe('The ID of the channel to update'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      channel_id: idSchema().describe('The ID of the channel to update'),
       name: z.string().min(1).max(255).optional().describe('New name for the channel'),
       description: z.string().optional().describe('New description for the channel'),
-      is_private: z.boolean().optional().describe('Update privacy setting'),
+      topic: z.string().optional().describe('New topic for the channel'),
+      visibility: ChannelVisibilitySchema.optional().describe('New visibility: PUBLIC or PRIVATE'),
+      location: z
+        .object({
+          id: z.string().min(1).describe('The ID of the new location'),
+          type: ChannelLocationTypeSchema.describe('The type of the new location'),
+        })
+        .optional()
+        .describe('Move the channel to a new location (space, folder, or list)'),
     },
     async args => {
       try {
@@ -218,19 +227,23 @@ export function setupChatTools(server: McpServer): void {
 
   server.tool(
     'clickup_get_chat_channel_followers',
-    'Retrieve all followers of a chat channel who receive notifications about channel activity.',
+    'Retrieve followers of a chat channel who receive notifications about channel activity (cursor-paginated).',
     {
-      channel_id: z.string().min(1).describe('The ID of the channel to get followers for'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      channel_id: idSchema().describe('The ID of the channel to get followers for'),
+      cursor: z.string().optional().describe('Pagination cursor from a previous response (next_cursor)'),
+      limit: z.number().min(1).max(100).optional().describe('Maximum number of followers to return (1-100)'),
     },
     async args => {
       try {
-        const result = await chatClient.getChannelFollowers(args.channel_id);
+        const filter = GetChannelUsersFilterSchema.parse(args);
+        const result = await chatClient.getChannelFollowers(filter);
 
         return {
           content: [
             {
               type: 'text',
-              text: `Channel followers (${result.followers.length}):\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Channel followers (${result.data.length}):\n\n${JSON.stringify(result, null, 2)}`,
             },
           ],
         };
@@ -242,76 +255,28 @@ export function setupChatTools(server: McpServer): void {
 
   server.tool(
     'clickup_get_chat_channel_members',
-    'Retrieve all members of a chat channel with their roles and join dates.',
+    'Retrieve members of a chat channel (cursor-paginated).',
     {
-      channel_id: z.string().min(1).describe('The ID of the channel to get members for'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      channel_id: idSchema().describe('The ID of the channel to get members for'),
+      cursor: z.string().optional().describe('Pagination cursor from a previous response (next_cursor)'),
+      limit: z.number().min(1).max(100).optional().describe('Maximum number of members to return (1-100)'),
     },
     async args => {
       try {
-        const result = await chatClient.getChannelMembers(args.channel_id);
+        const filter = GetChannelUsersFilterSchema.parse(args);
+        const result = await chatClient.getChannelMembers(filter);
 
         return {
           content: [
             {
               type: 'text',
-              text: `Channel members (${result.members.length}):\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Channel members (${result.data.length}):\n\n${JSON.stringify(result, null, 2)}`,
             },
           ],
         };
       } catch (error: unknown) {
         return mcpError('getting channel members', error);
-      }
-    }
-  );
-
-  server.tool(
-    'clickup_add_chat_channel_member',
-    'Add a user as a member to a chat channel.',
-    {
-      channel_id: z.string().min(1).describe('The ID of the channel'),
-      user_id: z.number().describe('The ID of the user to add as a member'),
-    },
-    async args => {
-      try {
-        const request = AddChannelMemberSchema.parse(args);
-        await chatClient.addChannelMember(request);
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `User ${args.user_id} added to channel ${args.channel_id} successfully`,
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        return mcpError('adding channel member', error);
-      }
-    }
-  );
-
-  server.tool(
-    'clickup_remove_chat_channel_member',
-    'Remove a user from a chat channel membership.',
-    {
-      channel_id: z.string().min(1).describe('The ID of the channel'),
-      user_id: z.number().describe('The ID of the user to remove from the channel'),
-    },
-    async args => {
-      try {
-        const request = RemoveChannelMemberSchema.parse(args);
-        await chatClient.removeChannelMember(request);
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `User ${args.user_id} removed from channel ${args.channel_id} successfully`,
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        return mcpError('removing channel member', error);
       }
     }
   );
@@ -322,17 +287,13 @@ export function setupChatTools(server: McpServer): void {
 
   server.tool(
     'clickup_get_chat_channel_messages',
-    'Retrieve messages from a chat channel with pagination and filtering options.',
+    'Retrieve messages from a chat channel with cursor pagination.',
     {
-      channel_id: z.string().min(1).describe('The ID of the channel to get messages from'),
-      limit: z
-        .number()
-        .min(1)
-        .max(100)
-        .optional()
-        .describe('Maximum number of messages to return (1-100)'),
-      before: z.string().optional().describe('Get messages before this message ID'),
-      after: z.string().optional().describe('Get messages after this message ID'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      channel_id: idSchema().describe('The ID of the channel to get messages from'),
+      cursor: z.string().optional().describe('Pagination cursor from a previous response (next_cursor)'),
+      limit: z.number().min(1).max(100).optional().describe('Maximum number of messages to return (1-100)'),
+      content_format: ContentFormatSchema.optional().describe('Format of returned message content: text/md (default) or text/plain'),
     },
     async args => {
       try {
@@ -343,7 +304,7 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Retrieved ${result.messages.length} messages:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Retrieved ${result.data.length} messages${result.next_cursor ? ` (more available, next_cursor: ${result.next_cursor})` : ''}:\n\n${JSON.stringify(result, null, 2)}`,
             },
           ],
         };
@@ -355,16 +316,24 @@ export function setupChatTools(server: McpServer): void {
 
   server.tool(
     'clickup_send_chat_message',
-    'Send a message to a chat channel with optional mentions and attachments.',
+    'Send a message to a chat channel. Mentions can be embedded in markdown content.',
     {
-      channel_id: z.string().min(1).describe('The ID of the channel to send the message to'),
-      text: z.string().min(1).describe('The text content of the message'),
-      mentions: z
-        .array(z.number())
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      channel_id: idSchema().describe('The ID of the channel to send the message to'),
+      content: z.string().min(1).describe('The content of the message'),
+      type: MessageTypeSchema.optional().describe("The type of message: 'message' (default) or 'post'"),
+      content_format: ContentFormatSchema.optional().describe('Format of the content: text/md (default) or text/plain'),
+      assignee: idSchema().optional().describe('User ID to assign the message to'),
+      group_assignee: idSchema().optional().describe('Group ID to assign the message to'),
+      followers: z.array(idSchema()).optional().describe('User IDs (as strings) to add as followers of the message'),
+      post_data: z
+        .object({
+          title: z.string().max(255).describe('Post title'),
+          subtype: z.object({ id: z.string() }).passthrough().describe('Post subtype (required; id from Get Post Subtype IDs)'),
+        })
+        .passthrough()
         .optional()
-        .describe('Array of user IDs to mention in the message'),
-      attachments: z.array(z.string()).optional().describe('Array of attachment IDs to include'),
-      reply_to: z.string().optional().describe('ID of the message this is replying to'),
+        .describe("Post metadata (title, subtype id) when type is 'post'"),
     },
     async args => {
       try {
@@ -387,12 +356,23 @@ export function setupChatTools(server: McpServer): void {
 
   server.tool(
     'clickup_update_chat_message',
-    'Update the text content and mentions of an existing chat message.',
+    'Update the content, assignee, or resolved state of an existing chat message.',
     {
-      channel_id: z.string().min(1).describe('The ID of the channel containing the message'),
-      message_id: z.string().min(1).describe('The ID of the message to update'),
-      text: z.string().min(1).describe('The new text content of the message'),
-      mentions: z.array(z.number()).optional().describe('Updated array of user IDs to mention'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      message_id: idSchema().describe('The ID of the message to update'),
+      content: z.string().min(1).optional().describe('The new content of the message'),
+      content_format: ContentFormatSchema.optional().describe('Format of the content: text/md (default) or text/plain'),
+      assignee: idSchema().optional().describe('User ID to assign the message to'),
+      group_assignee: idSchema().optional().describe('Group ID to assign the message to'),
+      resolved: z.boolean().optional().describe('Mark the message as resolved or unresolved'),
+      post_data: z
+        .object({
+          title: z.string().max(255).describe('Post title'),
+          subtype: z.object({ id: z.string() }).passthrough().describe('Post subtype (required; id from Get Post Subtype IDs)'),
+        })
+        .passthrough()
+        .optional()
+        .describe('Updated post metadata for post-type messages'),
     },
     async args => {
       try {
@@ -415,20 +395,20 @@ export function setupChatTools(server: McpServer): void {
 
   server.tool(
     'clickup_delete_chat_message',
-    'Delete a message from a chat channel. This action cannot be undone.',
+    'Delete a chat message. This action cannot be undone.',
     {
-      channel_id: z.string().min(1).describe('The ID of the channel containing the message'),
-      message_id: z.string().min(1).describe('The ID of the message to delete'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      message_id: idSchema().describe('The ID of the message to delete'),
     },
     async args => {
       try {
-        await chatClient.deleteMessage(args.channel_id, args.message_id);
+        await chatClient.deleteMessage(args.workspace_id, args.message_id);
 
         return {
           content: [
             {
               type: 'text',
-              text: `Message ${args.message_id} deleted successfully from channel ${args.channel_id}`,
+              text: `Message ${args.message_id} deleted successfully`,
             },
           ],
         };
@@ -444,18 +424,13 @@ export function setupChatTools(server: McpServer): void {
 
   server.tool(
     'clickup_get_chat_message_replies',
-    'Retrieve all replies to a specific message in a chat channel.',
+    'Retrieve replies to a specific chat message (cursor-paginated).',
     {
-      channel_id: z.string().min(1).describe('The ID of the channel containing the message'),
-      message_id: z.string().min(1).describe('The ID of the message to get replies for'),
-      limit: z
-        .number()
-        .min(1)
-        .max(100)
-        .optional()
-        .describe('Maximum number of replies to return (1-100)'),
-      before: z.string().optional().describe('Get replies before this reply ID'),
-      after: z.string().optional().describe('Get replies after this reply ID'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      message_id: idSchema().describe('The ID of the message to get replies for'),
+      cursor: z.string().optional().describe('Pagination cursor from a previous response (next_cursor)'),
+      limit: z.number().min(1).max(100).optional().describe('Maximum number of replies to return (1-100)'),
+      content_format: ContentFormatSchema.optional().describe('Format of returned reply content: text/md (default) or text/plain'),
     },
     async args => {
       try {
@@ -466,7 +441,7 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Retrieved ${result.replies.length} replies:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Retrieved ${result.data.length} replies${result.next_cursor ? ` (more available, next_cursor: ${result.next_cursor})` : ''}:\n\n${JSON.stringify(result, null, 2)}`,
             },
           ],
         };
@@ -478,16 +453,24 @@ export function setupChatTools(server: McpServer): void {
 
   server.tool(
     'clickup_create_chat_message_reply',
-    'Create a reply to a specific message in a chat channel.',
+    'Create a reply to a specific chat message.',
     {
-      channel_id: z.string().min(1).describe('The ID of the channel containing the message'),
-      message_id: z.string().min(1).describe('The ID of the message to reply to'),
-      text: z.string().min(1).describe('The text content of the reply'),
-      mentions: z
-        .array(z.number())
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      message_id: idSchema().describe('The ID of the message to reply to'),
+      content: z.string().min(1).describe('The content of the reply'),
+      type: MessageTypeSchema.optional().describe("The type of message: 'message' (default) or 'post'"),
+      content_format: ContentFormatSchema.optional().describe('Format of the content: text/md (default) or text/plain'),
+      assignee: idSchema().optional().describe('User ID to assign the reply to'),
+      group_assignee: idSchema().optional().describe('Group ID to assign the reply to'),
+      followers: z.array(idSchema()).optional().describe('User IDs (as strings) to add as followers of the reply'),
+      post_data: z
+        .object({
+          title: z.string().max(255).describe('Post title'),
+          subtype: z.object({ id: z.string() }).passthrough().describe('Post subtype (required; id from Get Post Subtype IDs)'),
+        })
+        .passthrough()
         .optional()
-        .describe('Array of user IDs to mention in the reply'),
-      attachments: z.array(z.string()).optional().describe('Array of attachment IDs to include'),
+        .describe("Post metadata (title, subtype id) when type is 'post'"),
     },
     async args => {
       try {
@@ -514,20 +497,23 @@ export function setupChatTools(server: McpServer): void {
 
   server.tool(
     'clickup_get_chat_message_reactions',
-    'Retrieve all reactions on a specific message in a chat channel.',
+    'Retrieve reactions on a specific chat message (cursor-paginated).',
     {
-      channel_id: z.string().min(1).describe('The ID of the channel containing the message'),
-      message_id: z.string().min(1).describe('The ID of the message to get reactions for'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      message_id: idSchema().describe('The ID of the message to get reactions for'),
+      cursor: z.string().optional().describe('Pagination cursor from a previous response (next_cursor)'),
+      limit: z.number().min(1).max(100).optional().describe('Maximum number of reactions to return (1-100)'),
     },
     async args => {
       try {
-        const result = await chatClient.getMessageReactions(args.channel_id, args.message_id);
+        const filter = GetReactionsFilterSchema.parse(args);
+        const result = await chatClient.getMessageReactions(filter);
 
         return {
           content: [
             {
               type: 'text',
-              text: `Message reactions:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Message reactions (${result.data.length}):\n\n${JSON.stringify(result, null, 2)}`,
             },
           ],
         };
@@ -539,22 +525,22 @@ export function setupChatTools(server: McpServer): void {
 
   server.tool(
     'clickup_create_chat_message_reaction',
-    'Add a reaction to a message in a chat channel.',
+    'Add a reaction to a chat message using an emoji name (e.g. "grinning", "+1").',
     {
-      channel_id: z.string().min(1).describe('The ID of the channel containing the message'),
-      message_id: z.string().min(1).describe('The ID of the message to react to'),
-      reaction: ReactionTypeSchema.describe('The type of reaction to add'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      message_id: idSchema().describe('The ID of the message to react to'),
+      reaction: z.string().min(1).describe('The name of the emoji to use for the reaction (e.g. "grinning", "+1")'),
     },
     async args => {
       try {
         const request = CreateReactionSchema.parse(args);
-        await chatClient.createReaction(request);
+        const result = await chatClient.createReaction(request);
 
         return {
           content: [
             {
               type: 'text',
-              text: `Reaction ${args.reaction} added to message ${args.message_id} successfully`,
+              text: `Reaction ${args.reaction} added to message ${args.message_id} successfully:\n\n${JSON.stringify(result, null, 2)}`,
             },
           ],
         };
@@ -566,11 +552,11 @@ export function setupChatTools(server: McpServer): void {
 
   server.tool(
     'clickup_delete_chat_message_reaction',
-    'Remove a reaction from a message in a chat channel.',
+    'Remove a reaction from a chat message by emoji name.',
     {
-      channel_id: z.string().min(1).describe('The ID of the channel containing the message'),
-      message_id: z.string().min(1).describe('The ID of the message to remove reaction from'),
-      reaction: ReactionTypeSchema.describe('The type of reaction to remove'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      message_id: idSchema().describe('The ID of the message to remove the reaction from'),
+      reaction: z.string().min(1).describe('The name of the emoji reaction to remove'),
     },
     async args => {
       try {
@@ -597,14 +583,17 @@ export function setupChatTools(server: McpServer): void {
 
   server.tool(
     'clickup_get_chat_message_tagged_users',
-    'Retrieve all users tagged/mentioned in a specific message.',
+    'Retrieve users tagged/mentioned in a specific chat message (cursor-paginated).',
     {
-      channel_id: z.string().min(1).describe('The ID of the channel containing the message'),
-      message_id: z.string().min(1).describe('The ID of the message to get tagged users for'),
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      message_id: idSchema().describe('The ID of the message to get tagged users for'),
+      cursor: z.string().optional().describe('Pagination cursor from a previous response (next_cursor)'),
+      limit: z.number().min(1).max(100).optional().describe('Maximum number of tagged users to return (1-100)'),
     },
     async args => {
       try {
-        const result = await chatClient.getTaggedUsers(args.channel_id, args.message_id);
+        const filter = GetTaggedUsersFilterSchema.parse(args);
+        const result = await chatClient.getTaggedUsers(filter);
 
         return {
           content: [
@@ -622,10 +611,10 @@ export function setupChatTools(server: McpServer): void {
 
   server.tool(
     'clickup_search_chat_channels',
-    'Search for chat channels by name within a workspace.',
+    'Search for chat channels by name within a workspace (client-side filtering over the channel list).',
     {
-      workspace_id: z.string().min(1).describe('The ID of the workspace to search in'),
-      query: z.string().min(1).describe('The search query to match against channel names'),
+      workspace_id: idSchema().describe('The ID of the workspace to search in'),
+      query: z.string().min(1).describe('The search query to match against channel names (case-insensitive)'),
     },
     async args => {
       try {
@@ -635,84 +624,12 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Found ${result.channels.length} channels matching "${args.query}":\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Found ${result.data.length} channels matching "${args.query}":\n\n${JSON.stringify(result, null, 2)}`,
             },
           ],
         };
       } catch (error: unknown) {
         return mcpError('searching channels', error);
-      }
-    }
-  );
-
-  server.tool(
-    'clickup_get_chat_channel_stats',
-    'Get statistics for a chat channel including message count, member count, and last activity.',
-    {
-      channel_id: z.string().min(1).describe('The ID of the channel to get statistics for'),
-    },
-    async args => {
-      try {
-        const result = await chatClient.getChannelStats(args.channel_id);
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Channel statistics:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        return mcpError('getting channel stats', error);
-      }
-    }
-  );
-
-  server.tool(
-    'clickup_mark_chat_channel_as_read',
-    'Mark all messages in a chat channel as read for the current user.',
-    {
-      channel_id: z.string().min(1).describe('The ID of the channel to mark as read'),
-    },
-    async args => {
-      try {
-        await chatClient.markChannelAsRead(args.channel_id);
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Channel ${args.channel_id} marked as read successfully`,
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        return mcpError('marking channel as read', error);
-      }
-    }
-  );
-
-  server.tool(
-    'clickup_get_chat_channel_unread_count',
-    'Get the number of unread messages in a chat channel for the current user.',
-    {
-      channel_id: z.string().min(1).describe('The ID of the channel to get unread count for'),
-    },
-    async args => {
-      try {
-        const result = await chatClient.getUnreadCount(args.channel_id);
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Unread messages in channel ${args.channel_id}: ${result.unread_count}`,
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        return mcpError('getting unread count', error);
       }
     }
   );

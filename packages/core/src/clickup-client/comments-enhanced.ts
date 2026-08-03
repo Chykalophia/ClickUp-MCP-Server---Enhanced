@@ -54,12 +54,16 @@ export interface Comment {
 export interface GetTaskCommentsParams {
   start?: number;
   start_id?: string;
+  custom_task_ids?: boolean; // Set true to reference the task by its custom task ID
+  team_id?: number; // Workspace ID; required when custom_task_ids is true
 }
 
 export interface CreateTaskCommentParams {
   comment_text: string;
   assignee?: number;
   notify_all?: boolean;
+  custom_task_ids?: boolean; // Set true to reference the task by its custom task ID
+  team_id?: number; // Workspace ID; required when custom_task_ids is true
 }
 
 export interface GetChatViewCommentsParams {
@@ -68,7 +72,8 @@ export interface GetChatViewCommentsParams {
 }
 
 export interface CreateChatViewCommentParams {
-  comment_text: string;
+  comment_text?: string;
+  comment?: ClickUpCommentBlock[]; // Structured comment blocks (supports @mentions via tag blocks)
   notify_all?: boolean;
 }
 
@@ -78,13 +83,15 @@ export interface GetListCommentsParams {
 }
 
 export interface CreateListCommentParams {
-  comment_text: string;
+  comment_text?: string;
+  comment?: ClickUpCommentBlock[]; // Structured comment blocks (supports @mentions via tag blocks)
   assignee?: number;
   notify_all?: boolean;
 }
 
 export interface UpdateCommentParams {
-  comment_text: string;
+  comment_text?: string; // Optional so resolve/assign-only updates leave the comment body untouched
+  comment?: ClickUpCommentBlock[]; // Structured comment blocks (supports @mentions via tag blocks)
   assignee?: number;
   resolved?: boolean;
 }
@@ -95,8 +102,19 @@ export interface GetThreadedCommentsParams {
 }
 
 export interface CreateThreadedCommentParams {
-  comment_text: string;
+  comment_text?: string;
+  comment?: ClickUpCommentBlock[]; // Structured comment blocks (supports @mentions via tag blocks)
   notify_all?: boolean;
+}
+
+/**
+ * Response returned by ClickUp's comment-creation endpoints.
+ * Create responses do NOT include the full Comment object.
+ */
+export interface CreateCommentResponse {
+  id: string;
+  hist_id: string;
+  date: number;
 }
 
 /**
@@ -121,6 +139,41 @@ function processCommentResponse(comment: any): Comment {
   }
 
   return processed;
+}
+
+/**
+ * Build the structured comment body for a create/update request.
+ * Prefers a caller-supplied comment block array (needed for @mentions);
+ * otherwise converts comment_text (markdown) into ClickUp's comment array.
+ * Sends ONLY the 'comment' array - no comment_text - to avoid duplication.
+ */
+function buildCommentBody(params: {
+  comment_text?: string;
+  comment?: ClickUpCommentBlock[];
+}): { comment: ClickUpCommentBlock[] } {
+  if (params.comment && params.comment.length > 0) {
+    return { comment: params.comment };
+  }
+  if (params.comment_text) {
+    return prepareCommentForClickUp(params.comment_text);
+  }
+  throw new Error('Either comment_text or a structured comment array is required');
+}
+
+/**
+ * Build the query string for task-comment endpoints that support
+ * custom task IDs (custom_task_ids + team_id).
+ */
+function buildTaskQueryString(params?: { custom_task_ids?: boolean; team_id?: number }): string {
+  const query = new URLSearchParams();
+  if (params?.custom_task_ids) {
+    query.set('custom_task_ids', 'true');
+  }
+  if (params?.team_id !== undefined) {
+    query.set('team_id', String(params.team_id));
+  }
+  const queryString = query.toString();
+  return queryString ? `?${queryString}` : '';
 }
 
 /**
@@ -195,7 +248,10 @@ export class CommentsEnhancedClient {
     return result;
   }
 
-  async createTaskComment(taskId: string, params: CreateTaskCommentParams): Promise<Comment> {
+  async createTaskComment(
+    taskId: string,
+    params: CreateTaskCommentParams
+  ): Promise<CreateCommentResponse> {
     // Convert comment_text to structured array format
     const structuredComment = prepareCommentForClickUp(params.comment_text);
 
@@ -205,9 +261,11 @@ export class CommentsEnhancedClient {
       ...structuredComment // This adds the 'comment' array, NOT comment_text
     };
 
-    const result = await this.client.post(`/task/${taskId}/comment`, payload);
-
-    return processCommentResponse(result);
+    // Create responses only contain { id, hist_id, date } - no comment array to post-process
+    return this.client.post<CreateCommentResponse>(
+      `/task/${taskId}/comment${buildTaskQueryString(params)}`,
+      payload
+    );
   }
 
   /**
@@ -239,17 +297,14 @@ export class CommentsEnhancedClient {
   async createChatViewComment(
     viewId: string,
     params: CreateChatViewCommentParams
-  ): Promise<Comment> {
-    // Convert comment_text to structured array format
-    const structuredComment = prepareCommentForClickUp(params.comment_text);
-
+  ): Promise<CreateCommentResponse> {
     const payload = {
       notify_all: params.notify_all || false,
-      ...structuredComment // This adds the 'comment' array, NOT comment_text
+      ...buildCommentBody(params) // This adds the 'comment' array, NOT comment_text
     };
 
-    const result = await this.client.post(`/view/${viewId}/comment`, payload);
-    return processCommentResponse(result);
+    // Create responses only contain { id, hist_id, date } - no comment array to post-process
+    return this.client.post<CreateCommentResponse>(`/view/${viewId}/comment`, payload);
   }
 
   /**
@@ -278,18 +333,18 @@ export class CommentsEnhancedClient {
    * @param params The comment parameters (supports markdown in comment_text)
    * @returns The created comment with processed content
    */
-  async createListComment(listId: string, params: CreateListCommentParams): Promise<Comment> {
-    // Convert comment_text to structured array format
-    const structuredComment = prepareCommentForClickUp(params.comment_text);
-
+  async createListComment(
+    listId: string,
+    params: CreateListCommentParams
+  ): Promise<CreateCommentResponse> {
     const payload = {
       notify_all: params.notify_all || false,
       assignee: params.assignee,
-      ...structuredComment // This adds the 'comment' array, NOT comment_text
+      ...buildCommentBody(params) // This adds the 'comment' array, NOT comment_text
     };
 
-    const result = await this.client.post(`/list/${listId}/comment`, payload);
-    return processCommentResponse(result);
+    // Create responses only contain { id, hist_id, date } - no comment array to post-process
+    return this.client.post<CreateCommentResponse>(`/list/${listId}/comment`, payload);
   }
 
   /**
@@ -299,14 +354,16 @@ export class CommentsEnhancedClient {
    * @returns The updated comment with processed content
    */
   async updateComment(commentId: string, params: UpdateCommentParams): Promise<Comment> {
-    // Convert comment_text to structured array format
-    const structuredComment = prepareCommentForClickUp(params.comment_text);
-
-    const payload = {
+    const payload: Record<string, unknown> = {
       assignee: params.assignee,
-      resolved: params.resolved,
-      ...structuredComment // This adds the 'comment' array, NOT comment_text
+      resolved: params.resolved
     };
+
+    // Only send a new comment body when one was provided, so resolve/assign-only
+    // updates leave the stored comment untouched
+    if ((params.comment && params.comment.length > 0) || params.comment_text) {
+      Object.assign(payload, buildCommentBody(params)); // Adds the 'comment' array, NOT comment_text
+    }
 
     const result = await this.client.put(`/comment/${commentId}`, payload);
     return processCommentResponse(result);
@@ -318,7 +375,9 @@ export class CommentsEnhancedClient {
    * @returns Success message
    */
   async deleteComment(commentId: string): Promise<{ success: boolean }> {
-    return this.client.delete(`/comment/${commentId}`);
+    // ClickUp returns an empty object on success; synthesize success from the 2xx response
+    await this.client.delete(`/comment/${commentId}`);
+    return { success: true };
   }
 
   /**
@@ -350,17 +409,14 @@ export class CommentsEnhancedClient {
   async createThreadedComment(
     commentId: string,
     params: CreateThreadedCommentParams
-  ): Promise<Comment> {
-    // Convert comment_text to structured array format
-    const structuredComment = prepareCommentForClickUp(params.comment_text);
-
+  ): Promise<CreateCommentResponse> {
     const payload = {
       notify_all: params.notify_all || false,
-      ...structuredComment // This adds the 'comment' array, NOT comment_text
+      ...buildCommentBody(params) // This adds the 'comment' array, NOT comment_text
     };
 
-    const result = await this.client.post(`/comment/${commentId}/reply`, payload);
-    return processCommentResponse(result);
+    // Create responses only contain { id, hist_id, date } - no comment array to post-process
+    return this.client.post<CreateCommentResponse>(`/comment/${commentId}/reply`, payload);
   }
 }
 

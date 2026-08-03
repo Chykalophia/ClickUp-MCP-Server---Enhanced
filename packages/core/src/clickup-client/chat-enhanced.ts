@@ -5,64 +5,49 @@ import type {
   CreateDirectMessageRequest,
   UpdateChannelRequest,
   GetChannelsFilter,
+  GetChannelUsersFilter,
   SendMessageRequest,
   UpdateMessageRequest,
   CreateReplyRequest,
   GetMessagesFilter,
   GetRepliesFilter,
+  GetReactionsFilter,
   CreateReactionRequest,
   DeleteReactionRequest,
-  AddChannelMemberRequest,
-  RemoveChannelMemberRequest,
+  GetTaggedUsersFilter,
   ChatChannel,
   ChatMessage,
   ChatReaction,
-  ChatMember,
+  ChatSimpleUser,
 } from '../schemas/chat-schemas.js';
 
-export interface ChatChannelsResponse {
-  channels: ChatChannel[];
+// The ClickUp Chat API only exists under API v3
+const CHAT_API_BASE_URL = 'https://api.clickup.com/api/v3';
+
+// All v3 chat list endpoints share the {data, next_cursor} envelope
+export interface ChatPaginatedResponse<T> {
+  data: T[];
+  next_cursor?: string | null;
 }
 
-export interface ChatMessagesResponse {
-  messages: ChatMessage[];
-  has_more: boolean;
-  next_cursor?: string;
+// Single-object responses are wrapped in {data: {...}}
+interface ChatDataResponse<T> {
+  data: T;
 }
 
-export interface ChatRepliesResponse {
-  replies: ChatMessage[];
-  has_more: boolean;
-  next_cursor?: string;
-}
-
-export interface ChatReactionsResponse {
-  reactions: ChatReaction[];
-}
-
-export interface ChatMembersResponse {
-  members: ChatMember[];
-}
-
-export interface ChatFollowersResponse {
-  followers: ChatMember[];
-}
-
-export interface TaggedUsersResponse {
-  tagged_users: {
-    id: number;
-    username: string;
-    email: string;
-    color: string;
-    profilePicture?: string;
-  }[];
-}
+export type ChatChannelsResponse = ChatPaginatedResponse<ChatChannel>;
+export type ChatMessagesResponse = ChatPaginatedResponse<ChatMessage>;
+export type ChatRepliesResponse = ChatPaginatedResponse<ChatMessage>;
+export type ChatReactionsResponse = ChatPaginatedResponse<ChatReaction>;
+export type ChatMembersResponse = ChatPaginatedResponse<ChatSimpleUser>;
+export type ChatFollowersResponse = ChatPaginatedResponse<ChatSimpleUser>;
+export type TaggedUsersResponse = ChatPaginatedResponse<ChatSimpleUser>;
 
 export class ChatEnhancedClient {
   private client: ClickUpClient;
 
   constructor(apiToken: string) {
-    this.client = new ClickUpClient({ apiToken });
+    this.client = new ClickUpClient({ apiToken, baseUrl: CHAT_API_BASE_URL });
   }
 
   // ========================================
@@ -70,15 +55,12 @@ export class ChatEnhancedClient {
   // ========================================
 
   /**
-   * Retrieve all channels in a workspace
+   * Retrieve channels in a workspace (cursor-paginated)
    */
   async getChannels(filter: GetChannelsFilter): Promise<ChatChannelsResponse> {
-    const params: any = {};
-    if (filter.archived !== undefined) params.archived = filter.archived;
-    if (filter.type) params.type = filter.type;
-
+    const { workspace_id, ...params } = filter;
     return this.client.get<ChatChannelsResponse>(
-      `/team/${filter.workspace_id}/chat/channels`,
+      `/workspaces/${workspace_id}/chat/channels`,
       params
     );
   }
@@ -88,79 +70,87 @@ export class ChatEnhancedClient {
    */
   async createChannel(request: CreateChannelRequest): Promise<ChatChannel> {
     const { workspace_id, ...channelData } = request;
-    return this.client.post<ChatChannel>(`/team/${workspace_id}/chat/channel`, channelData);
+    const response = await this.client.post<ChatDataResponse<ChatChannel>>(
+      `/workspaces/${workspace_id}/chat/channels`,
+      channelData
+    );
+    return response.data;
   }
 
   /**
    * Create a channel on a specific space, folder, or list
+   * (the channel name derives from the location; no name field)
    */
   async createChannelOnParent(request: CreateChannelOnParentRequest): Promise<ChatChannel> {
-    const { parent_id, parent_type, ...channelData } = request;
-    return this.client.post<ChatChannel>(`/${parent_type}/${parent_id}/chat/channel`, channelData);
+    const { workspace_id, parent_id, parent_type, ...channelData } = request;
+    const response = await this.client.post<ChatDataResponse<ChatChannel>>(
+      `/workspaces/${workspace_id}/chat/channels/location`,
+      {
+        ...channelData,
+        location: { id: parent_id, type: parent_type },
+      }
+    );
+    return response.data;
   }
 
   /**
-   * Create a direct message channel
+   * Create a direct message channel (up to 15 users; empty = self DM)
    */
   async createDirectMessage(request: CreateDirectMessageRequest): Promise<ChatChannel> {
     const { workspace_id, ...dmData } = request;
-    return this.client.post<ChatChannel>(`/team/${workspace_id}/chat/dm`, dmData);
+    const response = await this.client.post<ChatDataResponse<ChatChannel>>(
+      `/workspaces/${workspace_id}/chat/channels/direct_message`,
+      dmData
+    );
+    return response.data;
   }
 
   /**
    * Get a single channel by ID
    */
-  async getChannel(channelId: string): Promise<ChatChannel> {
-    return this.client.get<ChatChannel>(`/chat/channel/${channelId}`);
+  async getChannel(workspaceId: string, channelId: string): Promise<ChatChannel> {
+    const response = await this.client.get<ChatDataResponse<ChatChannel>>(
+      `/workspaces/${workspaceId}/chat/channels/${channelId}`
+    );
+    return response.data;
   }
 
   /**
    * Update a channel
    */
   async updateChannel(request: UpdateChannelRequest): Promise<ChatChannel> {
-    const { channel_id, ...updateData } = request;
-    return this.client.patch<ChatChannel>(`/chat/channel/${channel_id}`, updateData);
+    const { workspace_id, channel_id, ...updateData } = request;
+    const response = await this.client.patch<ChatDataResponse<ChatChannel>>(
+      `/workspaces/${workspace_id}/chat/channels/${channel_id}`,
+      updateData
+    );
+    return response.data;
   }
-
-  /**
-   * Delete a channel (NOT IMPLEMENTED - too dangerous as per instructions)
-   */
-  // async deleteChannel(channelId: string): Promise<void> {
-  //   return this.client.delete(`/chat/channel/${channelId}`);
-  // }
 
   // ========================================
   // CHANNEL MEMBERS & FOLLOWERS
   // ========================================
 
   /**
-   * Get channel followers
+   * Get channel followers (cursor-paginated)
    */
-  async getChannelFollowers(channelId: string): Promise<ChatFollowersResponse> {
-    return this.client.get<ChatFollowersResponse>(`/chat/channel/${channelId}/followers`);
+  async getChannelFollowers(filter: GetChannelUsersFilter): Promise<ChatFollowersResponse> {
+    const { workspace_id, channel_id, ...params } = filter;
+    return this.client.get<ChatFollowersResponse>(
+      `/workspaces/${workspace_id}/chat/channels/${channel_id}/followers`,
+      params
+    );
   }
 
   /**
-   * Get channel members
+   * Get channel members (cursor-paginated)
    */
-  async getChannelMembers(channelId: string): Promise<ChatMembersResponse> {
-    return this.client.get<ChatMembersResponse>(`/chat/channel/${channelId}/members`);
-  }
-
-  /**
-   * Add member to channel
-   */
-  async addChannelMember(request: AddChannelMemberRequest): Promise<void> {
-    const { channel_id, user_id } = request;
-    return this.client.post(`/chat/channel/${channel_id}/member/${user_id}`, {});
-  }
-
-  /**
-   * Remove member from channel
-   */
-  async removeChannelMember(request: RemoveChannelMemberRequest): Promise<void> {
-    const { channel_id, user_id } = request;
-    return this.client.delete(`/chat/channel/${channel_id}/member/${user_id}`);
+  async getChannelMembers(filter: GetChannelUsersFilter): Promise<ChatMembersResponse> {
+    const { workspace_id, channel_id, ...params } = filter;
+    return this.client.get<ChatMembersResponse>(
+      `/workspaces/${workspace_id}/chat/channels/${channel_id}/members`,
+      params
+    );
   }
 
   // ========================================
@@ -168,37 +158,43 @@ export class ChatEnhancedClient {
   // ========================================
 
   /**
-   * Get messages from a channel
+   * Get messages from a channel (cursor-paginated)
    */
   async getChannelMessages(filter: GetMessagesFilter): Promise<ChatMessagesResponse> {
-    const { channel_id, ...params } = filter;
-    return this.client.get<ChatMessagesResponse>(`/chat/channel/${channel_id}/messages`, params);
+    const { workspace_id, channel_id, ...params } = filter;
+    return this.client.get<ChatMessagesResponse>(
+      `/workspaces/${workspace_id}/chat/channels/${channel_id}/messages`,
+      params
+    );
   }
 
   /**
    * Send a message to a channel
    */
   async sendMessage(request: SendMessageRequest): Promise<ChatMessage> {
-    const { channel_id, ...messageData } = request;
-    return this.client.post<ChatMessage>(`/chat/channel/${channel_id}/message`, messageData);
+    const { workspace_id, channel_id, ...messageData } = request;
+    return this.client.post<ChatMessage>(
+      `/workspaces/${workspace_id}/chat/channels/${channel_id}/messages`,
+      messageData
+    );
   }
 
   /**
-   * Update a message
+   * Update a message (message IDs are workspace-scoped in v3)
    */
   async updateMessage(request: UpdateMessageRequest): Promise<ChatMessage> {
-    const { channel_id, message_id, ...updateData } = request;
+    const { workspace_id, message_id, ...updateData } = request;
     return this.client.patch<ChatMessage>(
-      `/chat/channel/${channel_id}/message/${message_id}`,
+      `/workspaces/${workspace_id}/chat/messages/${message_id}`,
       updateData
     );
   }
 
   /**
-   * Delete a message
+   * Delete a message (204 No Content)
    */
-  async deleteMessage(channelId: string, messageId: string): Promise<void> {
-    return this.client.delete(`/chat/channel/${channelId}/message/${messageId}`);
+  async deleteMessage(workspaceId: string, messageId: string): Promise<void> {
+    await this.client.delete(`/workspaces/${workspaceId}/chat/messages/${messageId}`);
   }
 
   // ========================================
@@ -206,12 +202,12 @@ export class ChatEnhancedClient {
   // ========================================
 
   /**
-   * Get replies to a message
+   * Get replies to a message (cursor-paginated)
    */
   async getMessageReplies(filter: GetRepliesFilter): Promise<ChatRepliesResponse> {
-    const { channel_id, message_id, ...params } = filter;
+    const { workspace_id, message_id, ...params } = filter;
     return this.client.get<ChatRepliesResponse>(
-      `/chat/channel/${channel_id}/message/${message_id}/replies`,
+      `/workspaces/${workspace_id}/chat/messages/${message_id}/replies`,
       params
     );
   }
@@ -220,9 +216,9 @@ export class ChatEnhancedClient {
    * Create a reply to a message
    */
   async createReply(request: CreateReplyRequest): Promise<ChatMessage> {
-    const { channel_id, message_id, ...replyData } = request;
+    const { workspace_id, message_id, ...replyData } = request;
     return this.client.post<ChatMessage>(
-      `/chat/channel/${channel_id}/message/${message_id}/reply`,
+      `/workspaces/${workspace_id}/chat/messages/${message_id}/replies`,
       replyData
     );
   }
@@ -232,32 +228,34 @@ export class ChatEnhancedClient {
   // ========================================
 
   /**
-   * Get reactions for a message
+   * Get reactions for a message (cursor-paginated)
    */
-  async getMessageReactions(channelId: string, messageId: string): Promise<ChatReactionsResponse> {
+  async getMessageReactions(filter: GetReactionsFilter): Promise<ChatReactionsResponse> {
+    const { workspace_id, message_id, ...params } = filter;
     return this.client.get<ChatReactionsResponse>(
-      `/chat/channel/${channelId}/message/${messageId}/reactions`
+      `/workspaces/${workspace_id}/chat/messages/${message_id}/reactions`,
+      params
     );
   }
 
   /**
-   * Create a reaction on a message
+   * Create a reaction on a message (reaction = emoji name, sent in the body)
    */
-  async createReaction(request: CreateReactionRequest): Promise<void> {
-    const { channel_id, message_id, reaction } = request;
-    return this.client.post(
-      `/chat/channel/${channel_id}/message/${message_id}/reaction/${reaction}`,
-      {}
+  async createReaction(request: CreateReactionRequest): Promise<ChatReaction> {
+    const { workspace_id, message_id, reaction } = request;
+    return this.client.post<ChatReaction>(
+      `/workspaces/${workspace_id}/chat/messages/${message_id}/reactions`,
+      { reaction }
     );
   }
 
   /**
-   * Delete a reaction from a message
+   * Delete a reaction from a message (204 No Content)
    */
   async deleteReaction(request: DeleteReactionRequest): Promise<void> {
-    const { channel_id, message_id, reaction } = request;
-    return this.client.delete(
-      `/chat/channel/${channel_id}/message/${message_id}/reaction/${reaction}`
+    const { workspace_id, message_id, reaction } = request;
+    await this.client.delete(
+      `/workspaces/${workspace_id}/chat/messages/${message_id}/reactions/${encodeURIComponent(reaction)}`
     );
   }
 
@@ -266,11 +264,13 @@ export class ChatEnhancedClient {
   // ========================================
 
   /**
-   * Get tagged users for a message
+   * Get tagged users for a message (cursor-paginated)
    */
-  async getTaggedUsers(channelId: string, messageId: string): Promise<TaggedUsersResponse> {
+  async getTaggedUsers(filter: GetTaggedUsersFilter): Promise<TaggedUsersResponse> {
+    const { workspace_id, message_id, ...params } = filter;
     return this.client.get<TaggedUsersResponse>(
-      `/chat/channel/${channelId}/message/${messageId}/tagged`
+      `/workspaces/${workspace_id}/chat/messages/${message_id}/tagged_users`,
+      params
     );
   }
 
@@ -279,36 +279,29 @@ export class ChatEnhancedClient {
   // ========================================
 
   /**
-   * Search channels by name
+   * Search channels by name (client-side filter over the paginated
+   * channel list — the v3 API has no search parameter)
    */
   async searchChannels(workspaceId: string, query: string): Promise<ChatChannelsResponse> {
-    return this.client.get<ChatChannelsResponse>(`/team/${workspaceId}/chat/channels`, {
-      search: query,
-    });
-  }
+    const matches: ChatChannel[] = [];
+    const lowerQuery = query.toLowerCase();
+    let cursor: string | undefined;
+    const maxPages = 10;
 
-  /**
-   * Get channel statistics
-   */
-  async getChannelStats(channelId: string): Promise<{
-    message_count: number;
-    member_count: number;
-    last_activity: string;
-  }> {
-    return this.client.get(`/chat/channel/${channelId}/stats`);
-  }
+    for (let page = 0; page < maxPages; page++) {
+      const response = await this.client.get<ChatChannelsResponse>(
+        `/workspaces/${workspaceId}/chat/channels`,
+        cursor ? { cursor, limit: 100 } : { limit: 100 }
+      );
+      const channels = response.data ?? [];
+      matches.push(...channels.filter(channel => channel.name?.toLowerCase().includes(lowerQuery)));
 
-  /**
-   * Mark channel as read
-   */
-  async markChannelAsRead(channelId: string): Promise<void> {
-    return this.client.post(`/chat/channel/${channelId}/read`, {});
-  }
+      if (!response.next_cursor) {
+        break;
+      }
+      cursor = response.next_cursor;
+    }
 
-  /**
-   * Get unread message count for channel
-   */
-  async getUnreadCount(channelId: string): Promise<{ unread_count: number }> {
-    return this.client.get(`/chat/channel/${channelId}/unread`);
+    return { data: matches };
   }
 }

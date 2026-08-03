@@ -12,12 +12,12 @@
   <a href="https://github.com/modelcontextprotocol/typescript-sdk"><img src="https://img.shields.io/badge/MCP%20SDK-1.6.1-orange" alt="MCP SDK"></a>
 </p>
 
-A comprehensive Model Context Protocol (MCP) server suite providing AI assistants with complete ClickUp integration. Features **177+ core tools**, **AI-powered project intelligence**, **production-grade security**, and **full GitHub Flavored Markdown support**.
+A comprehensive Model Context Protocol (MCP) server suite providing AI assistants with complete ClickUp integration. Features **157 core tools**, **AI-powered project intelligence**, **production-grade security**, and **full GitHub Flavored Markdown support**.
 
 ## 📦 Package Suite
 
 ### Core Server: `@chykalophia/clickup-mcp-server`
-Complete ClickUp API integration with **177+ tools** covering all major functionality:
+Complete ClickUp API integration with **157 tools** covering all major functionality:
 - Tasks, Lists, Spaces, Folders, Workspaces
 - Comments, Attachments, Custom Fields, Views
 - Time Tracking, Goals, Dependencies, Webhooks
@@ -44,7 +44,7 @@ This project uses a monorepo structure with multiple packages:
 clickup-mcp-server/
 ├── packages/
 │   ├── core/                          # @chykalophia/clickup-mcp-server
-│   │   ├── 177+ core tools            # Complete ClickUp API coverage
+│   │   ├── 157 core tools            # Complete ClickUp API coverage
 │   │   ├── Production security        # Zero vulnerabilities
 │   │   └── Markdown support           # GitHub Flavored Markdown
 │   ├── intelligence/                  # @chykalophia/clickup-intelligence-mcp-server
@@ -103,7 +103,7 @@ This Enhanced version is based on the original ClickUp MCP Server codebase by [D
 - **Backward Compatible**: Existing plain text content continues to work
 
 ### 🛠️ **Comprehensive API Coverage**
-- **177+ Total Tools** covering 100% of major ClickUp API endpoints
+- **157 Total Tools** covering 100% of major ClickUp API endpoints
 - **9 Feature Domains**: Tasks, comments, docs, webhooks, views, dependencies, attachments, time tracking, goals
 - **Real-time Integration**: Webhook processing with HMAC validation
 - **Advanced Workflows**: Dependencies, custom fields, bulk operations
@@ -121,7 +121,7 @@ This Enhanced version is based on the original ClickUp MCP Server codebase by [D
 - **Backward Compatibility**: Previous tool names are deprecated but documented for migration
 - **Examples**: `clickup_create_task`, `clickup_get_workspaces`, `clickup_update_comment`
 
-## 📊 Complete Tool Inventory (177+ Tools)
+## 📊 Complete Tool Inventory (157 Tools)
 
 ### 🧠 Efficiency & Intelligence Tools (20+ tools) ⭐
 - **Smart Discovery**: `clickup_find_chat_channels`, `clickup_search_views_by_name`, `clickup_get_workspace_overview`

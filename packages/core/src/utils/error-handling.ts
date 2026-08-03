@@ -235,12 +235,17 @@ export const handleClickUpApiError = (
         retryable = status >= 500;
     }
 
+    // ClickUp errors arrive as { err: "<message>", ECODE: "<code>" } — keep the
+    // machine-readable ECODE (e.g. OAUTH_017, TEAM_004) in both message and code
+    const ecode = typeof data?.ECODE === 'string' ? data.ECODE : undefined;
+    const baseMessage = data?.err || data?.error || error.message || `HTTP ${status} error`;
+
     return createStructuredError(
       errorType,
-      data?.err || data?.error || error.message || `HTTP ${status} error`,
+      ecode && !String(baseMessage).includes(ecode) ? `${baseMessage} (${ecode})` : baseMessage,
       {
         severity,
-        code: status.toString(),
+        code: ecode || status.toString(),
         details: {
           status,
           data,
@@ -430,11 +435,12 @@ export class RetryManager {
           break;
         }
 
-        // Calculate delay with exponential backoff
-        const delay = Math.min(
-          this.baseDelay * Math.pow(2, attempt),
-          structuredError.retryAfter ? structuredError.retryAfter * 1000 : this.maxDelay
-        );
+        // Calculate delay with exponential backoff. Retry-After is a server-mandated
+        // MINIMUM wait (RFC 9110 sec. 10.2.3), so treat it as a floor, never a cap.
+        const backoff = Math.min(this.baseDelay * Math.pow(2, attempt), this.maxDelay);
+        const delay = structuredError.retryAfter
+          ? Math.max(structuredError.retryAfter * 1000, backoff)
+          : backoff;
 
         secureLog(
           'warn',

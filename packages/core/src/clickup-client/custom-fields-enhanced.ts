@@ -6,21 +6,28 @@ import axios, { AxiosInstance } from 'axios';
 // CUSTOM FIELD TYPE DEFINITIONS
 // ========================================
 
+// Real ClickUp custom field type strings as returned by the API.
+// NOTE: The ClickUp public API has NO endpoints to create, update, or delete
+// custom field DEFINITIONS — fields must be created in the ClickUp UI.
+// The API can only list field definitions and get/set/remove field VALUES.
 export type CustomFieldType =
-  | 'text'
-  | 'textarea'
-  | 'number'
-  | 'currency'
-  | 'date'
-  | 'drop_down'
-  | 'labels'
-  | 'checkbox'
   | 'url'
+  | 'drop_down'
   | 'email'
   | 'phone'
-  | 'rating'
-  | 'progress'
-  | 'task_relationship';
+  | 'date'
+  | 'text'
+  | 'checkbox'
+  | 'number'
+  | 'currency'
+  | 'tasks'
+  | 'users'
+  | 'emoji'
+  | 'labels'
+  | 'automatic_progress'
+  | 'manual_progress'
+  | 'short_text'
+  | 'location';
 
 // Base custom field interface
 export interface BaseCustomField {
@@ -33,9 +40,9 @@ export interface BaseCustomField {
   type_config: Record<string, any>;
 }
 
-// Text fields
+// Text fields ('short_text' = single line, 'text' = long text)
 export interface ShortTextField extends BaseCustomField {
-  type: 'text';
+  type: 'short_text';
   type_config: {
     default?: string;
     placeholder?: string;
@@ -43,7 +50,7 @@ export interface ShortTextField extends BaseCustomField {
 }
 
 export interface LongTextField extends BaseCustomField {
-  type: 'textarea';
+  type: 'text';
   type_config: {
     default?: string;
     placeholder?: string;
@@ -72,7 +79,7 @@ export interface CurrencyField extends BaseCustomField {
 export interface DateField extends BaseCustomField {
   type: 'date';
   type_config: {
-    default?: number; // Unix timestamp
+    default?: number; // Unix timestamp (milliseconds)
     include_time?: boolean;
   };
 }
@@ -96,7 +103,11 @@ export interface DropdownField extends BaseCustomField {
 export interface LabelsField extends BaseCustomField {
   type: 'labels';
   type_config: {
-    options: DropdownOption[];
+    options: Array<{
+      id: string;
+      label: string;
+      color?: string;
+    }>;
   };
 }
 
@@ -133,32 +144,54 @@ export interface PhoneField extends BaseCustomField {
   };
 }
 
-// Rating fields
-export interface RatingField extends BaseCustomField {
-  type: 'rating';
+// Rating fields (ClickUp calls these 'emoji')
+export interface EmojiField extends BaseCustomField {
+  type: 'emoji';
   type_config: {
-    default?: number;
-    count: number; // 1-10 stars
+    code_point?: string; // emoji code point, e.g. '2b50' for star
+    count: number; // 1-10 rating scale
   };
 }
 
 // Progress fields
-export interface ProgressField extends BaseCustomField {
-  type: 'progress';
+export interface AutomaticProgressField extends BaseCustomField {
+  type: 'automatic_progress';
   type_config: {
-    default?: number;
-    start?: number; // default: 0
-    end?: number; // default: 100
-    unit?: string; // %, points, etc.
+    tracking?: Record<string, any>;
+    complete_on?: number;
   };
 }
 
-// Relationship fields
-export interface TaskRelationshipField extends BaseCustomField {
-  type: 'task_relationship';
+export interface ManualProgressField extends BaseCustomField {
+  type: 'manual_progress';
   type_config: {
-    multiple?: boolean;
+    start?: number; // default: 0
+    end?: number; // default: 100
+    current?: number;
   };
+}
+
+// Relationship fields (task relationships are type 'tasks')
+export interface TasksField extends BaseCustomField {
+  type: 'tasks';
+  type_config: Record<string, any>;
+}
+
+// People fields
+export interface UsersField extends BaseCustomField {
+  type: 'users';
+  type_config: {
+    single_user?: boolean;
+    include_groups?: boolean;
+    include_guests?: boolean;
+    include_team_members?: boolean;
+  };
+}
+
+// Location fields
+export interface LocationField extends BaseCustomField {
+  type: 'location';
+  type_config: Record<string, any>;
 }
 
 // Union type for all custom fields
@@ -174,9 +207,12 @@ export type CustomField =
   | URLField
   | EmailField
   | PhoneField
-  | RatingField
-  | ProgressField
-  | TaskRelationshipField;
+  | EmojiField
+  | AutomaticProgressField
+  | ManualProgressField
+  | TasksField
+  | UsersField
+  | LocationField;
 
 // ========================================
 // CUSTOM FIELD VALUE DEFINITIONS
@@ -190,7 +226,7 @@ export interface BaseCustomFieldValue {
 }
 
 export interface TextFieldValue extends BaseCustomFieldValue {
-  type: 'text' | 'textarea';
+  type: 'text' | 'short_text';
   value: {
     value: string;
   };
@@ -206,7 +242,7 @@ export interface NumberFieldValue extends BaseCustomFieldValue {
 export interface DateFieldValue extends BaseCustomFieldValue {
   type: 'date';
   value: {
-    value: number; // Unix timestamp
+    value: number; // Unix timestamp in milliseconds
   };
 }
 
@@ -226,7 +262,7 @@ export interface LabelsFieldValue extends BaseCustomFieldValue {
   value: {
     value: Array<{
       id: string;
-      name: string;
+      label: string;
       color?: string;
     }>;
   };
@@ -246,24 +282,41 @@ export interface URLFieldValue extends BaseCustomFieldValue {
   };
 }
 
-export interface RatingFieldValue extends BaseCustomFieldValue {
-  type: 'rating';
+export interface EmojiFieldValue extends BaseCustomFieldValue {
+  type: 'emoji';
   value: {
-    value: number;
+    value: number; // integer rating
   };
 }
 
 export interface ProgressFieldValue extends BaseCustomFieldValue {
-  type: 'progress';
+  type: 'automatic_progress' | 'manual_progress';
   value: {
     value: number;
   };
 }
 
-export interface TaskRelationshipFieldValue extends BaseCustomFieldValue {
-  type: 'task_relationship';
+export interface TasksFieldValue extends BaseCustomFieldValue {
+  type: 'tasks';
   value: {
-    value: string | string[];
+    value: Array<Record<string, any>>; // linked tasks
+  };
+}
+
+export interface UsersFieldValue extends BaseCustomFieldValue {
+  type: 'users';
+  value: {
+    value: Array<Record<string, any>>; // user objects
+  };
+}
+
+export interface LocationFieldValue extends BaseCustomFieldValue {
+  type: 'location';
+  value: {
+    value: {
+      location: { lat: number; lng: number };
+      formatted_address?: string;
+    };
   };
 }
 
@@ -275,35 +328,42 @@ export type CustomFieldValue =
   | LabelsFieldValue
   | CheckboxFieldValue
   | URLFieldValue
-  | RatingFieldValue
+  | EmojiFieldValue
   | ProgressFieldValue
-  | TaskRelationshipFieldValue;
+  | TasksFieldValue
+  | UsersFieldValue
+  | LocationFieldValue;
 
 // ========================================
 // PARAMETER INTERFACES
 // ========================================
 
-export interface CreateCustomFieldParams {
-  name: string;
-  type: CustomFieldType;
-  type_config?: Record<string, any>;
-  required?: boolean;
-  hide_from_guests?: boolean;
+/**
+ * Options accepted by Set/Remove Custom Field Value (and task reads).
+ * custom_task_ids/team_id let tasks be addressed by custom task ID
+ * (e.g. 'DEV-1234'); team_id is required when custom_task_ids is true.
+ */
+export interface TaskAddressingOptions {
+  customTaskIds?: boolean;
+  teamId?: string | number;
 }
 
-export interface UpdateCustomFieldParams {
-  name?: string;
-  type_config?: Record<string, any>;
-  required?: boolean;
-  hide_from_guests?: boolean;
+/**
+ * Extra options for Set Custom Field Value. value_options is sent as a
+ * top-level sibling of value in the request body; for date fields,
+ * { time: true } stores/displays the time component.
+ */
+export interface SetFieldValueOptions extends TaskAddressingOptions {
+  valueOptions?: {
+    time?: boolean;
+  };
 }
 
 export interface SetFieldValueParams {
   value: any; // Type depends on field type
-}
-
-export interface GetCustomFieldsParams {
-  include_deleted?: boolean;
+  value_options?: {
+    time?: boolean;
+  };
 }
 
 export interface CustomFieldsResponse {
@@ -324,19 +384,16 @@ export class EnhancedCustomFieldsClient {
   }
 
   // ========================================
-  // CUSTOM FIELD MANAGEMENT
+  // CUSTOM FIELD LISTING
   // ========================================
 
   /**
-   * Get custom fields for a list
+   * Get custom fields for a list (includes fields inherited from parent levels)
    */
-  async getListCustomFields(
-    listId: string,
-    params?: GetCustomFieldsParams
-  ): Promise<CustomField[]> {
+  async getListCustomFields(listId: string): Promise<CustomField[]> {
     try {
       const url = `https://api.clickup.com/api/v2/list/${listId}/field`;
-      const response = await this.http.get(url, { params });
+      const response = await this.http.get(url);
       return response.data.fields || [];
     } catch (error) {
       console.error('Error getting list custom fields:', error instanceof Error ? error.message : error);
@@ -345,15 +402,13 @@ export class EnhancedCustomFieldsClient {
   }
 
   /**
-   * Get custom fields for a folder
+   * Get custom fields created at the folder level (does not include fields
+   * created at the list level)
    */
-  async getFolderCustomFields(
-    folderId: string,
-    params?: GetCustomFieldsParams
-  ): Promise<CustomField[]> {
+  async getFolderCustomFields(folderId: string): Promise<CustomField[]> {
     try {
       const url = `https://api.clickup.com/api/v2/folder/${folderId}/field`;
-      const response = await this.http.get(url, { params });
+      const response = await this.http.get(url);
       return response.data.fields || [];
     } catch (error) {
       console.error('Error getting folder custom fields:', error instanceof Error ? error.message : error);
@@ -362,15 +417,13 @@ export class EnhancedCustomFieldsClient {
   }
 
   /**
-   * Get custom fields for a space
+   * Get custom fields created at the space level (does not include fields
+   * created at the folder or list level)
    */
-  async getSpaceCustomFields(
-    spaceId: string,
-    params?: GetCustomFieldsParams
-  ): Promise<CustomField[]> {
+  async getSpaceCustomFields(spaceId: string): Promise<CustomField[]> {
     try {
       const url = `https://api.clickup.com/api/v2/space/${spaceId}/field`;
-      const response = await this.http.get(url, { params });
+      const response = await this.http.get(url);
       return response.data.fields || [];
     } catch (error) {
       console.error('Error getting space custom fields:', error instanceof Error ? error.message : error);
@@ -379,80 +432,16 @@ export class EnhancedCustomFieldsClient {
   }
 
   /**
-   * Create a custom field in a list
+   * Get custom fields created at the workspace (team) level
    */
-  async createListCustomField(
-    listId: string,
-    params: CreateCustomFieldParams
-  ): Promise<CustomField> {
+  async getTeamCustomFields(teamId: string): Promise<CustomField[]> {
     try {
-      const url = `https://api.clickup.com/api/v2/list/${listId}/field`;
-      const response = await this.http.post(url, params);
-      return response.data;
+      const url = `https://api.clickup.com/api/v2/team/${teamId}/field`;
+      const response = await this.http.get(url);
+      return response.data.fields || [];
     } catch (error) {
-      console.error('Error creating list custom field:', error instanceof Error ? error.message : error);
-      throw this.handleError(error, `Failed to create custom field in list ${listId}`);
-    }
-  }
-
-  /**
-   * Create a custom field in a folder
-   */
-  async createFolderCustomField(
-    folderId: string,
-    params: CreateCustomFieldParams
-  ): Promise<CustomField> {
-    try {
-      const url = `https://api.clickup.com/api/v2/folder/${folderId}/field`;
-      const response = await this.http.post(url, params);
-      return response.data;
-    } catch (error) {
-      console.error('Error creating folder custom field:', error instanceof Error ? error.message : error);
-      throw this.handleError(error, `Failed to create custom field in folder ${folderId}`);
-    }
-  }
-
-  /**
-   * Create a custom field in a space
-   */
-  async createSpaceCustomField(
-    spaceId: string,
-    params: CreateCustomFieldParams
-  ): Promise<CustomField> {
-    try {
-      const url = `https://api.clickup.com/api/v2/space/${spaceId}/field`;
-      const response = await this.http.post(url, params);
-      return response.data;
-    } catch (error) {
-      console.error('Error creating space custom field:', error instanceof Error ? error.message : error);
-      throw this.handleError(error, `Failed to create custom field in space ${spaceId}`);
-    }
-  }
-
-  /**
-   * Update a custom field
-   */
-  async updateCustomField(fieldId: string, params: UpdateCustomFieldParams): Promise<CustomField> {
-    try {
-      const url = `https://api.clickup.com/api/v2/field/${fieldId}`;
-      const response = await this.http.put(url, params);
-      return response.data;
-    } catch (error) {
-      console.error('Error updating custom field:', error instanceof Error ? error.message : error);
-      throw this.handleError(error, `Failed to update custom field ${fieldId}`);
-    }
-  }
-
-  /**
-   * Delete a custom field
-   */
-  async deleteCustomField(fieldId: string): Promise<void> {
-    try {
-      const url = `https://api.clickup.com/api/v2/field/${fieldId}`;
-      await this.http.delete(url);
-    } catch (error) {
-      console.error('Error deleting custom field:', error instanceof Error ? error.message : error);
-      throw this.handleError(error, `Failed to delete custom field ${fieldId}`);
+      console.error('Error getting workspace custom fields:', error instanceof Error ? error.message : error);
+      throw this.handleError(error, `Failed to get custom fields for workspace ${teamId}`);
     }
   }
 
@@ -461,15 +450,44 @@ export class EnhancedCustomFieldsClient {
   // ========================================
 
   /**
-   * Set a custom field value on a task
+   * Build the custom_task_ids/team_id query params for task-addressed requests
    */
-  async setCustomFieldValue(taskId: string, fieldId: string, value: any): Promise<void> {
+  private buildTaskAddressingParams(options?: TaskAddressingOptions): Record<string, any> {
+    const params: Record<string, any> = {};
+    if (options?.customTaskIds) {
+      if (options.teamId === undefined) {
+        throw new Error('team_id is required when custom_task_ids is true');
+      }
+      params.custom_task_ids = true;
+      params.team_id = options.teamId;
+    }
+    return params;
+  }
+
+  /**
+   * Set a custom field value on a task.
+   *
+   * The value shape depends on the field type (e.g. dropdown = option UUID,
+   * labels = array of label option UUIDs, users/tasks = {add:[],rem:[]},
+   * date = Unix ms, location = {location:{lat,lng},formatted_address}).
+   * For date fields, pass options.valueOptions = { time: true } to store the
+   * time component — it is sent as a top-level sibling of value in the body.
+   */
+  async setCustomFieldValue(
+    taskId: string,
+    fieldId: string,
+    value: any,
+    options?: SetFieldValueOptions
+  ): Promise<void> {
     try {
       const url = `https://api.clickup.com/api/v2/task/${taskId}/field/${fieldId}`;
-      await this.http.post(
-        url,
-        { value }
-      );
+      const body: Record<string, any> = { value };
+      if (options?.valueOptions) {
+        body.value_options = options.valueOptions;
+      }
+      await this.http.post(url, body, {
+        params: this.buildTaskAddressingParams(options),
+      });
     } catch (error) {
       console.error('Error setting custom field value:', error instanceof Error ? error.message : error);
       throw this.handleError(
@@ -482,10 +500,16 @@ export class EnhancedCustomFieldsClient {
   /**
    * Remove a custom field value from a task
    */
-  async removeCustomFieldValue(taskId: string, fieldId: string): Promise<void> {
+  async removeCustomFieldValue(
+    taskId: string,
+    fieldId: string,
+    options?: TaskAddressingOptions
+  ): Promise<void> {
     try {
       const url = `https://api.clickup.com/api/v2/task/${taskId}/field/${fieldId}`;
-      await this.http.delete(url);
+      await this.http.delete(url, {
+        params: this.buildTaskAddressingParams(options),
+      });
     } catch (error) {
       console.error('Error removing custom field value:', error instanceof Error ? error.message : error);
       throw this.handleError(
@@ -498,11 +522,17 @@ export class EnhancedCustomFieldsClient {
   /**
    * Get a custom field value from a task
    */
-  async getCustomFieldValue(taskId: string, fieldId: string): Promise<any> {
+  async getCustomFieldValue(
+    taskId: string,
+    fieldId: string,
+    options?: TaskAddressingOptions
+  ): Promise<any> {
     try {
       // Get task details which includes custom field values
       const taskUrl = `https://api.clickup.com/api/v2/task/${taskId}`;
-      const response = await this.http.get(taskUrl);
+      const response = await this.http.get(taskUrl, {
+        params: this.buildTaskAddressingParams(options),
+      });
 
       const task = response.data;
       const customField = task.custom_fields?.find((field: any) => field.id === fieldId);
@@ -530,10 +560,15 @@ export class EnhancedCustomFieldsClient {
   /**
    * Get all custom field values for a task
    */
-  async getTaskCustomFieldValues(taskId: string): Promise<any[]> {
+  async getTaskCustomFieldValues(
+    taskId: string,
+    options?: TaskAddressingOptions
+  ): Promise<any[]> {
     try {
       const taskUrl = `https://api.clickup.com/api/v2/task/${taskId}`;
-      const response = await this.http.get(taskUrl);
+      const response = await this.http.get(taskUrl, {
+        params: this.buildTaskAddressingParams(options),
+      });
 
       const task = response.data;
       return (
@@ -558,28 +593,34 @@ export class EnhancedCustomFieldsClient {
    */
   async bulkSetCustomFieldValues(
     taskId: string,
-    fieldValues: Array<{ field_id: string; value: any }>
+    fieldValues: Array<{ field_id: string; value: any; value_options?: { time?: boolean } }>,
+    options?: TaskAddressingOptions
   ): Promise<any[]> {
     try {
-      const results = [];
+      const results: Array<{ field_id: string; value: any; status: string; error?: string }> = [];
 
       // ClickUp doesn't have a native bulk API — parallelize independent calls
       const CONCURRENCY = 5;
       for (let i = 0; i < fieldValues.length; i += CONCURRENCY) {
         const chunk = fieldValues.slice(i, i + CONCURRENCY);
         const chunkResults = await Promise.allSettled(
-          chunk.map(({ field_id, value }) =>
-            this.setCustomFieldValue(taskId, field_id, value).then(() => ({ field_id, value }))
+          chunk.map(({ field_id, value, value_options }) =>
+            this.setCustomFieldValue(taskId, field_id, value, {
+              ...options,
+              valueOptions: value_options,
+            })
           )
         );
-        for (const result of chunkResults) {
+        // Promise.allSettled preserves input order, so index back into the chunk
+        chunkResults.forEach((result, j) => {
+          const { field_id, value } = chunk[j];
           if (result.status === 'fulfilled') {
-            results.push({ field_id: result.value.field_id, value: result.value.value, status: 'success' });
+            results.push({ field_id, value, status: 'success' });
           } else {
             const errorMessage = result.reason instanceof Error ? result.reason.message : 'Unknown error';
-            results.push({ field_id: '', value: null, status: 'error', error: errorMessage });
+            results.push({ field_id, value, status: 'error', error: errorMessage });
           }
-        }
+        });
       }
 
       return results;
@@ -599,7 +640,7 @@ export class EnhancedCustomFieldsClient {
   validateFieldValue(field: CustomField, value: any): boolean {
     switch (field.type) {
     case 'text':
-    case 'textarea':
+    case 'short_text':
       return typeof value === 'string';
 
     case 'number':
@@ -607,7 +648,8 @@ export class EnhancedCustomFieldsClient {
       return typeof value === 'number' && !isNaN(value);
 
     case 'date':
-      return typeof value === 'number' && value > 0;
+      // Unix timestamp in MILLISECONDS (e.g. 1667367645000)
+      return typeof value === 'number' && Number.isInteger(value) && value > 0;
 
     case 'checkbox':
       return typeof value === 'boolean';
@@ -622,107 +664,69 @@ export class EnhancedCustomFieldsClient {
       return typeof value === 'string' && value.length > 0;
 
     case 'drop_down':
+      // Canonical value is the option UUID (type_config.options[].id)
       return field.type_config.options?.some((opt: DropdownOption) => opt.id === value);
 
     case 'labels':
       return (
         Array.isArray(value) &&
-          value.every(v => field.type_config.options?.some((opt: DropdownOption) => opt.id === v))
+          value.every(v => field.type_config.options?.some((opt: { id: string }) => opt.id === v))
       );
 
-    case 'rating':
-      return typeof value === 'number' && value >= 0 && value <= (field.type_config.count || 5);
+    case 'emoji': {
+      // Rating fields: an integer within the configured count range
+      const count = (field.type_config as { count?: number }).count ?? 5;
+      return typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= count;
+    }
 
-    case 'progress': {
-      const { start = 0, end = 100 } = field.type_config;
+    case 'automatic_progress':
+      // Computed by ClickUp — cannot be set via the API
+      return false;
+
+    case 'manual_progress': {
+      const { start = 0, end = 100 } = field.type_config as { start?: number; end?: number };
       return typeof value === 'number' && value >= start && value <= end;
     }
 
-    case 'task_relationship':
-      if (field.type_config.multiple) {
-        return Array.isArray(value) && value.every(v => typeof v === 'string');
-      }
-      return typeof value === 'string';
+    case 'users':
+    case 'tasks':
+      // People and task-relationship fields take { add: [ids], rem: [ids] }
+      return this.isValidAddRemValue(value);
+
+    case 'location':
+      // { location: { lat, lng }, formatted_address? }
+      return (
+        typeof value === 'object' &&
+          value !== null &&
+          typeof value.location === 'object' &&
+          value.location !== null &&
+          typeof value.location.lat === 'number' &&
+          typeof value.location.lng === 'number' &&
+          (value.formatted_address === undefined || typeof value.formatted_address === 'string')
+      );
 
     default:
       return true;
     }
   }
 
-  /**
-   * Get field type configuration template
-   */
-  getFieldTypeTemplate(type: CustomFieldType): Record<string, any> {
-    switch (type) {
-    case 'text':
-    case 'textarea':
-      return {
-        default: '',
-        placeholder: ''
-      };
-
-    case 'number':
-      return {
-        default: 0,
-        precision: 0
-      };
-
-    case 'currency':
-      return {
-        default: 0,
-        precision: 2,
-        currency_type: 'USD'
-      };
-
-    case 'date':
-      return {
-        include_time: false
-      };
-
-    case 'drop_down':
-    case 'labels':
-      return {
-        options: []
-      };
-
-    case 'checkbox':
-      return {
-        default: false
-      };
-
-    case 'url':
-    case 'email':
-    case 'phone':
-      return {
-        placeholder: ''
-      };
-
-    case 'rating':
-      return {
-        count: 5,
-        default: 0
-      };
-
-    case 'progress':
-      return {
-        start: 0,
-        end: 100,
-        unit: '%'
-      };
-
-    case 'task_relationship':
-      return {
-        multiple: false
-      };
-
-    default:
-      return {};
-    }
-  }
-
   // ========================================
   // UTILITY METHODS
   // ========================================
+
+  private isValidAddRemValue(value: any): boolean {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+      return false;
+    }
+    const isIdArray = (arr: any): boolean =>
+      Array.isArray(arr) && arr.every(v => typeof v === 'string' || typeof v === 'number');
+    const hasAdd = value.add !== undefined;
+    const hasRem = value.rem !== undefined;
+    if (!hasAdd && !hasRem) {
+      return false;
+    }
+    return (!hasAdd || isIdArray(value.add)) && (!hasRem || isIdArray(value.rem));
+  }
 
   private isValidURL(string: string): boolean {
     try {

@@ -5,18 +5,31 @@ import { getApiToken } from '../clickup-client/index.js';
 import { DependenciesEnhancedClient } from '../clickup-client/dependencies-enhanced.js';
 import {
   CreateDependencySchema,
-  UpdateDependencySchema,
-  GetDependenciesFilterSchema,
+  DeleteDependencySchema,
+  GetTaskDependenciesSchema,
+  AddTaskLinkSchema,
+  DeleteTaskLinkSchema,
   DependencyGraphOptionsSchema,
   DependencyConflictCheckSchema,
   BulkDependencyOperationSchema,
-  DependencyTypeSchema,
-  DependencyStatusSchema,
 } from '../schemas/dependencies-schemas.js';
 import { mcpError } from '../utils/error-handling.js';
+import { idSchema } from '../schemas/common.js';
 
 // Create clients
 const dependenciesClient = new DependenciesEnhancedClient(getApiToken());
+
+// Shared custom-task-ID query param inputs (accepted by all relationship endpoints)
+const customTaskIdInputs = {
+  custom_task_ids: z
+    .boolean()
+    .optional()
+    .describe('Set true when the task IDs are custom task IDs (also requires team_id)'),
+  team_id: z
+    .string()
+    .optional()
+    .describe('Workspace (team) ID — required when custom_task_ids is true'),
+};
 
 export function setupDependenciesTools(server: McpServer): void {
   // ========================================
@@ -25,25 +38,31 @@ export function setupDependenciesTools(server: McpServer): void {
 
   server.tool(
     'clickup_create_dependency',
-    'Create a new dependency relationship between two tasks. Dependencies define task execution order and blocking relationships.',
+    'Create a dependency between two tasks. Provide exactly one of depends_on (this task is WAITING ON the other task) or dependency_of (this task is BLOCKING the other task).',
     {
-      task_id: z.string().min(1).describe('The ID of the task that depends on another'),
-      depends_on: z.string().min(1).describe('The ID of the task that this task depends on'),
-      type: DependencyTypeSchema.default('blocking').describe(
-        'The type of dependency relationship'
-      ),
-      link_id: z.string().optional().describe('Optional link ID for grouping related dependencies'),
+      task_id: idSchema().describe('The ID of the task to add the dependency to'),
+      depends_on: idSchema()
+        .optional()
+        .describe('ID of the task this task is waiting on (must finish before this task)'),
+      dependency_of: idSchema()
+        .optional()
+        .describe('ID of the task this task is blocking (cannot start until this task finishes)'),
+      ...customTaskIdInputs,
     },
     async args => {
       try {
         const request = CreateDependencySchema.parse(args);
-        const result = await dependenciesClient.createDependency(request);
+        await dependenciesClient.createDependency(request);
+
+        const description = request.depends_on
+          ? `task ${request.task_id} is now waiting on task ${request.depends_on}`
+          : `task ${request.task_id} is now blocking task ${request.dependency_of}`;
 
         return {
           content: [
             {
               type: 'text',
-              text: `Dependency created successfully:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Dependency created successfully: ${description}`,
             },
           ],
         };
@@ -55,19 +74,14 @@ export function setupDependenciesTools(server: McpServer): void {
 
   server.tool(
     'clickup_get_task_dependencies',
-    'Get all dependencies for a specific task with optional filtering by type and status.',
+    "Get a task's dependencies and linked tasks (read from the task's dependencies and linked_tasks arrays).",
     {
-      task_id: z.string().min(1).describe('The ID of the task to get dependencies for'),
-      type: DependencyTypeSchema.optional().describe('Filter by dependency type'),
-      status: DependencyStatusSchema.optional().describe('Filter by dependency status'),
-      include_resolved: z
-        .boolean()
-        .default(false)
-        .describe('Whether to include resolved dependencies'),
+      task_id: idSchema().describe('The ID of the task to get dependencies and links for'),
+      ...customTaskIdInputs,
     },
     async args => {
       try {
-        const filter = GetDependenciesFilterSchema.parse(args);
+        const filter = GetTaskDependenciesSchema.parse(args);
         const result = await dependenciesClient.getTaskDependencies(filter);
 
         return {
@@ -85,41 +99,22 @@ export function setupDependenciesTools(server: McpServer): void {
   );
 
   server.tool(
-    'clickup_update_dependency',
-    "Update an existing dependency's type or status.",
-    {
-      dependency_id: z.string().min(1).describe('The ID of the dependency to update'),
-      type: DependencyTypeSchema.optional().describe('New dependency type'),
-      status: DependencyStatusSchema.optional().describe('New dependency status'),
-    },
-    async args => {
-      try {
-        const request = UpdateDependencySchema.parse(args);
-        const result = await dependenciesClient.updateDependency(request);
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Dependency updated successfully:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        return mcpError('updating dependency', error);
-      }
-    }
-  );
-
-  server.tool(
     'clickup_delete_dependency',
-    'Delete a dependency relationship between tasks.',
+    'Delete a dependency between two tasks. Provide exactly one of depends_on or dependency_of to identify which dependency to remove.',
     {
-      dependency_id: z.string().min(1).describe('The ID of the dependency to delete'),
+      task_id: idSchema().describe('The ID of the task to remove the dependency from'),
+      depends_on: idSchema()
+        .optional()
+        .describe('ID of the "waiting on" task in the dependency to remove'),
+      dependency_of: idSchema()
+        .optional()
+        .describe('ID of the "blocking" task in the dependency to remove'),
+      ...customTaskIdInputs,
     },
     async args => {
       try {
-        const result = await dependenciesClient.deleteDependency(args.dependency_id);
+        const request = DeleteDependencySchema.parse(args);
+        const result = await dependenciesClient.deleteDependency(request);
 
         return {
           content: [
@@ -135,26 +130,79 @@ export function setupDependenciesTools(server: McpServer): void {
     }
   );
 
+  // ========================================
+  // TASK LINK OPERATIONS
+  // ========================================
+
+  server.tool(
+    'clickup_add_task_link',
+    'Link two tasks together (a non-blocking "linked" relationship). Returns the updated task.',
+    {
+      task_id: idSchema().describe('The ID of the task to add the link to'),
+      links_to: idSchema().describe('The ID of the task to link to'),
+      ...customTaskIdInputs,
+    },
+    async args => {
+      try {
+        const request = AddTaskLinkSchema.parse(args);
+        const result = await dependenciesClient.addTaskLink(request);
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Task link created successfully:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
+        };
+      } catch (error: unknown) {
+        return mcpError('adding task link', error);
+      }
+    }
+  );
+
+  server.tool(
+    'clickup_delete_task_link',
+    'Remove a link between two tasks. Returns the updated task.',
+    {
+      task_id: idSchema().describe('The ID of the task to remove the link from'),
+      links_to: idSchema().describe('The ID of the linked task to unlink'),
+      ...customTaskIdInputs,
+    },
+    async args => {
+      try {
+        const request = DeleteTaskLinkSchema.parse(args);
+        const result = await dependenciesClient.deleteTaskLink(request);
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Task link removed successfully:\n\n${JSON.stringify(result, null, 2)}`,
+            },
+          ],
+        };
+      } catch (error: unknown) {
+        return mcpError('removing task link', error);
+      }
+    }
+  );
+
+  // ========================================
+  // CLIENT-SIDE DEPENDENCY ANALYSIS
+  // ========================================
+
   server.tool(
     'clickup_get_dependency_graph',
-    'Get a comprehensive dependency graph for a task showing all related dependencies and relationships.',
+    'Build a dependency graph for a task by traversing related tasks (computed client-side from task data; issues one Get Task request per task in the graph).',
     {
-      task_id: z.string().min(1).describe('The root task ID for the dependency graph'),
+      task_id: idSchema().describe('The root task ID for the dependency graph'),
       depth: z
         .number()
         .min(1)
         .max(10)
         .default(3)
         .describe('Maximum depth to traverse in the graph'),
-      direction: z
-        .enum(['upstream', 'downstream', 'both'])
-        .default('both')
-        .describe('Direction to traverse dependencies'),
-      include_resolved: z
-        .boolean()
-        .default(false)
-        .describe('Whether to include resolved dependencies'),
-      include_broken: z.boolean().default(true).describe('Whether to include broken dependencies'),
     },
     async args => {
       try {
@@ -177,18 +225,24 @@ export function setupDependenciesTools(server: McpServer): void {
 
   server.tool(
     'clickup_check_dependency_conflicts',
-    'Check for potential conflicts in task dependencies including circular dependencies and invalid relationships.',
+    'Check for circular or duplicate dependencies around a task, optionally including proposed new dependencies (computed client-side from task data).',
     {
-      task_id: z.string().min(1).describe('The task ID to check for conflicts'),
+      task_id: idSchema().describe('The task ID to check for conflicts'),
       proposed_dependencies: z
         .array(
           z.object({
-            depends_on: z.string(),
-            type: DependencyTypeSchema,
+            depends_on: idSchema()
+              .optional()
+              .describe('ID of a task this task would be waiting on'),
+            dependency_of: idSchema()
+              .optional()
+              .describe('ID of a task this task would be blocking'),
           })
         )
         .optional()
-        .describe('Proposed new dependencies to check for conflicts'),
+        .describe(
+          'Proposed new dependencies to check for conflicts (each with exactly one of depends_on or dependency_of)'
+        ),
     },
     async args => {
       try {
@@ -209,138 +263,27 @@ export function setupDependenciesTools(server: McpServer): void {
     }
   );
 
-  // ========================================
-  // ADVANCED DEPENDENCY OPERATIONS
-  // ========================================
-
-  server.tool(
-    'clickup_get_workspace_dependencies',
-    'Get all dependencies in a workspace with filtering and pagination options.',
-    {
-      workspace_id: z.string().min(1).describe('The ID of the workspace'),
-      status: DependencyStatusSchema.optional().describe('Filter by dependency status'),
-      type: DependencyTypeSchema.optional().describe('Filter by dependency type'),
-      limit: z.number().positive().optional().describe('Maximum number of dependencies to return'),
-      offset: z
-        .number()
-        .min(0)
-        .optional()
-        .describe('Number of dependencies to skip for pagination'),
-    },
-    async args => {
-      try {
-        const result = await dependenciesClient.getWorkspaceDependencies(args.workspace_id, {
-          status: args.status,
-          type: args.type,
-          limit: args.limit,
-          offset: args.offset,
-        });
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Workspace dependencies:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        return mcpError('getting workspace dependencies', error);
-      }
-    }
-  );
-
-  server.tool(
-    'clickup_get_dependency_stats',
-    'Get comprehensive statistics about dependencies in a workspace.',
-    {
-      workspace_id: z.string().min(1).describe('The ID of the workspace'),
-    },
-    async args => {
-      try {
-        const result = await dependenciesClient.getDependencyStats(args.workspace_id);
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Dependency statistics for workspace ${args.workspace_id}:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        return mcpError('getting dependency statistics', error);
-      }
-    }
-  );
-
-  server.tool(
-    'clickup_resolve_dependency_conflicts',
-    'Automatically resolve dependency conflicts such as circular dependencies and invalid statuses.',
-    {
-      task_id: z.string().min(1).describe('The task ID to resolve conflicts for'),
-      break_cycles: z.boolean().default(true).describe('Whether to break circular dependencies'),
-      remove_duplicates: z
-        .boolean()
-        .default(true)
-        .describe('Whether to remove duplicate dependencies'),
-      update_invalid_statuses: z
-        .boolean()
-        .default(true)
-        .describe('Whether to update invalid dependency statuses'),
-    },
-    async args => {
-      try {
-        const result = await dependenciesClient.resolveDependencyConflicts(args.task_id, {
-          break_cycles: args.break_cycles,
-          remove_duplicates: args.remove_duplicates,
-          update_invalid_statuses: args.update_invalid_statuses,
-        });
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Dependency conflicts resolution results:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        return mcpError('resolving dependency conflicts', error);
-      }
-    }
-  );
-
-  server.tool(
-    'clickup_get_dependency_timeline_impact',
-    'Analyze how dependencies affect task timelines and identify critical path impacts.',
-    {
-      task_id: z.string().min(1).describe('The task ID to analyze timeline impact for'),
-    },
-    async args => {
-      try {
-        const result = await dependenciesClient.getDependencyTimelineImpact(args.task_id);
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Dependency timeline impact analysis:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        return mcpError('analyzing dependency timeline impact', error);
-      }
-    }
-  );
-
   server.tool(
     'clickup_bulk_dependency_operations',
-    'Perform multiple dependency operations in a single request for efficiency.',
+    'Create or delete multiple dependencies in one call (executed as individual API requests; results are reported per item).',
     {
-      operation: z.enum(['create', 'delete', 'update']).describe('The bulk operation to perform'),
-      dependencies: z.array(z.any()).describe('Array of dependency operations to perform'),
+      operation: z.enum(['create', 'delete']).describe('The bulk operation to perform'),
+      dependencies: z
+        .array(
+          z.object({
+            task_id: idSchema().describe('The task to add/remove the dependency on'),
+            depends_on: idSchema()
+              .optional()
+              .describe('ID of the task being waited on'),
+            dependency_of: idSchema()
+              .optional()
+              .describe('ID of the task being blocked'),
+          })
+        )
+        .min(1)
+        .describe(
+          'Array of dependencies to create or delete (each with exactly one of depends_on or dependency_of)'
+        ),
     },
     async args => {
       try {
@@ -357,31 +300,6 @@ export function setupDependenciesTools(server: McpServer): void {
         };
       } catch (error: unknown) {
         return mcpError('performing bulk dependency operations', error);
-      }
-    }
-  );
-
-  server.tool(
-    'clickup_export_dependency_graph',
-    'Export dependency graph data in various formats for external analysis or backup.',
-    {
-      task_id: z.string().min(1).describe('The root task ID for the dependency graph to export'),
-      format: z.enum(['json', 'csv', 'graphml']).default('json').describe('Export format'),
-    },
-    async args => {
-      try {
-        const result = await dependenciesClient.exportDependencyGraph(args.task_id, args.format);
-
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Dependency graph export:\n\n${JSON.stringify(result, null, 2)}`,
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        return mcpError('exporting dependency graph', error);
       }
     }
   );

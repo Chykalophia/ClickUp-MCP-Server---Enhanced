@@ -7,6 +7,12 @@ on:
   # cutting a GitHub Release from an environment that cannot create one). The
   # job already skips versions that are already on the registry.
   workflow_dispatch:
+  # Also publish when a version tag is pushed (v1.2.3). This lets a release be
+  # cut by pushing a tag, without needing GitHub Release or workflow-dispatch
+  # API permissions.
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
   publish:

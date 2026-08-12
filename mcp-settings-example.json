@@ -1,10 +1,11 @@
 {
   "mcpServers": {
     "clickup": {
-      "command": "node",
-      "args": ["path/to/clickup-mcp-server/build/index-enhanced.js"],
+      "command": "npx",
+      "args": ["-y", "@chykalophia/clickup-mcp-server@latest"],
       "env": {
-        "CLICKUP_API_TOKEN": "your_api_token_here"
+        "CLICKUP_API_TOKEN": "your_api_token_here",
+        "CLICKUP_TOOLSETS": "tasks,comments,custom-fields,attachments,lists,bulk,workspace"
       },
       "disabled": false,
       "autoApprove": []

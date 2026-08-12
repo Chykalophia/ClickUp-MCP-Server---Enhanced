@@ -144,26 +144,36 @@ function formatCommentResponse(result: any, title?: string): any {
   }
 }
 
-export function setupCommentTools(server: McpServer): void {
-  // Register raw API test tool for debugging
-  server.tool(
-    'clickup_create_task_comment_raw_test',
-    'RAW API TEST: Create a comment bypassing ALL MCP processing to isolate duplication issue. Returns raw ClickUp API response.',
-    {
-      task_id: idSchema().describe('The ID of the task to comment on'),
-      comment_text: z.string().describe('The text content of the comment'),
-    },
-    async ({ task_id, comment_text }) => {
-      try {
-        const result = await commentsClient.createTaskCommentRaw(task_id, comment_text);
-        return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
-        };
-      } catch (error: unknown) {
-        return mcpError('in raw API test', error);
+export interface CommentToolsOptions {
+  /**
+   * Register `clickup_create_task_comment_raw_test`. It bypasses MCP processing
+   * to isolate an API-level duplication issue and is a debugging aid, not a
+   * product tool — off unless CLICKUP_DEBUG_TOOLS is set.
+   */
+  includeDebugTools?: boolean;
+}
+
+export function setupCommentTools(server: McpServer, options: CommentToolsOptions = {}): void {
+  if (options.includeDebugTools) {
+    server.tool(
+      'clickup_create_task_comment_raw_test',
+      'RAW API TEST: Create a comment bypassing ALL MCP processing to isolate duplication issue. Returns raw ClickUp API response.',
+      {
+        task_id: idSchema().describe('The ID of the task to comment on'),
+        comment_text: z.string().describe('The text content of the comment'),
+      },
+      async ({ task_id, comment_text }) => {
+        try {
+          const result = await commentsClient.createTaskCommentRaw(task_id, comment_text);
+          return {
+            content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          };
+        } catch (error: unknown) {
+          return mcpError('in raw API test', error);
+        }
       }
-    }
-  );
+    );
+  }
 
   // Register get_task_comments tool
   server.tool(

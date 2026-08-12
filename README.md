@@ -399,7 +399,7 @@ Add to the MCP settings file:
   "mcpServers": {
     "clickup": {
       "command": "npx",
-      "args": ["-y", "@chykalophia/clickup-mcp-server"],
+      "args": ["-y", "@chykalophia/clickup-mcp-server@latest"],
       "env": {
         "CLICKUP_API_TOKEN": "YOUR_API_TOKEN_HERE"
       }
@@ -407,6 +407,14 @@ Add to the MCP settings file:
   }
 }
 ```
+
+> **Keep the `@latest`.** Without a version specifier, `npx` runs a matching
+> binary already on your `$PATH` instead of fetching from the registry. If you
+> have ever run `npm install -g @chykalophia/clickup-mcp-server`, that global
+> copy wins silently and the server never updates — no error, it just keeps
+> serving the old version. A version specifier (`@latest` or `@6.0.1`) bypasses
+> the `$PATH` binary. To check what is actually running, look at the version
+> reported in the MCP handshake rather than trusting the config.
 
 ### 🔧 Build from Source (Advanced Users)
 
@@ -451,6 +459,64 @@ If you prefer to build from source:
 * **Replace `YOUR_API_TOKEN_HERE`** with your actual ClickUp API token
 * **NPM method** requires no installation or cloning - the package is downloaded automatically
 * **Build from source** requires cloning this repository and running `npm run build`
+
+## Reducing the Tool Surface (`CLICKUP_TOOLSETS`)
+
+The server registers **156 tools** by default. Every tool's JSON Schema is sent
+to the client on connect — about 156KB — and re-sent on every reconnect. That
+occupies context before your first prompt, and clients that bridge a local
+server to a remote session pay the cost again on each connection rotation.
+
+Most workflows need a fraction of it. Set `CLICKUP_TOOLSETS` to a comma-separated
+list to register only what you use:
+
+```json
+{
+  "mcpServers": {
+    "clickup": {
+      "command": "npx",
+      "args": ["-y", "@chykalophia/clickup-mcp-server@latest"],
+      "env": {
+        "CLICKUP_API_TOKEN": "YOUR_API_TOKEN_HERE",
+        "CLICKUP_TOOLSETS": "tasks,comments,custom-fields,attachments,lists,bulk,workspace"
+      }
+    }
+  }
+}
+```
+
+That example serves **60 tools instead of 156 — a 58% smaller payload.**
+
+| Toolset | Tools | Covers |
+|---|---:|---|
+| `chat` | 19 | Chat channels, messages, reactions, replies |
+| `lists` | 17 | Lists, folders, folderless lists |
+| `time-tracking` | 14 | Time entries, timers, time summaries |
+| `tasks` | 13 | Task CRUD, search, assignees, status |
+| `goals` | 12 | Goals and goal targets |
+| `views` | 12 | Views, filters, grouping, sorting |
+| `comments` | 10 | Task, list, chat-view, threaded comments |
+| `docs` | 9 | Docs, doc pages, doc search |
+| `spaces` | 9 | Spaces and space tags |
+| `dependencies` | 8 | Dependencies, links, dependency graphs |
+| `custom-fields` | 7 | Custom field definitions and values |
+| `webhooks` | 7 | Webhook management, processing, signatures |
+| `checklists` | 6 | Checklists and checklist items |
+| `workspace` | 6 | Workspaces, members, seats, plan, authorized user |
+| `bulk` | 5 | Bulk create/update/delete, bulk custom fields |
+| `attachments` | 2 | Task attachments and uploads |
+
+Notes:
+
+* Unset, empty, or `all` keeps every toolset — existing installs are unaffected.
+* Names are case-insensitive and `_` is treated as `-`, so `Custom_Fields` works.
+* Unrecognised names are ignored with a warning on stderr. If *nothing* in your
+  value resolves, the server falls back to all toolsets rather than starting
+  with no tools.
+* Resources (task, doc, checklist, comment, space, folder, list) are always
+  registered; they are not part of the tool payload.
+* `CLICKUP_DEBUG_TOOLS=true` adds `clickup_create_task_comment_raw_test`, a
+  raw-API debugging aid that is off by default.
 
 ## Configuration File Locations
 

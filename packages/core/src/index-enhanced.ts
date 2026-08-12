@@ -26,14 +26,28 @@ import { setupSpaceResources } from './resources/space-resources.js';
 import { setupFolderResources } from './resources/folder-resources.js';
 import { setupListResources } from './resources/list-resources.js';
 import { VERSION } from './version.js';
+import {
+  describeToolsets,
+  resolveToolsets,
+  type ResolvedToolsets,
+  type ToolsetName,
+} from './tools/toolsets.js';
 
 // Environment variables are passed to the server through the MCP settings file
 // See mcp-settings-example.json for an example
 
+/** `clickup_create_task_comment_raw_test` is a debugging aid, not a product tool. */
+const DEBUG_TOOLS_ENABLED = ['1', 'true', 'yes'].includes(
+  (process.env.CLICKUP_DEBUG_TOOLS ?? '').trim().toLowerCase()
+);
+
 class ClickUpServer {
   private server: McpServer;
+  private toolsets: ResolvedToolsets;
 
   constructor() {
+    this.toolsets = resolveToolsets();
+
     this.server = new McpServer({
       name: 'clickup-mcp-server',
       version: VERSION,
@@ -51,23 +65,32 @@ class ClickUpServer {
   }
 
   private setupTools() {
-    // Set up all tools
-    setupTaskTools(this.server);
-    setupWorkspaceTools(this.server); // Workspace and auth tools
-    setupListFolderTools(this.server); // List and folder management
-    setupBulkTaskTools(this.server); // Bulk task operations
-    setupEnhancedDocTools(this.server); // Using enhanced document tools
-    setupCustomFieldTools(this.server); // Custom fields management
-    setupTimeTrackingTools(this.server); // Time tracking and timer management
-    setupGoalsTools(this.server); // Goals and targets management
-    setupWebhookTools(this.server); // Webhook management and processing
-    setupViewsTools(this.server); // Views management and configuration
-    setupDependenciesTools(this.server); // Task dependencies and relationships
-    setupAttachmentsTools(this.server); // File attachments and media management
-    setupSpaceTools(this.server);
-    setupChecklistTools(this.server);
-    setupCommentTools(this.server);
-    setupChatTools(this.server); // Chat messaging and channels
+    // Each toolset is registered only when enabled — see tools/toolsets.ts and
+    // the CLICKUP_TOOLSETS environment variable. Default is every toolset.
+    const registrars: Array<[ToolsetName, (server: McpServer) => void]> = [
+      ['tasks', setupTaskTools],
+      ['workspace', setupWorkspaceTools], // Workspace and auth tools
+      ['lists', setupListFolderTools], // List and folder management
+      ['bulk', setupBulkTaskTools], // Bulk task operations
+      ['docs', setupEnhancedDocTools], // Using enhanced document tools
+      ['custom-fields', setupCustomFieldTools], // Custom fields management
+      ['time-tracking', setupTimeTrackingTools], // Time tracking and timer management
+      ['goals', setupGoalsTools], // Goals and targets management
+      ['webhooks', setupWebhookTools], // Webhook management and processing
+      ['views', setupViewsTools], // Views management and configuration
+      ['dependencies', setupDependenciesTools], // Task dependencies and relationships
+      ['attachments', setupAttachmentsTools], // File attachments and media management
+      ['spaces', setupSpaceTools],
+      ['checklists', setupChecklistTools],
+      ['comments', (server) => setupCommentTools(server, { includeDebugTools: DEBUG_TOOLS_ENABLED })],
+      ['chat', setupChatTools], // Chat messaging and channels
+    ];
+
+    for (const [name, register] of registrars) {
+      if (this.toolsets.enabled.has(name)) {
+        register(this.server);
+      }
+    }
   }
 
   private setupResources() {
@@ -84,9 +107,14 @@ class ClickUpServer {
   async run() {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    console.error(
-      'ClickUp MCP server running on stdio with comprehensive API coverage: enhanced documents, custom fields, time tracking, goals, webhooks, views, dependencies, and attachments management'
-    );
+
+    // stderr only — stdout carries the JSON-RPC stream.
+    if (this.toolsets.unknown.length > 0) {
+      console.error(
+        `ClickUp MCP server: ignoring unknown CLICKUP_TOOLSETS entries: ${this.toolsets.unknown.join(', ')}`
+      );
+    }
+    console.error(`ClickUp MCP server running on stdio with ${describeToolsets(this.toolsets)}`);
   }
 }
 

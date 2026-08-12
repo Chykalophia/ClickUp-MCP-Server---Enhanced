@@ -1,0 +1,41 @@
+packages/core/src/tools/comment-tools.ts
+  s_dd3ab217f9f128::t_44fc45e5105964 147-173,175-176
+.env.example
+  s_dd3ab217f9f128::t_501084229d8f78 19-27
+package.json
+  s_dd3ab217f9f128::t_e938849f34f43c 3
+mcp-settings-example.json
+  s_dd3ab217f9f128::t_caec472cc310b9 4-5,7-8
+packages/core/src/index-enhanced.ts
+  s_dd3ab217f9f128::t_961a0b91acafe0 29-34,39-43,46,49-50
+  s_dd3ab217f9f128::t_d6fb656f850694 68-93
+  s_dd3ab217f9f128::t_cc4cbb884b7b68 110-117
+packages/core/src/tools/toolsets.ts
+  s_dd3ab217f9f128::t_0a68ae90ee86b7 26-27
+  s_dd3ab217f9f128::t_0d8065864a7e91 1-25,28-111
+packages/core/package.json
+  s_dd3ab217f9f128::t_eba817892d547a 3
+  s_dd3ab217f9f128::t_c7e1810ef5a6b6 10
+packages/core/src/tests/toolsets.test.ts
+  s_dd3ab217f9f128::t_242610e6ebb021 1-89
+README.md
+  s_dd3ab217f9f128::t_99bf3fc09f7af5 402,411-417
+  s_dd3ab217f9f128::t_afba30537f382e 463-520
+  s_dd3ab217f9f128::t_cb3eb85c817c71 418
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "3c59d2f94481e4c0c53f83952596c57cbe6de4bc",
+  "prompts": {},
+  "sessions": {
+    "s_dd3ab217f9f128": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c8cc4f85-7d99-462d-a20e-f3f34f63d56b",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}

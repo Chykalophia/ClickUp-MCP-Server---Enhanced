@@ -1,0 +1,70 @@
+docs/guides/CLICKUP_COMMENT_FORMATTING.md
+  s_bae36a5e653307::t_f526565a26d195 94-112
+packages/core/src/tests/alias-map.test.ts
+  s_bae36a5e653307::t_a03d92c312cc46 13-20,22-31
+  s_bae36a5e653307::t_088afd73c99c00 104-106
+  s_bae36a5e653307::t_eaa94cba3045c9 32
+  s_bae36a5e653307::t_00a1ce58ce809e 1-12,21,33-103,107-129
+packages/core/src/utils/tool-registration.ts
+  s_bae36a5e653307::t_f1437f4d31af31 35-40
+  s_bae36a5e653307::t_5cf54caf60a986 137-141
+  s_bae36a5e653307::t_fffaf33e31101c 1-34,41-136,142-157,199,201-207,210-259,263,271-272,275-276,287-317,326-333
+  s_bae36a5e653307::t_beab0828857f0b 158-175,178-198,200,208-209
+  s_bae36a5e653307::t_02e71d8730f276 260-262
+  s_bae36a5e653307::t_13d4ccf8fe4fa8 318-325
+  s_bae36a5e653307::t_3637328f788450 176-177
+  s_bae36a5e653307::t_a72ae2102d8629 264-270,273-274,277-286
+packages/core/src/clickup-client/comments-enhanced.ts
+  s_bae36a5e653307::t_1dc8680a836034 268-270
+  s_bae36a5e653307::t_5b73bed1d29d70 62-63,67
+  s_bae36a5e653307::t_77ec805357dd0a 168-177
+  s_bae36a5e653307::t_7d0beef99ea6dc 58
+packages/core/src/utils/param-aliases.ts
+  s_bae36a5e653307::t_a1b2479cb84600 1-10,12,17,19-20,28-31,53,57,60,85-91,107
+  s_bae36a5e653307::t_0c559eeeb6f5a5 11,13-16,18,21-27,32-52,54-56,58-59,61-84,92-106
+packages/core/src/index-enhanced.ts
+  s_bae36a5e653307::t_f68addb761ffc2 52-60
+  s_bae36a5e653307::t_b29984b352469d 29
+packages/core/src/tests/comment-text.test.ts
+  s_bae36a5e653307::t_6922dfec994c08 1-219
+packages/core/src/tools/task-tools.ts
+  s_bae36a5e653307::t_94ae3f2d7475ae 129-133,195-199
+README.md
+  s_bae36a5e653307::t_739466f4479f1f 521-567
+packages/core/src/tools/comment-tools.ts
+  s_bae36a5e653307::t_2fed2958c39399 7
+  s_bae36a5e653307::t_61ef5e2fe3c753 225-237,239
+  s_bae36a5e653307::t_54886c63874d0b 194,197-207
+  s_bae36a5e653307::t_725361ef0149e6 171,219
+packages/core/src/tests/param-strictness.test.ts
+  s_bae36a5e653307::t_5fb42e788cb35a 118-119
+  s_bae36a5e653307::t_cd96819a33be02 253-281,283-289,291-293,295-296,301-303,329-331
+  s_bae36a5e653307::t_c472875080aaa8 1-20,24-32,39-54,57-90,92-117,120-220,224-252,332-364
+  s_bae36a5e653307::t_abe9dc85d6ff25 294,297-300,304-328
+  s_bae36a5e653307::t_8ea74c390d91bb 55-56
+  s_bae36a5e653307::t_56261ec2cb13bc 282,290
+  s_bae36a5e653307::t_91d638a4244698 21-23,33-38
+  s_bae36a5e653307::t_333306c1877537 221-223
+  s_bae36a5e653307::t_4b591ab56c93e3 91
+packages/core/src/index-efficiency-simple.ts
+  s_bae36a5e653307::t_8e323ccaf46377 8
+  s_bae36a5e653307::t_37ecabd5befb4d 47-55
+package-lock.json
+  s_bae36a5e653307::t_39efc088b96f53 3,9,62,1642,1885,2121,2551,3163,4156,4493,6711,6952,7233
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "85c3351165369f248c7adea245def114b2cc4139",
+  "prompts": {},
+  "sessions": {
+    "s_bae36a5e653307": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "99684d5d-c0f0-480b-a886-d74c48e9c16e",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}

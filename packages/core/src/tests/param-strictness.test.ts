@@ -215,7 +215,7 @@ describe('strict tool parameters', () => {
     });
 
     it('rejects a stray argument', async () => {
-      const outcome = await callTool(client, 'clickup_get_workspaces', { workspace_id: '123' });
+      const outcome = await callTool(client, 'clickup_get_authorized_user', { workspace_id: '123' });
       expect(outcome.failed).toBe(true);
       expect(outcome.text).toContain('Unknown parameter(s)');
       // No parameter list to print, so say that rather than "Valid parameters: ."

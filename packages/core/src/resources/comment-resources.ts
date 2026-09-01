@@ -29,7 +29,7 @@ export function setupCommentResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(comments, null, 2),
+              text: JSON.stringify(comments),
             },
           ],
         };
@@ -59,7 +59,7 @@ export function setupCommentResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(comments, null, 2),
+              text: JSON.stringify(comments),
             },
           ],
         };
@@ -89,7 +89,7 @@ export function setupCommentResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(comments, null, 2),
+              text: JSON.stringify(comments),
             },
           ],
         };
@@ -119,7 +119,7 @@ export function setupCommentResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(comments, null, 2),
+              text: JSON.stringify(comments),
             },
           ],
         };
@@ -148,7 +148,7 @@ export function setupCommentResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(comments, null, 2),
+              text: JSON.stringify(comments),
             },
           ],
         };
@@ -176,7 +176,7 @@ export function setupCommentResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(comments, null, 2),
+              text: JSON.stringify(comments),
             },
           ],
         };

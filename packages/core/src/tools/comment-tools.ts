@@ -147,7 +147,7 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
         try {
           const result = await commentsClient.createTaskCommentRaw(task_id, comment_text);
           return {
-            content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+            content: [{ type: 'text', text: JSON.stringify(result) }],
           };
         } catch (error: unknown) {
           return mcpError('in raw API test', error);
@@ -180,7 +180,7 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
         const result = await commentsClient.getTaskComments(task_id, params);
         const styledResult = formatCommentResponse(result, 'Task Comments');
         return {
-          content: [{ type: 'text', text: JSON.stringify(styledResult, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(styledResult) }],
         };
       } catch (error: unknown) {
         return mcpError('getting task comments', error);
@@ -239,7 +239,7 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
         const result = await commentsClient.createTaskComment(task_id, params);
 
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result) }],
         };
       } catch (error: unknown) {
         return mcpError('creating task comment', error);
@@ -260,7 +260,7 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
       try {
         const result = await commentsClient.getChatViewComments(view_id, params);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result) }],
         };
       } catch (error: unknown) {
         return mcpError('getting chat view comments', error);
@@ -298,7 +298,7 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
         };
         const result = await commentsClient.createChatViewComment(view_id, params);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result) }],
         };
       } catch (error: unknown) {
         return mcpError('creating chat view comment', error);
@@ -319,7 +319,7 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
       try {
         const result = await commentsClient.getListComments(list_id, params);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result) }],
         };
       } catch (error: unknown) {
         return mcpError('getting list comments', error);
@@ -358,7 +358,7 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
         };
         const result = await commentsClient.createListComment(list_id, params);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result) }],
         };
       } catch (error: unknown) {
         return mcpError('creating list comment', error);
@@ -406,7 +406,7 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
         };
         const result = await commentsClient.updateComment(comment_id, params);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result) }],
         };
       } catch (error: unknown) {
         return mcpError('updating comment', error);
@@ -425,7 +425,7 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
       try {
         const result = await commentsClient.deleteComment(comment_id);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result) }],
         };
       } catch (error: unknown) {
         return mcpError('deleting comment', error);
@@ -446,7 +446,7 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
       try {
         const result = await commentsClient.getThreadedComments(comment_id, params);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result) }],
         };
       } catch (error: unknown) {
         return mcpError('getting threaded comments', error);
@@ -484,7 +484,7 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
         };
         const result = await commentsClient.createThreadedComment(comment_id, params);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result) }],
         };
       } catch (error: unknown) {
         return mcpError('creating threaded comment', error);

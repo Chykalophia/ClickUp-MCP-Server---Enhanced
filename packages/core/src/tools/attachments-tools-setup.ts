@@ -40,7 +40,7 @@ export function setupAttachmentsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Attachment uploaded successfully:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Attachment uploaded successfully:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -69,7 +69,7 @@ export function setupAttachmentsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Attachments for ${args.entity_type} ${args.entity_id}:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Attachments for ${args.entity_type} ${args.entity_id}:\n\n${JSON.stringify(result)}`,
             },
           ],
         };

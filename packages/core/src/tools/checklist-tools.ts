@@ -44,7 +44,7 @@ export function setupChecklistTools(server: McpServer): void {
         );
 
         return {
-          content: [{ type: 'text', text: JSON.stringify(checklist, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(checklist) }],
         };
       } catch (error: unknown) {
         return mcpError('creating checklist', error);
@@ -155,7 +155,7 @@ export function setupChecklistTools(server: McpServer): void {
         }
 
         return {
-          content: [{ type: 'text', text: JSON.stringify(checklist, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(checklist) }],
         };
       } catch (error: unknown) {
         return mcpError('creating checklist item', error);
@@ -198,7 +198,7 @@ export function setupChecklistTools(server: McpServer): void {
         );
 
         return {
-          content: [{ type: 'text', text: JSON.stringify(checklist, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(checklist) }],
         };
       } catch (error: unknown) {
         return mcpError('updating checklist item', error);

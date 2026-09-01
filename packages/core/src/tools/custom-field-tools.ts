@@ -74,7 +74,7 @@ export function setupCustomFieldTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Custom fields for ${container_type} ${container_id}:\n\n${JSON.stringify(fields, null, 2)}`,
+              text: `Custom fields for ${container_type} ${container_id}:\n\n${JSON.stringify(fields)}`,
             },
           ],
         };
@@ -210,7 +210,7 @@ export function setupCustomFieldTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Custom field value for task ${task_id}, field ${field_id}:\n\n${JSON.stringify(value, null, 2)}`,
+              text: `Custom field value for task ${task_id}, field ${field_id}:\n\n${JSON.stringify(value)}`,
             },
           ],
         };
@@ -286,8 +286,8 @@ export function setupCustomFieldTools(server: McpServer): void {
             {
               type: 'text',
               text: hasErrors
-                ? `Bulk custom field update partially failed on task ${task_id}.\n${successCount} succeeded, ${errorCount} failed.\n\nResults:\n${JSON.stringify(results, null, 2)}`
-                : `Bulk custom field values set successfully on task ${task_id}!\n\nResults:\n${JSON.stringify(results, null, 2)}`,
+                ? `Bulk custom field update partially failed on task ${task_id}.\n${successCount} succeeded, ${errorCount} failed.\n\nResults:\n${JSON.stringify(results)}`
+                : `Bulk custom field values set successfully on task ${task_id}!\n\nResults:\n${JSON.stringify(results)}`,
             },
           ],
           ...(hasErrors ? { isError: true as const } : {}),
@@ -326,7 +326,7 @@ export function setupCustomFieldTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `All custom field values for task ${task_id}:\n\n${JSON.stringify(values, null, 2)}`,
+              text: `All custom field values for task ${task_id}:\n\n${JSON.stringify(values)}`,
             },
           ],
         };
@@ -393,7 +393,7 @@ export function setupCustomFieldTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Validation result for field "${field.name}" (${field.type}):\n\nValue: ${JSON.stringify(value)}\nValid: ${isValid}\n\nField Configuration:\n${JSON.stringify(field.type_config, null, 2)}`,
+              text: `Validation result for field "${field.name}" (${field.type}):\n\nValue: ${JSON.stringify(value)}\nValid: ${isValid}\n\nField Configuration:\n${JSON.stringify(field.type_config)}`,
             },
           ],
         };

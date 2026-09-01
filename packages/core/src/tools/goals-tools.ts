@@ -41,7 +41,7 @@ export function setupGoalsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Goals for team ${htmlEncode(team_id)}:\n\n${JSON.stringify(goals, null, 2)}`,
+              text: `Goals for team ${htmlEncode(team_id)}:\n\n${JSON.stringify(goals)}`,
             },
           ],
         };
@@ -93,7 +93,7 @@ export function setupGoalsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Goal created successfully!\n\n${JSON.stringify(goal, null, 2)}`,
+              text: `Goal created successfully!\n\n${JSON.stringify(goal)}`,
             },
           ],
         };
@@ -149,7 +149,7 @@ export function setupGoalsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Goal updated successfully!\n\n${JSON.stringify(updatedGoal, null, 2)}`,
+              text: `Goal updated successfully!\n\n${JSON.stringify(updatedGoal)}`,
             },
           ],
         };
@@ -209,7 +209,7 @@ export function setupGoalsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Goal details:\n\n${JSON.stringify(formattedGoal, null, 2)}`,
+              text: `Goal details:\n\n${JSON.stringify(formattedGoal)}`,
             },
           ],
         };
@@ -265,7 +265,7 @@ export function setupGoalsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Goal target created successfully!\n\n${JSON.stringify(target, null, 2)}`,
+              text: `Goal target created successfully!\n\n${JSON.stringify(target)}`,
             },
           ],
         };
@@ -296,7 +296,7 @@ export function setupGoalsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Goal target updated successfully!\n\n${JSON.stringify(updatedTarget, null, 2)}`,
+              text: `Goal target updated successfully!\n\n${JSON.stringify(updatedTarget)}`,
             },
           ],
         };
@@ -348,7 +348,7 @@ export function setupGoalsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Goal summary for team ${htmlEncode(team_id)}:\n\n${JSON.stringify(summary, null, 2)}`,
+              text: `Goal summary for team ${htmlEncode(team_id)}:\n\n${JSON.stringify(summary)}`,
             },
           ],
         };
@@ -419,7 +419,7 @@ export function setupGoalsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Number goal created successfully!\n\nGoal: ${JSON.stringify(goal, null, 2)}\n\nTarget: ${JSON.stringify(target, null, 2)}`,
+              text: `Number goal created successfully!\n\nGoal: ${JSON.stringify(goal)}\n\nTarget: ${JSON.stringify(target)}`,
             },
           ],
         };
@@ -490,7 +490,7 @@ export function setupGoalsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Currency goal created successfully!\n\nGoal: ${goal_name}\nTarget: ${formattedValue}\n\nDetails:\nGoal: ${JSON.stringify(goal, null, 2)}\n\nTarget: ${JSON.stringify(target, null, 2)}`,
+              text: `Currency goal created successfully!\n\nGoal: ${goal_name}\nTarget: ${formattedValue}\n\nDetails:\nGoal: ${JSON.stringify(goal)}\n\nTarget: ${JSON.stringify(target)}`,
             },
           ],
         };

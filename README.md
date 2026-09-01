@@ -130,6 +130,7 @@ This Enhanced version is based on the original ClickUp MCP Server codebase by [D
 
 ### Core Workspace Management (54 tools)
 - **Workspaces**: `clickup_get_workspaces`, `clickup_get_workspace_seats`
+- **Finding things by name**: `clickup_get_workspace_hierarchy` — the whole space/folder/list tree as IDs and names in one call, with an optional `name_filter`. Start here when you know a name but need an ID; it replaces a manual walk that measured 4 round trips and 60 KB against a real workspace (now 2 calls and ~200 bytes).
 - **Spaces & Lists**: `clickup_get_spaces`, `clickup_get_lists`, `clickup_create_list`, `clickup_update_list`, `clickup_delete_list` (with safeguards)
 - **Tasks**: `clickup_get_tasks`, `clickup_create_task`, `clickup_update_task`, `clickup_get_task_details` (with markdown support)
 - **Bulk Task Operations**: `clickup_bulk_create_tasks`, `clickup_bulk_update_tasks` (up to 50 tasks per request)

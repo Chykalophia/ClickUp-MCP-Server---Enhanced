@@ -58,7 +58,7 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Found ${result.data.length} channels${result.next_cursor ? ` (more available, next_cursor: ${result.next_cursor})` : ''}:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Found ${result.data.length} channels${result.next_cursor ? ` (more available, next_cursor: ${result.next_cursor})` : ''}:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -88,7 +88,7 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Channel created successfully:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Channel created successfully:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -119,7 +119,7 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Channel created on ${args.parent_type} successfully:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Channel created on ${args.parent_type} successfully:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -149,7 +149,7 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Direct message channel created successfully:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Direct message channel created successfully:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -174,7 +174,7 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Channel details:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Channel details:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -211,7 +211,7 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Channel updated successfully:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Channel updated successfully:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -243,7 +243,7 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Channel followers (${result.data.length}):\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Channel followers (${result.data.length}):\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -271,7 +271,7 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Channel members (${result.data.length}):\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Channel members (${result.data.length}):\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -304,7 +304,7 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Retrieved ${result.data.length} messages${result.next_cursor ? ` (more available, next_cursor: ${result.next_cursor})` : ''}:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Retrieved ${result.data.length} messages${result.next_cursor ? ` (more available, next_cursor: ${result.next_cursor})` : ''}:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -344,7 +344,7 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Message sent successfully:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Message sent successfully:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -383,7 +383,7 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Message updated successfully:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Message updated successfully:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -441,7 +441,7 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Retrieved ${result.data.length} replies${result.next_cursor ? ` (more available, next_cursor: ${result.next_cursor})` : ''}:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Retrieved ${result.data.length} replies${result.next_cursor ? ` (more available, next_cursor: ${result.next_cursor})` : ''}:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -481,7 +481,7 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Reply created successfully:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Reply created successfully:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -513,7 +513,7 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Message reactions (${result.data.length}):\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Message reactions (${result.data.length}):\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -540,7 +540,7 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Reaction ${args.reaction} added to message ${args.message_id} successfully:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Reaction ${args.reaction} added to message ${args.message_id} successfully:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -599,7 +599,7 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Tagged users in message:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Tagged users in message:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -624,7 +624,7 @@ export function setupChatTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Found ${result.data.length} channels matching "${args.query}":\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Found ${result.data.length} channels matching "${args.query}":\n\n${JSON.stringify(result)}`,
             },
           ],
         };

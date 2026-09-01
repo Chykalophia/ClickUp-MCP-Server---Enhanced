@@ -95,7 +95,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Time entries for team ${team_id}:\n\n${JSON.stringify(timeEntries, null, 2)}`,
+              text: `Time entries for team ${team_id}:\n\n${JSON.stringify(timeEntries)}`,
             },
           ],
         };
@@ -177,7 +177,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Time entry created successfully!\n\n${JSON.stringify(timeEntry, null, 2)}`,
+              text: `Time entry created successfully!\n\n${JSON.stringify(timeEntry)}`,
             },
           ],
         };
@@ -275,7 +275,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Time entry updated successfully!\n\n${JSON.stringify(updatedTimeEntry, null, 2)}`,
+              text: `Time entry updated successfully!\n\n${JSON.stringify(updatedTimeEntry)}`,
             },
           ],
         };
@@ -325,7 +325,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Time entry ${timer_id}:\n\n${JSON.stringify(timeEntry, null, 2)}`,
+              text: `Time entry ${timer_id}:\n\n${JSON.stringify(timeEntry)}`,
             },
           ],
         };
@@ -350,7 +350,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `History for time entry ${timer_id}:\n\n${JSON.stringify(history, null, 2)}`,
+              text: `History for time entry ${timer_id}:\n\n${JSON.stringify(history)}`,
             },
           ],
         };
@@ -378,7 +378,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Time entry tags for team ${team_id}:\n\n${JSON.stringify(tags, null, 2)}`,
+              text: `Time entry tags for team ${team_id}:\n\n${JSON.stringify(tags)}`,
             },
           ],
         };
@@ -460,7 +460,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Running timer for team ${team_id}:\n\n${JSON.stringify(runningTimer, null, 2)}`,
+              text: `Running timer for team ${team_id}:\n\n${JSON.stringify(runningTimer)}`,
             },
           ],
         };
@@ -507,7 +507,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Timer started successfully in team ${team_id}.\n\n${JSON.stringify(timeEntry, null, 2)}`,
+              text: `Timer started successfully in team ${team_id}.\n\n${JSON.stringify(timeEntry)}`,
             },
           ],
         };
@@ -531,7 +531,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Timer stopped successfully in team ${team_id}.\n\n${JSON.stringify(timeEntry, null, 2)}`,
+              text: `Timer stopped successfully in team ${team_id}.\n\n${JSON.stringify(timeEntry)}`,
             },
           ],
         };
@@ -599,7 +599,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Time summary for team ${team_id}:\n\n${JSON.stringify(formattedSummary, null, 2)}`,
+              text: `Time summary for team ${team_id}:\n\n${JSON.stringify(formattedSummary)}`,
             },
           ],
         };
@@ -650,7 +650,7 @@ export function setupTimeTrackingTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Timer started successfully in team ${team_id}.${task_id ? ` Associated with task ${task_id}.` : ''}\n\n${JSON.stringify(timeEntry, null, 2)}`,
+              text: `Timer started successfully in team ${team_id}.${task_id ? ` Associated with task ${task_id}.` : ''}\n\n${JSON.stringify(timeEntry)}`,
             },
           ],
         };

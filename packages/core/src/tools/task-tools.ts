@@ -26,14 +26,17 @@ export function setupTaskTools(server: McpServer): void {
         .optional()
         .describe('Whether to return task descriptions in Markdown format'),
       page: z.number().optional().describe('The page number to get'),
-      order_by: z.string().optional().describe('The field to order by'),
+      order_by: z
+        .enum(['id', 'created', 'updated', 'due_date'])
+        .optional()
+        .describe('The field to order by'),
       reverse: z.boolean().optional().describe('Whether to reverse the order'),
     },
     async ({ list_id, ...params }) => {
       try {
         const result = await tasksClient.getTasksFromList(list_id, params);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result) }],
         };
       } catch (error: unknown) {
         return mcpError('getting tasks', error);
@@ -72,7 +75,7 @@ export function setupTaskTools(server: McpServer): void {
           team_id,
         });
         return {
-          content: [{ type: 'text', text: JSON.stringify(task, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(task) }],
         };
       } catch (error: unknown) {
         return mcpError('getting task details', error);
@@ -141,7 +144,7 @@ export function setupTaskTools(server: McpServer): void {
           team_id,
         });
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result) }],
         };
       } catch (error: unknown) {
         return mcpError('creating task', error);
@@ -207,7 +210,7 @@ export function setupTaskTools(server: McpServer): void {
           team_id,
         });
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result) }],
         };
       } catch (error: unknown) {
         return mcpError('updating task', error);
@@ -277,7 +280,7 @@ export function setupTaskTools(server: McpServer): void {
       try {
         const result = await listsClient.addTaskToList(list_id, task_id);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result) }],
         };
       } catch (error: unknown) {
         return mcpError('adding task to list', error);
@@ -296,7 +299,7 @@ export function setupTaskTools(server: McpServer): void {
       try {
         const result = await listsClient.removeTaskFromList(list_id, task_id);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result) }],
         };
       } catch (error: unknown) {
         return mcpError('removing task from list', error);
@@ -325,7 +328,7 @@ export function setupTaskTools(server: McpServer): void {
           team_id,
         });
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result) }],
         };
       } catch (error: unknown) {
         return mcpError('getting task time in status', error);
@@ -358,7 +361,7 @@ export function setupTaskTools(server: McpServer): void {
           team_id,
         });
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result) }],
         };
       } catch (error: unknown) {
         return mcpError('getting bulk tasks time in status', error);
@@ -372,7 +375,10 @@ export function setupTaskTools(server: McpServer): void {
     {
       team_id: idSchema().describe('The ID of the workspace (team) to search'),
       page: z.number().optional().describe('The page number to get (starts at 0)'),
-      order_by: z.string().optional().describe('The field to order by (id, created, updated, due_date)'),
+      order_by: z
+        .enum(['id', 'created', 'updated', 'due_date'])
+        .optional()
+        .describe('The field to order by'),
       reverse: z.boolean().optional().describe('Whether to reverse the order'),
       subtasks: z.boolean().optional().describe('Whether to include subtasks in the results'),
       space_ids: z.array(idSchema()).optional().describe('Filter by space IDs'),
@@ -398,7 +404,7 @@ export function setupTaskTools(server: McpServer): void {
       try {
         const result = await tasksClient.getFilteredTeamTasks(team_id, params);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result) }],
         };
       } catch (error: unknown) {
         return mcpError('getting filtered team tasks', error);
@@ -476,7 +482,7 @@ export function setupTaskTools(server: McpServer): void {
       try {
         const result = await tasksClient.createTaskFromTemplate(list_id, template_id, { name });
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result) }],
         };
       } catch (error: unknown) {
         return mcpError('creating task from template', error);

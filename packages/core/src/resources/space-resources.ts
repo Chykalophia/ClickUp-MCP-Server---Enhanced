@@ -29,7 +29,7 @@ export function setupSpaceResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(spaces, null, 2),
+              text: JSON.stringify(spaces),
             },
           ],
         };
@@ -59,7 +59,7 @@ export function setupSpaceResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(space, null, 2),
+              text: JSON.stringify(space),
             },
           ],
         };
@@ -88,7 +88,7 @@ export function setupSpaceResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(spaces, null, 2),
+              text: JSON.stringify(spaces),
             },
           ],
         };
@@ -116,7 +116,7 @@ export function setupSpaceResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(space, null, 2),
+              text: JSON.stringify(space),
             },
           ],
         };

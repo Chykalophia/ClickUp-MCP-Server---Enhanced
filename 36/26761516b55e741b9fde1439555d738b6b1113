@@ -1,0 +1,80 @@
+packages/core/src/tools/toolsets.ts
+  s_bae36a5e653307::t_780047260c4b25 21
+packages/core/src/resources/folder-resources.ts
+  s_bae36a5e653307::t_b39866397e41ee 32,70,100,129,161,189
+packages/core/src/tools/webhook-tools-setup.ts
+  s_bae36a5e653307::t_b39866397e41ee 62,95,120,157,181,213,252
+packages/core/src/tools/task-tools.ts
+  s_bae36a5e653307::t_8af3299092085f 29-32
+  s_bae36a5e653307::t_b39866397e41ee 39,78,147,213,283,302,331,364,407,485
+  s_bae36a5e653307::t_18ee669e2a92b6 378-381
+packages/core/src/resources/list-resources.ts
+  s_bae36a5e653307::t_b39866397e41ee 32,62,91,119
+README.md
+  s_bae36a5e653307::t_23c8af6c90cf35 133
+packages/core/src/tools/workspace-tools.ts
+  s_bae36a5e653307::t_b39866397e41ee 22,71,93,109,131
+  s_bae36a5e653307::t_71598f1e21b5d2 32-41,44-53,55
+packages/core/src/resources/comment-resources.ts
+  s_bae36a5e653307::t_b39866397e41ee 32,62,92,122,151,179
+packages/core/src/tools/space-tools.ts
+  s_bae36a5e653307::t_b39866397e41ee 99,131,172,235
+  s_bae36a5e653307::t_2eaf4a34aa92a2 42,49-54,56,65-77,79
+packages/core/src/resources/space-resources.ts
+  s_bae36a5e653307::t_b39866397e41ee 32,62,91,119
+packages/core/src/resources/task-resources.ts
+  s_bae36a5e653307::t_b39866397e41ee 32,61
+packages/core/src/tools/views-tools-setup.ts
+  s_bae36a5e653307::t_b39866397e41ee 61,88,112,146,170,196,222,248,274,303,331,356
+packages/core/src/tools/chat-tools.ts
+  s_bae36a5e653307::t_b39866397e41ee 61,91,122,152,177,214,246,274,307,347,386,444,484,516,543,602,627
+packages/core/src/tools/comment-tools.ts
+  s_bae36a5e653307::t_b39866397e41ee 150,183,242,263,301,322,361,409,428,449,487
+packages/core/src/tools/goals-tools.ts
+  s_bae36a5e653307::t_b39866397e41ee 44,96,152,212,268,299,351,422,493
+packages/core/src/tests/toolsets.test.ts
+  s_bae36a5e653307::t_ae33cc67ea2b0e 80
+packages/core/src/tools/doc-tools.ts
+  s_bae36a5e653307::t_b39866397e41ee 62,92,118
+packages/core/src/tools/bulk-task-tools.ts
+  s_bae36a5e653307::t_b39866397e41ee 67,122,228,335
+packages/core/src/tools/doc-tools-enhanced.ts
+  s_bae36a5e653307::t_b39866397e41ee 93,133,156,185,208,279,322,378
+packages/core/src/tools/list-folder-tools.ts
+  s_bae36a5e653307::t_407dd15cf1a2de 66-68
+  s_bae36a5e653307::t_ab65de3775bdb0 7,15-33,36-65,69-129
+  s_bae36a5e653307::t_b39866397e41ee 165,188,206,225,244,319,368,413,431,480,498,570,597,628,646
+  s_bae36a5e653307::t_c99a0e8cba3f15 254,257-261,263-266,268-288,291-296
+packages/core/src/tools/checklist-tools.ts
+  s_bae36a5e653307::t_b39866397e41ee 47,158,201
+packages/core/src/tools/custom-field-tools.ts
+  s_bae36a5e653307::t_b39866397e41ee 77,213,289-290,329,396
+packages/core/src/tests/param-strictness.test.ts
+  s_bae36a5e653307::t_ae33cc67ea2b0e 218
+packages/core/src/tools/time-tracking-tools.ts
+  s_bae36a5e653307::t_b39866397e41ee 98,180,278,328,353,381,463,510,534,602,653
+packages/core/src/tools/dependencies-tools-setup.ts
+  s_bae36a5e653307::t_b39866397e41ee 91,123,154,181,216,256,297
+packages/core/src/tools/attachments-tools-setup.ts
+  s_bae36a5e653307::t_b39866397e41ee 43,72
+packages/core/src/tests/hierarchy-and-payloads.test.ts
+  s_bae36a5e653307::t_6128cab2d2fd85 1-241
+packages/core/src/resources/checklist-resources.ts
+  s_bae36a5e653307::t_b39866397e41ee 89
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "3626761516b55e741b9fde1439555d738b6b1113",
+  "prompts": {},
+  "sessions": {
+    "s_bae36a5e653307": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "99684d5d-c0f0-480b-a886-d74c48e9c16e",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}

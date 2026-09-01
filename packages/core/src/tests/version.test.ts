@@ -18,11 +18,9 @@ import { join } from 'node:path';
 // NODE_OPTIONS=--experimental-vm-modules), where __dirname is undefined and
 // jest's cwd is the package root. `import.meta.url` is deliberately not used
 // for this either — it is the very syntax error described above.
-const PACKAGE_ROOT =
-  typeof __dirname !== 'undefined' ? join(__dirname, '..', '..') : process.cwd();
+const PACKAGE_ROOT = typeof __dirname !== 'undefined' ? join(__dirname, '..', '..') : process.cwd();
 
-const readSource = (relative: string): string =>
-  readFileSync(join(PACKAGE_ROOT, relative), 'utf8');
+const readSource = (relative: string): string => readFileSync(join(PACKAGE_ROOT, relative), 'utf8');
 
 // Quote style is not the thing under test, so every pattern below accepts
 // either. Prettier is configured with singleQuote, but a reformat must not be
@@ -32,7 +30,7 @@ const Q = '[\'"]';
 const ENTRY_POINTS = ['src/index-enhanced.ts', 'src/index-efficiency-simple.ts'];
 
 describe('server version reporting', () => {
-  it.each(ENTRY_POINTS)('%s advertises VERSION, not a literal', (entry) => {
+  it.each(ENTRY_POINTS)('%s advertises VERSION, not a literal', entry => {
     const source = readSource(entry);
 
     // The server constructor must hand through the shared VERSION constant.

@@ -78,7 +78,7 @@ async function callTool(
     };
     return {
       failed: result.isError === true,
-      text: (result.content ?? []).map((entry) => entry.text ?? '').join('\n'),
+      text: (result.content ?? []).map(entry => entry.text ?? '').join('\n'),
     };
   } catch (error: unknown) {
     return { failed: true, text: error instanceof Error ? error.message : String(error) };
@@ -112,7 +112,7 @@ describe('strict tool parameters', () => {
     mockPost.mockResolvedValue({ id: 'task-1', name: 'Created', description: 'body' });
     mockPut.mockResolvedValue({ id: 'task-1', name: 'Updated' });
     mockGet.mockResolvedValue({ id: 'task-1', name: 'Existing', assignees: [] });
-    ({ client, close } = await connectServer((server) => {
+    ({ client, close } = await connectServer(server => {
       setupTaskTools(server);
       setupWorkspaceTools(server);
       setupSpaceTools(server);
@@ -215,7 +215,9 @@ describe('strict tool parameters', () => {
     });
 
     it('rejects a stray argument', async () => {
-      const outcome = await callTool(client, 'clickup_get_authorized_user', { workspace_id: '123' });
+      const outcome = await callTool(client, 'clickup_get_authorized_user', {
+        workspace_id: '123',
+      });
       expect(outcome.failed).toBe(true);
       expect(outcome.text).toContain('Unknown parameter(s)');
       // No parameter list to print, so say that rather than "Valid parameters: ."
@@ -227,7 +229,7 @@ describe('strict tool parameters', () => {
   describe('published tool schemas', () => {
     it('advertises additionalProperties: false, matching the runtime', async () => {
       const { tools } = await client.listTools();
-      const createTask = tools.find((tool) => tool.name === 'clickup_create_task');
+      const createTask = tools.find(tool => tool.name === 'clickup_create_task');
 
       expect(createTask).toBeDefined();
       expect(createTask?.inputSchema.additionalProperties).toBe(false);
@@ -242,7 +244,7 @@ describe('strict tool parameters', () => {
       for (const tool of tools) {
         expect(tool.inputSchema.type).toBe('object');
       }
-      const createTask = tools.find((tool) => tool.name === 'clickup_create_task');
+      const createTask = tools.find(tool => tool.name === 'clickup_create_task');
       expect(Object.keys(createTask?.inputSchema.properties ?? {})).toEqual(
         expect.arrayContaining(['list_id', 'name', 'markdown_content', 'markdown_description'])
       );
@@ -293,7 +295,7 @@ describe('strict tool parameters', () => {
 
     it('relaxes a required canonical to either/or and says so in the schema', async () => {
       const { tools } = await client.listTools();
-      const getSpaces = tools.find((tool) => tool.name === 'clickup_get_spaces');
+      const getSpaces = tools.find(tool => tool.name === 'clickup_get_spaces');
       const properties = getSpaces?.inputSchema.properties as Record<
         string,
         { description?: string }
@@ -320,23 +322,21 @@ describe('strict tool parameters', () => {
 
     it('leaves required parameters alone when no alias applies to them', async () => {
       const { tools } = await client.listTools();
-      const createTask = tools.find((tool) => tool.name === 'clickup_create_task');
+      const createTask = tools.find(tool => tool.name === 'clickup_create_task');
 
       // list_id and name have no aliases, so they must stay required.
-      expect(createTask?.inputSchema.required).toEqual(
-        expect.arrayContaining(['list_id', 'name'])
-      );
+      expect(createTask?.inputSchema.required).toEqual(expect.arrayContaining(['list_id', 'name']));
     });
   });
 
   describe('PARAM_ALIASES integrity', () => {
     it('only references tools this server actually registers', async () => {
       const { tools } = await client.listTools();
-      const registered = new Set(tools.map((tool) => tool.name));
+      const registered = new Set(tools.map(tool => tool.name));
       // Tools from toolsets this suite does not register are skipped here; the
       // canonical-parameter check is enforced at registration time by
       // enforceStrictParams, which throws on a stale entry.
-      const covered = Object.keys(PARAM_ALIASES).filter((name) => registered.has(name));
+      const covered = Object.keys(PARAM_ALIASES).filter(name => registered.has(name));
 
       expect(covered).toEqual(
         expect.arrayContaining(['clickup_create_task', 'clickup_update_task'])

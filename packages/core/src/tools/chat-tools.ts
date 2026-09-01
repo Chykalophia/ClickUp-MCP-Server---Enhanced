@@ -41,13 +41,33 @@ export function setupChatTools(server: McpServer): void {
     'Retrieve chat channels in a workspace with cursor pagination and optional filtering by channel type, follower status, and activity.',
     {
       workspace_id: idSchema().describe('The ID of the workspace to get channels from'),
-      description_format: z.enum(['text/md', 'text/plain']).optional().describe('Format for channel descriptions in the response'),
-      cursor: z.string().optional().describe('Pagination cursor from a previous response (next_cursor)'),
-      limit: z.number().min(1).max(100).optional().describe('Maximum number of channels to return (1-100)'),
-      is_follower: z.boolean().optional().describe('Only return channels the authenticated user follows'),
+      description_format: z
+        .enum(['text/md', 'text/plain'])
+        .optional()
+        .describe('Format for channel descriptions in the response'),
+      cursor: z
+        .string()
+        .optional()
+        .describe('Pagination cursor from a previous response (next_cursor)'),
+      limit: z
+        .number()
+        .min(1)
+        .max(100)
+        .optional()
+        .describe('Maximum number of channels to return (1-100)'),
+      is_follower: z
+        .boolean()
+        .optional()
+        .describe('Only return channels the authenticated user follows'),
       include_closed: z.boolean().optional().describe('Include closed channels in the results'),
-      with_message_since: z.number().optional().describe('Only return channels with messages since this Unix timestamp (ms)'),
-      channel_types: z.array(ChannelTypeSchema).optional().describe('Filter by channel types: CHANNEL, DM, GROUP_DM'),
+      with_message_since: z
+        .number()
+        .optional()
+        .describe('Only return channels with messages since this Unix timestamp (ms)'),
+      channel_types: z
+        .array(ChannelTypeSchema)
+        .optional()
+        .describe('Filter by channel types: CHANNEL, DM, GROUP_DM'),
     },
     async args => {
       try {
@@ -76,8 +96,14 @@ export function setupChatTools(server: McpServer): void {
       name: z.string().min(1).max(255).describe('The name of the channel'),
       description: z.string().optional().describe('Optional description of the channel'),
       topic: z.string().optional().describe('Optional topic of the channel'),
-      user_ids: z.array(idSchema()).max(100).optional().describe('User IDs (as strings) to add to the channel (up to 100)'),
-      visibility: ChannelVisibilitySchema.optional().describe('Channel visibility: PUBLIC or PRIVATE'),
+      user_ids: z
+        .array(idSchema())
+        .max(100)
+        .optional()
+        .describe('User IDs (as strings) to add to the channel (up to 100)'),
+      visibility: ChannelVisibilitySchema.optional().describe(
+        'Channel visibility: PUBLIC or PRIVATE'
+      ),
     },
     async args => {
       try {
@@ -107,8 +133,14 @@ export function setupChatTools(server: McpServer): void {
       parent_type: ChannelLocationTypeSchema.describe('The type of parent location'),
       description: z.string().optional().describe('Optional description of the channel'),
       topic: z.string().optional().describe('Optional topic of the channel'),
-      user_ids: z.array(idSchema()).max(100).optional().describe('User IDs (as strings) to add to the channel (up to 100)'),
-      visibility: ChannelVisibilitySchema.optional().describe('Channel visibility: PUBLIC or PRIVATE'),
+      user_ids: z
+        .array(idSchema())
+        .max(100)
+        .optional()
+        .describe('User IDs (as strings) to add to the channel (up to 100)'),
+      visibility: ChannelVisibilitySchema.optional().describe(
+        'Channel visibility: PUBLIC or PRIVATE'
+      ),
     },
     async args => {
       try {
@@ -138,7 +170,9 @@ export function setupChatTools(server: McpServer): void {
         .array(idSchema())
         .max(15)
         .optional()
-        .describe('User IDs (as strings) to include in the direct message, up to 15. Omit or leave empty for a self-DM'),
+        .describe(
+          'User IDs (as strings) to include in the direct message, up to 15. Omit or leave empty for a self-DM'
+        ),
     },
     async args => {
       try {
@@ -231,8 +265,16 @@ export function setupChatTools(server: McpServer): void {
     {
       workspace_id: idSchema().describe('The ID of the workspace'),
       channel_id: idSchema().describe('The ID of the channel to get followers for'),
-      cursor: z.string().optional().describe('Pagination cursor from a previous response (next_cursor)'),
-      limit: z.number().min(1).max(100).optional().describe('Maximum number of followers to return (1-100)'),
+      cursor: z
+        .string()
+        .optional()
+        .describe('Pagination cursor from a previous response (next_cursor)'),
+      limit: z
+        .number()
+        .min(1)
+        .max(100)
+        .optional()
+        .describe('Maximum number of followers to return (1-100)'),
     },
     async args => {
       try {
@@ -259,8 +301,16 @@ export function setupChatTools(server: McpServer): void {
     {
       workspace_id: idSchema().describe('The ID of the workspace'),
       channel_id: idSchema().describe('The ID of the channel to get members for'),
-      cursor: z.string().optional().describe('Pagination cursor from a previous response (next_cursor)'),
-      limit: z.number().min(1).max(100).optional().describe('Maximum number of members to return (1-100)'),
+      cursor: z
+        .string()
+        .optional()
+        .describe('Pagination cursor from a previous response (next_cursor)'),
+      limit: z
+        .number()
+        .min(1)
+        .max(100)
+        .optional()
+        .describe('Maximum number of members to return (1-100)'),
     },
     async args => {
       try {
@@ -291,9 +341,19 @@ export function setupChatTools(server: McpServer): void {
     {
       workspace_id: idSchema().describe('The ID of the workspace'),
       channel_id: idSchema().describe('The ID of the channel to get messages from'),
-      cursor: z.string().optional().describe('Pagination cursor from a previous response (next_cursor)'),
-      limit: z.number().min(1).max(100).optional().describe('Maximum number of messages to return (1-100)'),
-      content_format: ContentFormatSchema.optional().describe('Format of returned message content: text/md (default) or text/plain'),
+      cursor: z
+        .string()
+        .optional()
+        .describe('Pagination cursor from a previous response (next_cursor)'),
+      limit: z
+        .number()
+        .min(1)
+        .max(100)
+        .optional()
+        .describe('Maximum number of messages to return (1-100)'),
+      content_format: ContentFormatSchema.optional().describe(
+        'Format of returned message content: text/md (default) or text/plain'
+      ),
     },
     async args => {
       try {
@@ -321,15 +381,25 @@ export function setupChatTools(server: McpServer): void {
       workspace_id: idSchema().describe('The ID of the workspace'),
       channel_id: idSchema().describe('The ID of the channel to send the message to'),
       content: z.string().min(1).describe('The content of the message'),
-      type: MessageTypeSchema.optional().describe("The type of message: 'message' (default) or 'post'"),
-      content_format: ContentFormatSchema.optional().describe('Format of the content: text/md (default) or text/plain'),
+      type: MessageTypeSchema.optional().describe(
+        "The type of message: 'message' (default) or 'post'"
+      ),
+      content_format: ContentFormatSchema.optional().describe(
+        'Format of the content: text/md (default) or text/plain'
+      ),
       assignee: idSchema().optional().describe('User ID to assign the message to'),
       group_assignee: idSchema().optional().describe('Group ID to assign the message to'),
-      followers: z.array(idSchema()).optional().describe('User IDs (as strings) to add as followers of the message'),
+      followers: z
+        .array(idSchema())
+        .optional()
+        .describe('User IDs (as strings) to add as followers of the message'),
       post_data: z
         .object({
           title: z.string().max(255).describe('Post title'),
-          subtype: z.object({ id: z.string() }).passthrough().describe('Post subtype (required; id from Get Post Subtype IDs)'),
+          subtype: z
+            .object({ id: z.string() })
+            .passthrough()
+            .describe('Post subtype (required; id from Get Post Subtype IDs)'),
         })
         .passthrough()
         .optional()
@@ -361,14 +431,19 @@ export function setupChatTools(server: McpServer): void {
       workspace_id: idSchema().describe('The ID of the workspace'),
       message_id: idSchema().describe('The ID of the message to update'),
       content: z.string().min(1).optional().describe('The new content of the message'),
-      content_format: ContentFormatSchema.optional().describe('Format of the content: text/md (default) or text/plain'),
+      content_format: ContentFormatSchema.optional().describe(
+        'Format of the content: text/md (default) or text/plain'
+      ),
       assignee: idSchema().optional().describe('User ID to assign the message to'),
       group_assignee: idSchema().optional().describe('Group ID to assign the message to'),
       resolved: z.boolean().optional().describe('Mark the message as resolved or unresolved'),
       post_data: z
         .object({
           title: z.string().max(255).describe('Post title'),
-          subtype: z.object({ id: z.string() }).passthrough().describe('Post subtype (required; id from Get Post Subtype IDs)'),
+          subtype: z
+            .object({ id: z.string() })
+            .passthrough()
+            .describe('Post subtype (required; id from Get Post Subtype IDs)'),
         })
         .passthrough()
         .optional()
@@ -428,9 +503,19 @@ export function setupChatTools(server: McpServer): void {
     {
       workspace_id: idSchema().describe('The ID of the workspace'),
       message_id: idSchema().describe('The ID of the message to get replies for'),
-      cursor: z.string().optional().describe('Pagination cursor from a previous response (next_cursor)'),
-      limit: z.number().min(1).max(100).optional().describe('Maximum number of replies to return (1-100)'),
-      content_format: ContentFormatSchema.optional().describe('Format of returned reply content: text/md (default) or text/plain'),
+      cursor: z
+        .string()
+        .optional()
+        .describe('Pagination cursor from a previous response (next_cursor)'),
+      limit: z
+        .number()
+        .min(1)
+        .max(100)
+        .optional()
+        .describe('Maximum number of replies to return (1-100)'),
+      content_format: ContentFormatSchema.optional().describe(
+        'Format of returned reply content: text/md (default) or text/plain'
+      ),
     },
     async args => {
       try {
@@ -458,15 +543,25 @@ export function setupChatTools(server: McpServer): void {
       workspace_id: idSchema().describe('The ID of the workspace'),
       message_id: idSchema().describe('The ID of the message to reply to'),
       content: z.string().min(1).describe('The content of the reply'),
-      type: MessageTypeSchema.optional().describe("The type of message: 'message' (default) or 'post'"),
-      content_format: ContentFormatSchema.optional().describe('Format of the content: text/md (default) or text/plain'),
+      type: MessageTypeSchema.optional().describe(
+        "The type of message: 'message' (default) or 'post'"
+      ),
+      content_format: ContentFormatSchema.optional().describe(
+        'Format of the content: text/md (default) or text/plain'
+      ),
       assignee: idSchema().optional().describe('User ID to assign the reply to'),
       group_assignee: idSchema().optional().describe('Group ID to assign the reply to'),
-      followers: z.array(idSchema()).optional().describe('User IDs (as strings) to add as followers of the reply'),
+      followers: z
+        .array(idSchema())
+        .optional()
+        .describe('User IDs (as strings) to add as followers of the reply'),
       post_data: z
         .object({
           title: z.string().max(255).describe('Post title'),
-          subtype: z.object({ id: z.string() }).passthrough().describe('Post subtype (required; id from Get Post Subtype IDs)'),
+          subtype: z
+            .object({ id: z.string() })
+            .passthrough()
+            .describe('Post subtype (required; id from Get Post Subtype IDs)'),
         })
         .passthrough()
         .optional()
@@ -501,8 +596,16 @@ export function setupChatTools(server: McpServer): void {
     {
       workspace_id: idSchema().describe('The ID of the workspace'),
       message_id: idSchema().describe('The ID of the message to get reactions for'),
-      cursor: z.string().optional().describe('Pagination cursor from a previous response (next_cursor)'),
-      limit: z.number().min(1).max(100).optional().describe('Maximum number of reactions to return (1-100)'),
+      cursor: z
+        .string()
+        .optional()
+        .describe('Pagination cursor from a previous response (next_cursor)'),
+      limit: z
+        .number()
+        .min(1)
+        .max(100)
+        .optional()
+        .describe('Maximum number of reactions to return (1-100)'),
     },
     async args => {
       try {
@@ -529,7 +632,10 @@ export function setupChatTools(server: McpServer): void {
     {
       workspace_id: idSchema().describe('The ID of the workspace'),
       message_id: idSchema().describe('The ID of the message to react to'),
-      reaction: z.string().min(1).describe('The name of the emoji to use for the reaction (e.g. "grinning", "+1")'),
+      reaction: z
+        .string()
+        .min(1)
+        .describe('The name of the emoji to use for the reaction (e.g. "grinning", "+1")'),
     },
     async args => {
       try {
@@ -587,8 +693,16 @@ export function setupChatTools(server: McpServer): void {
     {
       workspace_id: idSchema().describe('The ID of the workspace'),
       message_id: idSchema().describe('The ID of the message to get tagged users for'),
-      cursor: z.string().optional().describe('Pagination cursor from a previous response (next_cursor)'),
-      limit: z.number().min(1).max(100).optional().describe('Maximum number of tagged users to return (1-100)'),
+      cursor: z
+        .string()
+        .optional()
+        .describe('Pagination cursor from a previous response (next_cursor)'),
+      limit: z
+        .number()
+        .min(1)
+        .max(100)
+        .optional()
+        .describe('Maximum number of tagged users to return (1-100)'),
     },
     async args => {
       try {
@@ -614,7 +728,10 @@ export function setupChatTools(server: McpServer): void {
     'Search for chat channels by name within a workspace (client-side filtering over the channel list).',
     {
       workspace_id: idSchema().describe('The ID of the workspace to search in'),
-      query: z.string().min(1).describe('The search query to match against channel names (case-insensitive)'),
+      query: z
+        .string()
+        .min(1)
+        .describe('The search query to match against channel names (case-insensitive)'),
     },
     async args => {
       try {

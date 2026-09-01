@@ -34,7 +34,12 @@ const RAW_TEAM = {
   color: '#181D21',
   avatar: 'https://attachments.clickup.com/very/long/signed/url'.repeat(8),
   members: Array.from({ length: 40 }, (_, i) => ({
-    user: { id: i, username: `user-${i}`, email: `u${i}@example.com`, profilePicture: 'x'.repeat(80) },
+    user: {
+      id: i,
+      username: `user-${i}`,
+      email: `u${i}@example.com`,
+      profilePicture: 'x'.repeat(80),
+    },
   })),
 };
 
@@ -44,8 +49,16 @@ const RAW_SPACE = (id: string, name: string) => ({
   color: '#000',
   private: false,
   archived: false,
-  statuses: Array.from({ length: 8 }, (_, i) => ({ id: `s${i}`, status: `status ${i}`, color: '#fff' })),
-  features: { due_dates: { enabled: true }, time_tracking: { enabled: true }, tags: { enabled: true } },
+  statuses: Array.from({ length: 8 }, (_, i) => ({
+    id: `s${i}`,
+    status: `status ${i}`,
+    color: '#fff',
+  })),
+  features: {
+    due_dates: { enabled: true },
+    time_tracking: { enabled: true },
+    tags: { enabled: true },
+  },
   members: [{ user: { id: 1, username: 'a' } }],
 });
 
@@ -67,7 +80,7 @@ async function call(name: string, args: Record<string, unknown>) {
     isError?: boolean;
     content?: Array<{ text?: string }>;
   };
-  const text = (res.content ?? []).map((c) => c.text ?? '').join('\n');
+  const text = (res.content ?? []).map(c => c.text ?? '').join('\n');
   return { failed: res.isError === true, text };
 }
 
@@ -87,7 +100,11 @@ describe('clickup_get_workspace_hierarchy', () => {
         return { spaces: [RAW_SPACE('sp1', 'Peter Space'), RAW_SPACE('sp2', 'Operations')] };
       }
       if (endpoint === '/space/sp1/folder') {
-        return { folders: [{ id: 'f1', name: 'Client Work', lists: [{ id: 'l9', name: 'Acme Retainer' }] }] };
+        return {
+          folders: [
+            { id: 'f1', name: 'Client Work', lists: [{ id: 'l9', name: 'Acme Retainer' }] },
+          ],
+        };
       }
       if (endpoint === '/space/sp2/folder') return { folders: [] };
       if (endpoint === '/space/sp1/list') return { lists: [{ id: 'l1', name: 'Nerdy Fun' }] };
@@ -133,7 +150,12 @@ describe('clickup_get_workspace_hierarchy', () => {
     });
 
     expect(JSON.parse(text).matches).toEqual([
-      { type: 'list', id: 'l9', name: 'Acme Retainer', path: 'Peter Space / Client Work / Acme Retainer' },
+      {
+        type: 'list',
+        id: 'l9',
+        name: 'Acme Retainer',
+        path: 'Peter Space / Client Work / Acme Retainer',
+      },
     ]);
   });
 

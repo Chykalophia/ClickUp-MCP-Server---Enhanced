@@ -58,7 +58,7 @@ async function callTool(
     };
     return {
       failed: result.isError === true,
-      text: (result.content ?? []).map((entry) => entry.text ?? '').join('\n'),
+      text: (result.content ?? []).map(entry => entry.text ?? '').join('\n'),
     };
   } catch (error: unknown) {
     return { failed: true, text: error instanceof Error ? error.message : String(error) };
@@ -102,7 +102,7 @@ describe('clickup_create_task_comment', () => {
     const [endpoint, body] = mockPost.mock.calls[0] as [string, CommentPayload];
     expect(endpoint).toContain('/task/868kzbrwy/comment');
     expect(Array.isArray(body.comment)).toBe(true);
-    expect(body.comment?.map((block) => block.text).join('')).toContain('Closing this out');
+    expect(body.comment?.map(block => block.text).join('')).toContain('Closing this out');
     // ClickUp duplicates the body when both are sent, so only the array goes out.
     expect(body.comment_text).toBeUndefined();
   });
@@ -114,9 +114,9 @@ describe('clickup_create_task_comment', () => {
     });
 
     const blocks = lastPostBody().comment ?? [];
-    const rendered = blocks.map((block) => block.text ?? '').join('');
+    const rendered = blocks.map(block => block.text ?? '').join('');
     expect(rendered).not.toContain('**');
-    expect(blocks.some((block) => block.text === 'mismatch' && block.attributes?.bold === true)).toBe(
+    expect(blocks.some(block => block.text === 'mismatch' && block.attributes?.bold === true)).toBe(
       true
     );
   });

@@ -18,7 +18,10 @@
 /** Toolset name -> what it covers, and how many tools it registers. */
 export const TOOLSETS = {
   tasks: { count: 13, description: 'Task create/read/update/delete, search, assignees, status' },
-  lists: { count: 18, description: 'Lists, folders, folderless lists, and the workspace hierarchy map' },
+  lists: {
+    count: 18,
+    description: 'Lists, folders, folderless lists, and the workspace hierarchy map',
+  },
   chat: { count: 19, description: 'Chat channels, messages, reactions, replies' },
   'time-tracking': { count: 14, description: 'Time entries, timers, and time summaries' },
   goals: { count: 12, description: 'Goals and goal targets' },
@@ -62,10 +65,12 @@ export interface ResolvedToolsets {
  * we fall back to all toolsets rather than starting a server with no tools —
  * the caller is expected to surface `unknown` as a warning.
  */
-export function resolveToolsets(raw: string | undefined = process.env.CLICKUP_TOOLSETS): ResolvedToolsets {
+export function resolveToolsets(
+  raw: string | undefined = process.env.CLICKUP_TOOLSETS
+): ResolvedToolsets {
   const requested = (raw ?? '')
     .split(/[,\s]+/)
-    .map((part) => part.trim().toLowerCase().replace(/_/g, '-'))
+    .map(part => part.trim().toLowerCase().replace(/_/g, '-'))
     .filter(Boolean);
 
   const all = (): ResolvedToolsets => ({

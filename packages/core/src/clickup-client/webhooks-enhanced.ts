@@ -63,7 +63,10 @@ export class WebhooksEnhancedClient extends ClickUpClient {
     if (request.list_id !== undefined) body.list_id = request.list_id;
     if (request.task_id !== undefined) body.task_id = request.task_id;
 
-    const response = await this.post<WebhookResponse>(`/team/${request.workspace_id}/webhook`, body);
+    const response = await this.post<WebhookResponse>(
+      `/team/${request.workspace_id}/webhook`,
+      body
+    );
     return response;
   }
 
@@ -153,7 +156,10 @@ export class WebhooksEnhancedClient extends ClickUpClient {
         Buffer.from(receivedSignature, 'hex')
       );
     } catch (error) {
-      console.error('Error validating webhook signature:', error instanceof Error ? error.message : error);
+      console.error(
+        'Error validating webhook signature:',
+        error instanceof Error ? error.message : error
+      );
       return false;
     }
   }

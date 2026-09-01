@@ -221,7 +221,11 @@ export class EnhancedTimeTrackingClient {
       const endpoint = `/team/${teamId}/time_entries?${queryParams.toString()}`;
       const response = await this.getAxiosInstance().get(endpoint);
 
-      const validated = validateResponse(TimeEntriesResponseSchema, response.data, 'getTimeEntries');
+      const validated = validateResponse(
+        TimeEntriesResponseSchema,
+        response.data,
+        'getTimeEntries'
+      );
       return (validated.data as unknown as TimeEntry[]) || [];
     } catch (error) {
       console.error('Error getting time entries:', error instanceof Error ? error.message : error);
@@ -588,16 +592,16 @@ export class EnhancedTimeTrackingClient {
     format: 'milliseconds' | 'seconds' | 'minutes' | 'hours'
   ): number {
     switch (format) {
-    case 'milliseconds':
-      return milliseconds;
-    case 'seconds':
-      return Math.floor(milliseconds / 1000);
-    case 'minutes':
-      return Math.floor(milliseconds / (1000 * 60));
-    case 'hours':
-      return Math.floor(milliseconds / (1000 * 60 * 60));
-    default:
-      return milliseconds;
+      case 'milliseconds':
+        return milliseconds;
+      case 'seconds':
+        return Math.floor(milliseconds / 1000);
+      case 'minutes':
+        return Math.floor(milliseconds / (1000 * 60));
+      case 'hours':
+        return Math.floor(milliseconds / (1000 * 60 * 60));
+      default:
+        return milliseconds;
     }
   }
 
@@ -626,20 +630,20 @@ export class EnhancedTimeTrackingClient {
       const message = error.response?.data?.message || error.message;
 
       switch (status) {
-      case 400:
-        return new Error(`${context}: Invalid request - ${message}`);
-      case 401:
-        return new Error(`${context}: Authentication failed - check API token`);
-      case 403:
-        return new Error(`${context}: Permission denied - insufficient access rights`);
-      case 404:
-        return new Error(`${context}: Resource not found - ${message}`);
-      case 429:
-        return new Error(`${context}: Rate limit exceeded - please retry later`);
-      case 500:
-        return new Error(`${context}: Server error - please try again`);
-      default:
-        return new Error(`${context}: ${message}`);
+        case 400:
+          return new Error(`${context}: Invalid request - ${message}`);
+        case 401:
+          return new Error(`${context}: Authentication failed - check API token`);
+        case 403:
+          return new Error(`${context}: Permission denied - insufficient access rights`);
+        case 404:
+          return new Error(`${context}: Resource not found - ${message}`);
+        case 429:
+          return new Error(`${context}: Rate limit exceeded - please retry later`);
+        case 500:
+          return new Error(`${context}: Server error - please try again`);
+        default:
+          return new Error(`${context}: ${message}`);
       }
     }
 

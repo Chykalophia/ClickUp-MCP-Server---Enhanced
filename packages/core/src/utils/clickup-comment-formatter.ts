@@ -584,7 +584,11 @@ export function ensureCodeBlockSeparation(blocks: ClickUpCommentBlock[]): ClickU
       if (!endsWithNewline) {
         const updatedPreviousBlock: ClickUpCommentBlock = shouldKeepShape(previousBlock)
           ? { ...previousBlock, text: `${previousText}\n` }
-          : { ...previousBlock, text: `${previousText}\n`, attributes: previousBlock.attributes || {} };
+          : {
+              ...previousBlock,
+              text: `${previousText}\n`,
+              attributes: previousBlock.attributes || {},
+            };
 
         // Replace the previous block in our processed array
         if (processedBlocks.length > 0) {
@@ -620,7 +624,9 @@ export function prepareCommentForClickUp(content: string): {
 
   // Check if content contains actual markdown formatting patterns (not just individual characters)
   const hasMarkdown =
-    /(\*\*.+?\*\*|__.+?__|`.+?`|~~.+?~~|^#{1,6}\s|\[.+?\]\(.+?\)|^>\s|^-\s|^\d+\.\s|```)/m.test(content);
+    /(\*\*.+?\*\*|__.+?__|`.+?`|~~.+?~~|^#{1,6}\s|\[.+?\]\(.+?\)|^>\s|^-\s|^\d+\.\s|```)/m.test(
+      content
+    );
 
   if (hasMarkdown) {
     const formatted = parseMarkdownToClickUpComment(content);

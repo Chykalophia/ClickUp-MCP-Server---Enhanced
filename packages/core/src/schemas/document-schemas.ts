@@ -78,8 +78,7 @@ export const UpdatePageSchema = z
     content_format: ContentFormatSchema.optional(),
   })
   .refine(
-    data =>
-      data.name !== undefined || data.sub_title !== undefined || data.content !== undefined,
+    data => data.name !== undefined || data.sub_title !== undefined || data.content !== undefined,
     {
       message: 'Must specify at least one field to update',
       path: ['name'],

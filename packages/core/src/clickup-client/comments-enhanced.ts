@@ -148,10 +148,9 @@ function processCommentResponse(comment: any): Comment {
  * otherwise converts comment_text (markdown) into ClickUp's comment array.
  * Sends ONLY the 'comment' array - no comment_text - to avoid duplication.
  */
-function buildCommentBody(params: {
-  comment_text?: string;
-  comment?: ClickUpCommentBlock[];
-}): { comment: ClickUpCommentBlock[] } {
+function buildCommentBody(params: { comment_text?: string; comment?: ClickUpCommentBlock[] }): {
+  comment: ClickUpCommentBlock[];
+} {
   if (params.comment && params.comment.length > 0) {
     return { comment: params.comment };
   }
@@ -399,7 +398,10 @@ export class CommentsEnhancedClient {
     commentId: string,
     params?: GetThreadedCommentsParams
   ): Promise<{ comments: Comment[] }> {
-    const result = await this.client.get<{ comments: any[] }>(`/comment/${commentId}/reply`, params);
+    const result = await this.client.get<{ comments: any[] }>(
+      `/comment/${commentId}/reply`,
+      params
+    );
 
     // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {

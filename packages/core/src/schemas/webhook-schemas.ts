@@ -107,15 +107,16 @@ export const ValidateWebhookSignatureSchema = z.object({
 // Webhook processing schema.
 // body is the raw request body string; the signature is verified over these
 // exact bytes before the body is parsed.
-export const ProcessWebhookSchema = z.object({
-  body: z.string(),
-  validate_signature: z.boolean().default(true),
-  signature: z.string().optional(),
-  secret: z.string().optional(),
-}).refine(
-  data => !data.validate_signature || (!!data.signature && !!data.secret),
-  { message: 'signature and secret are required when validate_signature is true' }
-);
+export const ProcessWebhookSchema = z
+  .object({
+    body: z.string(),
+    validate_signature: z.boolean().default(true),
+    signature: z.string().optional(),
+    secret: z.string().optional(),
+  })
+  .refine(data => !data.validate_signature || (!!data.signature && !!data.secret), {
+    message: 'signature and secret are required when validate_signature is true',
+  });
 
 // Type exports
 export type WebhookPayload = z.infer<typeof WebhookPayloadSchema>;

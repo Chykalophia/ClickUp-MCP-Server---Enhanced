@@ -157,7 +157,10 @@ export class EnhancedDocsClient {
       const response = await this.http.get(url, { params });
       return response.data;
     } catch (error) {
-      console.error('Error getting docs from workspace:', error instanceof Error ? error.message : error);
+      console.error(
+        'Error getting docs from workspace:',
+        error instanceof Error ? error.message : error
+      );
       throw this.handleError(error, 'Failed to get docs from workspace');
     }
   }
@@ -200,7 +203,10 @@ export class EnhancedDocsClient {
       const response = await this.http.get(url, { params: { max_page_depth: maxPageDepth } });
       return response.data;
     } catch (error) {
-      console.error('Error getting doc page listing:', error instanceof Error ? error.message : error);
+      console.error(
+        'Error getting doc page listing:',
+        error instanceof Error ? error.message : error
+      );
       throw this.handleError(error, 'Failed to get doc page listing');
     }
   }
@@ -408,9 +414,7 @@ export class EnhancedDocsClient {
   ): Promise<Page> {
     try {
       const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/pages/${pageId}`;
-      const params = contentFormat
-        ? { content_format: normalizeContentFormat(contentFormat) }
-        : {};
+      const params = contentFormat ? { content_format: normalizeContentFormat(contentFormat) } : {};
 
       const response = await this.http.get(url, { params });
 
@@ -434,22 +438,22 @@ export class EnhancedDocsClient {
       const message = error.response?.data?.message || error.message;
 
       switch (status) {
-      case 400:
-        return new Error(`${context}: Invalid request - ${message}`);
-      case 401:
-        return new Error(`${context}: Authentication failed - check API token`);
-      case 403:
-        return new Error(`${context}: Permission denied - insufficient access rights`);
-      case 404:
-        return new Error(`${context}: Resource not found - ${message}`);
-      case 413:
-        return new Error(`${context}: Content too large - reduce document size`);
-      case 429:
-        return new Error(`${context}: Rate limit exceeded - please retry later`);
-      case 500:
-        return new Error(`${context}: Server error - please try again`);
-      default:
-        return new Error(`${context}: ${message}`);
+        case 400:
+          return new Error(`${context}: Invalid request - ${message}`);
+        case 401:
+          return new Error(`${context}: Authentication failed - check API token`);
+        case 403:
+          return new Error(`${context}: Permission denied - insufficient access rights`);
+        case 404:
+          return new Error(`${context}: Resource not found - ${message}`);
+        case 413:
+          return new Error(`${context}: Content too large - reduce document size`);
+        case 429:
+          return new Error(`${context}: Rate limit exceeded - please retry later`);
+        case 500:
+          return new Error(`${context}: Server error - please try again`);
+        default:
+          return new Error(`${context}: ${message}`);
       }
     }
 
@@ -463,17 +467,17 @@ export class EnhancedDocsClient {
  */
 export function normalizeContentFormat(format?: string): ApiContentFormat {
   switch (format) {
-  case 'markdown':
-  case 'text/md':
-  case undefined:
-    return 'text/md';
-  case 'html':
-  case 'text/html':
-    return 'text/html';
-  case 'text/plain':
-    return 'text/plain';
-  default:
-    return 'text/md';
+    case 'markdown':
+    case 'text/md':
+    case undefined:
+      return 'text/md';
+    case 'html':
+    case 'text/html':
+      return 'text/html';
+    case 'text/plain':
+      return 'text/plain';
+    default:
+      return 'text/md';
   }
 }
 

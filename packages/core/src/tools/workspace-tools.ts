@@ -47,10 +47,10 @@ export function setupWorkspaceTools(server: McpServer): void {
         const payload = include_members
           ? result.teams
           : (result.teams ?? []).map((team: Record<string, unknown>) => ({
-            id: team.id,
-            name: team.name,
-            color: team.color,
-          }));
+              id: team.id,
+              name: team.name,
+              color: team.color,
+            }));
         return {
           content: [{ type: 'text', text: JSON.stringify(payload) }],
         };

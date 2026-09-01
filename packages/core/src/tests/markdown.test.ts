@@ -41,13 +41,13 @@ jest.mock('../utils/markdown', () => ({
     if (!content) return '';
 
     switch (targetFormat) {
-    case 'html':
-      return content.includes('<') ? content : `<p>${content}</p>`;
-    case 'plain':
-      return content.replace(/<[^>]+>/g, '').replace(/[#*`]/g, '');
-    case 'markdown':
-    default:
-      return content;
+      case 'html':
+        return content.includes('<') ? content : `<p>${content}</p>`;
+      case 'plain':
+        return content.replace(/<[^>]+>/g, '').replace(/[#*`]/g, '');
+      case 'markdown':
+      default:
+        return content;
     }
   }),
 

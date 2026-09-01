@@ -27,9 +27,18 @@ export function setupAttachmentsTools(server: McpServer): void {
       filename: z.string().min(1).describe('The name of the file, including its extension'),
       file_data: z.string().optional().describe('Base64 encoded file contents for direct upload'),
       file_path: z.string().optional().describe('Path to a local file to upload'),
-      file_url: z.string().url().optional().describe('URL to download the file from before uploading'),
-      custom_task_ids: z.boolean().optional().describe('Set to true if task_id is a custom task ID'),
-      team_id: idSchema().optional().describe('Workspace ID (required when custom_task_ids is true)'),
+      file_url: z
+        .string()
+        .url()
+        .optional()
+        .describe('URL to download the file from before uploading'),
+      custom_task_ids: z
+        .boolean()
+        .optional()
+        .describe('Set to true if task_id is a custom task ID'),
+      team_id: idSchema()
+        .optional()
+        .describe('Workspace ID (required when custom_task_ids is true)'),
     },
     async args => {
       try {
@@ -55,10 +64,17 @@ export function setupAttachmentsTools(server: McpServer): void {
     'List attachments for a task or a File custom field using the ClickUp v3 API. Results are cursor-paginated; pass next_cursor from a previous response to fetch the next page.',
     {
       workspace_id: idSchema().describe('The ID of the workspace (team)'),
-      entity_type: AttachmentEntityTypeSchema.describe('The type of entity the attachments belong to (task or custom_field)'),
-      entity_id: idSchema().describe('The ID of the task or File custom field to list attachments for'),
+      entity_type: AttachmentEntityTypeSchema.describe(
+        'The type of entity the attachments belong to (task or custom_field)'
+      ),
+      entity_id: idSchema().describe(
+        'The ID of the task or File custom field to list attachments for'
+      ),
       limit: z.number().positive().optional().describe('Maximum number of attachments to return'),
-      next_cursor: z.string().optional().describe('Cursor from a previous response to fetch the next page'),
+      next_cursor: z
+        .string()
+        .optional()
+        .describe('Cursor from a previous response to fetch the next page'),
     },
     async args => {
       try {

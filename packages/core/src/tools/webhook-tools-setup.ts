@@ -132,8 +132,9 @@ export function setupWebhookTools(server: McpServer): void {
     "Update an existing webhook's configuration including endpoint, events, and status. ClickUp requires the full endpoint/events/status body, so unspecified fields are filled in from the webhook's current configuration.",
     {
       webhook_id: idSchema().describe('The ID of the webhook to update'),
-      workspace_id: idSchema()
-        .describe("The ID of the workspace the webhook belongs to (used to fetch the webhook's current configuration)"),
+      workspace_id: idSchema().describe(
+        "The ID of the workspace the webhook belongs to (used to fetch the webhook's current configuration)"
+      ),
       endpoint: z
         .string()
         .url()
@@ -195,7 +196,9 @@ export function setupWebhookTools(server: McpServer): void {
       payload: z.string().describe('The raw webhook request body as a string, exactly as received'),
       signature: z
         .string()
-        .describe('The X-Signature header value from the webhook request (bare hex HMAC-SHA256 digest)'),
+        .describe(
+          'The X-Signature header value from the webhook request (bare hex HMAC-SHA256 digest)'
+        ),
       secret: z
         .string()
         .describe('The webhook secret returned by ClickUp when the webhook was created'),
@@ -226,7 +229,9 @@ export function setupWebhookTools(server: McpServer): void {
     {
       body: z
         .string()
-        .describe('The raw webhook request body as a string, exactly as received (required for signature verification)'),
+        .describe(
+          'The raw webhook request body as a string, exactly as received (required for signature verification)'
+        ),
       validate_signature: z
         .boolean()
         .default(true)

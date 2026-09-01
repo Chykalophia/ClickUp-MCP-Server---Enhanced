@@ -50,7 +50,7 @@ export function setupSpaceTools(server: McpServer): void {
         .boolean()
         .optional()
         .describe(
-          'Include each space\'s statuses, features and members. Off by default: measured at ~2.3 KB of configuration per space (39 KB across 12 spaces) versus ~46 bytes for the identifying fields.'
+          "Include each space's statuses, features and members. Off by default: measured at ~2.3 KB of configuration per space (39 KB across 12 spaces) versus ~46 bytes for the identifying fields."
         ),
     },
     async ({ workspace_id, archived, include_settings }) => {
@@ -68,12 +68,12 @@ export function setupSpaceTools(server: McpServer): void {
         const payload = include_settings
           ? spaces
           : spaces.map((space: Record<string, unknown>) => ({
-            id: space.id,
-            name: space.name,
-            color: space.color,
-            private: space.private,
-            archived: space.archived,
-          }));
+              id: space.id,
+              name: space.name,
+              color: space.color,
+              private: space.private,
+              archived: space.archived,
+            }));
 
         return {
           content: [{ type: 'text', text: JSON.stringify(payload) }],
@@ -145,17 +145,22 @@ export function setupSpaceTools(server: McpServer): void {
       name: z.string().optional().describe('The new name of the space'),
       color: z.string().optional().describe('The new hex color code of the space (e.g. #7B68EE)'),
       private: z.boolean().optional().describe('Whether the space should be private'),
-      admin_can_manage: z
-        .boolean()
-        .optional()
-        .describe('Whether admins can manage the space'),
+      admin_can_manage: z.boolean().optional().describe('Whether admins can manage the space'),
       multiple_assignees: z
         .boolean()
         .optional()
         .describe('Whether to enable multiple assignees for tasks in this space'),
       features: spaceFeaturesSchema,
     },
-    async ({ space_id, name, color, private: isPrivate, admin_can_manage, multiple_assignees, features }) => {
+    async ({
+      space_id,
+      name,
+      color,
+      private: isPrivate,
+      admin_can_manage,
+      multiple_assignees,
+      features,
+    }) => {
       try {
         console.error(`[SpaceTools] Updating space ${space_id}...`);
         const space = await spacesClient.updateSpace(space_id, {
@@ -247,7 +252,10 @@ export function setupSpaceTools(server: McpServer): void {
     {
       space_id: idSchema().describe('The ID of the space to create the tag in'),
       name: z.string().describe('The name of the tag'),
-      tag_fg: z.string().optional().describe('The foreground (text) hex color of the tag (e.g. #FFFFFF)'),
+      tag_fg: z
+        .string()
+        .optional()
+        .describe('The foreground (text) hex color of the tag (e.g. #FFFFFF)'),
       tag_bg: z.string().optional().describe('The background hex color of the tag (e.g. #7B68EE)'),
     },
     async ({ space_id, name, tag_fg, tag_bg }) => {
@@ -316,9 +324,7 @@ export function setupSpaceTools(server: McpServer): void {
         await spacesClient.deleteSpaceTag(space_id, tag_name);
 
         return {
-          content: [
-            { type: 'text', text: `✅ Tag "${tag_name}" deleted from space ${space_id}.` },
-          ],
+          content: [{ type: 'text', text: `✅ Tag "${tag_name}" deleted from space ${space_id}.` }],
         };
       } catch (error: unknown) {
         return mcpError('deleting space tag', error);

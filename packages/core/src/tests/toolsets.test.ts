@@ -15,7 +15,7 @@ describe('resolveToolsets', () => {
     expect(resolved.unknown).toEqual([]);
   });
 
-  it.each(['', '   ', 'all', 'ALL'])('enables everything for %p', (value) => {
+  it.each(['', '   ', 'all', 'ALL'])('enables everything for %p', value => {
     expect(resolveToolsets(value).isAll).toBe(true);
   });
 

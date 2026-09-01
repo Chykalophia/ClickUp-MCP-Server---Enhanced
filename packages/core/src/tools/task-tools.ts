@@ -66,7 +66,13 @@ export function setupTaskTools(server: McpServer): void {
         .optional()
         .describe('Workspace (team) ID — required when custom_task_ids is true'),
     },
-    async ({ task_id, include_subtasks, include_markdown_description, custom_task_ids, team_id }) => {
+    async ({
+      task_id,
+      include_subtasks,
+      include_markdown_description,
+      custom_task_ids,
+      team_id,
+    }) => {
       try {
         const task = await tasksClient.getTask(task_id, {
           include_subtasks,
@@ -121,7 +127,9 @@ export function setupTaskTools(server: McpServer): void {
       custom_task_ids: z
         .boolean()
         .optional()
-        .describe('Set true when parent/links_to reference custom task IDs (also requires team_id)'),
+        .describe(
+          'Set true when parent/links_to reference custom task IDs (also requires team_id)'
+        ),
       team_id: z
         .string()
         .optional()
@@ -309,7 +317,7 @@ export function setupTaskTools(server: McpServer): void {
 
   server.tool(
     'clickup_get_task_time_in_status',
-    "Get a ClickUp task's time-in-status data: current status (with elapsed time) plus the full status_history. Requires the workspace's \"Total time in Status\" ClickApp to be enabled. Response fields (including status_history[*].orderindex) may be omitted by ClickUp on some entries and are tolerated rather than rejected.",
+    'Get a ClickUp task\'s time-in-status data: current status (with elapsed time) plus the full status_history. Requires the workspace\'s "Total time in Status" ClickApp to be enabled. Response fields (including status_history[*].orderindex) may be omitted by ClickUp on some entries and are tolerated rather than rejected.',
     {
       task_id: idSchema().describe('The ID of the task'),
       custom_task_ids: z
@@ -392,12 +400,30 @@ export function setupTaskTools(server: McpServer): void {
         .describe('Whether to return task descriptions in Markdown format'),
       assignees: z.array(idSchema()).optional().describe('Filter by assignee user IDs'),
       tags: z.array(z.string()).optional().describe('Filter by tag names'),
-      due_date_gt: z.number().optional().describe('Filter by due date greater than (Unix timestamp in ms)'),
-      due_date_lt: z.number().optional().describe('Filter by due date less than (Unix timestamp in ms)'),
-      date_created_gt: z.number().optional().describe('Filter by created date greater than (Unix timestamp in ms)'),
-      date_created_lt: z.number().optional().describe('Filter by created date less than (Unix timestamp in ms)'),
-      date_updated_gt: z.number().optional().describe('Filter by updated date greater than (Unix timestamp in ms)'),
-      date_updated_lt: z.number().optional().describe('Filter by updated date less than (Unix timestamp in ms)'),
+      due_date_gt: z
+        .number()
+        .optional()
+        .describe('Filter by due date greater than (Unix timestamp in ms)'),
+      due_date_lt: z
+        .number()
+        .optional()
+        .describe('Filter by due date less than (Unix timestamp in ms)'),
+      date_created_gt: z
+        .number()
+        .optional()
+        .describe('Filter by created date greater than (Unix timestamp in ms)'),
+      date_created_lt: z
+        .number()
+        .optional()
+        .describe('Filter by created date less than (Unix timestamp in ms)'),
+      date_updated_gt: z
+        .number()
+        .optional()
+        .describe('Filter by updated date greater than (Unix timestamp in ms)'),
+      date_updated_lt: z
+        .number()
+        .optional()
+        .describe('Filter by updated date less than (Unix timestamp in ms)'),
       parent: idSchema().optional().describe('Filter by parent task ID'),
     },
     async ({ team_id, ...params }) => {
@@ -431,9 +457,7 @@ export function setupTaskTools(server: McpServer): void {
       try {
         await tasksClient.addTagToTask(task_id, tag_name, { custom_task_ids, team_id });
         return {
-          content: [
-            { type: 'text', text: `✅ Tag "${tag_name}" added to task ${task_id}.` },
-          ],
+          content: [{ type: 'text', text: `✅ Tag "${tag_name}" added to task ${task_id}.` }],
         };
       } catch (error: unknown) {
         return mcpError('adding tag to task', error);
@@ -460,9 +484,7 @@ export function setupTaskTools(server: McpServer): void {
       try {
         await tasksClient.removeTagFromTask(task_id, tag_name, { custom_task_ids, team_id });
         return {
-          content: [
-            { type: 'text', text: `✅ Tag "${tag_name}" removed from task ${task_id}.` },
-          ],
+          content: [{ type: 'text', text: `✅ Tag "${tag_name}" removed from task ${task_id}.` }],
         };
       } catch (error: unknown) {
         return mcpError('removing tag from task', error);

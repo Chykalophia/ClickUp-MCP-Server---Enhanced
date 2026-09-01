@@ -70,7 +70,7 @@ export function setupListFolderTools(server: McpServer): void {
         // One round trip per space for folders + folderless lists, run in
         // parallel. The agent pays for one MCP call regardless.
         const tree: HierarchySpace[] = await Promise.all(
-          spaces.map(async (space) => {
+          spaces.map(async space => {
             const spaceNode = pick(space);
             const [folderResult, listResult] = await Promise.all([
               foldersClient.getFoldersFromSpace(spaceNode.id, { archived }),
@@ -80,7 +80,7 @@ export function setupListFolderTools(server: McpServer): void {
             return {
               ...spaceNode,
               lists: (listResult.lists ?? []).map(pick),
-              folders: (folderResult.folders ?? []).map((folder) => {
+              folders: (folderResult.folders ?? []).map(folder => {
                 const folderNode = pick(folder);
                 const nested = (folder as unknown as { lists?: unknown[] }).lists ?? [];
                 return { ...folderNode, lists: nested.map(pick) };
@@ -117,9 +117,7 @@ export function setupListFolderTools(server: McpServer): void {
         }
 
         return {
-          content: [
-            { type: 'text', text: JSON.stringify({ workspace_id, name_filter, matches }) },
-          ],
+          content: [{ type: 'text', text: JSON.stringify({ workspace_id, name_filter, matches }) }],
         };
       } catch (error: unknown) {
         return mcpError('getting workspace hierarchy', error);
@@ -129,7 +127,7 @@ export function setupListFolderTools(server: McpServer): void {
 
   server.tool(
     'clickup_get_lists',
-    'Get lists from a ClickUp folder or space. For a space, returns both folderless lists and lists inside the space\'s folders. Returns list details including name and content.',
+    "Get lists from a ClickUp folder or space. For a space, returns both folderless lists and lists inside the space's folders. Returns list details including name and content.",
     {
       container_type: z
         .enum(['folder', 'space'])
@@ -352,7 +350,17 @@ export function setupListFolderTools(server: McpServer): void {
       assignee: z.number().int().optional().describe('The user ID to assign the list to'),
       status: z.string().optional().describe('The status of the list'),
     },
-    async ({ container_type, container_id, name, content, due_date, due_date_time, priority, assignee, status }) => {
+    async ({
+      container_type,
+      container_id,
+      name,
+      content,
+      due_date,
+      due_date_time,
+      priority,
+      assignee,
+      status,
+    }) => {
       try {
         const params = { name, content, due_date, due_date_time, priority, assignee, status };
         let result;
@@ -464,12 +472,18 @@ export function setupListFolderTools(server: McpServer): void {
         .nullable()
         .optional()
         .describe('The user ID to assign the list to, or null to remove the assignee'),
-      unset_status: z
-        .boolean()
-        .optional()
-        .describe('Set to true to remove the list status'),
+      unset_status: z.boolean().optional().describe('Set to true to remove the list status'),
     },
-    async ({ list_id, name, content, due_date, due_date_time, priority, assignee, unset_status }) => {
+    async ({
+      list_id,
+      name,
+      content,
+      due_date,
+      due_date_time,
+      priority,
+      assignee,
+      unset_status,
+    }) => {
       try {
         const params = { name, content, due_date, due_date_time, priority, assignee, unset_status };
         if (Object.values(params).every(value => value === undefined)) {
@@ -558,7 +572,9 @@ export function setupListFolderTools(server: McpServer): void {
       return_immediately: z
         .boolean()
         .optional()
-        .describe('Return immediately with the future List ID instead of waiting for the template to finish'),
+        .describe(
+          'Return immediately with the future List ID instead of waiting for the template to finish'
+        ),
     },
     async ({ folder_id, template_id, name, return_immediately }) => {
       try {
@@ -585,7 +601,9 @@ export function setupListFolderTools(server: McpServer): void {
       return_immediately: z
         .boolean()
         .optional()
-        .describe('Return immediately with the future List ID instead of waiting for the template to finish'),
+        .describe(
+          'Return immediately with the future List ID instead of waiting for the template to finish'
+        ),
     },
     async ({ space_id, template_id, name, return_immediately }) => {
       try {
@@ -607,9 +625,7 @@ export function setupListFolderTools(server: McpServer): void {
     'Create a new folder (with its nested lists and tasks) in a ClickUp space using an existing folder template.',
     {
       space_id: idSchema().describe('The ID of the space to create the folder in'),
-      template_id: z
-        .string()
-        .describe('The ID of the folder template to use (e.g. "t-7162342")'),
+      template_id: z.string().describe('The ID of the folder template to use (e.g. "t-7162342")'),
       name: z.string().describe('The name of the new folder'),
       return_immediately: z
         .boolean()

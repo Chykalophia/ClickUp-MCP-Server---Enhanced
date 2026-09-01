@@ -38,7 +38,10 @@ export function setupTimeTrackingTools(server: McpServer): void {
         .optional()
         .describe('Filter by end date (Unix timestamp in milliseconds)'),
       assignee: z
-        .union([z.number().positive(), z.string().regex(/^\d+(,\d+)*$/, 'Comma-separated numeric user IDs')])
+        .union([
+          z.number().positive(),
+          z.string().regex(/^\d+(,\d+)*$/, 'Comma-separated numeric user IDs'),
+        ])
         .optional()
         .describe(
           'Filter by user ID. For multiple users, pass a comma-separated string of user IDs (e.g. "1234,9876")'
@@ -113,8 +116,18 @@ export function setupTimeTrackingTools(server: McpServer): void {
       description: z.string().min(1).describe('Description of the time entry'),
       start: z.number().positive().describe('Start time (Unix timestamp in milliseconds)'),
       billable: z.boolean().default(false).describe('Whether the time is billable'),
-      duration: z.number().positive().optional().describe('Duration in milliseconds. Provide either duration or stop, not both.'),
-      stop: z.number().positive().optional().describe('End time (Unix timestamp in milliseconds). Provide either stop or duration, not both.'),
+      duration: z
+        .number()
+        .positive()
+        .optional()
+        .describe('Duration in milliseconds. Provide either duration or stop, not both.'),
+      stop: z
+        .number()
+        .positive()
+        .optional()
+        .describe(
+          'End time (Unix timestamp in milliseconds). Provide either stop or duration, not both.'
+        ),
       task_id: idSchema().optional().describe('Associated task ID'),
       custom_task_ids: z
         .boolean()
@@ -154,7 +167,12 @@ export function setupTimeTrackingTools(server: McpServer): void {
 
         if (!duration && !stop) {
           return {
-            content: [{ type: 'text', text: 'Error: Provide either duration or stop to define the time entry length.' }],
+            content: [
+              {
+                type: 'text',
+                text: 'Error: Provide either duration or stop to define the time entry length.',
+              },
+            ],
             isError: true,
           };
         }
@@ -230,7 +248,9 @@ export function setupTimeTrackingTools(server: McpServer): void {
       tag_action: z
         .enum(['replace', 'add', 'remove'])
         .optional()
-        .describe('Whether to replace, add, or remove the supplied tags. Defaults to "add" when tags are provided.'),
+        .describe(
+          'Whether to replace, add, or remove the supplied tags. Defaults to "add" when tags are provided.'
+        ),
     },
     async ({
       team_id,
@@ -561,7 +581,10 @@ export function setupTimeTrackingTools(server: McpServer): void {
         .optional()
         .describe('Filter by end date (Unix timestamp in milliseconds)'),
       assignee: z
-        .union([z.number().positive(), z.string().regex(/^\d+(,\d+)*$/, 'Comma-separated numeric user IDs')])
+        .union([
+          z.number().positive(),
+          z.string().regex(/^\d+(,\d+)*$/, 'Comma-separated numeric user IDs'),
+        ])
         .optional()
         .describe(
           'Filter by user ID. For multiple users, pass a comma-separated string of user IDs (e.g. "1234,9876")'

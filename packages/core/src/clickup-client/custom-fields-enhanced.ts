@@ -396,7 +396,10 @@ export class EnhancedCustomFieldsClient {
       const response = await this.http.get(url);
       return response.data.fields || [];
     } catch (error) {
-      console.error('Error getting list custom fields:', error instanceof Error ? error.message : error);
+      console.error(
+        'Error getting list custom fields:',
+        error instanceof Error ? error.message : error
+      );
       throw this.handleError(error, `Failed to get custom fields for list ${listId}`);
     }
   }
@@ -411,7 +414,10 @@ export class EnhancedCustomFieldsClient {
       const response = await this.http.get(url);
       return response.data.fields || [];
     } catch (error) {
-      console.error('Error getting folder custom fields:', error instanceof Error ? error.message : error);
+      console.error(
+        'Error getting folder custom fields:',
+        error instanceof Error ? error.message : error
+      );
       throw this.handleError(error, `Failed to get custom fields for folder ${folderId}`);
     }
   }
@@ -426,7 +432,10 @@ export class EnhancedCustomFieldsClient {
       const response = await this.http.get(url);
       return response.data.fields || [];
     } catch (error) {
-      console.error('Error getting space custom fields:', error instanceof Error ? error.message : error);
+      console.error(
+        'Error getting space custom fields:',
+        error instanceof Error ? error.message : error
+      );
       throw this.handleError(error, `Failed to get custom fields for space ${spaceId}`);
     }
   }
@@ -440,7 +449,10 @@ export class EnhancedCustomFieldsClient {
       const response = await this.http.get(url);
       return response.data.fields || [];
     } catch (error) {
-      console.error('Error getting workspace custom fields:', error instanceof Error ? error.message : error);
+      console.error(
+        'Error getting workspace custom fields:',
+        error instanceof Error ? error.message : error
+      );
       throw this.handleError(error, `Failed to get custom fields for workspace ${teamId}`);
     }
   }
@@ -489,7 +501,10 @@ export class EnhancedCustomFieldsClient {
         params: this.buildTaskAddressingParams(options),
       });
     } catch (error) {
-      console.error('Error setting custom field value:', error instanceof Error ? error.message : error);
+      console.error(
+        'Error setting custom field value:',
+        error instanceof Error ? error.message : error
+      );
       throw this.handleError(
         error,
         `Failed to set custom field value for task ${taskId}, field ${fieldId}`
@@ -511,7 +526,10 @@ export class EnhancedCustomFieldsClient {
         params: this.buildTaskAddressingParams(options),
       });
     } catch (error) {
-      console.error('Error removing custom field value:', error instanceof Error ? error.message : error);
+      console.error(
+        'Error removing custom field value:',
+        error instanceof Error ? error.message : error
+      );
       throw this.handleError(
         error,
         `Failed to remove custom field value for task ${taskId}, field ${fieldId}`
@@ -549,7 +567,10 @@ export class EnhancedCustomFieldsClient {
         type_config: customField.type_config,
       };
     } catch (error) {
-      console.error('Error getting custom field value:', error instanceof Error ? error.message : error);
+      console.error(
+        'Error getting custom field value:',
+        error instanceof Error ? error.message : error
+      );
       throw this.handleError(
         error,
         `Failed to get custom field value for task ${taskId}, field ${fieldId}`
@@ -560,10 +581,7 @@ export class EnhancedCustomFieldsClient {
   /**
    * Get all custom field values for a task
    */
-  async getTaskCustomFieldValues(
-    taskId: string,
-    options?: TaskAddressingOptions
-  ): Promise<any[]> {
+  async getTaskCustomFieldValues(taskId: string, options?: TaskAddressingOptions): Promise<any[]> {
     try {
       const taskUrl = `https://api.clickup.com/api/v2/task/${taskId}`;
       const response = await this.http.get(taskUrl, {
@@ -583,7 +601,10 @@ export class EnhancedCustomFieldsClient {
         })) || []
       );
     } catch (error) {
-      console.error('Error getting task custom field values:', error instanceof Error ? error.message : error);
+      console.error(
+        'Error getting task custom field values:',
+        error instanceof Error ? error.message : error
+      );
       throw this.handleError(error, `Failed to get custom field values for task ${taskId}`);
     }
   }
@@ -617,7 +638,8 @@ export class EnhancedCustomFieldsClient {
           if (result.status === 'fulfilled') {
             results.push({ field_id, value, status: 'success' });
           } else {
-            const errorMessage = result.reason instanceof Error ? result.reason.message : 'Unknown error';
+            const errorMessage =
+              result.reason instanceof Error ? result.reason.message : 'Unknown error';
             results.push({ field_id, value, status: 'error', error: errorMessage });
           }
         });
@@ -625,7 +647,10 @@ export class EnhancedCustomFieldsClient {
 
       return results;
     } catch (error) {
-      console.error('Error bulk setting custom field values:', error instanceof Error ? error.message : error);
+      console.error(
+        'Error bulk setting custom field values:',
+        error instanceof Error ? error.message : error
+      );
       throw this.handleError(error, `Failed to bulk set custom field values for task ${taskId}`);
     }
   }
@@ -639,74 +664,74 @@ export class EnhancedCustomFieldsClient {
    */
   validateFieldValue(field: CustomField, value: any): boolean {
     switch (field.type) {
-    case 'text':
-    case 'short_text':
-      return typeof value === 'string';
+      case 'text':
+      case 'short_text':
+        return typeof value === 'string';
 
-    case 'number':
-    case 'currency':
-      return typeof value === 'number' && !isNaN(value);
+      case 'number':
+      case 'currency':
+        return typeof value === 'number' && !isNaN(value);
 
-    case 'date':
-      // Unix timestamp in MILLISECONDS (e.g. 1667367645000)
-      return typeof value === 'number' && Number.isInteger(value) && value > 0;
+      case 'date':
+        // Unix timestamp in MILLISECONDS (e.g. 1667367645000)
+        return typeof value === 'number' && Number.isInteger(value) && value > 0;
 
-    case 'checkbox':
-      return typeof value === 'boolean';
+      case 'checkbox':
+        return typeof value === 'boolean';
 
-    case 'url':
-      return typeof value === 'string' && this.isValidURL(value);
+      case 'url':
+        return typeof value === 'string' && this.isValidURL(value);
 
-    case 'email':
-      return typeof value === 'string' && this.isValidEmail(value);
+      case 'email':
+        return typeof value === 'string' && this.isValidEmail(value);
 
-    case 'phone':
-      return typeof value === 'string' && value.length > 0;
+      case 'phone':
+        return typeof value === 'string' && value.length > 0;
 
-    case 'drop_down':
-      // Canonical value is the option UUID (type_config.options[].id)
-      return field.type_config.options?.some((opt: DropdownOption) => opt.id === value);
+      case 'drop_down':
+        // Canonical value is the option UUID (type_config.options[].id)
+        return field.type_config.options?.some((opt: DropdownOption) => opt.id === value);
 
-    case 'labels':
-      return (
-        Array.isArray(value) &&
+      case 'labels':
+        return (
+          Array.isArray(value) &&
           value.every(v => field.type_config.options?.some((opt: { id: string }) => opt.id === v))
-      );
+        );
 
-    case 'emoji': {
-      // Rating fields: an integer within the configured count range
-      const count = (field.type_config as { count?: number }).count ?? 5;
-      return typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= count;
-    }
+      case 'emoji': {
+        // Rating fields: an integer within the configured count range
+        const count = (field.type_config as { count?: number }).count ?? 5;
+        return typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= count;
+      }
 
-    case 'automatic_progress':
-      // Computed by ClickUp — cannot be set via the API
-      return false;
+      case 'automatic_progress':
+        // Computed by ClickUp — cannot be set via the API
+        return false;
 
-    case 'manual_progress': {
-      const { start = 0, end = 100 } = field.type_config as { start?: number; end?: number };
-      return typeof value === 'number' && value >= start && value <= end;
-    }
+      case 'manual_progress': {
+        const { start = 0, end = 100 } = field.type_config as { start?: number; end?: number };
+        return typeof value === 'number' && value >= start && value <= end;
+      }
 
-    case 'users':
-    case 'tasks':
-      // People and task-relationship fields take { add: [ids], rem: [ids] }
-      return this.isValidAddRemValue(value);
+      case 'users':
+      case 'tasks':
+        // People and task-relationship fields take { add: [ids], rem: [ids] }
+        return this.isValidAddRemValue(value);
 
-    case 'location':
-      // { location: { lat, lng }, formatted_address? }
-      return (
-        typeof value === 'object' &&
+      case 'location':
+        // { location: { lat, lng }, formatted_address? }
+        return (
+          typeof value === 'object' &&
           value !== null &&
           typeof value.location === 'object' &&
           value.location !== null &&
           typeof value.location.lat === 'number' &&
           typeof value.location.lng === 'number' &&
           (value.formatted_address === undefined || typeof value.formatted_address === 'string')
-      );
+        );
 
-    default:
-      return true;
+      default:
+        return true;
     }
   }
 
@@ -748,20 +773,20 @@ export class EnhancedCustomFieldsClient {
       const message = error.response?.data?.message || error.message;
 
       switch (status) {
-      case 400:
-        return new Error(`${context}: Invalid request - ${message}`);
-      case 401:
-        return new Error(`${context}: Authentication failed - check API token`);
-      case 403:
-        return new Error(`${context}: Permission denied - insufficient access rights`);
-      case 404:
-        return new Error(`${context}: Resource not found - ${message}`);
-      case 429:
-        return new Error(`${context}: Rate limit exceeded - please retry later`);
-      case 500:
-        return new Error(`${context}: Server error - please try again`);
-      default:
-        return new Error(`${context}: ${message}`);
+        case 400:
+          return new Error(`${context}: Invalid request - ${message}`);
+        case 401:
+          return new Error(`${context}: Authentication failed - check API token`);
+        case 403:
+          return new Error(`${context}: Permission denied - insufficient access rights`);
+        case 404:
+          return new Error(`${context}: Resource not found - ${message}`);
+        case 429:
+          return new Error(`${context}: Rate limit exceeded - please retry later`);
+        case 500:
+          return new Error(`${context}: Server error - please try again`);
+        default:
+          return new Error(`${context}: ${message}`);
       }
     }
 

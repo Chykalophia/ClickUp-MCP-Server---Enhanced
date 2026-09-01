@@ -1,5 +1,10 @@
 import { ClickUpClient } from './index.js';
-import { validateResponse, ViewsResponseSchema, ViewResponseSchema, TasksResponseSchema } from '../schemas/response-schemas.js';
+import {
+  validateResponse,
+  ViewsResponseSchema,
+  ViewResponseSchema,
+  TasksResponseSchema,
+} from '../schemas/response-schemas.js';
 import { normalizeViewType } from '../schemas/views-schemas.js';
 // Splitting these type-only imports from the value import above is deliberate:
 // the base no-duplicate-imports rule is not TypeScript-aware enough to tell the
@@ -249,13 +254,20 @@ export class ViewsEnhancedClient extends ClickUpClient {
     // Views of types the Create View endpoint does not accept (e.g. form,
     // embed, doc) cannot be duplicated via the API.
     const creatableTypes = [
-      'list', 'board', 'calendar', 'table', 'timeline',
-      'workload', 'activity', 'map', 'chat', 'conversation', 'gantt',
+      'list',
+      'board',
+      'calendar',
+      'table',
+      'timeline',
+      'workload',
+      'activity',
+      'map',
+      'chat',
+      'conversation',
+      'gantt',
     ];
     if (!creatableTypes.includes(source.type)) {
-      throw new Error(
-        `Views of type '${source.type}' cannot be duplicated via the ClickUp API`
-      );
+      throw new Error(`Views of type '${source.type}' cannot be duplicated via the ClickUp API`);
     }
 
     const endpoint = this.getParentEndpoint(request.parent_type, request.parent_id);
@@ -282,16 +294,16 @@ export class ViewsEnhancedClient extends ClickUpClient {
 
   private getParentEndpoint(parentType: string, parentId: string): string {
     switch (parentType) {
-    case 'team':
-      return `/team/${parentId}`;
-    case 'space':
-      return `/space/${parentId}`;
-    case 'folder':
-      return `/folder/${parentId}`;
-    case 'list':
-      return `/list/${parentId}`;
-    default:
-      throw new Error(`Invalid parent type: ${parentType}`);
+      case 'team':
+        return `/team/${parentId}`;
+      case 'space':
+        return `/space/${parentId}`;
+      case 'folder':
+        return `/folder/${parentId}`;
+      case 'list':
+        return `/list/${parentId}`;
+      default:
+        throw new Error(`Invalid parent type: ${parentType}`);
     }
   }
 

@@ -23,69 +23,71 @@ const commentsClient = new CommentsEnhancedClient(clickUpClient);
  * Shared zod schema for ClickUp's structured comment block array.
  * Supports plain/formatted text, @mentions (tag blocks), and emoticons.
  */
-const commentBlocksSchema = z.array(
-  z
-    .object({
-      text: z
-        .string()
-        .optional()
-        .describe(
-          'The text content of this block. Optional for tag/emoticon blocks that reference a user/emoji by id.'
-        ),
-      type: z
-        .string()
-        .optional()
-        .describe(
-          'Block type. Use "tag" for @mentions, "emoticon" for emoji blocks. Omit for plain/formatted text blocks.'
-        ),
-      user: z
-        .object({
-          id: z.number().int().positive().describe('Numeric ClickUp user ID being mentioned'),
-        })
-        .passthrough()
-        .optional()
-        .describe(
-          'User reference for tag (mention) blocks. Canonical, fully-supported shape per ClickUp API: {"type":"tag","user":{"id":<userId>}}. This form reliably triggers native @mention notifications.'
-        ),
-      emoticon: z
-        .object({
-          code: z.string().describe('Emoticon code, e.g. "1f600"'),
-        })
-        .passthrough()
-        .optional()
-        .describe('Emoticon reference for emoticon blocks.'),
-      attributes: z
-        .object({
-          bold: z.boolean().optional().describe('Whether text is bold'),
-          italic: z.boolean().optional().describe('Whether text is italic'),
-          underline: z.boolean().optional().describe('Whether text is underlined'),
-          strikethrough: z.boolean().optional().describe('Whether text is strikethrough'),
-          code: z.boolean().optional().describe('Whether text is code'),
-          color: z.string().optional().describe('Text color'),
-          background_color: z.string().optional().describe('Background color'),
-          link: z
-            .object({
-              url: z.string().describe('Link URL'),
-            })
-            .optional()
-            .describe('Link attributes'),
-          'code-block': z
-            .object({
-              'code-block': z
-                .string()
-                .describe(
-                  'Programming language for syntax highlighting (e.g., "javascript", "python", "bash", "plain")'
-                ),
-            })
-            .optional()
-            .describe('Code block attributes for multi-line code with syntax highlighting'),
-        })
-        .passthrough()
-        .optional()
-        .describe('Text formatting attributes'),
-    })
-    .passthrough()
-).min(1);
+const commentBlocksSchema = z
+  .array(
+    z
+      .object({
+        text: z
+          .string()
+          .optional()
+          .describe(
+            'The text content of this block. Optional for tag/emoticon blocks that reference a user/emoji by id.'
+          ),
+        type: z
+          .string()
+          .optional()
+          .describe(
+            'Block type. Use "tag" for @mentions, "emoticon" for emoji blocks. Omit for plain/formatted text blocks.'
+          ),
+        user: z
+          .object({
+            id: z.number().int().positive().describe('Numeric ClickUp user ID being mentioned'),
+          })
+          .passthrough()
+          .optional()
+          .describe(
+            'User reference for tag (mention) blocks. Canonical, fully-supported shape per ClickUp API: {"type":"tag","user":{"id":<userId>}}. This form reliably triggers native @mention notifications.'
+          ),
+        emoticon: z
+          .object({
+            code: z.string().describe('Emoticon code, e.g. "1f600"'),
+          })
+          .passthrough()
+          .optional()
+          .describe('Emoticon reference for emoticon blocks.'),
+        attributes: z
+          .object({
+            bold: z.boolean().optional().describe('Whether text is bold'),
+            italic: z.boolean().optional().describe('Whether text is italic'),
+            underline: z.boolean().optional().describe('Whether text is underlined'),
+            strikethrough: z.boolean().optional().describe('Whether text is strikethrough'),
+            code: z.boolean().optional().describe('Whether text is code'),
+            color: z.string().optional().describe('Text color'),
+            background_color: z.string().optional().describe('Background color'),
+            link: z
+              .object({
+                url: z.string().describe('Link URL'),
+              })
+              .optional()
+              .describe('Link attributes'),
+            'code-block': z
+              .object({
+                'code-block': z
+                  .string()
+                  .describe(
+                    'Programming language for syntax highlighting (e.g., "javascript", "python", "bash", "plain")'
+                  ),
+              })
+              .optional()
+              .describe('Code block attributes for multi-line code with syntax highlighting'),
+          })
+          .passthrough()
+          .optional()
+          .describe('Text formatting attributes'),
+      })
+      .passthrough()
+  )
+  .min(1);
 
 /**
  * Format comment response with enhanced markdown styling
@@ -294,7 +296,9 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
         }
         const params: CreateChatViewCommentParams = {
           ...commentParams,
-          ...(comment?.length ? { comment: processCommentBlocks(comment), comment_text: undefined } : {}),
+          ...(comment?.length
+            ? { comment: processCommentBlocks(comment), comment_text: undefined }
+            : {}),
         };
         const result = await commentsClient.createChatViewComment(view_id, params);
         return {
@@ -354,7 +358,9 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
         }
         const params: CreateListCommentParams = {
           ...commentParams,
-          ...(comment?.length ? { comment: processCommentBlocks(comment), comment_text: undefined } : {}),
+          ...(comment?.length
+            ? { comment: processCommentBlocks(comment), comment_text: undefined }
+            : {}),
         };
         const result = await commentsClient.createListComment(list_id, params);
         return {
@@ -402,7 +408,9 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
           ...commentParams,
           // Structured blocks take precedence: drop comment_text so the
           // client does not prefer it over the supplied blocks.
-          ...(comment?.length ? { comment: processCommentBlocks(comment), comment_text: undefined } : {}),
+          ...(comment?.length
+            ? { comment: processCommentBlocks(comment), comment_text: undefined }
+            : {}),
         };
         const result = await commentsClient.updateComment(comment_id, params);
         return {
@@ -480,7 +488,9 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
         }
         const params: CreateThreadedCommentParams = {
           ...commentParams,
-          ...(comment?.length ? { comment: processCommentBlocks(comment), comment_text: undefined } : {}),
+          ...(comment?.length
+            ? { comment: processCommentBlocks(comment), comment_text: undefined }
+            : {}),
         };
         const result = await commentsClient.createThreadedComment(comment_id, params);
         return {

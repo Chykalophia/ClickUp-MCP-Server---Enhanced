@@ -44,7 +44,9 @@ export class ClickUpClient {
       response => response,
       async error => {
         // Retry 429s, honoring the server-mandated Retry-After wait (a minimum, per RFC 9110)
-        const requestConfig = error.config as (AxiosRequestConfig & { _retryCount?: number }) | undefined;
+        const requestConfig = error.config as
+          | (AxiosRequestConfig & { _retryCount?: number })
+          | undefined;
         if (error.response?.status === 429 && requestConfig) {
           const retryCount = requestConfig._retryCount ?? 0;
           if (retryCount < MAX_RATE_LIMIT_RETRIES) {

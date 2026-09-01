@@ -45,8 +45,9 @@ export function setupCustomFieldTools(server: McpServer): void {
         .describe(
           'The type of container to get custom fields from ("team" and "workspace" are synonyms)'
         ),
-      container_id: idSchema()
-        .describe('The ID of the container (list, folder, space, or team/workspace)'),
+      container_id: idSchema().describe(
+        'The ID of the container (list, folder, space, or team/workspace)'
+      ),
     },
     async ({ container_type, container_id }) => {
       try {
@@ -240,9 +241,7 @@ export function setupCustomFieldTools(server: McpServer): void {
                   .describe('For date fields: store/display the time component'),
               })
               .optional()
-              .describe(
-                'Extra value options for this field (e.g. {"time": true} for date fields)'
-              ),
+              .describe('Extra value options for this field (e.g. {"time": true} for date fields)'),
           })
         )
         .min(1)

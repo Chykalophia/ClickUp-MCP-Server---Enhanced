@@ -130,6 +130,7 @@ This Enhanced version is based on the original ClickUp MCP Server codebase by [D
 
 ### Core Workspace Management (54 tools)
 - **Workspaces**: `clickup_get_workspaces`, `clickup_get_workspace_seats`
+- **Finding things by name**: `clickup_get_workspace_hierarchy` — the whole space/folder/list tree as IDs and names in one call, with an optional `name_filter`. Start here when you know a name but need an ID; it replaces a manual walk that measured 4 round trips and 60 KB against a real workspace (now 2 calls and ~200 bytes).
 - **Spaces & Lists**: `clickup_get_spaces`, `clickup_get_lists`, `clickup_create_list`, `clickup_update_list`, `clickup_delete_list` (with safeguards)
 - **Tasks**: `clickup_get_tasks`, `clickup_create_task`, `clickup_update_task`, `clickup_get_task_details` (with markdown support)
 - **Bulk Task Operations**: `clickup_bulk_create_tasks`, `clickup_bulk_update_tasks` (up to 50 tasks per request)
@@ -517,6 +518,53 @@ Notes:
   registered; they are not part of the tool payload.
 * `CLICKUP_DEBUG_TOOLS=true` adds `clickup_create_task_comment_raw_test`, a
   raw-API debugging aid that is off by default.
+
+## Parameter Handling
+
+### Unknown parameters are rejected
+
+Every tool validates its arguments strictly. A parameter name the tool does not
+declare is an error naming the offending key, the closest valid name, and the
+full valid set:
+
+```
+MCP error -32602: Unknown parameter(s) for clickup_create_task: markdown_contnet.
+"markdown_contnet" -> did you mean "markdown_content"?
+Valid parameters: list_id, name, description, markdown_content, ...
+```
+
+Before v6.2.0 an unknown key was **silently discarded** and the operation ran
+anyway, so a misspelled description produced a real task with an empty body and
+a success response. Note that the JSON Schema this server publishes has always
+declared `additionalProperties: false`; strict validation makes the runtime obey
+the contract it was already advertising, rather than adding a new restriction.
+
+### Alternative parameter names are accepted
+
+Where this server's parameter name differs from ClickUp's public API or from
+Anthropic's first-party ClickUp MCP, both names work. The alias is renamed to the
+canonical name before the tool runs, so nothing is sent twice.
+
+| Alias | Canonical | Where |
+|---|---|---|
+| `workspace_id` | `team_id` | any tool taking `team_id` (42 tools) |
+| `team_id` | `workspace_id` | any tool taking `workspace_id` (39 tools) |
+| `document_id` | `doc_id` | the doc tools (7 tools) |
+| `markdown_description` | `markdown_content` | `clickup_create_task`, `clickup_update_task` |
+| `folder_ids` | `project_ids` | `clickup_get_filtered_team_tasks` |
+| `task_id`, `source_task_ids` | `primary_task_id`, `secondary_task_ids` | `clickup_merge_tasks` |
+
+`workspace_id` / `team_id` is bidirectional because the split is internal too:
+this server's own tools are divided between the two spellings for the same
+workspace ID. Both now work everywhere rather than renaming half the surface.
+
+Where a canonical parameter was required and has an alias, the schema marks it
+optional and its description says `Required unless <alias> is given instead`;
+supplying neither is still an error. Aliases are renames only — parameters that
+differ in *type* from the first-party server (`priority`, `due_date`,
+`time_estimate`, `assignees`, `start`/`stop`) are deliberately not aliased, since
+coercing values silently is the failure mode this release exists to remove. See
+`packages/core/src/utils/param-aliases.ts` for the full table and the reasoning.
 
 ## Configuration File Locations
 

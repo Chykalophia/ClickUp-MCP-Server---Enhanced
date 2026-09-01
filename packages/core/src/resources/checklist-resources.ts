@@ -86,7 +86,7 @@ export function setupChecklistResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(checklistItems, null, 2),
+              text: JSON.stringify(checklistItems),
             },
           ],
         };

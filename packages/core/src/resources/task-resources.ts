@@ -29,7 +29,7 @@ export function setupTaskResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(task, null, 2),
+              text: JSON.stringify(task),
             },
           ],
         };
@@ -58,7 +58,7 @@ export function setupTaskResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(task, null, 2),
+              text: JSON.stringify(task),
             },
           ],
         };

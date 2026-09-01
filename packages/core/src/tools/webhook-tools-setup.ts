@@ -59,7 +59,7 @@ export function setupWebhookTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Webhook created successfully. Store the returned secret — it is only returned at creation and is required for signature verification:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Webhook created successfully. Store the returned secret — it is only returned at creation and is required for signature verification:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -92,7 +92,7 @@ export function setupWebhookTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Webhooks for workspace ${args.workspace_id}:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Webhooks for workspace ${args.workspace_id}:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -117,7 +117,7 @@ export function setupWebhookTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Webhook details:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Webhook details:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -154,7 +154,7 @@ export function setupWebhookTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Webhook updated successfully:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Webhook updated successfully:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -178,7 +178,7 @@ export function setupWebhookTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Webhook deleted successfully: ${JSON.stringify(result, null, 2)}`,
+              text: `Webhook deleted successfully: ${JSON.stringify(result)}`,
             },
           ],
         };
@@ -210,7 +210,7 @@ export function setupWebhookTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Webhook signature validation result:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Webhook signature validation result:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -249,7 +249,7 @@ export function setupWebhookTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Webhook processing result:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Webhook processing result:\n\n${JSON.stringify(result)}`,
             },
           ],
         };

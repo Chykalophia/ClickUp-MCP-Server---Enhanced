@@ -29,7 +29,7 @@ export function setupFolderResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(foldersResponse, null, 2),
+              text: JSON.stringify(foldersResponse),
             },
           ],
         };
@@ -67,7 +67,7 @@ export function setupFolderResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(folder, null, 2),
+              text: JSON.stringify(folder),
             },
           ],
         };
@@ -97,7 +97,7 @@ export function setupFolderResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(lists, null, 2),
+              text: JSON.stringify(lists),
             },
           ],
         };
@@ -126,7 +126,7 @@ export function setupFolderResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(foldersResponse, null, 2),
+              text: JSON.stringify(foldersResponse),
             },
           ],
         };
@@ -158,7 +158,7 @@ export function setupFolderResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(folder, null, 2),
+              text: JSON.stringify(folder),
             },
           ],
         };
@@ -186,7 +186,7 @@ export function setupFolderResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(lists, null, 2),
+              text: JSON.stringify(lists),
             },
           ],
         };

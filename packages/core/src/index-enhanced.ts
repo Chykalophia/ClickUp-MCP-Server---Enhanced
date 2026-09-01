@@ -26,6 +26,7 @@ import { setupSpaceResources } from './resources/space-resources.js';
 import { setupFolderResources } from './resources/folder-resources.js';
 import { setupListResources } from './resources/list-resources.js';
 import { VERSION } from './version.js';
+import { enforceStrictParams } from './utils/tool-registration.js';
 import {
   describeToolsets,
   resolveToolsets,
@@ -48,10 +49,15 @@ class ClickUpServer {
   constructor() {
     this.toolsets = resolveToolsets();
 
-    this.server = new McpServer({
-      name: 'clickup-mcp-server',
-      version: VERSION,
-    });
+    // enforceStrictParams patches server.tool, so it has to run before any
+    // toolset registers. Unknown parameters become an error instead of being
+    // silently dropped — see utils/tool-registration.ts.
+    this.server = enforceStrictParams(
+      new McpServer({
+        name: 'clickup-mcp-server',
+        version: VERSION,
+      })
+    );
 
     // Handle process termination
     process.on('SIGINT', async () => {

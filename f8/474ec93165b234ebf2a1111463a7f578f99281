@@ -1,0 +1,116 @@
+package-lock.json
+  h_6b0fd3b79e7fc3 7233
+packages/core/package.json
+  h_6b0fd3b79e7fc3 3
+packages/core/src/clickup-client/auth.ts
+  h_6b0fd3b79e7fc3 47-50,292-295,321-324,335-338,368-371,394-397,408-411
+packages/core/src/clickup-client/comments-enhanced.ts
+  h_6b0fd3b79e7fc3 151-153,401-404
+packages/core/src/clickup-client/custom-fields-enhanced.ts
+  h_6b0fd3b79e7fc3 399-402,417-420,435-438,452-455,504-507,529-532,570-573,584,604-607,641-642,650-653,667-669,671-673,675-677,679-680,682-683,685-686,688-689,691-693,695-697,699,701-705,707-709,711-714,716-719,721-724,731,733-734,776-789
+packages/core/src/clickup-client/docs-enhanced.ts
+  h_6b0fd3b79e7fc3 160-163,206-209,417,441-456,470-480
+packages/core/src/clickup-client/folders.ts
+  h_6b0fd3b79e7fc3 53-55,119-122
+packages/core/src/clickup-client/goals-enhanced.ts
+  h_6b0fd3b79e7fc3 4-9,147-148,235-239,255-259,373-381,475-488
+packages/core/src/clickup-client/index.ts
+  h_6b0fd3b79e7fc3 47-49
+packages/core/src/clickup-client/lists.ts
+  h_6b0fd3b79e7fc3 159-162,177-180
+packages/core/src/clickup-client/tasks.ts
+  h_6b0fd3b79e7fc3 198-201,216-218,246-248,493,509-517,552-558,637-639,643-647,650-651,736-740,743-744
+packages/core/src/clickup-client/time-tracking-enhanced.ts
+  h_6b0fd3b79e7fc3 224-228,595-604,633-646
+packages/core/src/clickup-client/views-enhanced.ts
+  h_6b0fd3b79e7fc3 2-7,257-267,270,297-306
+packages/core/src/clickup-client/webhooks-enhanced.ts
+  h_6b0fd3b79e7fc3 66-69,159-162
+packages/core/src/index-enhanced.ts
+  h_6b0fd3b79e7fc3 91
+packages/core/src/schemas/attachments-schemas.ts
+  h_6b0fd3b79e7fc3 9-28,34
+packages/core/src/schemas/chat-schemas.ts
+  h_6b0fd3b79e7fc3 240-245
+packages/core/src/schemas/common.ts
+  h_6b0fd3b79e7fc3 16
+packages/core/src/schemas/custom-field-schemas.ts
+  h_6b0fd3b79e7fc3 221-232,235-244
+packages/core/src/schemas/document-schemas.ts
+  h_6b0fd3b79e7fc3 81
+packages/core/src/schemas/goals-schemas.ts
+  h_6b0fd3b79e7fc3 68-74
+packages/core/src/schemas/response-schemas.ts
+  h_6b0fd3b79e7fc3 21,24,30-34,36-40,81-85,87-91,93-97,108-137,140-145,153-158,165-169,171-175,182-188,222-226,253,258,261
+packages/core/src/schemas/time-tracking-schemas.ts
+  h_6b0fd3b79e7fc3 50,59-78
+packages/core/src/schemas/webhook-schemas.ts
+  h_6b0fd3b79e7fc3 110-119
+packages/core/src/tests/alias-map.test.ts
+  h_6b0fd3b79e7fc3 123
+packages/core/src/tests/comment-text.test.ts
+  h_6b0fd3b79e7fc3 61,105,117,119
+packages/core/src/tests/hierarchy-and-payloads.test.ts
+  h_6b0fd3b79e7fc3 37-42,52-61,83,103-107,153-158
+packages/core/src/tests/markdown.test.ts
+  h_6b0fd3b79e7fc3 44-50
+packages/core/src/tests/param-strictness.test.ts
+  h_6b0fd3b79e7fc3 81,115,218-220,232,247,298,325,328,335,339
+packages/core/src/tests/time-in-status.test.ts
+  h_6b0fd3b79e7fc3 69
+packages/core/src/tests/time-tracking.test.ts
+  h_6b0fd3b79e7fc3 2-5,134-145,161-166,182-187,238-251
+packages/core/src/tests/toolsets.test.ts
+  h_6b0fd3b79e7fc3 18
+packages/core/src/tests/version.test.ts
+  h_6b0fd3b79e7fc3 21,23,33
+packages/core/src/tools/attachments-tools-setup.ts
+  h_6b0fd3b79e7fc3 30-41,67-72,74-77
+packages/core/src/tools/bulk-task-tools.ts
+  h_6b0fd3b79e7fc3 295
+packages/core/src/tools/chat-tools.ts
+  h_6b0fd3b79e7fc3 44-61,63-70,99-106,136-143,173-175,268-277,304-313,344-356,384-389,392-395,399-402,434-436,443-446,506-518,546-551,554-557,561-564,599-608,635-638,696-705,731-734
+packages/core/src/tools/checklist-tools.ts
+  h_6b0fd3b79e7fc3 182
+packages/core/src/tools/comment-tools.ts
+  h_6b0fd3b79e7fc3 26-90,299-301,361-363,411-413,491-493
+packages/core/src/tools/custom-field-tools.ts
+  h_6b0fd3b79e7fc3 48-50,244
+packages/core/src/tools/dependencies-tools-setup.ts
+  h_6b0fd3b79e7fc3 275-276
+packages/core/src/tools/doc-tools-enhanced.ts
+  h_6b0fd3b79e7fc3 21-32,48-50,89-99,101-112,139-142,186-188,274-276,289-291,295-297,299-310,316-318,408-417
+packages/core/src/tools/goals-tools.ts
+  h_6b0fd3b79e7fc3 65-67,114-118,246-247
+packages/core/src/tools/list-folder-tools.ts
+  h_6b0fd3b79e7fc3 73,83,120,130,353-363,475,477-486,575-577,604-606,628
+packages/core/src/tools/space-tools.ts
+  h_6b0fd3b79e7fc3 53,71-76,148,155-163,255-258,327
+packages/core/src/tools/task-tools.ts
+  h_6b0fd3b79e7fc3 69-75,130-132,320,403-426,460,487
+packages/core/src/tools/time-tracking-tools.ts
+  h_6b0fd3b79e7fc3 41-44,119-130,170-175,251-253,584-587
+packages/core/src/tools/toolsets.ts
+  h_6b0fd3b79e7fc3 21-24,68-70,73
+packages/core/src/tools/views-tools-setup.ts
+  h_6b0fd3b79e7fc3 40-45,48-51,53-55,57-66,91-96,149-152,156-159,161-163,213-215,241-243,325-330,356-361,386-388
+packages/core/src/tools/webhook-tools-setup.ts
+  h_6b0fd3b79e7fc3 135-137,199-201,232-234
+packages/core/src/tools/workspace-tools.ts
+  h_6b0fd3b79e7fc3 50-53
+packages/core/src/utils/clickup-comment-formatter.ts
+  h_6b0fd3b79e7fc3 587-591,627-629
+packages/core/src/utils/tool-registration.ts
+  h_6b0fd3b79e7fc3 143
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.0",
+  "base_commit_sha": "f8474ec93165b234ebf2a1111463a7f578f99281",
+  "prompts": {},
+  "humans": {
+    "h_6b0fd3b79e7fc3": {
+      "author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}

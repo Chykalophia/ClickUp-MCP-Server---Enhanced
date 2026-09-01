@@ -55,15 +55,16 @@ export interface GetTaskCommentsParams {
   start?: number;
   start_id?: string;
   custom_task_ids?: boolean; // Set true to reference the task by its custom task ID
-  team_id?: number; // Workspace ID; required when custom_task_ids is true
+  team_id?: string | number; // Workspace ID; required when custom_task_ids is true
 }
 
 export interface CreateTaskCommentParams {
-  comment_text: string;
+  comment_text?: string; // Plain GFM text; converted to ClickUp's block array before sending
+  comment?: ClickUpCommentBlock[]; // Structured comment blocks (supports @mentions via tag blocks)
   assignee?: number;
   notify_all?: boolean;
   custom_task_ids?: boolean; // Set true to reference the task by its custom task ID
-  team_id?: number; // Workspace ID; required when custom_task_ids is true
+  team_id?: string | number; // Workspace ID; required when custom_task_ids is true
 }
 
 export interface GetChatViewCommentsParams {
@@ -164,7 +165,16 @@ function buildCommentBody(params: {
  * Build the query string for task-comment endpoints that support
  * custom task IDs (custom_task_ids + team_id).
  */
-function buildTaskQueryString(params?: { custom_task_ids?: boolean; team_id?: number }): string {
+function buildTaskQueryString(params?: {
+  custom_task_ids?: boolean;
+  team_id?: string | number;
+}): string {
+  // ClickUp resolves a custom task ID only within a workspace, so the pair is
+  // all-or-nothing. Without this the request goes out looking valid and comes
+  // back as an opaque API error.
+  if (params?.custom_task_ids && params.team_id === undefined) {
+    throw new Error('team_id is required when custom_task_ids is true');
+  }
   const query = new URLSearchParams();
   if (params?.custom_task_ids) {
     query.set('custom_task_ids', 'true');
@@ -252,13 +262,12 @@ export class CommentsEnhancedClient {
     taskId: string,
     params: CreateTaskCommentParams
   ): Promise<CreateCommentResponse> {
-    // Convert comment_text to structured array format
-    const structuredComment = prepareCommentForClickUp(params.comment_text);
-
     const payload = {
       notify_all: params.notify_all || false,
       assignee: params.assignee,
-      ...structuredComment, // This adds the 'comment' array, NOT comment_text
+      // Prefers caller-supplied blocks, else converts comment_text markdown.
+      // Adds the 'comment' array, NOT comment_text — see buildCommentBody.
+      ...buildCommentBody(params),
     };
 
     // Create responses only contain { id, hist_id, date } - no comment array to post-process

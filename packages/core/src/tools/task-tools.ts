@@ -126,7 +126,11 @@ export function setupTaskTools(server: McpServer): void {
     },
     async ({ list_id, custom_task_ids, team_id, ...taskParams }) => {
       try {
-        // If both description and markdown_content are provided, prefer markdown_content
+        // If both description and markdown_content are provided, prefer markdown_content.
+        // console.warn goes to stderr, which is the only channel available here:
+        // this is a stdio MCP server and stdout carries the JSON-RPC stream, so
+        // anything written there corrupts the protocol. Do not "clean this up"
+        // into a logger that writes to stdout.
         if (taskParams.markdown_content && taskParams.description) {
           console.warn('Both description and markdown_content provided. Using markdown_content.');
           delete taskParams.description;
@@ -188,7 +192,11 @@ export function setupTaskTools(server: McpServer): void {
     },
     async ({ task_id, custom_task_ids, team_id, ...taskParams }) => {
       try {
-        // If both description and markdown_content are provided, prefer markdown_content
+        // If both description and markdown_content are provided, prefer markdown_content.
+        // console.warn goes to stderr, which is the only channel available here:
+        // this is a stdio MCP server and stdout carries the JSON-RPC stream, so
+        // anything written there corrupts the protocol. Do not "clean this up"
+        // into a logger that writes to stdout.
         if (taskParams.markdown_content && taskParams.description) {
           console.warn('Both description and markdown_content provided. Using markdown_content.');
           delete taskParams.description;

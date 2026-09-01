@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { createClickUpClient } from '../clickup-client/index.js';
 import {
   CommentsEnhancedClient,
-  // CreateTaskCommentParams,
+  CreateTaskCommentParams,
   CreateChatViewCommentParams,
   CreateListCommentParams,
   UpdateCommentParams,
@@ -88,25 +88,6 @@ const commentBlocksSchema = z.array(
 ).min(1);
 
 /**
- * Build the query string for task-comment endpoints that support
- * custom task IDs (custom_task_ids + team_id).
- */
-function buildTaskQueryString(params: { custom_task_ids?: boolean; team_id?: number }): string {
-  if (params.custom_task_ids && params.team_id === undefined) {
-    throw new Error('team_id is required when custom_task_ids is true');
-  }
-  const query = new URLSearchParams();
-  if (params.custom_task_ids) {
-    query.set('custom_task_ids', 'true');
-  }
-  if (params.team_id !== undefined) {
-    query.set('team_id', String(params.team_id));
-  }
-  const queryString = query.toString();
-  return queryString ? `?${queryString}` : '';
-}
-
-/**
  * Format comment response with enhanced markdown styling
  */
 function formatCommentResponse(result: any, title?: string): any {
@@ -187,8 +168,7 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
         .boolean()
         .optional()
         .describe('Set to true to reference the task by its custom task ID (e.g. "PROJ-123")'),
-      team_id: z
-        .number()
+      team_id: idSchema()
         .optional()
         .describe('The Workspace ID. Required when custom_task_ids is true'),
     },
@@ -211,12 +191,20 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
   // Register create_task_comment tool
   server.tool(
     'clickup_create_task_comment',
-    'Create a new comment on a ClickUp task using structured array format. Supports optional assignee and notification settings. Supports @mentions via tag blocks ({type:"tag", user:{id}} or {type:"tag", text:"@Full Name"}).',
+    'Create a new comment on a ClickUp task. Supports GitHub Flavored Markdown in comment text, or structured comment blocks for @mentions. Provide either comment_text or comment. Supports optional assignee and notification settings.',
     {
       task_id: idSchema().describe('The ID of the task to comment on'),
-      comment: commentBlocksSchema.describe(
-        'Array of comment blocks. Plain/formatted text uses {text, attributes}. @mentions use {type:"tag", user:{id}} (canonical, recommended — reliably triggers native mention notifications) or {type:"tag", text:"@Full Name"} (UI fallback shape; notification behavior may be less reliable). Unknown keys pass through to the ClickUp API.'
-      ),
+      comment_text: z
+        .string()
+        .optional()
+        .describe(
+          'The text content of the comment (supports GitHub Flavored Markdown including headers, bold, italic, code blocks, links, lists, etc.). Required unless comment blocks are provided.'
+        ),
+      comment: commentBlocksSchema
+        .optional()
+        .describe(
+          'Array of comment blocks (alternative to comment_text). Plain/formatted text uses {text, attributes}. @mentions use {type:"tag", user:{id}} (canonical, recommended — reliably triggers native mention notifications) or {type:"tag", text:"@Full Name"} (UI fallback shape; notification behavior may be less reliable). Unknown keys pass through to the ClickUp API. Takes precedence over comment_text when provided.'
+        ),
       assignee: z
         .number()
         .int()
@@ -228,27 +216,27 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
         .boolean()
         .optional()
         .describe('Set to true to reference the task by its custom task ID (e.g. "PROJ-123")'),
-      team_id: z
-        .number()
+      team_id: idSchema()
         .optional()
         .describe('The Workspace ID. Required when custom_task_ids is true'),
     },
     async ({ task_id, comment, custom_task_ids, team_id, ...commentParams }) => {
       try {
-        // Process comment blocks to ensure proper code block separation
-        const processedComment = processCommentBlocks(comment);
-
-        // Create payload with processed structured comment array
-        const payload = {
-          notify_all: commentParams.notify_all || false,
-          assignee: commentParams.assignee,
-          comment: processedComment,
+        if (!comment?.length && !commentParams.comment_text) {
+          throw new Error(
+            'Provide comment_text (plain GitHub Flavored Markdown) or comment (structured blocks)'
+          );
+        }
+        const params: CreateTaskCommentParams = {
+          ...commentParams,
+          custom_task_ids,
+          team_id,
+          // Blocks win over text, matching clickup_create_chat_view_comment.
+          ...(comment?.length
+            ? { comment: processCommentBlocks(comment), comment_text: undefined }
+            : {}),
         };
-
-        const result = await clickUpClient.post(
-          `/task/${task_id}/comment${buildTaskQueryString({ custom_task_ids, team_id })}`,
-          payload
-        );
+        const result = await commentsClient.createTaskComment(task_id, params);
 
         return {
           content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],

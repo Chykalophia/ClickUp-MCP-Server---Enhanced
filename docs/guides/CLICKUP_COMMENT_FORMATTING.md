@@ -91,6 +91,25 @@ This gets converted to ClickUp's format:
 }
 ```
 
+### Choosing between `comment_text` and `comment`
+
+`clickup_create_task_comment`, `clickup_create_list_comment`,
+`clickup_create_chat_view_comment`, `clickup_create_threaded_comment` and
+`clickup_update_comment` all take either shape:
+
+- **`comment_text`** — plain GitHub Flavored Markdown. Converted to the block
+  array above before sending. This is the right choice for ordinary prose and is
+  the same parameter the first-party ClickUp MCP uses.
+- **`comment`** — a pre-built block array. Needed for `@mentions`, which have no
+  markdown spelling: `{ "type": "tag", "user": { "id": 38366580 } }`.
+
+Supply one or the other. When both are given, `comment` wins. Supplying neither
+is an error naming both options. Only the `comment` array is ever sent to
+ClickUp — sending `comment_text` alongside it duplicates the comment body.
+
+> Before v6.2.0, `clickup_create_task_comment` accepted **only** the block array,
+> so posting a plain markdown comment meant hand-building blocks first.
+
 ### Advanced Formatting Examples
 
 #### Status Update Comment

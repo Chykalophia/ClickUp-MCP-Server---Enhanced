@@ -18,7 +18,7 @@
 /** Toolset name -> what it covers, and how many tools it registers. */
 export const TOOLSETS = {
   tasks: { count: 13, description: 'Task create/read/update/delete, search, assignees, status' },
-  lists: { count: 17, description: 'Lists, folders, and folderless lists' },
+  lists: { count: 18, description: 'Lists, folders, folderless lists, and the workspace hierarchy map' },
   chat: { count: 19, description: 'Chat channels, messages, reactions, replies' },
   'time-tracking': { count: 14, description: 'Time entries, timers, and time summaries' },
   goals: { count: 12, description: 'Goals and goal targets' },

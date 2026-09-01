@@ -5,6 +5,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod';
 
 // Import existing tool setups
+import { enforceStrictParams } from './utils/tool-registration.js';
 import { setupTaskTools } from './tools/task-tools.js';
 import { setupDocTools } from './tools/doc-tools.js';
 import { setupSpaceTools } from './tools/space-tools.js';
@@ -43,10 +44,15 @@ class EfficiencyEnhancedClickUpServer {
   private client: any;
 
   constructor() {
-    this.server = new McpServer({
-      name: 'clickup-mcp-server-efficiency',
-      version: VERSION,
-    });
+    // enforceStrictParams patches server.tool, so it has to run before any
+    // toolset registers. Unknown parameters become an error instead of being
+    // silently dropped — see utils/tool-registration.ts.
+    this.server = enforceStrictParams(
+      new McpServer({
+        name: 'clickup-mcp-server-efficiency',
+        version: VERSION,
+      })
+    );
 
     this.client = createClickUpClient();
 

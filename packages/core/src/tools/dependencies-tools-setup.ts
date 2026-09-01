@@ -88,7 +88,7 @@ export function setupDependenciesTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Dependencies for task ${args.task_id}:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Dependencies for task ${args.task_id}:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -120,7 +120,7 @@ export function setupDependenciesTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Dependency deleted successfully: ${JSON.stringify(result, null, 2)}`,
+              text: `Dependency deleted successfully: ${JSON.stringify(result)}`,
             },
           ],
         };
@@ -151,7 +151,7 @@ export function setupDependenciesTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Task link created successfully:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Task link created successfully:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -178,7 +178,7 @@ export function setupDependenciesTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Task link removed successfully:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Task link removed successfully:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -213,7 +213,7 @@ export function setupDependenciesTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Dependency graph for task ${args.task_id}:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Dependency graph for task ${args.task_id}:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -253,7 +253,7 @@ export function setupDependenciesTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Dependency conflict check results:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Dependency conflict check results:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -294,7 +294,7 @@ export function setupDependenciesTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Bulk dependency operations results:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Bulk dependency operations results:\n\n${JSON.stringify(result)}`,
             },
           ],
         };

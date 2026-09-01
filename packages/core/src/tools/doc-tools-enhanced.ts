@@ -90,7 +90,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
           cursor,
         });
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result) }],
         };
       } catch (error: unknown) {
         return mcpError('searching docs', error);
@@ -130,7 +130,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
         });
 
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result) }],
         };
       } catch (error: unknown) {
         return mcpError('getting docs from workspace', error);
@@ -153,7 +153,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
       try {
         const pages = await enhancedDocsClient.getDocPages(workspace_id, doc_id, content_format);
         return {
-          content: [{ type: 'text', text: JSON.stringify(pages, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(pages) }],
         };
       } catch (error: unknown) {
         return mcpError('getting doc pages', error);
@@ -182,7 +182,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
           max_page_depth
         );
         return {
-          content: [{ type: 'text', text: JSON.stringify(listing, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(listing) }],
         };
       } catch (error: unknown) {
         return mcpError('listing doc pages', error);
@@ -205,7 +205,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: JSON.stringify(doc, null, 2),
+              text: JSON.stringify(doc),
             },
           ],
         };
@@ -276,7 +276,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Document created successfully!\n\n${JSON.stringify(doc, null, 2)}`,
+              text: `Document created successfully!\n\n${JSON.stringify(doc)}`,
             },
           ],
         };
@@ -319,7 +319,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Page created successfully!\n\n${JSON.stringify(page, null, 2)}`,
+              text: `Page created successfully!\n\n${JSON.stringify(page)}`,
             },
           ],
         };
@@ -375,7 +375,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Page updated successfully!\n\n${JSON.stringify(updatedPage, null, 2)}`,
+              text: `Page updated successfully!\n\n${JSON.stringify(updatedPage)}`,
             },
           ],
         };

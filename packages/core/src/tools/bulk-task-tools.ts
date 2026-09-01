@@ -64,7 +64,7 @@ export function setupBulkTaskTools(server: McpServer): void {
                 `❌ Failed: ${result.error_count} tasks\n` +
                 `📊 Total: ${result.total_count} tasks\n` +
                 `⏱️ Execution time: ${result.execution_time_ms}ms\n\n` +
-                `Detailed Results:\n${JSON.stringify(result.results, null, 2)}`,
+                `Detailed Results:\n${JSON.stringify(result.results)}`,
             },
           ],
         };
@@ -119,7 +119,7 @@ export function setupBulkTaskTools(server: McpServer): void {
                 `❌ Failed: ${result.error_count} tasks\n` +
                 `📊 Total: ${result.total_count} tasks\n` +
                 `⏱️ Execution time: ${result.execution_time_ms}ms\n\n` +
-                `Detailed Results:\n${JSON.stringify(result.results, null, 2)}`,
+                `Detailed Results:\n${JSON.stringify(result.results)}`,
             },
           ],
         };
@@ -225,7 +225,7 @@ export function setupBulkTaskTools(server: McpServer): void {
                 `📊 Total: ${task_ids.length} tasks\n` +
                 `⏱️ Execution time: ${executionTime}ms\n\n` +
                 '⚠️ This action cannot be undone. All successfully deleted tasks have been permanently removed.\n\n' +
-                `Detailed Results:\n${JSON.stringify(results, null, 2)}`,
+                `Detailed Results:\n${JSON.stringify(results)}`,
             },
           ],
         };
@@ -332,7 +332,7 @@ export function setupBulkTaskTools(server: McpServer): void {
                 `Primary Task: "${primaryTask.name}" (${primary_task_id})\n` +
                 `Merged Tasks: ${secondaryTasks.map(task => task.name).join(', ')}\n\n` +
                 'Comments, attachments, and other content were migrated into the primary task by ClickUp.\n\n' +
-                `Merged Task:\n${JSON.stringify(mergedTask, null, 2)}`,
+                `Merged Task:\n${JSON.stringify(mergedTask)}`,
             },
           ],
         };

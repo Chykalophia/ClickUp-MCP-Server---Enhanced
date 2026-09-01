@@ -19,7 +19,7 @@ export function setupWorkspaceTools(server: McpServer): void {
       try {
         const result = await authClient.getWorkspaceSeats(workspace_id);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result) }],
         };
       } catch (error: unknown) {
         return mcpError('getting workspace seats', error);
@@ -29,13 +29,30 @@ export function setupWorkspaceTools(server: McpServer): void {
 
   server.tool(
     'clickup_get_workspaces',
-    'Get a list of all ClickUp workspaces accessible to the authenticated user. Returns workspace IDs, names, and metadata.',
-    {},
-    async () => {
+    'Get all ClickUp workspaces accessible to the authenticated user. Returns id, name and color for each. Set include_members to also return the full member roster, which is large — most callers only need the workspace ID.',
+    {
+      include_members: z
+        .boolean()
+        .optional()
+        .describe(
+          'Include the full member roster and workspace avatar URL. Off by default: on a real workspace the roster is ~10 KB per workspace and is almost never what the caller wanted. Use clickup_get_workspace_members or clickup_get_list_members to look people up instead.'
+        ),
+    },
+    async ({ include_members }) => {
       try {
         const result = await authClient.getWorkspaces();
+        // Trimmed by default. The raw response is dominated by `members` (a full
+        // roster with avatars and signed URLs) which the overwhelmingly common
+        // "which workspace am I in?" question does not need.
+        const payload = include_members
+          ? result.teams
+          : (result.teams ?? []).map((team: Record<string, unknown>) => ({
+            id: team.id,
+            name: team.name,
+            color: team.color,
+          }));
         return {
-          content: [{ type: 'text', text: JSON.stringify(result.teams, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(payload) }],
         };
       } catch (error: unknown) {
         return mcpError('getting workspaces', error);
@@ -51,7 +68,7 @@ export function setupWorkspaceTools(server: McpServer): void {
       try {
         const result = await authClient.getAuthorizedUser();
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result) }],
         };
       } catch (error: unknown) {
         return mcpError('getting authorized user', error);
@@ -73,7 +90,7 @@ export function setupWorkspaceTools(server: McpServer): void {
       try {
         const result = await authClient.getUserGroups(workspace_id, group_ids);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result.groups, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result.groups) }],
         };
       } catch (error: unknown) {
         return mcpError('getting user groups', error);
@@ -89,7 +106,7 @@ export function setupWorkspaceTools(server: McpServer): void {
       try {
         const result = await authClient.getWorkspacePlan(workspace_id);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result) }],
         };
       } catch (error: unknown) {
         return mcpError('getting workspace plan', error);
@@ -111,7 +128,7 @@ export function setupWorkspaceTools(server: McpServer): void {
       try {
         const result = await authClient.getCustomRoles(workspace_id, include_members);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result.custom_roles, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result.custom_roles) }],
         };
       } catch (error: unknown) {
         return mcpError('getting custom roles', error);

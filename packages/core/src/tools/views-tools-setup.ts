@@ -58,7 +58,7 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `View created successfully:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `View created successfully:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -85,7 +85,7 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Views for ${args.parent_type} ${args.parent_id}:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Views for ${args.parent_type} ${args.parent_id}:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -109,7 +109,7 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `View details:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `View details:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -143,7 +143,7 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `View updated successfully:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `View updated successfully:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -167,7 +167,7 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `View deleted successfully: ${JSON.stringify(result, null, 2)}`,
+              text: `View deleted successfully: ${JSON.stringify(result)}`,
             },
           ],
         };
@@ -193,7 +193,7 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `View filters updated successfully:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `View filters updated successfully:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -219,7 +219,7 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `View grouping updated successfully:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `View grouping updated successfully:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -245,7 +245,7 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `View sorting updated successfully:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `View sorting updated successfully:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -271,7 +271,7 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `View settings updated successfully:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `View settings updated successfully:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -300,7 +300,7 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Tasks in view ${args.view_id}:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Tasks in view ${args.view_id}:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -328,7 +328,7 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `View duplicated successfully:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `View duplicated successfully:\n\n${JSON.stringify(result)}`,
             },
           ],
         };
@@ -353,7 +353,7 @@ export function setupViewsTools(server: McpServer): void {
           content: [
             {
               type: 'text',
-              text: `Accessible Custom Fields for ${args.parent_type} ${args.parent_id}:\n\n${JSON.stringify(result, null, 2)}`,
+              text: `Accessible Custom Fields for ${args.parent_type} ${args.parent_id}:\n\n${JSON.stringify(result)}`,
             },
           ],
         };

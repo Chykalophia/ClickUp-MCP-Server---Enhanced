@@ -59,7 +59,7 @@ export function setupDocTools(server: McpServer): void {
         const result = await docsClient.searchDocs(workspace_id, { query, cursor });
 
         return {
-          content: [{ type: 'text', text: JSON.stringify(result.docs, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result.docs) }],
         };
       } catch (error: unknown) {
         return mcpError('searching docs', error);
@@ -89,7 +89,7 @@ export function setupDocTools(server: McpServer): void {
         });
 
         return {
-          content: [{ type: 'text', text: JSON.stringify(result.docs, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result.docs) }],
         };
       } catch (error: unknown) {
         return mcpError('getting docs from workspace', error);
@@ -115,7 +115,7 @@ export function setupDocTools(server: McpServer): void {
         const pages = await docsClient.getDocPages(workspace_id, doc_id, content_format);
 
         return {
-          content: [{ type: 'text', text: JSON.stringify(pages, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(pages) }],
         };
       } catch (error: unknown) {
         return mcpError('getting doc pages', error);

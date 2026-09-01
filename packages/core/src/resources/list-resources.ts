@@ -29,7 +29,7 @@ export function setupListResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(result, null, 2),
+              text: JSON.stringify(result),
             },
           ],
         };
@@ -59,7 +59,7 @@ export function setupListResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(list, null, 2),
+              text: JSON.stringify(list),
             },
           ],
         };
@@ -88,7 +88,7 @@ export function setupListResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(list, null, 2),
+              text: JSON.stringify(list),
             },
           ],
         };
@@ -116,7 +116,7 @@ export function setupListResources(server: McpServer): void {
             {
               uri: uri.toString(),
               mimeType: 'application/json',
-              text: JSON.stringify(result, null, 2),
+              text: JSON.stringify(result),
             },
           ],
         };

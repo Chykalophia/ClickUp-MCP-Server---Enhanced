@@ -1,0 +1,59 @@
+packages/core/src/tests/comment-text.test.ts
+  s_fe0f94a13bd624::t_22c2d941fccf16 243-245
+  s_fe0f94a13bd624::t_f181f78de72c20 240-242
+  s_fe0f94a13bd624::t_1a7c94b6de11dd 219-239,246
+docs/guides/CLICKUP_COMMENT_FORMATTING.md
+  s_fe0f94a13bd624::t_ec0bfad45bb57f 126,130-133,138-145,149,155-156,158,163,168
+  s_fe0f94a13bd624::t_9206d575269abe 115-117,122-125,127-129,134-137,172
+  s_fe0f94a13bd624::t_874b972e6fc998 146-148,150-154,157,159-162,164-167,169-171
+  s_fe0f94a13bd624::t_fe45d39404abf8 118-121
+  s_fe0f94a13bd624::t_3e50213dea1ea7 102-106
+packages/core/src/utils/clickup-comment-formatter.ts
+  s_fe0f94a13bd624::t_76503625b815be 233
+  s_fe0f94a13bd624::t_6188fd32b024fb 32-38
+  s_fe0f94a13bd624::t_31a4c36b0073ba 376-381,383-386,398-403,407-420,424,426,430-431,433,442-443
+  s_fe0f94a13bd624::t_474a3257e62c8a 382
+  s_fe0f94a13bd624::t_255992196a27cd 52-60,73-77,79
+  s_fe0f94a13bd624::t_efef2aa913ec14 662-670
+  s_fe0f94a13bd624::t_f6ccb29218eb02 721-724
+  s_fe0f94a13bd624::t_60a9fcbd283d5d 246
+  s_fe0f94a13bd624::t_1627046e0488c9 86-98,100
+  s_fe0f94a13bd624::t_4e9e3f4a389401 185-191,193-217,219-232,234-245,247-262
+  s_fe0f94a13bd624::t_47e9fade0bf303 51
+packages/core/src/tests/clickup-comment-formatter.test.ts
+  s_fe0f94a13bd624::t_7c9db5dd8ebf88 351-359
+  s_fe0f94a13bd624::t_bb50be13a6023b 428-429,440-444
+  s_fe0f94a13bd624::t_aa8eecf01287cd 627-666,669-675,677,679-692,785-802
+  s_fe0f94a13bd624::t_bd14ab35b5e135 322-324,328-337,343-349,360-370,376-379,385-393,395-407
+  s_fe0f94a13bd624::t_fa458d77025a9f 667-668,676,678
+  s_fe0f94a13bd624::t_29dc58bd34c47d 693-784
+  s_fe0f94a13bd624::t_13aff47077b5ca 350
+packages/core/src/tools/comment-tools.ts
+  s_fe0f94a13bd624::t_3a202dfb41dc6a 385
+  s_fe0f94a13bd624::t_f2f504b1d5e241 203,283,344,475
+  s_fe0f94a13bd624::t_abde90ecb97ec3 196,276,337,378,468
+RELEASE_NOTES.md
+  s_fe0f94a13bd624::t_4f65fb1903cca4 3,8-15,27,34-36,43-44,63-64,66-72,93-98
+  s_fe0f94a13bd624::t_eb6ce8c0bd4a01 4-7,16-26,28-30,37-40,88-92,99
+  s_fe0f94a13bd624::t_5af97dfd288519 87
+  s_fe0f94a13bd624::t_3555c8becd78b6 31-33
+  s_fe0f94a13bd624::t_85be2f879a0015 41-42,45-62,65,73-86
+packages/core/src/tools/workspace-tools.ts
+  s_fe0f94a13bd624::t_e1061edd38f9f6 38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "b6d1dcf98c666930659e7d73b77dfe0e53b08329",
+  "prompts": {},
+  "sessions": {
+    "s_fe0f94a13bd624": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b4975a44-8aed-4f52-a9be-dbda183c3fb8",
+        "model": "claude-opus-5"
+      },
+      "human_author": "Peter Krzyzek <peter@chykalophia.com>"
+    }
+  }
+}

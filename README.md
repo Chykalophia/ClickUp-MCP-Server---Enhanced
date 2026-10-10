@@ -455,63 +455,45 @@ keep working. They all expose the same tools.
   private, loopback, link-local, CGNAT and cloud-metadata addresses (IPv4 and
   IPv6) are refused, and every redirect hop is re-checked.
 
-## Reducing the Tool Surface (`CLICKUP_TOOLSETS`)
+## Tool Loading (`CLICKUP_TOOL_MODE`, `CLICKUP_TOOLSETS`)
 
-The server registers **156 tools** by default. Every tool's JSON Schema is sent
-to the client on connect — about 156KB — and re-sent on every reconnect. That
-occupies context before your first prompt, and clients that bridge a local
-server to a remote session pay the cost again on each connection rotation.
+**Changed in 7.0.0:** the server registers every tool but publishes only a
+**core** set on connect — 15 tools, ~24 KB of `tools/list` instead of ~173 KB.
+Everything else stays one call away through three always-on catalog tools:
 
-Most workflows need a fraction of it. Set `CLICKUP_TOOLSETS` to a comma-separated
-list to register only what you use:
+* `clickup_list_toolsets` — every toolset, its tools, and whether it is enabled
+  (`include_schemas: true` with a `toolset` returns full input schemas)
+* `clickup_enable_toolset` — switch toolsets on or off at runtime; the client is
+  notified via `notifications/tools/list_changed`
+* `clickup_call_tool` — run any tool by name, enabled or not, with the same
+  strict parameter validation as a direct call
+
+| Variable | Effect |
+|---|---|
+| `CLICKUP_TOOL_MODE=core` | Default. Core tools + catalog tools. |
+| `CLICKUP_TOOL_MODE=all` | **Every tool, as in 6.x.** |
+| `CLICKUP_TOOLSETS=goals,time` | Add whole toolsets or profiles to core (`all` = everything). |
+
+Toolsets: `tasks`, `lists`, `comments`, `custom-fields`, `docs`, `workspace`,
+`bulk`, `attachments`, `time-tracking`, `goals`, `views`, `webhooks`,
+`checklists`, `chat`, `spaces`, `dependencies`. Profiles: `pm` (tasks, comments,
+lists, custom-fields, checklists, dependencies), `time`, `chat`, `docs`,
+`admin` (spaces, views, webhooks, goals, workspace).
 
 ```json
-{
-  "mcpServers": {
-    "clickup": {
-      "command": "npx",
-      "args": ["-y", "@chykalophia/clickup-mcp-server@latest"],
-      "env": {
-        "CLICKUP_API_TOKEN": "YOUR_API_TOKEN_HERE",
-        "CLICKUP_TOOLSETS": "tasks,comments,custom-fields,attachments,lists,bulk,workspace"
-      }
-    }
-  }
+"env": {
+  "CLICKUP_API_TOKEN": "YOUR_API_TOKEN_HERE",
+  "CLICKUP_TOOLSETS": "pm,time"
 }
 ```
 
-That example serves **60 tools instead of 156 — a 58% smaller payload.**
+Every tool also carries MCP annotations (title, read-only / destructive /
+idempotent hints), and destructive tools ask for confirmation when the client
+supports elicitation (`CLICKUP_CONFIRM_DESTRUCTIVE=false` turns that off).
+Resources are always registered. `CLICKUP_DEBUG_TOOLS=true` adds the raw-API
+debugging tool `clickup_create_task_comment_raw_test`.
 
-| Toolset | Tools | Covers |
-|---|---:|---|
-| `chat` | 19 | Chat channels, messages, reactions, replies |
-| `lists` | 17 | Lists, folders, folderless lists |
-| `time-tracking` | 14 | Time entries, timers, time summaries |
-| `tasks` | 13 | Task CRUD, search, assignees, status |
-| `goals` | 12 | Goals and goal targets |
-| `views` | 12 | Views, filters, grouping, sorting |
-| `comments` | 10 | Task, list, chat-view, threaded comments |
-| `docs` | 9 | Docs, doc pages, doc search |
-| `spaces` | 9 | Spaces and space tags |
-| `dependencies` | 8 | Dependencies, links, dependency graphs |
-| `custom-fields` | 7 | Custom field definitions and values |
-| `webhooks` | 7 | Webhook management, processing, signatures |
-| `checklists` | 6 | Checklists and checklist items |
-| `workspace` | 6 | Workspaces, members, seats, plan, authorized user |
-| `bulk` | 5 | Bulk create/update/delete, bulk custom fields |
-| `attachments` | 2 | Task attachments and uploads |
-
-Notes:
-
-* Unset, empty, or `all` keeps every toolset — existing installs are unaffected.
-* Names are case-insensitive and `_` is treated as `-`, so `Custom_Fields` works.
-* Unrecognised names are ignored with a warning on stderr. If *nothing* in your
-  value resolves, the server falls back to all toolsets rather than starting
-  with no tools.
-* Resources (task, doc, checklist, comment, space, folder, list) are always
-  registered; they are not part of the tool payload.
-* `CLICKUP_DEBUG_TOOLS=true` adds `clickup_create_task_comment_raw_test`, a
-  raw-API debugging aid that is off by default.
+Full details: [docs/guides/TOOL_LOADING.md](docs/guides/TOOL_LOADING.md).
 
 ## Parameter Handling
 

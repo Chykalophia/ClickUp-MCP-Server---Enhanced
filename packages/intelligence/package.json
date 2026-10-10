@@ -64,7 +64,7 @@
     "zod": "^3.22.4"
   },
   "peerDependencies": {
-    "@chykalophia/clickup-mcp-server": "^5.0.0 || ^6.0.0"
+    "@chykalophia/clickup-mcp-server": "^5.0.0 || ^6.0.0 || ^7.0.0"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",

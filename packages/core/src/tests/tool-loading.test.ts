@@ -40,7 +40,12 @@ jest.mock('../clickup-client/index.js', () => ({
     get = mockGet;
     put = mockPut;
     delete = mockDelete;
-    getAxiosInstance = () => ({ get: mockAxiosGet, post: jest.fn(), put: jest.fn(), delete: jest.fn() });
+    getAxiosInstance = () => ({
+      get: mockAxiosGet,
+      post: jest.fn(),
+      put: jest.fn(),
+      delete: jest.fn(),
+    });
   },
   formatAuthorizationHeader: (token: string) => token,
   getApiToken: () => 'pk_test_token_1234567890abcdef',
@@ -161,15 +166,16 @@ describe('tool loading', () => {
   });
 
   describe('all mode', () => {
-    it.each([{ CLICKUP_TOOL_MODE: 'all' }, { CLICKUP_TOOLSETS: 'all' }, { CLICKUP_TOOL_MODE: 'ALL' }])(
-      'publishes every registered tool for %p',
-      async env => {
-        harness = await connect(env);
-        const { tools } = await listTools(harness.client);
-        expect(tools.length).toBe(harness.created.registry.tools.size);
-        expect(names(tools)).toEqual(expect.arrayContaining([...CATALOG, 'clickup_create_goal']));
-      }
-    );
+    it.each([
+      { CLICKUP_TOOL_MODE: 'all' },
+      { CLICKUP_TOOLSETS: 'all' },
+      { CLICKUP_TOOL_MODE: 'ALL' },
+    ])('publishes every registered tool for %p', async env => {
+      harness = await connect(env);
+      const { tools } = await listTools(harness.client);
+      expect(tools.length).toBe(harness.created.registry.tools.size);
+      expect(names(tools)).toEqual(expect.arrayContaining([...CATALOG, 'clickup_create_goal']));
+    });
   });
 
   describe('CLICKUP_TOOLSETS', () => {
@@ -184,7 +190,14 @@ describe('tool loading', () => {
     it('expands profiles', async () => {
       harness = await connect({ CLICKUP_TOOLSETS: 'admin time' });
       const listed = names((await listTools(harness.client)).tools);
-      for (const toolset of ['spaces', 'views', 'webhooks', 'goals', 'workspace', 'time-tracking']) {
+      for (const toolset of [
+        'spaces',
+        'views',
+        'webhooks',
+        'goals',
+        'workspace',
+        'time-tracking',
+      ]) {
         expect(listed).toEqual(
           expect.arrayContaining(harness.created.registry.byToolset().get(toolset)!)
         );
@@ -210,7 +223,10 @@ describe('tool loading', () => {
   describe('clickup_list_toolsets', () => {
     it('lists toolsets with tool names, enabled flags, and unique markers', async () => {
       harness = await connect();
-      const result = await harness.client.callTool({ name: 'clickup_list_toolsets', arguments: {} });
+      const result = await harness.client.callTool({
+        name: 'clickup_list_toolsets',
+        arguments: {},
+      });
       const body = JSON.parse(textOf(result));
       const goals = body.toolsets.find((t: any) => t.name === 'goals');
       expect(goals).toMatchObject({ enabled: false, unique: true, enabled_tools: 0 });
@@ -354,7 +370,10 @@ describe('tool loading', () => {
         readOnlyHint: true,
         openWorldHint: true,
       });
-      expect(byName.clickup_delete_task).toMatchObject({ readOnlyHint: false, destructiveHint: true });
+      expect(byName.clickup_delete_task).toMatchObject({
+        readOnlyHint: false,
+        destructiveHint: true,
+      });
       expect(byName.clickup_bulk_delete_tasks).toMatchObject({ destructiveHint: true });
       expect(byName.clickup_merge_tasks).toMatchObject({ destructiveHint: true });
       expect(byName.clickup_update_task).toMatchObject({
@@ -362,8 +381,14 @@ describe('tool loading', () => {
         destructiveHint: false,
         idempotentHint: true,
       });
-      expect(byName.clickup_create_task).toMatchObject({ destructiveHint: false, idempotentHint: false });
-      expect(byName.clickup_format_duration).toMatchObject({ readOnlyHint: true, openWorldHint: false });
+      expect(byName.clickup_create_task).toMatchObject({
+        destructiveHint: false,
+        idempotentHint: false,
+      });
+      expect(byName.clickup_format_duration).toMatchObject({
+        readOnlyHint: true,
+        openWorldHint: false,
+      });
     });
   });
 
@@ -377,7 +402,9 @@ describe('tool loading', () => {
       const server = enforceStrictParams(new McpServer({ name: 't', version: '1' }));
       // A tool added later inside an existing setup function needs no table entry.
       withToolset(server, 'tasks', () => {
-        server.tool('clickup_brand_new_tool', 'x', { id: z.string() }, async () => ({ content: [] }));
+        server.tool('clickup_brand_new_tool', 'x', { id: z.string() }, async () => ({
+          content: [],
+        }));
         server.tool(
           'clickup_delete_with_own_hints',
           'x',
@@ -410,7 +437,10 @@ describe('tool loading', () => {
 
     it('runs unchanged when the client has no elicitation support', async () => {
       harness = await connect({ CLICKUP_TOOLSETS: 'tasks' });
-      const result = await harness.client.callTool({ name: 'clickup_delete_task', arguments: deleteArgs });
+      const result = await harness.client.callTool({
+        name: 'clickup_delete_task',
+        arguments: deleteArgs,
+      });
       expect(result.isError).toBeFalsy();
       expect(mockDelete).toHaveBeenCalledTimes(1);
     });
@@ -418,7 +448,10 @@ describe('tool loading', () => {
     it('cancels when the user declines', async () => {
       const elicitation = jest.fn().mockResolvedValue({ action: 'decline' });
       harness = await connect({ CLICKUP_TOOLSETS: 'tasks' }, { elicitation });
-      const result = await harness.client.callTool({ name: 'clickup_delete_task', arguments: deleteArgs });
+      const result = await harness.client.callTool({
+        name: 'clickup_delete_task',
+        arguments: deleteArgs,
+      });
       expect(elicitation).toHaveBeenCalledTimes(1);
       expect(result.isError).toBe(true);
       expect(textOf(result)).toContain('cancelled');

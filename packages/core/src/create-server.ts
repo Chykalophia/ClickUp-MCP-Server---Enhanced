@@ -38,10 +38,13 @@ import {
 
 export const SERVER_INSTRUCTIONS = [
   'ClickUp workspace access.',
-  'Start with clickup_get_workspace_hierarchy to find space, folder, and list IDs; use clickup_find_member (when available) to resolve people.',
+  'Start with clickup_get_workspace_hierarchy to find space, folder, and list IDs;',
+  'use clickup_find_member (when available) to resolve people.',
   'All ClickUp IDs are strings. Dates and timestamps are Unix epoch milliseconds.',
-  'Only a core set of tools is loaded by default. Use clickup_list_toolsets to see everything available (goals, views, webhooks, checklists, chat, docs, dependencies, time tracking, ...),',
-  'clickup_enable_toolset to load a toolset, or clickup_call_tool to run any tool by name without loading it.',
+  'Only a core set of tools is loaded by default.',
+  'Use clickup_list_toolsets to see everything available (goals, views, webhooks,',
+  'checklists, chat, docs, dependencies, time tracking, ...), clickup_enable_toolset',
+  'to load a toolset, or clickup_call_tool to run any tool by name without loading it.',
 ].join(' ');
 
 /**

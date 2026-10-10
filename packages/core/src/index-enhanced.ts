@@ -61,8 +61,9 @@ class ClickUpServer {
     }
     if (this.toolsets.unknown.length > 0) {
       console.error(
-        `ClickUp MCP server: ignoring unknown CLICKUP_TOOLSETS entries: ${this.toolsets.unknown.join(', ')}` +
-          (this.toolsets.fellBack ? ' — no valid toolsets named, falling back to core tools' : '')
+        `ClickUp MCP server: ignoring unknown CLICKUP_TOOLSETS entries: ${this.toolsets.unknown.join(', ')}${
+          this.toolsets.fellBack ? ' — no valid toolsets named, falling back to core tools' : ''
+        }`
       );
     }
     console.error(

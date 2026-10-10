@@ -15,11 +15,7 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { toJsonSchemaCompat } from '@modelcontextprotocol/sdk/server/zod-json-schema-compat.js';
 import { z } from 'zod';
-import {
-  closestName,
-  type ToolEntry,
-  type ToolRegistry,
-} from '../utils/tool-registration.js';
+import { closestName, type ToolEntry, type ToolRegistry } from '../utils/tool-registration.js';
 import {
   ALL_TOOLSETS,
   CATALOG_TOOLSET,
@@ -63,9 +59,9 @@ export function setupCatalogTools(
 
   server.tool(
     'clickup_list_toolsets',
-    'List the ClickUp toolsets this server offers: each toolset\'s description, tool names, ' +
+    "List the ClickUp toolsets this server offers: each toolset's description, tool names, " +
       'and whether it is enabled. Pass `toolset` with `include_schemas: true` to get the full ' +
-      'input schemas for that toolset\'s tools. Enable a toolset with clickup_enable_toolset, ' +
+      "input schemas for that toolset's tools. Enable a toolset with clickup_enable_toolset, " +
       'or run any listed tool directly with clickup_call_tool.',
     {
       toolset: z
@@ -75,7 +71,7 @@ export function setupCatalogTools(
       include_schemas: z
         .boolean()
         .optional()
-        .describe('With `toolset`: include each tool\'s description and JSON input schema.'),
+        .describe("With `toolset`: include each tool's description and JSON input schema."),
     },
     async ({ toolset, include_schemas }) => {
       const grouped = registry.byToolset();
@@ -87,9 +83,9 @@ export function setupCatalogTools(
         if (!grouped.has(wanted) || wanted === CATALOG_TOOLSET) {
           const suggestion = closestName(wanted, known);
           return error(
-            `Unknown toolset "${toolset}".` +
-              (suggestion ? ` Did you mean "${suggestion}"?` : '') +
-              ` Toolsets: ${known.join(', ')}.`
+            `Unknown toolset "${toolset}".${
+              suggestion ? ` Did you mean "${suggestion}"?` : ''
+            } Toolsets: ${known.join(', ')}.`
           );
         }
         names = [wanted];
@@ -169,9 +165,9 @@ export function setupCatalogTools(
           .map(n => closestName(n, [...known, ...Object.keys(PROFILES)]))
           .filter(Boolean);
         return error(
-          `No known toolsets in: ${toolsets.join(', ')}.` +
-            (hints.length ? ` Did you mean: ${hints.join(', ')}?` : '') +
-            ` Toolsets: ${known.join(', ')}. Profiles: ${Object.keys(PROFILES).join(', ')}.`
+          `No known toolsets in: ${toolsets.join(', ')}.${
+            hints.length ? ` Did you mean: ${hints.join(', ')}?` : ''
+          } Toolsets: ${known.join(', ')}. Profiles: ${Object.keys(PROFILES).join(', ')}.`
         );
       }
 
@@ -200,7 +196,9 @@ export function setupCatalogTools(
       const verb = disable ? 'Disabled' : 'Enabled';
       const lines = [
         `${verb} ${changed.length} tool(s) in: ${[...expanded].join(', ')}.`,
-        changed.length > 0 ? `Tools: ${changed.join(', ')}.` : 'Nothing changed — already in that state.',
+        changed.length > 0
+          ? `Tools: ${changed.join(', ')}.`
+          : 'Nothing changed — already in that state.',
       ];
       if (pinned.length > 0) lines.push(`Kept enabled (core): ${pinned.join(', ')}.`);
       if (unknown.length > 0) lines.push(`Ignored unknown names: ${unknown.join(', ')}.`);
@@ -217,8 +215,8 @@ export function setupCatalogTools(
   server.tool(
     'clickup_call_tool',
     'Run any ClickUp tool by name, even one whose toolset is not enabled. `arguments` is ' +
-      'validated against that tool\'s input schema (unknown parameters are rejected) and the ' +
-      'tool\'s result is returned unchanged. Find tool names and schemas with ' +
+      "validated against that tool's input schema (unknown parameters are rejected) and the " +
+      "tool's result is returned unchanged. Find tool names and schemas with " +
       'clickup_list_toolsets({ toolset, include_schemas: true }).',
     {
       tool: z.string().describe('Exact tool name, e.g. "clickup_create_goal".'),
@@ -235,13 +233,15 @@ export function setupCatalogTools(
           .map(e => e.name);
         const suggestion = closestName(tool, candidates);
         return error(
-          `Unknown tool "${tool}".` +
-            (suggestion ? ` Did you mean "${suggestion}"?` : '') +
-            ' Use clickup_list_toolsets to see every tool.'
+          `Unknown tool "${tool}".${
+            suggestion ? ` Did you mean "${suggestion}"?` : ''
+          } Use clickup_list_toolsets to see every tool.`
         );
       }
       if (entry.toolset === CATALOG_TOOLSET) {
-        return error(`${tool} is a catalog tool; call it directly rather than through clickup_call_tool.`);
+        return error(
+          `${tool} is a catalog tool; call it directly rather than through clickup_call_tool.`
+        );
       }
 
       const schema = entry.handle.inputSchema;

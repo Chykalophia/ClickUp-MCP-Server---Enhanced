@@ -126,9 +126,9 @@ describe('describeToolsets', () => {
   });
 
   it('reports all mode', () => {
-    expect(describeToolsets(resolveToolsets('all', undefined), { total: 160, enabled: 160 })).toContain(
-      'all 160 tools'
-    );
+    expect(
+      describeToolsets(resolveToolsets('all', undefined), { total: 160, enabled: 160 })
+    ).toContain('all 160 tools');
   });
 });
 
@@ -143,7 +143,16 @@ describe('toolset metadata', () => {
   it('marks the toolsets other ClickUp MCP servers lack as unique', () => {
     const unique = ALL_TOOLSETS.filter(name => TOOLSETS[name].unique).sort();
     expect(unique).toEqual(
-      ['chat', 'checklists', 'dependencies', 'goals', 'spaces', 'time-tracking', 'views', 'webhooks'].sort()
+      [
+        'chat',
+        'checklists',
+        'dependencies',
+        'goals',
+        'spaces',
+        'time-tracking',
+        'views',
+        'webhooks',
+      ].sort()
     );
   });
 

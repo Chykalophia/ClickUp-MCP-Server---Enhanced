@@ -38,7 +38,11 @@ import {
   type AliasMap,
   type ToolParamAliases,
 } from './param-aliases.js';
-import { isDestructive, resolveAnnotations, type ToolAnnotationsShape } from './tool-annotations.js';
+import {
+  isDestructive,
+  resolveAnnotations,
+  type ToolAnnotationsShape,
+} from './tool-annotations.js';
 
 type RawShape = Record<string, z.ZodTypeAny>;
 type ToolArgs = Record<string, unknown>;
@@ -486,10 +490,9 @@ async function confirmDestructiveCall(
     const result = await server.elicitInput(
       {
         mode: 'form',
-        message:
-          `${title} (${name}) permanently changes or removes ClickUp data.` +
-          (argText ? ` Arguments: ${argText}.` : '') +
-          ' Proceed?',
+        message: `${title} (${name}) permanently changes or removes ClickUp data.${
+          argText ? ` Arguments: ${argText}.` : ''
+        } Proceed?`,
         requestedSchema: {
           type: 'object',
           properties: {

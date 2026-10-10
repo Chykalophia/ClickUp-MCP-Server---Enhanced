@@ -220,11 +220,7 @@ export function resolveToolsets(
 }
 
 /** Whether a tool is active under `resolved`, given the toolset it registered in. */
-export function isToolActive(
-  name: string,
-  toolset: string,
-  resolved: ResolvedToolsets
-): boolean {
+export function isToolActive(name: string, toolset: string, resolved: ResolvedToolsets): boolean {
   if (toolset === CATALOG_TOOLSET) return true;
   if (resolved.isAll) return true;
   if ((resolved.enabled as Set<string>).has(toolset)) return true;
@@ -246,10 +242,12 @@ export function describeToolsets(resolved: ResolvedToolsets, counts: ToolCounts)
     return `all ${counts.total} tools enabled (CLICKUP_TOOL_MODE=all)`;
   }
   const extra = resolved.enabled.size > 0 ? ` + toolsets: ${[...resolved.enabled].join(', ')}` : '';
-  const base = resolved.legacyNarrow ? `toolsets: ${[...resolved.enabled].join(', ')}` : `core${extra}`;
+  const base = resolved.legacyNarrow
+    ? `toolsets: ${[...resolved.enabled].join(', ')}`
+    : `core${extra}`;
   return (
     `${counts.enabled} of ${counts.total} tools enabled — ${base} (${withheld} available on demand ` +
     'via clickup_list_toolsets / clickup_enable_toolset / clickup_call_tool; ' +
-    'CLICKUP_TOOL_MODE=all enables everything)'
+    `${resolved.legacyNarrow ? 'unset CLICKUP_TOOLSETS' : 'CLICKUP_TOOL_MODE=all'} enables everything)`
   );
 }

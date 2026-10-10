@@ -44,10 +44,11 @@ export interface PageListingEntry {
   pages?: PageListingEntry[];
 }
 
-// Values accepted by tool inputs ('markdown'/'html' are normalized before sending)
-export type ContentFormat = 'markdown' | 'html' | 'text/md' | 'text/plain' | 'text/html';
-// Values the ClickUp v3 API actually accepts
-export type ApiContentFormat = 'text/md' | 'text/plain' | 'text/html';
+// Values the ClickUp v3 Docs API accepts for page content. There is no HTML
+// format: Create/Edit/Get Page document only text/md and text/plain.
+export type ApiContentFormat = 'text/md' | 'text/plain';
+// Values accepted by client callers ('markdown' is a legacy alias for text/md)
+export type ContentFormat = ApiContentFormat | 'markdown';
 
 export type ContentEditMode = 'replace' | 'append' | 'prepend';
 
@@ -116,6 +117,39 @@ export interface SearchDocsParams extends GetDocsParams {
 export interface DocsResponse {
   docs: Doc[];
   next_cursor?: string;
+}
+
+export interface SearchDocsResponse extends DocsResponse {
+  /** Pages of GET /docs read to answer a name query (absent without a query) */
+  pages_scanned?: number;
+}
+
+/** Upper bound on GET /docs pages one name search will read */
+export const DEFAULT_SEARCH_MAX_PAGES = 10;
+
+/**
+ * Flatten a page tree (as returned by GET /docs/{id}/pages with
+ * max_page_depth=-1, where child pages nest under each page's `pages`) into
+ * one markdown document. Top-level pages get `#`, children `##`, and so on,
+ * capped at `######`.
+ */
+export function flattenDocPages(pages: Page[] | undefined, depth = 1): string {
+  if (!Array.isArray(pages)) return '';
+  let combined = '';
+  for (const page of pages) {
+    const hasChildren = Array.isArray(page.pages) && page.pages.length > 0;
+    if (page.content || hasChildren) {
+      const heading = '#'.repeat(Math.min(depth, 6));
+      combined += `${heading} ${page.name}\n\n`;
+      if (page.content) {
+        combined += `${page.content}\n\n`;
+      }
+    }
+    if (hasChildren) {
+      combined += flattenDocPages(page.pages, depth + 1);
+    }
+  }
+  return combined;
 }
 
 /**
@@ -218,21 +252,47 @@ export class EnhancedDocsClient {
    * filters (id, creator, deleted, archived, parent_id, parent_type, limit,
    * cursor). The API has no free-text search parameter, so `query` is
    * matched client-side against doc names.
+   *
+   * Without `query` this is a single page, returned with its next_cursor.
+   * With `query`, a single page of docs can easily contain no match while
+   * later pages do, so pages are followed via next_cursor until at least
+   * `limit` (default 10) matches are found, the docs run out, or `maxPages`
+   * pages have been scanned. The returned next_cursor resumes the scan after
+   * the last page read; it is absent when every doc has been scanned.
    */
-  async searchDocs(workspaceId: string, params: SearchDocsParams): Promise<DocsResponse> {
+  async searchDocs(
+    workspaceId: string,
+    params: SearchDocsParams,
+    maxPages: number = DEFAULT_SEARCH_MAX_PAGES
+  ): Promise<SearchDocsResponse> {
     try {
       const { query, ...filters } = params;
-      const result = await this.getDocsFromWorkspace(workspaceId, filters);
-
-      if (query && Array.isArray(result.docs)) {
-        const lowerQuery = query.toLowerCase();
-        return {
-          ...result,
-          docs: result.docs.filter(doc => doc.name?.toLowerCase().includes(lowerQuery)),
-        };
+      if (!query) {
+        return await this.getDocsFromWorkspace(workspaceId, filters);
       }
 
-      return result;
+      const lowerQuery = query.toLowerCase();
+      const wanted = filters.limit ?? 10;
+      const matches: Doc[] = [];
+      let cursor = filters.cursor;
+      let pagesScanned = 0;
+
+      do {
+        const page = await this.getDocsFromWorkspace(workspaceId, { ...filters, cursor });
+        pagesScanned++;
+        for (const doc of page.docs ?? []) {
+          if (doc.name?.toLowerCase().includes(lowerQuery)) {
+            matches.push(doc);
+          }
+        }
+        cursor = page.next_cursor || undefined;
+      } while (cursor && matches.length < wanted && pagesScanned < maxPages);
+
+      return {
+        docs: matches,
+        ...(cursor ? { next_cursor: cursor } : {}),
+        pages_scanned: pagesScanned,
+      };
     } catch (error) {
       console.error('Error searching docs:', error instanceof Error ? error.message : error);
       throw this.handleError(error, 'Failed to search docs');
@@ -462,23 +522,12 @@ export class EnhancedDocsClient {
 }
 
 /**
- * Map friendly content format aliases to the values the v3 API accepts.
- * markdown -> text/md, html -> text/html; defaults to text/md.
+ * Map a content format to a value the v3 Docs API accepts. Only text/md and
+ * text/plain exist; 'markdown' is a legacy alias, and anything else (including
+ * the old, never-supported 'text/html') falls back to text/md.
  */
 export function normalizeContentFormat(format?: string): ApiContentFormat {
-  switch (format) {
-    case 'markdown':
-    case 'text/md':
-    case undefined:
-      return 'text/md';
-    case 'html':
-    case 'text/html':
-      return 'text/html';
-    case 'text/plain':
-      return 'text/plain';
-    default:
-      return 'text/md';
-  }
+  return format === 'text/plain' ? 'text/plain' : 'text/md';
 }
 
 export const createEnhancedDocsClient = (client: ClickUpClient): EnhancedDocsClient => {

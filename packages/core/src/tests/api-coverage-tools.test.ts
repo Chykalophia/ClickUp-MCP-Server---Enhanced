@@ -93,6 +93,18 @@ describe('tasks setup', () => {
     expect(JSON.parse(outcome.text)).toEqual({ data: { task_id: 'abc', new_list_id: '900' } });
   });
 
+  it('clickup_move_task rejects custom_fields_to_move without move_custom_fields', async () => {
+    const outcome = await call('clickup_move_task', {
+      workspace_id: '1',
+      task_id: 'abc',
+      list_id: '900',
+      custom_fields_to_move: ['cf-1'],
+    });
+    expect(outcome.failed).toBe(true);
+    expect(outcome.text).toContain('requires move_custom_fields');
+    expect(mockPut).not.toHaveBeenCalled();
+  });
+
   it('clickup_move_task rejects an unknown key inside status_mappings', async () => {
     const outcome = await call('clickup_move_task', {
       workspace_id: '1',
@@ -172,8 +184,31 @@ describe('workspace setup', () => {
 
   it('clickup_find_member reports an unknown workspace instead of returning nothing', async () => {
     mockGet.mockResolvedValue(teams);
-    const outcome = await call('clickup_find_member', { query: 'x', workspace_id: '99' });
+    const outcome = await call('clickup_find_member', { query: 'xy', workspace_id: '99' });
     expect(outcome.failed).toBe(true);
+  });
+
+  it('clickup_find_member rejects one-character queries', async () => {
+    mockGet.mockResolvedValue(teams);
+    const outcome = await call('clickup_find_member', { query: ' a ' });
+    expect(outcome.failed).toBe(true);
+  });
+
+  it('clickup_find_member caps the number of matches returned', async () => {
+    mockGet.mockResolvedValue({
+      teams: [
+        {
+          id: '1',
+          members: Array.from({ length: 60 }, (_, i) => ({
+            user: { id: i, username: `user${i}`, email: `u${i}@acme.com` },
+          })),
+        },
+      ],
+    });
+    const body = JSON.parse((await call('clickup_find_member', { query: 'user' })).text);
+    expect(body.count).toBe(60);
+    expect(body.members).toHaveLength(50);
+    expect(body.truncated).toBe(true);
   });
 
   it('user group create / update / delete hit the documented routes', async () => {

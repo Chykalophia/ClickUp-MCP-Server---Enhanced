@@ -54,8 +54,12 @@ export const ANNOTATION_OVERRIDES: Record<string, ToolAnnotationsShape> = {
   // Removals that are trivially undone (re-add the tag/list/reaction): not
   // destructive, so they do not trigger a confirmation prompt.
   clickup_remove_tag_from_task: { destructiveHint: false, idempotentHint: true },
+  clickup_remove_tags_from_time_entries: { destructiveHint: false, idempotentHint: true },
   clickup_remove_task_from_list: { destructiveHint: false, idempotentHint: true },
   clickup_delete_chat_message_reaction: { destructiveHint: false, idempotentHint: true },
+  // operation: 'delete' removes dependencies (as clickup_remove_task_dependency
+  // does), and the `bulk_` prefix matches no destructive rule.
+  clickup_bulk_dependency_operations: { destructiveHint: true, idempotentHint: false },
   // Catalog tools (see tools/catalog-tools.ts).
   clickup_list_toolsets: { title: 'List ClickUp Toolsets', openWorldHint: false },
   clickup_enable_toolset: {

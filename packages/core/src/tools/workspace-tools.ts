@@ -10,6 +10,9 @@ import { idSchema } from '../schemas/common.js';
 const clickUpClient = createClickUpClient();
 const authClient = createAuthClient(clickUpClient);
 
+/** Most matches clickup_find_member returns in one response. */
+export const FIND_MEMBER_MAX_RESULTS = 50;
+
 export function setupWorkspaceTools(server: McpServer): void {
   server.tool(
     'clickup_get_workspace_seats',
@@ -146,8 +149,10 @@ export function setupWorkspaceTools(server: McpServer): void {
       query: z
         .string()
         .trim()
-        .min(1)
-        .describe('Part of the member\'s username or email, e.g. "jane" or "@acme.com"'),
+        .min(2)
+        .describe(
+          'Part of the member\'s username or email (at least 2 characters), e.g. "jane" or "@acme.com"'
+        ),
       workspace_id: idSchema()
         .optional()
         .describe('Limit the search to this workspace. Omit to search every authorized workspace'),
@@ -155,10 +160,21 @@ export function setupWorkspaceTools(server: McpServer): void {
     async ({ query, workspace_id }) => {
       try {
         const members = await authClient.findMembers(query, workspace_id);
+        // A short query can match much of a large roster; cap the payload.
+        const truncated = members.length > FIND_MEMBER_MAX_RESULTS;
+        const payload = {
+          query,
+          count: members.length,
+          members: truncated ? members.slice(0, FIND_MEMBER_MAX_RESULTS) : members,
+          ...(truncated
+            ? {
+                truncated: true,
+                note: `Showing the first ${FIND_MEMBER_MAX_RESULTS} of ${members.length} matches; use a more specific query.`,
+              }
+            : {}),
+        };
         return {
-          content: [
-            { type: 'text', text: JSON.stringify({ query, count: members.length, members }) },
-          ],
+          content: [{ type: 'text', text: JSON.stringify(payload) }],
         };
       } catch (error: unknown) {
         return mcpError('finding workspace members', error);

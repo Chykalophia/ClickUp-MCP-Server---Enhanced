@@ -419,6 +419,8 @@ describe('tool loading', () => {
       });
       expect(byName.clickup_bulk_delete_tasks).toMatchObject({ destructiveHint: true });
       expect(byName.clickup_merge_tasks).toMatchObject({ destructiveHint: true });
+      expect(byName.clickup_bulk_dependency_operations).toMatchObject({ destructiveHint: true });
+      expect(byName.clickup_remove_tags_from_time_entries).toMatchObject({ destructiveHint: false });
       expect(byName.clickup_update_task).toMatchObject({
         readOnlyHint: false,
         destructiveHint: false,

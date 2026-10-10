@@ -560,7 +560,9 @@ export function setupTaskTools(server: McpServer): void {
       custom_fields_to_move: z
         .array(z.string().min(1))
         .optional()
-        .describe('Custom Field IDs to move (with move_custom_fields). Omit to move all of them'),
+        .describe(
+          'Custom Field IDs to move. Requires move_custom_fields: true. Omit to move all of them'
+        ),
       status_mappings: z
         .array(
           z
@@ -583,6 +585,11 @@ export function setupTaskTools(server: McpServer): void {
     },
     async ({ workspace_id, task_id, list_id, ...options }) => {
       try {
+        // The raw-shape tool API cannot express a cross-field refine, so
+        // reject the contradictory combination before calling ClickUp.
+        if (options.custom_fields_to_move?.length && options.move_custom_fields !== true) {
+          throw new Error('custom_fields_to_move requires move_custom_fields: true');
+        }
         const result = await tasksClient.moveTask(workspace_id, task_id, list_id, options);
         return {
           content: [{ type: 'text', text: JSON.stringify(result) }],

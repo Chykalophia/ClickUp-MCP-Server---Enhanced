@@ -1,7 +1,12 @@
 /* eslint-disable no-console */
 import { ClickUpClient } from './index.js';
 import axios from 'axios';
-import { validateResponse, GoalsResponseSchema, GoalResponseSchema, GoalTargetResponseSchema } from '../schemas/response-schemas.js';
+import {
+  validateResponse,
+  GoalsResponseSchema,
+  GoalResponseSchema,
+  GoalTargetResponseSchema,
+} from '../schemas/response-schemas.js';
 
 // ========================================
 // GOALS TYPE DEFINITIONS
@@ -139,7 +144,8 @@ export class EnhancedGoalsClient {
       const goals = (validated.goals as unknown as Goal[]) || [];
 
       // Goals nested inside Goal Folders arrive in a sibling `folders` array
-      const folders = ((validated as Record<string, unknown>).folders as Array<{ goals?: Goal[] }>) || [];
+      const folders =
+        ((validated as Record<string, unknown>).folders as Array<{ goals?: Goal[] }>) || [];
       for (const folder of folders) {
         if (Array.isArray(folder.goals)) {
           goals.push(...folder.goals);
@@ -226,7 +232,11 @@ export class EnhancedGoalsClient {
       const endpoint = `/goal/${goalId}/key_result`;
       const response = await this.getAxiosInstance().post(endpoint, params);
 
-      const validated = validateResponse(GoalTargetResponseSchema, response.data, 'createGoalTarget');
+      const validated = validateResponse(
+        GoalTargetResponseSchema,
+        response.data,
+        'createGoalTarget'
+      );
       return validated.key_result as unknown as GoalTarget;
     } catch (error) {
       console.error('Error creating goal target:', error instanceof Error ? error.message : error);
@@ -242,7 +252,11 @@ export class EnhancedGoalsClient {
       const endpoint = `/key_result/${targetId}`;
       const response = await this.getAxiosInstance().put(endpoint, params);
 
-      const validated = validateResponse(GoalTargetResponseSchema, response.data, 'updateGoalTarget');
+      const validated = validateResponse(
+        GoalTargetResponseSchema,
+        response.data,
+        'updateGoalTarget'
+      );
       return validated.key_result as unknown as GoalTarget;
     } catch (error) {
       console.error('Error updating goal target:', error instanceof Error ? error.message : error);
@@ -356,15 +370,15 @@ export class EnhancedGoalsClient {
    */
   isTargetCompleted(currentValue: number, targetValue: number, type: string): boolean {
     switch (type) {
-    case 'boolean':
-      return currentValue >= 1;
-    case 'number':
-    case 'currency':
-    case 'percentage':
-    case 'automatic':
-      return currentValue >= targetValue;
-    default:
-      return false;
+      case 'boolean':
+        return currentValue >= 1;
+      case 'number':
+      case 'currency':
+      case 'percentage':
+      case 'automatic':
+        return currentValue >= targetValue;
+      default:
+        return false;
     }
   }
 
@@ -458,20 +472,20 @@ export class EnhancedGoalsClient {
       const message = error.response?.data?.message || error.message;
 
       switch (status) {
-      case 400:
-        return new Error(`${context}: Invalid request - ${message}`);
-      case 401:
-        return new Error(`${context}: Authentication failed - check API token`);
-      case 403:
-        return new Error(`${context}: Permission denied - insufficient access rights`);
-      case 404:
-        return new Error(`${context}: Resource not found - ${message}`);
-      case 429:
-        return new Error(`${context}: Rate limit exceeded - please retry later`);
-      case 500:
-        return new Error(`${context}: Server error - please try again`);
-      default:
-        return new Error(`${context}: ${message}`);
+        case 400:
+          return new Error(`${context}: Invalid request - ${message}`);
+        case 401:
+          return new Error(`${context}: Authentication failed - check API token`);
+        case 403:
+          return new Error(`${context}: Permission denied - insufficient access rights`);
+        case 404:
+          return new Error(`${context}: Resource not found - ${message}`);
+        case 429:
+          return new Error(`${context}: Rate limit exceeded - please retry later`);
+        case 500:
+          return new Error(`${context}: Server error - please try again`);
+        default:
+          return new Error(`${context}: ${message}`);
       }
     }
 

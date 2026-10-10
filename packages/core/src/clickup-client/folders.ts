@@ -50,7 +50,9 @@ export class FoldersClient {
     params?: GetFoldersParams
   ): Promise<{ folders: Folder[] }> {
     const raw = await this.client.get(`/space/${spaceId}/folder`, params);
-    return validateResponse(FoldersResponseSchema, raw, 'getFoldersFromSpace') as { folders: Folder[] };
+    return validateResponse(FoldersResponseSchema, raw, 'getFoldersFromSpace') as {
+      folders: Folder[];
+    };
   }
 
   /**
@@ -114,7 +116,10 @@ export class FoldersClient {
     templateId: string,
     params: CreateFolderFromTemplateParams
   ): Promise<Folder> {
-    return this.client.post(`/space/${encodeURIComponent(spaceId)}/folder_template/${encodeURIComponent(templateId)}`, params);
+    return this.client.post(
+      `/space/${encodeURIComponent(spaceId)}/folder_template/${encodeURIComponent(templateId)}`,
+      params
+    );
   }
 
   /**

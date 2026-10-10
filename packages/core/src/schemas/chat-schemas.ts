@@ -237,12 +237,12 @@ export const ChatMessageSchema = z
     assignee: z.string().nullable().optional(),
     group_assignee: z.string().nullable().optional(),
     post_data: z
-    .object({
-      title: z.string().max(255),
-      subtype: z.object({ id: z.string() }).passthrough().optional(),
-    })
-    .passthrough()
-    .optional(),
+      .object({
+        title: z.string().max(255),
+        subtype: z.object({ id: z.string() }).passthrough().optional(),
+      })
+      .passthrough()
+      .optional(),
     links: z.record(z.any()).optional(),
   })
   .passthrough();

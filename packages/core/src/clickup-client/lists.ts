@@ -156,7 +156,10 @@ export class ListsClient {
     templateId: string,
     params: CreateListParams & { options?: { return_immediately?: boolean } }
   ): Promise<List> {
-    return this.client.post(`/folder/${encodeURIComponent(folderId)}/list_template/${encodeURIComponent(templateId)}`, params);
+    return this.client.post(
+      `/folder/${encodeURIComponent(folderId)}/list_template/${encodeURIComponent(templateId)}`,
+      params
+    );
   }
 
   /**
@@ -171,7 +174,10 @@ export class ListsClient {
     templateId: string,
     params: CreateListParams & { options?: { return_immediately?: boolean } }
   ): Promise<List> {
-    return this.client.post(`/space/${encodeURIComponent(spaceId)}/list_template/${encodeURIComponent(templateId)}`, params);
+    return this.client.post(
+      `/space/${encodeURIComponent(spaceId)}/list_template/${encodeURIComponent(templateId)}`,
+      params
+    );
   }
 }
 

@@ -1,5 +1,8 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { CreateTimeEntryParams, UpdateTimeEntryParams } from '../clickup-client/time-tracking-enhanced';
+import {
+  CreateTimeEntryParams,
+  UpdateTimeEntryParams,
+} from '../clickup-client/time-tracking-enhanced';
 
 // Mock functions must be declared before jest.mock hoisting can reference them
 const mockCreateTimeEntry = jest.fn().mockResolvedValue({ id: 'test-123' });
@@ -128,12 +131,18 @@ describe('Time Tracking', () => {
         task_id: 'task-abc',
       });
 
-      expect(mockCreateTimeEntry).toHaveBeenCalledWith('123', expect.objectContaining({
-        tid: 'task-abc',
-      }));
-      expect(mockCreateTimeEntry).toHaveBeenCalledWith('123', expect.not.objectContaining({
-        task_id: expect.anything(),
-      }));
+      expect(mockCreateTimeEntry).toHaveBeenCalledWith(
+        '123',
+        expect.objectContaining({
+          tid: 'task-abc',
+        })
+      );
+      expect(mockCreateTimeEntry).toHaveBeenCalledWith(
+        '123',
+        expect.not.objectContaining({
+          task_id: expect.anything(),
+        })
+      );
     });
 
     it('create handler should pass duration when provided', async () => {
@@ -149,9 +158,12 @@ describe('Time Tracking', () => {
         duration: 3600000,
       });
 
-      expect(mockCreateTimeEntry).toHaveBeenCalledWith('123', expect.objectContaining({
-        duration: 3600000,
-      }));
+      expect(mockCreateTimeEntry).toHaveBeenCalledWith(
+        '123',
+        expect.objectContaining({
+          duration: 3600000,
+        })
+      );
     });
 
     it('create handler should pass stop when provided', async () => {
@@ -167,9 +179,12 @@ describe('Time Tracking', () => {
         stop: 1774990800000,
       });
 
-      expect(mockCreateTimeEntry).toHaveBeenCalledWith('123', expect.objectContaining({
-        stop: 1774990800000,
-      }));
+      expect(mockCreateTimeEntry).toHaveBeenCalledWith(
+        '123',
+        expect.objectContaining({
+          stop: 1774990800000,
+        })
+      );
     });
 
     it('create handler should reject when both duration and stop are provided', async () => {
@@ -220,12 +235,20 @@ describe('Time Tracking', () => {
         duration: 3600000,
       });
 
-      expect(mockUpdateTimeEntry).toHaveBeenCalledWith('123', 'entry-456', expect.objectContaining({
-        tid: 'task-abc',
-      }));
-      expect(mockUpdateTimeEntry).toHaveBeenCalledWith('123', 'entry-456', expect.not.objectContaining({
-        task_id: expect.anything(),
-      }));
+      expect(mockUpdateTimeEntry).toHaveBeenCalledWith(
+        '123',
+        'entry-456',
+        expect.objectContaining({
+          tid: 'task-abc',
+        })
+      );
+      expect(mockUpdateTimeEntry).toHaveBeenCalledWith(
+        '123',
+        'entry-456',
+        expect.not.objectContaining({
+          task_id: expect.anything(),
+        })
+      );
     });
   });
 });

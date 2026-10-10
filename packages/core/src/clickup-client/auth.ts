@@ -44,7 +44,10 @@ export class AuthClient {
       const response = await this.client.get<{ user: AuthorizedUser }>('/user');
       return response.user;
     } catch (error) {
-      console.error('Error getting authorized user:', error instanceof Error ? error.message : error);
+      console.error(
+        'Error getting authorized user:',
+        error instanceof Error ? error.message : error
+      );
       throw error;
     }
   }
@@ -286,7 +289,10 @@ export class AuthClient {
     try {
       return await this.client.get(`/space/${spaceId}/list`);
     } catch (error) {
-      console.error('Error getting lists from space:', error instanceof Error ? error.message : error);
+      console.error(
+        'Error getting lists from space:',
+        error instanceof Error ? error.message : error
+      );
       throw error;
     }
   }
@@ -312,7 +318,10 @@ export class AuthClient {
     try {
       return await this.client.get(`/team/${workspaceId}/seats`);
     } catch (error) {
-      console.error('Error getting workspace seats:', error instanceof Error ? error.message : error);
+      console.error(
+        'Error getting workspace seats:',
+        error instanceof Error ? error.message : error
+      );
       throw error;
     }
   }
@@ -323,7 +332,10 @@ export class AuthClient {
    * @param groupIds Optional comma-separated group IDs to filter by
    * @returns A list of user groups
    */
-  async getUserGroups(workspaceId: string, groupIds?: string): Promise<{
+  async getUserGroups(
+    workspaceId: string,
+    groupIds?: string
+  ): Promise<{
     groups: Array<{
       id: string;
       team_id: string;
@@ -353,7 +365,10 @@ export class AuthClient {
       // comma-joined value, so build the query string explicitly.
       const search = new URLSearchParams({ team_id: workspaceId });
       if (groupIds) {
-        for (const id of groupIds.split(',').map(part => part.trim()).filter(Boolean)) {
+        for (const id of groupIds
+          .split(',')
+          .map(part => part.trim())
+          .filter(Boolean)) {
           search.append('group_ids', id);
         }
       }
@@ -376,7 +391,10 @@ export class AuthClient {
     try {
       return await this.client.get(`/team/${encodeURIComponent(workspaceId)}/plan`);
     } catch (error) {
-      console.error('Error getting workspace plan:', error instanceof Error ? error.message : error);
+      console.error(
+        'Error getting workspace plan:',
+        error instanceof Error ? error.message : error
+      );
       throw error;
     }
   }
@@ -387,7 +405,10 @@ export class AuthClient {
    * @param includeMembers Whether to include the members assigned to each role
    * @returns A list of custom roles
    */
-  async getCustomRoles(workspaceId: string, includeMembers?: boolean): Promise<{
+  async getCustomRoles(
+    workspaceId: string,
+    includeMembers?: boolean
+  ): Promise<{
     custom_roles: Array<{
       id: number;
       team_id: string;

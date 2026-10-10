@@ -140,7 +140,7 @@ export function unknownParamMessage(
   }
 
   const suggestions = unknownKeys
-    .map((key) => {
+    .map(key => {
       const match = closestParam(key, validNames);
       return match ? `"${key}" -> did you mean "${match}"?` : undefined;
     })

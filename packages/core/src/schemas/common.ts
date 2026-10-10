@@ -13,6 +13,6 @@ import { z } from 'zod';
  */
 export const idSchema = (message = 'ID is required') =>
   z.preprocess(
-    (value) => (typeof value === 'number' ? String(value) : value),
+    value => (typeof value === 'number' ? String(value) : value),
     z.string().min(1, message)
   );

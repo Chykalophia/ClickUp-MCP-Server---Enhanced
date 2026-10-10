@@ -292,9 +292,7 @@ export function setupBulkTaskTools(server: McpServer): void {
         .array(z.string().min(1))
         .min(1)
         .max(10)
-        .describe(
-          'Array of task IDs to merge into the primary task (maximum 10 tasks)'
-        ),
+        .describe('Array of task IDs to merge into the primary task (maximum 10 tasks)'),
       confirm_merge: z
         .boolean()
         .describe(

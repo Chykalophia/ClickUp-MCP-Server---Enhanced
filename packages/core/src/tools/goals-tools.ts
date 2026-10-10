@@ -62,7 +62,9 @@ export function setupGoalsTools(server: McpServer): void {
       multiple_owners: z
         .boolean()
         .optional()
-        .describe('Whether the goal can have multiple owners (defaults to true when multiple owners are provided)'),
+        .describe(
+          'Whether the goal can have multiple owners (defaults to true when multiple owners are provided)'
+        ),
       owners: z.array(z.number().positive()).min(1).describe('Array of user IDs who own this goal'),
       color: GoalColorSchema.optional().default('#007cff').describe('Goal color (hex format)'),
     },
@@ -109,7 +111,11 @@ export function setupGoalsTools(server: McpServer): void {
     {
       goal_id: GoalIdSchema.describe('The ID of the goal to update'),
       name: z.string().min(1).max(255).optional().describe('New name for the goal'),
-      due_date: z.number().positive().optional().describe('New due date (Unix timestamp in milliseconds)'),
+      due_date: z
+        .number()
+        .positive()
+        .optional()
+        .describe('New due date (Unix timestamp in milliseconds)'),
       description: z.string().optional().describe('New description for the goal'),
       rem_owners: z
         .array(z.number().positive())
@@ -237,14 +243,8 @@ export function setupGoalsTools(server: McpServer): void {
         .array(z.number().positive())
         .optional()
         .describe('Array of user IDs who own this target'),
-      task_ids: z
-        .array(z.string())
-        .optional()
-        .describe('Task IDs to link for automatic tracking'),
-      list_ids: z
-        .array(z.string())
-        .optional()
-        .describe('List IDs to link for automatic tracking'),
+      task_ids: z.array(z.string()).optional().describe('Task IDs to link for automatic tracking'),
+      list_ids: z.array(z.string()).optional().describe('List IDs to link for automatic tracking'),
     },
     async ({ goal_id, name, type, steps_end, steps_start, unit, owners, task_ids, list_ids }) => {
       try {

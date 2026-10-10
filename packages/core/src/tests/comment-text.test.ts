@@ -58,7 +58,7 @@ async function callTool(
     };
     return {
       failed: result.isError === true,
-      text: (result.content ?? []).map((entry) => entry.text ?? '').join('\n'),
+      text: (result.content ?? []).map(entry => entry.text ?? '').join('\n'),
     };
   } catch (error: unknown) {
     return { failed: true, text: error instanceof Error ? error.message : String(error) };
@@ -102,7 +102,7 @@ describe('clickup_create_task_comment', () => {
     const [endpoint, body] = mockPost.mock.calls[0] as [string, CommentPayload];
     expect(endpoint).toContain('/task/868kzbrwy/comment');
     expect(Array.isArray(body.comment)).toBe(true);
-    expect(body.comment?.map((block) => block.text).join('')).toContain('Closing this out');
+    expect(body.comment?.map(block => block.text).join('')).toContain('Closing this out');
     // ClickUp duplicates the body when both are sent, so only the array goes out.
     expect(body.comment_text).toBeUndefined();
   });
@@ -114,9 +114,9 @@ describe('clickup_create_task_comment', () => {
     });
 
     const blocks = lastPostBody().comment ?? [];
-    const rendered = blocks.map((block) => block.text ?? '').join('');
+    const rendered = blocks.map(block => block.text ?? '').join('');
     expect(rendered).not.toContain('**');
-    expect(blocks.some((block) => block.text === 'mismatch' && block.attributes?.bold === true)).toBe(
+    expect(blocks.some(block => block.text === 'mismatch' && block.attributes?.bold === true)).toBe(
       true
     );
   });
@@ -215,5 +215,33 @@ describe('clickup_create_task_comment', () => {
     expect(outcome.failed).toBe(true);
     expect(outcome.text).toContain('team_id is required');
     expect(mockPost).not.toHaveBeenCalled();
+  });
+
+  it('turns an inline @[Name](id) mention in comment_text into a tag block', async () => {
+    await callTool(client, 'clickup_create_task_comment', {
+      task_id: '868kzbrwy',
+      comment_text: 'Hey @[Jane](81344), please review',
+    });
+
+    const blocks = lastPostBody().comment ?? [];
+    expect(blocks).toContainEqual({ type: 'tag', text: '@Jane', user: { id: 81344 } });
+    // The mention must not survive as literal syntax anywhere in the body.
+    expect(blocks.map(block => block.text ?? '').join('')).not.toContain('@[Jane]');
+  });
+
+  it('keeps markdown formatting in a comment that also mentions someone', async () => {
+    await callTool(client, 'clickup_create_task_comment', {
+      task_id: '868kzbrwy',
+      comment_text: '## Findings\n\nThe **mismatch** is fixed — over to @[Jane](81344)',
+    });
+
+    const blocks = lastPostBody().comment ?? [];
+    expect(blocks).toContainEqual({ type: 'tag', text: '@Jane', user: { id: 81344 } });
+    expect(blocks.some(block => block.text === 'mismatch' && block.attributes?.bold === true)).toBe(
+      true
+    );
+    // The heading rides on the line's terminating newline, not on its text.
+    expect(blocks.some(block => block.text === 'Findings')).toBe(true);
+    expect(blocks).toContainEqual({ text: '\n', attributes: { header: 2 } });
   });
 });

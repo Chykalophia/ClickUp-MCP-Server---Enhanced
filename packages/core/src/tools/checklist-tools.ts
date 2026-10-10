@@ -179,9 +179,7 @@ export function setupChecklistTools(server: McpServer): void {
       parent: idSchema()
         .nullable()
         .optional()
-        .describe(
-          'The ID of another checklist item to nest this item under, or null to un-nest'
-        ),
+        .describe('The ID of another checklist item to nest this item under, or null to un-nest'),
     },
     async ({ checklist_id, checklist_item_id, name, assignee, resolved, parent }) => {
       try {

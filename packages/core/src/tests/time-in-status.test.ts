@@ -66,9 +66,7 @@ describe('TaskTimeInStatusResponseSchema', () => {
 
   it('accepts a missing current_status or status_history', () => {
     expect(() => TaskTimeInStatusResponseSchema.parse({})).not.toThrow();
-    expect(() =>
-      TaskTimeInStatusResponseSchema.parse({ status_history: [] })
-    ).not.toThrow();
+    expect(() => TaskTimeInStatusResponseSchema.parse({ status_history: [] })).not.toThrow();
   });
 
   it('preserves unknown forward-compat fields via passthrough', () => {

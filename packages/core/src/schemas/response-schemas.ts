@@ -18,24 +18,26 @@ import { z } from 'zod';
 export const SuccessResponseSchema = z.object({}).passthrough();
 
 /** Wrapper with a single entity */
-const entityResponse = (key: string) =>
-  z.object({ [key]: z.record(z.unknown()) }).passthrough();
+const entityResponse = (key: string) => z.object({ [key]: z.record(z.unknown()) }).passthrough();
 
 /** Wrapper with an array of entities */
-const listResponse = (key: string) =>
-  z.object({ [key]: z.array(z.unknown()) }).passthrough();
+const listResponse = (key: string) => z.object({ [key]: z.array(z.unknown()) }).passthrough();
 
 // ========================================
 // AUTH / WORKSPACE
 // ========================================
 
-export const UserResponseSchema = z.object({
-  user: z.record(z.unknown()),
-}).passthrough();
+export const UserResponseSchema = z
+  .object({
+    user: z.record(z.unknown()),
+  })
+  .passthrough();
 
-export const TeamsResponseSchema = z.object({
-  teams: z.array(z.unknown()),
-}).passthrough();
+export const TeamsResponseSchema = z
+  .object({
+    teams: z.array(z.unknown()),
+  })
+  .passthrough();
 
 // ========================================
 // TASKS
@@ -76,17 +78,23 @@ export const CommentResponseSchema = z.record(z.unknown());
 // GOALS
 // ========================================
 
-export const GoalsResponseSchema = z.object({
-  goals: z.array(z.unknown()),
-}).passthrough();
+export const GoalsResponseSchema = z
+  .object({
+    goals: z.array(z.unknown()),
+  })
+  .passthrough();
 
-export const GoalResponseSchema = z.object({
-  goal: z.record(z.unknown()),
-}).passthrough();
+export const GoalResponseSchema = z
+  .object({
+    goal: z.record(z.unknown()),
+  })
+  .passthrough();
 
-export const GoalTargetResponseSchema = z.object({
-  key_result: z.record(z.unknown()),
-}).passthrough();
+export const GoalTargetResponseSchema = z
+  .object({
+    key_result: z.record(z.unknown()),
+  })
+  .passthrough();
 
 // ========================================
 // TIME IN STATUS
@@ -97,32 +105,44 @@ export const GoalTargetResponseSchema = z.object({
  * on some entries (observed across many tasks in real workspaces). All fields
  * are optional to surface partial data rather than rejecting the whole response.
  */
-const StatusHistoryEntrySchema = z.object({
-  status: z.string().optional(),
-  color: z.string().optional(),
-  type: z.string().optional(),
-  total_time: z.object({
-    by_minute: z.number().optional(),
-    since: z.string().optional(),
-  }).passthrough().optional(),
-  orderindex: z.union([z.number(), z.string()]).optional(),
-  // ClickUp may emit additional fields per status (e.g., custom-status edges)
-}).passthrough();
+const StatusHistoryEntrySchema = z
+  .object({
+    status: z.string().optional(),
+    color: z.string().optional(),
+    type: z.string().optional(),
+    total_time: z
+      .object({
+        by_minute: z.number().optional(),
+        since: z.string().optional(),
+      })
+      .passthrough()
+      .optional(),
+    orderindex: z.union([z.number(), z.string()]).optional(),
+    // ClickUp may emit additional fields per status (e.g., custom-status edges)
+  })
+  .passthrough();
 
-const CurrentStatusSchema = z.object({
-  status: z.string().optional(),
-  color: z.string().optional(),
-  total_time: z.object({
-    by_minute: z.number().optional(),
-    since: z.string().optional(),
-  }).passthrough().optional(),
-}).passthrough();
+const CurrentStatusSchema = z
+  .object({
+    status: z.string().optional(),
+    color: z.string().optional(),
+    total_time: z
+      .object({
+        by_minute: z.number().optional(),
+        since: z.string().optional(),
+      })
+      .passthrough()
+      .optional(),
+  })
+  .passthrough();
 
 /** Response shape for GET /task/{task_id}/time_in_status */
-export const TaskTimeInStatusResponseSchema = z.object({
-  current_status: CurrentStatusSchema.optional(),
-  status_history: z.array(StatusHistoryEntrySchema).optional(),
-}).passthrough();
+export const TaskTimeInStatusResponseSchema = z
+  .object({
+    current_status: CurrentStatusSchema.optional(),
+    status_history: z.array(StatusHistoryEntrySchema).optional(),
+  })
+  .passthrough();
 
 /**
  * Response shape for GET /task/bulk_time_in_status/task_ids
@@ -130,37 +150,42 @@ export const TaskTimeInStatusResponseSchema = z.object({
  * Each task entry uses the same lenient schema.
  */
 export const BulkTasksTimeInStatusResponseSchema = z.record(
-  z.object({
-    current_status: CurrentStatusSchema.optional(),
-    status_history: z.array(StatusHistoryEntrySchema).optional(),
-  }).passthrough()
+  z
+    .object({
+      current_status: CurrentStatusSchema.optional(),
+      status_history: z.array(StatusHistoryEntrySchema).optional(),
+    })
+    .passthrough()
 );
 
 // ========================================
 // TIME TRACKING
 // ========================================
 
-export const TimeEntriesResponseSchema = z.object({
-  data: z.array(z.unknown()),
-}).passthrough();
+export const TimeEntriesResponseSchema = z
+  .object({
+    data: z.array(z.unknown()),
+  })
+  .passthrough();
 
-export const TimeEntryResponseSchema = z.object({
-  data: z.union([
-    z.array(z.unknown()).min(1),
-    z.record(z.unknown()),
-  ]),
-}).passthrough();
+export const TimeEntryResponseSchema = z
+  .object({
+    data: z.union([z.array(z.unknown()).min(1), z.record(z.unknown())]),
+  })
+  .passthrough();
 
 /**
  * Response shape for GET /team/{team_id}/time_entries/current.
  * Returns { data: <TimeEntry object> } when a timer is running,
  * or { data: null } when no timer is running (a single entry, never an array).
  */
-export const CurrentTimeEntryResponseSchema = z.object({
-  // `data` is required (nullable): a null means "no running timer", whereas a
-  // missing `data` indicates a malformed response and should fail validation.
-  data: z.record(z.unknown()).nullable(),
-}).passthrough();
+export const CurrentTimeEntryResponseSchema = z
+  .object({
+    // `data` is required (nullable): a null means "no running timer", whereas a
+    // missing `data` indicates a malformed response and should fail validation.
+    data: z.record(z.unknown()).nullable(),
+  })
+  .passthrough();
 
 // ========================================
 // VIEWS
@@ -194,9 +219,11 @@ export const CustomFieldResponseSchema = z.record(z.unknown());
 // DOCS (v3 API)
 // ========================================
 
-export const DocsResponseSchema = z.object({
-  docs: z.array(z.unknown()),
-}).passthrough();
+export const DocsResponseSchema = z
+  .object({
+    docs: z.array(z.unknown()),
+  })
+  .passthrough();
 
 export const DocResponseSchema = z.record(z.unknown());
 
@@ -223,20 +250,14 @@ export const ChecklistResponseSchema = z.record(z.unknown());
  * On success, returns the typed data.
  * On failure, throws a descriptive error instead of silently returning undefined.
  */
-export function validateResponse<T>(
-  schema: z.ZodSchema<T>,
-  data: unknown,
-  context: string
-): T {
+export function validateResponse<T>(schema: z.ZodSchema<T>, data: unknown, context: string): T {
   const result = schema.safeParse(data);
   if (result.success) {
     return result.data;
   }
-  const issues = result.error.issues
-    .map(i => `${i.path.join('.')}: ${i.message}`)
-    .join('; ');
+  const issues = result.error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join('; ');
   throw new Error(
     `Unexpected API response shape for ${context}: ${issues}. ` +
-    `This may indicate a ClickUp API change. Raw keys: [${Object.keys(data as Record<string, unknown>).join(', ')}]`
+      `This may indicate a ClickUp API change. Raw keys: [${Object.keys(data as Record<string, unknown>).join(', ')}]`
   );
 }

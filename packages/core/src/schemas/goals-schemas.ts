@@ -65,7 +65,13 @@ export const GetGoalsSchema = z.object({
 // ========================================
 
 // Goal target (key result) types
-export const GoalTargetTypeSchema = z.enum(['number', 'currency', 'boolean', 'percentage', 'automatic']);
+export const GoalTargetTypeSchema = z.enum([
+  'number',
+  'currency',
+  'boolean',
+  'percentage',
+  'automatic',
+]);
 
 // Create target (key result) schema — mirrors CreateKeyResultRequest
 export const CreateGoalTargetSchema = z.object({

@@ -120,7 +120,7 @@ describe('alias tables', () => {
     const tools = registeredTools(server);
 
     for (const alias of Object.keys(UNIVERSAL_ALIASES)) {
-      const applied = Object.values(tools).some((tool) =>
+      const applied = Object.values(tools).some(tool =>
         Object.prototype.hasOwnProperty.call(tool.inputSchema?.shape ?? {}, alias)
       );
       expect({ alias, applied }).toEqual({ alias, applied: true });

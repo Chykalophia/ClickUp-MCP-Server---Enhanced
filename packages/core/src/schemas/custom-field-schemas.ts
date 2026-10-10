@@ -218,26 +218,30 @@ export const GetTeamCustomFieldsSchema = z.object({
 });
 
 // Set custom field value schema
-export const SetCustomFieldValueSchema = z.object({
-  task_id: TaskIdSchema,
-  field_id: FieldIdSchema,
-  value: z.any(), // Will be validated based on field type
-  value_options: ValueOptionsSchema.optional(),
-  custom_task_ids: z.boolean().optional(),
-  team_id: TeamIdSchema.optional(),
-}).refine(d => !d.custom_task_ids || !!d.team_id, {
-  message: 'team_id is required when custom_task_ids is true',
-});
+export const SetCustomFieldValueSchema = z
+  .object({
+    task_id: TaskIdSchema,
+    field_id: FieldIdSchema,
+    value: z.any(), // Will be validated based on field type
+    value_options: ValueOptionsSchema.optional(),
+    custom_task_ids: z.boolean().optional(),
+    team_id: TeamIdSchema.optional(),
+  })
+  .refine(d => !d.custom_task_ids || !!d.team_id, {
+    message: 'team_id is required when custom_task_ids is true',
+  });
 
 // Remove custom field value schema
-export const RemoveCustomFieldValueSchema = z.object({
-  task_id: TaskIdSchema,
-  field_id: FieldIdSchema,
-  custom_task_ids: z.boolean().optional(),
-  team_id: TeamIdSchema.optional(),
-}).refine(d => !d.custom_task_ids || !!d.team_id, {
-  message: 'team_id is required when custom_task_ids is true',
-});
+export const RemoveCustomFieldValueSchema = z
+  .object({
+    task_id: TaskIdSchema,
+    field_id: FieldIdSchema,
+    custom_task_ids: z.boolean().optional(),
+    team_id: TeamIdSchema.optional(),
+  })
+  .refine(d => !d.custom_task_ids || !!d.team_id, {
+    message: 'team_id is required when custom_task_ids is true',
+  });
 
 // ========================================
 // COMBINED TOOL SCHEMAS

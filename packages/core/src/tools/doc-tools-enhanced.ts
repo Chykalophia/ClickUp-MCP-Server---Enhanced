@@ -18,7 +18,18 @@ const enhancedDocsClient = createEnhancedDocsClient(clickUpClient);
 const contentFormatEnum = z.enum(['markdown', 'html', 'text/md', 'text/plain', 'text/html']);
 
 // Documented parent_type values for the Search Docs filter
-const parentTypeEnum = z.enum(['SPACE', 'FOLDER', 'LIST', 'EVERYTHING', 'WORKSPACE', '4', '5', '6', '7', '12']);
+const parentTypeEnum = z.enum([
+  'SPACE',
+  'FOLDER',
+  'LIST',
+  'EVERYTHING',
+  'WORKSPACE',
+  '4',
+  '5',
+  '6',
+  '7',
+  '12',
+]);
 
 export function setupEnhancedDocTools(server: McpServer): void {
   // ========================================
@@ -34,7 +45,9 @@ export function setupEnhancedDocTools(server: McpServer): void {
       content_format: contentFormatEnum
         .optional()
         .default('text/md')
-        .describe('The format to return the content in (markdown maps to text/md, html to text/html)'),
+        .describe(
+          'The format to return the content in (markdown maps to text/md, html to text/html)'
+        ),
     },
     async ({ doc_id, workspace_id, content_format }) => {
       try {
@@ -73,10 +86,30 @@ export function setupEnhancedDocTools(server: McpServer): void {
       archived: z.boolean().optional().describe('Whether to include archived docs'),
       parent_id: idSchema().optional().describe('Filter docs by parent ID'),
       parent_type: parentTypeEnum.optional().describe('Filter docs by parent type'),
-      limit: z.number().int().min(1).max(100).optional().describe('Maximum number of docs to return'),
-      cursor: z.string().optional().describe('Cursor for pagination (next_cursor from a previous response)'),
+      limit: z
+        .number()
+        .int()
+        .min(1)
+        .max(100)
+        .optional()
+        .describe('Maximum number of docs to return'),
+      cursor: z
+        .string()
+        .optional()
+        .describe('Cursor for pagination (next_cursor from a previous response)'),
     },
-    async ({ workspace_id, query, doc_id, creator, deleted, archived, parent_id, parent_type, limit, cursor }) => {
+    async ({
+      workspace_id,
+      query,
+      doc_id,
+      creator,
+      deleted,
+      archived,
+      parent_id,
+      parent_type,
+      limit,
+      cursor,
+    }) => {
       try {
         const result = await enhancedDocsClient.searchDocs(workspace_id, {
           query,
@@ -103,7 +136,10 @@ export function setupEnhancedDocTools(server: McpServer): void {
     'Get all docs from a ClickUp workspace. Supports pagination and filtering by creator, parent, and deleted/archived state.',
     {
       workspace_id: idSchema().describe('The ID of the workspace to get docs from'),
-      cursor: z.string().optional().describe('Cursor for pagination (next_cursor from a previous response)'),
+      cursor: z
+        .string()
+        .optional()
+        .describe('Cursor for pagination (next_cursor from a previous response)'),
       deleted: z.boolean().optional().default(false).describe('Whether to include deleted docs'),
       archived: z.boolean().optional().default(false).describe('Whether to include archived docs'),
       creator: z.number().int().optional().describe('Filter by creator user ID'),
@@ -147,7 +183,9 @@ export function setupEnhancedDocTools(server: McpServer): void {
       content_format: contentFormatEnum
         .optional()
         .default('text/md')
-        .describe('The format to return the content in (markdown maps to text/md, html to text/html)'),
+        .describe(
+          'The format to return the content in (markdown maps to text/md, html to text/html)'
+        ),
     },
     async ({ doc_id, workspace_id, content_format }) => {
       try {
@@ -233,7 +271,9 @@ export function setupEnhancedDocTools(server: McpServer): void {
       parent_type: z
         .union([z.literal(4), z.literal(5), z.literal(6), z.literal(7), z.literal(12)])
         .optional()
-        .describe('Parent type for parent_id: 4=space, 5=folder, 6=list, 7=everything, 12=workspace'),
+        .describe(
+          'Parent type for parent_id: 4=space, 5=folder, 6=list, 7=everything, 12=workspace'
+        ),
       content: z
         .string()
         .optional()
@@ -246,19 +286,36 @@ export function setupEnhancedDocTools(server: McpServer): void {
         .boolean()
         .optional()
         .default(false)
-        .describe('Whether the document should be publicly accessible (visibility PUBLIC vs PRIVATE)'),
+        .describe(
+          'Whether the document should be publicly accessible (visibility PUBLIC vs PRIVATE)'
+        ),
       create_page: z
         .boolean()
         .optional()
-        .describe('Whether ClickUp should create an initial empty page (default true; ignored when content is supplied)'),
+        .describe(
+          'Whether ClickUp should create an initial empty page (default true; ignored when content is supplied)'
+        ),
     },
-    async ({ workspace_id, name, space_id, folder_id, parent_id, parent_type, content, content_format, public: isPublic, create_page }) => {
+    async ({
+      workspace_id,
+      name,
+      space_id,
+      folder_id,
+      parent_id,
+      parent_type,
+      content,
+      content_format,
+      public: isPublic,
+      create_page,
+    }) => {
       try {
         if ((parent_id === undefined) !== (parent_type === undefined)) {
           throw new Error('parent_id and parent_type must be provided together');
         }
         const parent =
-          parent_id !== undefined && parent_type !== undefined ? { id: parent_id, type: parent_type } : undefined;
+          parent_id !== undefined && parent_type !== undefined
+            ? { id: parent_id, type: parent_type }
+            : undefined;
 
         const doc = await enhancedDocsClient.createDoc({
           workspace_id,
@@ -348,7 +405,16 @@ export function setupEnhancedDocTools(server: McpServer): void {
         .optional()
         .describe('Format of the content (markdown maps to text/md, html to text/html)'),
     },
-    async ({ workspace_id, doc_id, page_id, name, sub_title, content, content_edit_mode, content_format }) => {
+    async ({
+      workspace_id,
+      doc_id,
+      page_id,
+      name,
+      sub_title,
+      content,
+      content_edit_mode,
+      content_format,
+    }) => {
       try {
         // Validate that at least one field is being updated
         if (name === undefined && sub_title === undefined && content === undefined) {

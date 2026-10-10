@@ -195,7 +195,10 @@ export class TasksClient {
    * @param params Optional parameters for filtering tasks
    * @returns A list of tasks with processed content
    */
-  async getTasksFromList(listId: string, params?: GetTasksParams): Promise<{ tasks: Task[]; last_page?: boolean }> {
+  async getTasksFromList(
+    listId: string,
+    params?: GetTasksParams
+  ): Promise<{ tasks: Task[]; last_page?: boolean }> {
     const queryParams: Record<string, unknown> = { ...params };
 
     // ClickUp expects the custom_fields filter as a single JSON-encoded string
@@ -210,7 +213,9 @@ export class TasksClient {
 
     // Process each task's content
     if (result.tasks && Array.isArray(result.tasks)) {
-      (result as any).tasks = (result.tasks as any[]).map((task: any) => processClickUpResponse(task));
+      (result as any).tasks = (result.tasks as any[]).map((task: any) =>
+        processClickUpResponse(task)
+      );
     }
 
     return result as unknown as { tasks: Task[]; last_page?: boolean };
@@ -238,7 +243,9 @@ export class TasksClient {
 
     // Process each task's content
     if (result.tasks && Array.isArray(result.tasks)) {
-      (result as any).tasks = (result.tasks as any[]).map((task: any) => processClickUpResponse(task));
+      (result as any).tasks = (result.tasks as any[]).map((task: any) =>
+        processClickUpResponse(task)
+      );
     }
 
     return result as unknown as { tasks: Task[]; last_page?: boolean };
@@ -483,11 +490,7 @@ export class TasksClient {
     status_history?: Array<Record<string, unknown>>;
   }> {
     const raw = await this.client.get<unknown>(`/task/${taskId}/time_in_status`, params);
-    return validateResponse(
-      TaskTimeInStatusResponseSchema,
-      raw,
-      'getTaskTimeInStatus'
-    ) as {
+    return validateResponse(TaskTimeInStatusResponseSchema, raw, 'getTaskTimeInStatus') as {
       current_status?: Record<string, unknown>;
       status_history?: Array<Record<string, unknown>>;
     };
@@ -503,10 +506,15 @@ export class TasksClient {
   async getBulkTasksTimeInStatus(
     taskIds: string[],
     params?: { custom_task_ids?: boolean; team_id?: string }
-  ): Promise<Record<string, {
-    current_status?: Record<string, unknown>;
-    status_history?: Array<Record<string, unknown>>;
-  }>> {
+  ): Promise<
+    Record<
+      string,
+      {
+        current_status?: Record<string, unknown>;
+        status_history?: Array<Record<string, unknown>>;
+      }
+    >
+  > {
     if (!taskIds || taskIds.length < 2) {
       throw new Error(
         'getBulkTasksTimeInStatus requires at least 2 task IDs (ClickUp API constraint). ' +
@@ -541,10 +549,13 @@ export class TasksClient {
       BulkTasksTimeInStatusResponseSchema,
       raw,
       'getBulkTasksTimeInStatus'
-    ) as Record<string, {
-      current_status?: Record<string, unknown>;
-      status_history?: Array<Record<string, unknown>>;
-    }>;
+    ) as Record<
+      string,
+      {
+        current_status?: Record<string, unknown>;
+        status_history?: Array<Record<string, unknown>>;
+      }
+    >;
   }
 
   /**
@@ -623,14 +634,21 @@ export class TasksClient {
       for (let i = 0; i < tasks.length; i += CONCURRENCY) {
         const chunk = tasks.slice(i, i + CONCURRENCY);
         const chunkResults = await Promise.allSettled(
-          chunk.map((task, j) => this.createTask(listId, task).then(t => ({ index: i + j, task: t })))
+          chunk.map((task, j) =>
+            this.createTask(listId, task).then(t => ({ index: i + j, task: t }))
+          )
         );
         for (const result of chunkResults) {
           if (result.status === 'fulfilled') {
-            results.push({ success: true, task_id: result.value.task.id, index: result.value.index });
+            results.push({
+              success: true,
+              task_id: result.value.task.id,
+              index: result.value.index,
+            });
             successCount++;
           } else {
-            const errorMessage = result.reason instanceof Error ? result.reason.message : 'Unknown error';
+            const errorMessage =
+              result.reason instanceof Error ? result.reason.message : 'Unknown error';
             const idx = results.length + i;
             results.push({ success: false, error: errorMessage, index: idx });
             errorCount++;
@@ -715,10 +733,15 @@ export class TasksClient {
         );
         for (const result of chunkResults) {
           if (result.status === 'fulfilled') {
-            results.push({ success: true, task_id: result.value.task.id, index: result.value.index });
+            results.push({
+              success: true,
+              task_id: result.value.task.id,
+              index: result.value.index,
+            });
             successCount++;
           } else {
-            const errorMessage = result.reason instanceof Error ? result.reason.message : 'Unknown error';
+            const errorMessage =
+              result.reason instanceof Error ? result.reason.message : 'Unknown error';
             const idx = results.length + i;
             results.push({ success: false, error: errorMessage, index: idx });
             errorCount++;

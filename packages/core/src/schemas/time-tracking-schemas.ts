@@ -47,7 +47,7 @@ export const CreateTimeEntrySchema = z
     tags: z.array(TimeEntryTagSchema).optional(),
   })
   .refine(
-    (data) =>
+    data =>
       (data.duration === undefined) !== (data.stop === undefined) &&
       (data.stop === undefined || data.stop > data.start),
     { message: 'Provide either a positive duration or a stop time after start' }
@@ -56,23 +56,26 @@ export const CreateTimeEntrySchema = z
 // Update time entry schema.
 // 'stop' is mapped to the API's 'end' body field (the update endpoint has no
 // 'stop' field); 'tag_action' says what to do with the supplied tags.
-export const UpdateTimeEntrySchema = z.object({
-  team_id: TeamIdSchema,
-  timer_id: TimerIdSchema,
-  description: z.string().min(1).optional(),
-  start: z.number().positive().optional(),
-  duration: z.number().positive().optional(),
-  stop: z.number().positive().optional(),
-  billable: z.boolean().optional(),
-  task_id: z.string().optional(),
-  custom_task_ids: z.boolean().optional(),
-  tags: z.array(TimeEntryTagSchema).optional(),
-  tag_action: z.enum(['replace', 'add', 'remove']).optional(),
-}).refine((data) => data.duration === undefined || data.stop === undefined, {
-  message: 'Provide either duration or stop on update, not both',
-}).refine((data) => data.start === undefined || data.stop === undefined || data.stop > data.start, {
-  message: 'Stop time must be after start time',
-});
+export const UpdateTimeEntrySchema = z
+  .object({
+    team_id: TeamIdSchema,
+    timer_id: TimerIdSchema,
+    description: z.string().min(1).optional(),
+    start: z.number().positive().optional(),
+    duration: z.number().positive().optional(),
+    stop: z.number().positive().optional(),
+    billable: z.boolean().optional(),
+    task_id: z.string().optional(),
+    custom_task_ids: z.boolean().optional(),
+    tags: z.array(TimeEntryTagSchema).optional(),
+    tag_action: z.enum(['replace', 'add', 'remove']).optional(),
+  })
+  .refine(data => data.duration === undefined || data.stop === undefined, {
+    message: 'Provide either duration or stop on update, not both',
+  })
+  .refine(data => data.start === undefined || data.stop === undefined || data.stop > data.start, {
+    message: 'Stop time must be after start time',
+  });
 
 // Delete time entry schema
 export const DeleteTimeEntrySchema = z.object({

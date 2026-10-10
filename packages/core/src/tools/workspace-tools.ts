@@ -35,7 +35,7 @@ export function setupWorkspaceTools(server: McpServer): void {
         .boolean()
         .optional()
         .describe(
-          'Include the full member roster and workspace avatar URL. Off by default: on a real workspace the roster is ~10 KB per workspace and is almost never what the caller wanted. Use clickup_get_workspace_members or clickup_get_list_members to look people up instead.'
+          'Include the full member roster and workspace avatar URL. Off by default: on a real workspace the roster is ~10 KB per workspace and is almost never what the caller wanted. Use clickup_get_list_members to inspect the members of a specific list instead, and turn this on only when you genuinely need every workspace member (e.g. resolving a user ID for an @mention).'
         ),
     },
     async ({ include_members }) => {
@@ -47,10 +47,10 @@ export function setupWorkspaceTools(server: McpServer): void {
         const payload = include_members
           ? result.teams
           : (result.teams ?? []).map((team: Record<string, unknown>) => ({
-            id: team.id,
-            name: team.name,
-            color: team.color,
-          }));
+              id: team.id,
+              name: team.name,
+              color: team.color,
+            }));
         return {
           content: [{ type: 'text', text: JSON.stringify(payload) }],
         };

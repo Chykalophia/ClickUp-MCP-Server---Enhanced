@@ -272,12 +272,8 @@ export function setupDependenciesTools(server: McpServer): void {
         .array(
           z.object({
             task_id: idSchema().describe('The task to add/remove the dependency on'),
-            depends_on: idSchema()
-              .optional()
-              .describe('ID of the task being waited on'),
-            dependency_of: idSchema()
-              .optional()
-              .describe('ID of the task being blocked'),
+            depends_on: idSchema().optional().describe('ID of the task being waited on'),
+            dependency_of: idSchema().optional().describe('ID of the task being blocked'),
           })
         )
         .min(1)

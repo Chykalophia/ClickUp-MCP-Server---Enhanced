@@ -23,69 +23,71 @@ const commentsClient = new CommentsEnhancedClient(clickUpClient);
  * Shared zod schema for ClickUp's structured comment block array.
  * Supports plain/formatted text, @mentions (tag blocks), and emoticons.
  */
-const commentBlocksSchema = z.array(
-  z
-    .object({
-      text: z
-        .string()
-        .optional()
-        .describe(
-          'The text content of this block. Optional for tag/emoticon blocks that reference a user/emoji by id.'
-        ),
-      type: z
-        .string()
-        .optional()
-        .describe(
-          'Block type. Use "tag" for @mentions, "emoticon" for emoji blocks. Omit for plain/formatted text blocks.'
-        ),
-      user: z
-        .object({
-          id: z.number().int().positive().describe('Numeric ClickUp user ID being mentioned'),
-        })
-        .passthrough()
-        .optional()
-        .describe(
-          'User reference for tag (mention) blocks. Canonical, fully-supported shape per ClickUp API: {"type":"tag","user":{"id":<userId>}}. This form reliably triggers native @mention notifications.'
-        ),
-      emoticon: z
-        .object({
-          code: z.string().describe('Emoticon code, e.g. "1f600"'),
-        })
-        .passthrough()
-        .optional()
-        .describe('Emoticon reference for emoticon blocks.'),
-      attributes: z
-        .object({
-          bold: z.boolean().optional().describe('Whether text is bold'),
-          italic: z.boolean().optional().describe('Whether text is italic'),
-          underline: z.boolean().optional().describe('Whether text is underlined'),
-          strikethrough: z.boolean().optional().describe('Whether text is strikethrough'),
-          code: z.boolean().optional().describe('Whether text is code'),
-          color: z.string().optional().describe('Text color'),
-          background_color: z.string().optional().describe('Background color'),
-          link: z
-            .object({
-              url: z.string().describe('Link URL'),
-            })
-            .optional()
-            .describe('Link attributes'),
-          'code-block': z
-            .object({
-              'code-block': z
-                .string()
-                .describe(
-                  'Programming language for syntax highlighting (e.g., "javascript", "python", "bash", "plain")'
-                ),
-            })
-            .optional()
-            .describe('Code block attributes for multi-line code with syntax highlighting'),
-        })
-        .passthrough()
-        .optional()
-        .describe('Text formatting attributes'),
-    })
-    .passthrough()
-).min(1);
+const commentBlocksSchema = z
+  .array(
+    z
+      .object({
+        text: z
+          .string()
+          .optional()
+          .describe(
+            'The text content of this block. Optional for tag/emoticon blocks that reference a user/emoji by id.'
+          ),
+        type: z
+          .string()
+          .optional()
+          .describe(
+            'Block type. Use "tag" for @mentions, "emoticon" for emoji blocks. Omit for plain/formatted text blocks.'
+          ),
+        user: z
+          .object({
+            id: z.number().int().positive().describe('Numeric ClickUp user ID being mentioned'),
+          })
+          .passthrough()
+          .optional()
+          .describe(
+            'User reference for tag (mention) blocks. Canonical, fully-supported shape per ClickUp API: {"type":"tag","user":{"id":<userId>}}. This form reliably triggers native @mention notifications.'
+          ),
+        emoticon: z
+          .object({
+            code: z.string().describe('Emoticon code, e.g. "1f600"'),
+          })
+          .passthrough()
+          .optional()
+          .describe('Emoticon reference for emoticon blocks.'),
+        attributes: z
+          .object({
+            bold: z.boolean().optional().describe('Whether text is bold'),
+            italic: z.boolean().optional().describe('Whether text is italic'),
+            underline: z.boolean().optional().describe('Whether text is underlined'),
+            strikethrough: z.boolean().optional().describe('Whether text is strikethrough'),
+            code: z.boolean().optional().describe('Whether text is code'),
+            color: z.string().optional().describe('Text color'),
+            background_color: z.string().optional().describe('Background color'),
+            link: z
+              .object({
+                url: z.string().describe('Link URL'),
+              })
+              .optional()
+              .describe('Link attributes'),
+            'code-block': z
+              .object({
+                'code-block': z
+                  .string()
+                  .describe(
+                    'Programming language for syntax highlighting (e.g., "javascript", "python", "bash", "plain")'
+                  ),
+              })
+              .optional()
+              .describe('Code block attributes for multi-line code with syntax highlighting'),
+          })
+          .passthrough()
+          .optional()
+          .describe('Text formatting attributes'),
+      })
+      .passthrough()
+  )
+  .min(1);
 
 /**
  * Format comment response with enhanced markdown styling
@@ -191,14 +193,14 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
   // Register create_task_comment tool
   server.tool(
     'clickup_create_task_comment',
-    'Create a new comment on a ClickUp task. Supports GitHub Flavored Markdown in comment text, or structured comment blocks for @mentions. Provide either comment_text or comment. Supports optional assignee and notification settings.',
+    'Create a new comment on a ClickUp task. Supports GitHub Flavored Markdown in comment text, including inline @mentions written as @[Name](userId); structured comment blocks are an alternative for callers that already have them. Provide either comment_text or comment. Supports optional assignee and notification settings.',
     {
       task_id: idSchema().describe('The ID of the task to comment on'),
       comment_text: z
         .string()
         .optional()
         .describe(
-          'The text content of the comment (supports GitHub Flavored Markdown including headers, bold, italic, code blocks, links, lists, etc.). Required unless comment blocks are provided.'
+          'The text content of the comment (supports GitHub Flavored Markdown including headers, bold, italic, code blocks, links, lists, etc.). To @mention someone inline, write @[Display Name](userId) with a numeric ClickUp user ID — e.g. "over to @[Jane](81344)". Mentions and Markdown work together; there is no need to drop to plain text or to hand-build blocks to mention someone. Required unless comment blocks are provided.'
         ),
       comment: commentBlocksSchema
         .optional()
@@ -271,14 +273,14 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
   // Register create_chat_view_comment tool
   server.tool(
     'clickup_create_chat_view_comment',
-    'Create a new comment in a ClickUp chat view. Supports notification settings. Supports GitHub Flavored Markdown in comment text, or structured comment blocks for @mentions. Provide either comment_text or comment.',
+    'Create a new comment in a ClickUp chat view. Supports notification settings. Supports GitHub Flavored Markdown in comment text, including inline @mentions written as @[Name](userId); structured comment blocks are an alternative for callers that already have them. Provide either comment_text or comment.',
     {
       view_id: idSchema().describe('The ID of the chat view to comment on'),
       comment_text: z
         .string()
         .optional()
         .describe(
-          'The text content of the comment (supports GitHub Flavored Markdown including headers, bold, italic, code blocks, links, lists, etc.). Required unless comment blocks are provided.'
+          'The text content of the comment (supports GitHub Flavored Markdown including headers, bold, italic, code blocks, links, lists, etc.). To @mention someone inline, write @[Display Name](userId) with a numeric ClickUp user ID — e.g. "over to @[Jane](81344)". Mentions and Markdown work together; there is no need to drop to plain text or to hand-build blocks to mention someone. Required unless comment blocks are provided.'
         ),
       comment: commentBlocksSchema
         .optional()
@@ -294,7 +296,9 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
         }
         const params: CreateChatViewCommentParams = {
           ...commentParams,
-          ...(comment?.length ? { comment: processCommentBlocks(comment), comment_text: undefined } : {}),
+          ...(comment?.length
+            ? { comment: processCommentBlocks(comment), comment_text: undefined }
+            : {}),
         };
         const result = await commentsClient.createChatViewComment(view_id, params);
         return {
@@ -330,14 +334,14 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
   // Register create_list_comment tool
   server.tool(
     'clickup_create_list_comment',
-    'Create a new comment on a ClickUp list. Supports optional assignee and notification settings. Supports GitHub Flavored Markdown in comment text, or structured comment blocks for @mentions. Provide either comment_text or comment.',
+    'Create a new comment on a ClickUp list. Supports optional assignee and notification settings. Supports GitHub Flavored Markdown in comment text, including inline @mentions written as @[Name](userId); structured comment blocks are an alternative for callers that already have them. Provide either comment_text or comment.',
     {
       list_id: idSchema().describe('The ID of the list to comment on'),
       comment_text: z
         .string()
         .optional()
         .describe(
-          'The text content of the comment (supports GitHub Flavored Markdown including headers, bold, italic, code blocks, links, lists, etc.). Required unless comment blocks are provided.'
+          'The text content of the comment (supports GitHub Flavored Markdown including headers, bold, italic, code blocks, links, lists, etc.). To @mention someone inline, write @[Display Name](userId) with a numeric ClickUp user ID — e.g. "over to @[Jane](81344)". Mentions and Markdown work together; there is no need to drop to plain text or to hand-build blocks to mention someone. Required unless comment blocks are provided.'
         ),
       comment: commentBlocksSchema
         .optional()
@@ -354,7 +358,9 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
         }
         const params: CreateListCommentParams = {
           ...commentParams,
-          ...(comment?.length ? { comment: processCommentBlocks(comment), comment_text: undefined } : {}),
+          ...(comment?.length
+            ? { comment: processCommentBlocks(comment), comment_text: undefined }
+            : {}),
         };
         const result = await commentsClient.createListComment(list_id, params);
         return {
@@ -369,14 +375,14 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
   // Register update_comment tool
   server.tool(
     'clickup_update_comment',
-    "Update an existing ClickUp comment's properties including text, assignee, and resolved status. Supports GitHub Flavored Markdown in comment text, or structured comment blocks for @mentions. Omit comment_text/comment for resolve-only or assign-only updates that leave the comment body untouched.",
+    "Update an existing ClickUp comment's properties including text, assignee, and resolved status. Supports GitHub Flavored Markdown in comment text, including inline @mentions written as @[Name](userId); structured comment blocks are an alternative for callers that already have them. Omit comment_text/comment for resolve-only or assign-only updates that leave the comment body untouched.",
     {
       comment_id: idSchema().describe('The ID of the comment to update'),
       comment_text: z
         .string()
         .optional()
         .describe(
-          'The new text content of the comment (supports GitHub Flavored Markdown including headers, bold, italic, code blocks, links, lists, etc.). Omit to leave the comment body unchanged.'
+          'The new text content of the comment (supports GitHub Flavored Markdown including headers, bold, italic, code blocks, links, lists, etc.). To @mention someone inline, write @[Display Name](userId) with a numeric ClickUp user ID — e.g. "over to @[Jane](81344)". Mentions and Markdown work together. Omit to leave the comment body unchanged.'
         ),
       comment: commentBlocksSchema
         .optional()
@@ -402,7 +408,9 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
           ...commentParams,
           // Structured blocks take precedence: drop comment_text so the
           // client does not prefer it over the supplied blocks.
-          ...(comment?.length ? { comment: processCommentBlocks(comment), comment_text: undefined } : {}),
+          ...(comment?.length
+            ? { comment: processCommentBlocks(comment), comment_text: undefined }
+            : {}),
         };
         const result = await commentsClient.updateComment(comment_id, params);
         return {
@@ -457,14 +465,14 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
   // Register create_threaded_comment tool
   server.tool(
     'clickup_create_threaded_comment',
-    'Create a new threaded comment (reply) to a parent comment. Supports notification settings. Supports GitHub Flavored Markdown in comment text, or structured comment blocks for @mentions. Provide either comment_text or comment.',
+    'Create a new threaded comment (reply) to a parent comment. Supports notification settings. Supports GitHub Flavored Markdown in comment text, including inline @mentions written as @[Name](userId); structured comment blocks are an alternative for callers that already have them. Provide either comment_text or comment.',
     {
       comment_id: idSchema().describe('The ID of the parent comment'),
       comment_text: z
         .string()
         .optional()
         .describe(
-          'The text content of the comment (supports GitHub Flavored Markdown including headers, bold, italic, code blocks, links, lists, etc.). Required unless comment blocks are provided.'
+          'The text content of the comment (supports GitHub Flavored Markdown including headers, bold, italic, code blocks, links, lists, etc.). To @mention someone inline, write @[Display Name](userId) with a numeric ClickUp user ID — e.g. "over to @[Jane](81344)". Mentions and Markdown work together; there is no need to drop to plain text or to hand-build blocks to mention someone. Required unless comment blocks are provided.'
         ),
       comment: commentBlocksSchema
         .optional()
@@ -480,7 +488,9 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
         }
         const params: CreateThreadedCommentParams = {
           ...commentParams,
-          ...(comment?.length ? { comment: processCommentBlocks(comment), comment_text: undefined } : {}),
+          ...(comment?.length
+            ? { comment: processCommentBlocks(comment), comment_text: undefined }
+            : {}),
         };
         const result = await commentsClient.createThreadedComment(comment_id, params);
         return {

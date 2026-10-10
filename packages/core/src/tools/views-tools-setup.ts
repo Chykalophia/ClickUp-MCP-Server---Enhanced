@@ -37,17 +37,33 @@ export function setupViewsTools(server: McpServer): void {
     'clickup_create_view',
     'Create a new view in a ClickUp Workspace (team), space, folder, or list. Supports the API view types: list, board, calendar, table, timeline, workload, activity, map, conversation (chat), and gantt.',
     {
-      parent_id: idSchema().describe('The ID of the parent (Workspace/team, space, folder, or list)'),
-      parent_type: ViewParentTypeSchema.describe('The type of parent container (team = Workspace/Everything level)'),
+      parent_id: idSchema().describe(
+        'The ID of the parent (Workspace/team, space, folder, or list)'
+      ),
+      parent_type: ViewParentTypeSchema.describe(
+        'The type of parent container (team = Workspace/Everything level)'
+      ),
       name: z.string().min(1).describe('The name of the view'),
       type: ViewTypeSchema.describe('The type of view to create'),
-      filters: z.array(ViewFilterSchema).optional().describe('Initial filter conditions ({field, op, values}) for the view'),
+      filters: z
+        .array(ViewFilterSchema)
+        .optional()
+        .describe('Initial filter conditions ({field, op, values}) for the view'),
       grouping: ViewGroupingSchema.optional().describe('Grouping configuration for the view'),
-      divide: ViewDivideSchema.optional().describe('Divide (board swimlane) configuration for the view'),
+      divide: ViewDivideSchema.optional().describe(
+        'Divide (board swimlane) configuration for the view'
+      ),
       sorting: z.array(ViewSortingSchema).optional().describe('Sorting configuration for the view'),
-      columns: z.array(ViewColumnSchema).optional().describe('Column configuration for table and list views'),
-      team_sidebar: TeamSidebarSchema.optional().describe('Team sidebar configuration for the view'),
-      settings: ViewSettingsSchema.optional().describe('View display settings (show_task_locations, show_subtasks, show_assignees, etc.)'),
+      columns: z
+        .array(ViewColumnSchema)
+        .optional()
+        .describe('Column configuration for table and list views'),
+      team_sidebar: TeamSidebarSchema.optional().describe(
+        'Team sidebar configuration for the view'
+      ),
+      settings: ViewSettingsSchema.optional().describe(
+        'View display settings (show_task_locations, show_subtasks, show_assignees, etc.)'
+      ),
     },
     async args => {
       try {
@@ -72,8 +88,12 @@ export function setupViewsTools(server: McpServer): void {
     'clickup_get_views',
     'Get all views for a Workspace (team), space, folder, or list. The API returns all views; the optional type filter is applied client-side.',
     {
-      parent_id: idSchema().describe('The ID of the parent (Workspace/team, space, folder, or list)'),
-      parent_type: ViewParentTypeSchema.describe('The type of parent container (team = Workspace/Everything level)'),
+      parent_id: idSchema().describe(
+        'The ID of the parent (Workspace/team, space, folder, or list)'
+      ),
+      parent_type: ViewParentTypeSchema.describe(
+        'The type of parent container (team = Workspace/Everything level)'
+      ),
       type: ViewTypeSchema.optional().describe('Filter views by type (applied client-side)'),
     },
     async args => {
@@ -126,13 +146,21 @@ export function setupViewsTools(server: McpServer): void {
       view_id: idSchema().describe('The ID of the view to update'),
       name: z.string().optional().describe('New name for the view'),
       type: ViewTypeSchema.optional().describe('New type for the view'),
-      filters: z.array(ViewFilterSchema).optional().describe('New filter conditions ({field, op, values}) for the view'),
+      filters: z
+        .array(ViewFilterSchema)
+        .optional()
+        .describe('New filter conditions ({field, op, values}) for the view'),
       grouping: ViewGroupingSchema.optional().describe('New grouping configuration'),
       divide: ViewDivideSchema.optional().describe('New divide (board swimlane) configuration'),
       sorting: z.array(ViewSortingSchema).optional().describe('New sorting configuration'),
-      columns: z.array(ViewColumnSchema).optional().describe('New column configuration for table and list views'),
+      columns: z
+        .array(ViewColumnSchema)
+        .optional()
+        .describe('New column configuration for table and list views'),
       team_sidebar: TeamSidebarSchema.optional().describe('New team sidebar configuration'),
-      settings: ViewSettingsSchema.optional().describe('New view display settings (merged with the current settings)'),
+      settings: ViewSettingsSchema.optional().describe(
+        'New view display settings (merged with the current settings)'
+      ),
     },
     async args => {
       try {
@@ -182,7 +210,9 @@ export function setupViewsTools(server: McpServer): void {
     'Set or update filters for a view. Filters determine which tasks are visible in the view. Each condition uses {field, op, values} with ClickUp operator tokens (EQ, ANY, ALL, NOT ANY, ...).',
     {
       view_id: idSchema().describe('The ID of the view to update'),
-      filters: z.array(ViewFilterSchema).describe('Array of filter conditions ({field, op, values}) to apply to the view'),
+      filters: z
+        .array(ViewFilterSchema)
+        .describe('Array of filter conditions ({field, op, values}) to apply to the view'),
     },
     async args => {
       try {
@@ -208,7 +238,9 @@ export function setupViewsTools(server: McpServer): void {
     'Set or update the grouping configuration for a view. Grouping organizes tasks into sections; collapsed is an array of collapsed group IDs.',
     {
       view_id: idSchema().describe('The ID of the view to update'),
-      grouping: ViewGroupingSchema.describe('Grouping configuration ({field, order, collapsed group IDs, ignore})'),
+      grouping: ViewGroupingSchema.describe(
+        'Grouping configuration ({field, order, collapsed group IDs, ignore})'
+      ),
     },
     async args => {
       try {
@@ -290,7 +322,12 @@ export function setupViewsTools(server: McpServer): void {
     "Get tasks that are visible in a specific view, respecting the view's filters and settings. Pagination is 0-indexed (page 0 is the first page).",
     {
       view_id: idSchema().describe('The ID of the view to get tasks from'),
-      page: z.number().int().min(0).optional().describe('Page number for pagination, starting at 0 (default 0)'),
+      page: z
+        .number()
+        .int()
+        .min(0)
+        .optional()
+        .describe('Page number for pagination, starting at 0 (default 0)'),
     },
     async args => {
       try {
@@ -316,8 +353,12 @@ export function setupViewsTools(server: McpServer): void {
     {
       view_id: idSchema().describe('The ID of the view to duplicate'),
       name: z.string().min(1).describe('Name for the duplicated view'),
-      parent_id: idSchema().describe('The ID of the parent (Workspace/team, space, folder, or list) to create the duplicate in'),
-      parent_type: ViewParentTypeSchema.describe('The type of parent container to create the duplicate in'),
+      parent_id: idSchema().describe(
+        'The ID of the parent (Workspace/team, space, folder, or list) to create the duplicate in'
+      ),
+      parent_type: ViewParentTypeSchema.describe(
+        'The type of parent container to create the duplicate in'
+      ),
     },
     async args => {
       try {
@@ -342,7 +383,9 @@ export function setupViewsTools(server: McpServer): void {
     'clickup_get_view_fields',
     'Get the Custom Fields accessible in a Workspace (team), space, folder, or list (Get Accessible Custom Fields endpoint). Note: built-in fields such as status, assignee, dueDate, and priority are not included.',
     {
-      parent_id: idSchema().describe('The ID of the parent (Workspace/team, space, folder, or list)'),
+      parent_id: idSchema().describe(
+        'The ID of the parent (Workspace/team, space, folder, or list)'
+      ),
       parent_type: ViewParentTypeSchema.describe('The type of parent container'),
     },
     async args => {

@@ -88,7 +88,7 @@ class ClickUpServer {
       ['attachments', setupAttachmentsTools], // File attachments and media management
       ['spaces', setupSpaceTools],
       ['checklists', setupChecklistTools],
-      ['comments', (server) => setupCommentTools(server, { includeDebugTools: DEBUG_TOOLS_ENABLED })],
+      ['comments', server => setupCommentTools(server, { includeDebugTools: DEBUG_TOOLS_ENABLED })],
       ['chat', setupChatTools], // Chat messaging and channels
     ];
 

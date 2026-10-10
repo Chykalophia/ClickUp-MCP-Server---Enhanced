@@ -662,7 +662,7 @@ npm test
 
 ```bash
 # Test markdown functionality specifically
-npm test -- --testPathPattern=markdown
+npm test -- --testPathPatterns=markdown
 
 # Run all tests with coverage
 npm run test:coverage

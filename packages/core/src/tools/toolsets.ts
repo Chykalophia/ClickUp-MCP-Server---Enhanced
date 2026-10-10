@@ -17,24 +17,24 @@
 
 /** Toolset name -> what it covers, and how many tools it registers. */
 export const TOOLSETS = {
-  tasks: { count: 13, description: 'Task create/read/update/delete, search, assignees, status' },
+  tasks: { count: 16, description: 'Task create/read/update/delete, search, assignees, status' },
   lists: {
-    count: 18,
+    count: 20,
     description: 'Lists, folders, folderless lists, and the workspace hierarchy map',
   },
-  chat: { count: 19, description: 'Chat channels, messages, reactions, replies' },
-  'time-tracking': { count: 14, description: 'Time entries, timers, and time summaries' },
+  chat: { count: 20, description: 'Chat channels, messages, reactions, replies' },
+  'time-tracking': { count: 16, description: 'Time entries, timers, and time summaries' },
   goals: { count: 12, description: 'Goals and goal targets' },
   views: { count: 12, description: 'Views, view filters, grouping, and sorting' },
   // 10 by default; CLICKUP_DEBUG_TOOLS adds clickup_create_task_comment_raw_test.
   comments: { count: 10, description: 'Task, list, chat-view, and threaded comments' },
-  docs: { count: 9, description: 'Docs, doc pages, and doc search' },
+  docs: { count: 10, description: 'Docs, doc pages, and doc search' },
   spaces: { count: 9, description: 'Spaces and space tags' },
   dependencies: { count: 8, description: 'Task dependencies, links, and dependency graphs' },
-  'custom-fields': { count: 7, description: 'Custom field definitions and values' },
+  'custom-fields': { count: 8, description: 'Custom field definitions and values' },
   webhooks: { count: 7, description: 'Webhook management, processing, and signature validation' },
   checklists: { count: 6, description: 'Checklists and checklist items' },
-  workspace: { count: 6, description: 'Workspaces, members, seats, plan, and authorized user' },
+  workspace: { count: 16, description: 'Workspaces, members, seats, plan, and authorized user' },
   bulk: { count: 5, description: 'Bulk task create/update/delete and bulk custom-field writes' },
   attachments: { count: 2, description: 'Task attachments and uploads' },
 } as const;

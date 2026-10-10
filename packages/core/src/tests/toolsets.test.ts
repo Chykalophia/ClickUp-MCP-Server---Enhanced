@@ -77,7 +77,7 @@ describe('toolset metadata', () => {
   it('totals the documented tool count', () => {
     const sum = ALL_TOOLSETS.reduce((acc, name) => acc + TOOLSETS[name].count, 0);
     expect(sum).toBe(TOTAL_TOOL_COUNT);
-    expect(TOTAL_TOOL_COUNT).toBe(157);
+    expect(TOTAL_TOOL_COUNT).toBe(177);
   });
 
   it('gives every toolset a positive count and a description', () => {

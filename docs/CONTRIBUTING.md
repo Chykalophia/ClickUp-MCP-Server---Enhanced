@@ -19,7 +19,7 @@ This project adheres to a Code of Conduct that all contributors are expected to 
 
 ## Getting Started
 
-1. Ensure you have Node.js 18.0.0 or higher installed
+1. Ensure you have Node.js 18.14.0 or higher installed
 2. Fork the repository on GitHub
 3. Clone your fork locally:
    ```bash

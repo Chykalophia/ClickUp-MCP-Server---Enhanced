@@ -36,7 +36,7 @@ How they combine:
 | any | `all` | everything |
 | `all` | unset | everything (the 6.x behaviour) |
 | `all` | `tasks,comments` | exactly those toolsets + catalog (the 6.x `CLICKUP_TOOLSETS` behaviour) |
-| `core` | only unknown names | core tools + catalog, with a warning on stderr |
+| any | only unknown names | core tools + catalog, with a warning on stderr |
 
 Names are case-insensitive and `_` is treated as `-` (`Custom_Fields` works).
 Unknown names are reported on stderr and ignored.
@@ -115,7 +115,10 @@ These three are enabled in every mode.
 ### `clickup_list_toolsets`
 
 Lists every toolset with its description, tool names, `enabled` flag,
-`enabled_tools` / `tool_count`, and `unique` flag, plus the profiles.
+`enabled_tools` / `tool_count`, and `unique` flag, plus the profiles. The
+top-level `startup_mode` is the mode configured at startup; `enabled_tools` /
+`total_tools` and each toolset's `enabled` flag are live, so they reflect
+`clickup_enable_toolset` calls made since.
 
 ```json
 { "toolset": "goals", "include_schemas": true }
@@ -145,7 +148,8 @@ list and the new tools appear. Core and catalog tools are never disabled.
 Runs any registered tool, enabled or not. `arguments` is validated with that
 tool's strict schema (unknown parameters are rejected with a "did you mean"
 hint, exactly as a direct call would be) and the tool's result is returned
-unchanged. An unknown tool name returns an error naming the closest match.
+unchanged. An unknown tool name returns an error, with a "did you mean" hint
+when a registered name is close enough.
 Catalog tools cannot be called through it.
 
 Use it when the client does not refresh on `list_changed`, or for a one-off
@@ -159,22 +163,28 @@ Every tool carries MCP annotations, applied centrally from its name:
 - `readOnlyHint` — `get_`, `list_`, `search_`, `validate_`, `format_`, `check_`, `find_`, `resolve_`
 - `destructiveHint` — `delete_`, `remove_`, `merge_`, `bulk_delete_`; explicitly
   `false` for other write tools (the MCP default is `true`)
-- `idempotentHint` — reads and `update_` / `set_` / `edit_` / `move_`
-- `openWorldHint` — `true`, except for purely local helpers (formatters,
-  signature validation)
+- `idempotentHint` — reads and `update_` / `set_` / `edit_` / `add_tag` / `move_`
+- `openWorldHint` — `true`, except for tools that make no ClickUp request:
+  local helpers (formatters, signature and value validation,
+  `clickup_process_webhook`) and the catalog tools `clickup_list_toolsets` and
+  `clickup_enable_toolset`
 
 An override table in `packages/core/src/utils/tool-annotations.ts` corrects the
-cases a prefix gets wrong. Annotations a tool passes at its call site are never
+cases a prefix gets wrong: removals that are trivially undone (a tag from a task
+or from time entries, a task from a secondary list, a chat reaction) are not
+destructive, and `clickup_bulk_dependency_operations` is destructive because it
+can delete dependencies. Annotations a tool passes at its call site are never
 overwritten.
 
 ## Confirming destructive tools
 
-When the connected client advertises the `elicitation` capability, the server
+When the connected client advertises form elicitation support
+(`elicitation.form`, or the older empty `elicitation: {}`), the server
 asks the user to confirm before running any tool with `destructiveHint: true`
 (directly or through `clickup_call_tool`). Declining or cancelling returns an
 error result saying the call was cancelled; nothing is sent to ClickUp.
 
-Clients without elicitation support behave exactly as before. Set
+Clients without form elicitation support behave exactly as before. Set
 `CLICKUP_CONFIRM_DESTRUCTIVE=false` to turn the prompts off.
 
 ## Server instructions

@@ -8,7 +8,7 @@
   <a href="https://www.npmjs.com/package/@chykalophia/clickup-mcp-server"><img src="https://img.shields.io/npm/v/@chykalophia/clickup-mcp-server.svg" alt="Core Server Version"></a>
   <a href="https://www.npmjs.com/package/@chykalophia/clickup-intelligence-mcp-server"><img src="https://img.shields.io/npm/v/@chykalophia/clickup-intelligence-mcp-server.svg" alt="Intelligence Server Version"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
-  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen" alt="Node.js Version"></a>
+  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D18.14.0-brightgreen" alt="Node.js Version"></a>
   <a href="https://github.com/modelcontextprotocol/typescript-sdk"><img src="https://img.shields.io/badge/MCP%20SDK-1.6.1-orange" alt="MCP SDK"></a>
 </p>
 
@@ -481,9 +481,17 @@ lists, custom-fields, checklists, dependencies), `time`, `chat`, `docs`,
 `admin` (spaces, views, webhooks, goals, workspace).
 
 ```json
-"env": {
-  "CLICKUP_API_TOKEN": "YOUR_API_TOKEN_HERE",
-  "CLICKUP_TOOLSETS": "pm,time"
+{
+  "mcpServers": {
+    "clickup": {
+      "command": "npx",
+      "args": ["-y", "@chykalophia/clickup-mcp-server@latest"],
+      "env": {
+        "CLICKUP_API_TOKEN": "YOUR_API_TOKEN_HERE",
+        "CLICKUP_TOOLSETS": "pm,time"
+      }
+    }
+  }
 }
 ```
 

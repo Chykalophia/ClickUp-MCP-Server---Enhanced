@@ -20,8 +20,10 @@ by default:
   `CLICKUP_TOOLSETS` did in 6.x.
 - `CLICKUP_TOOLSETS` in core mode adds whole toolsets on top of core and accepts
   profiles: `pm`, `time`, `chat`, `docs`, `admin`. `CLICKUP_TOOLSETS=all` still
-  enables everything. If no name resolves, the server warns on stderr and falls
-  back to core (6.x fell back to all).
+  enables everything. If no name resolves (in either mode), the server warns on
+  stderr and falls back to core (6.x fell back to all).
+- The declared Node.js floor is now 18.14.0 (`engines`), the minimum Jest 30
+  supports.
 
 ### New: catalog tools (always on)
 

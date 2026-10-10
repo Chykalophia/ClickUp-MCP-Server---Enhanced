@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- Node.js 18.0.0 or higher
+- Node.js 18.14.0 or higher
 - npm (included with Node.js)
 - ClickUp API token
 

@@ -13,7 +13,9 @@ export interface GetListsParams {
 
 export interface CreateListParams {
   name: string;
+  /** List description. Markdown is supported: sent as `markdown_content`. */
   content?: string;
+  markdown_content?: string;
   due_date?: number;
   due_date_time?: boolean;
   priority?: number;
@@ -23,7 +25,9 @@ export interface CreateListParams {
 
 export interface UpdateListParams {
   name?: string;
+  /** List description. Markdown is supported: sent as `markdown_content`. */
   content?: string;
+  markdown_content?: string;
   due_date?: number;
   due_date_time?: boolean;
   priority?: number;
@@ -36,6 +40,27 @@ export interface ListMember {
   username?: string;
   email?: string;
   // ...other member properties...
+}
+
+/**
+ * ClickUp's Create List, Create Folderless List and Update List endpoints take
+ * the description as plain `content` or as `markdown_content` ("Use
+ * markdown_content instead of content to format your List description").
+ * Markdown renders plain text identically, so a non-empty `content` is always
+ * sent as `markdown_content`. An empty string stays `content` so it can still
+ * clear the description.
+ */
+export function toListMarkdownBody<T extends { content?: string; markdown_content?: string }>(
+  params: T
+): T {
+  const body = { ...params };
+  if (body.markdown_content === undefined && typeof body.content === 'string' && body.content) {
+    body.markdown_content = body.content;
+  }
+  if (body.markdown_content !== undefined) {
+    delete body.content;
+  }
+  return body;
 }
 
 export class ListsClient {
@@ -74,7 +99,7 @@ export class ListsClient {
    * @returns The created list
    */
   async createListInFolder(folderId: string, params: CreateListParams): Promise<List> {
-    return this.client.post(`/folder/${folderId}/list`, params);
+    return this.client.post(`/folder/${folderId}/list`, toListMarkdownBody(params));
   }
 
   /**
@@ -84,7 +109,7 @@ export class ListsClient {
    * @returns The created list
    */
   async createFolderlessList(spaceId: string, params: CreateListParams): Promise<List> {
-    return this.client.post(`/space/${spaceId}/list`, params);
+    return this.client.post(`/space/${spaceId}/list`, toListMarkdownBody(params));
   }
 
   /**
@@ -103,7 +128,7 @@ export class ListsClient {
    * @returns The updated list
    */
   async updateList(listId: string, params: UpdateListParams): Promise<List> {
-    return this.client.put(`/list/${listId}`, params);
+    return this.client.put(`/list/${listId}`, toListMarkdownBody(params));
   }
 
   /**

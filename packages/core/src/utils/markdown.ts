@@ -194,52 +194,56 @@ export function formatContent(
 }
 
 /**
- * Prepare content for ClickUp API submission
- * Uses markdown_description field for markdown, description for HTML/plain text
- * @param content The content to prepare (markdown, HTML, or plain text)
- * @returns Object with appropriate field for ClickUp API
+ * Real HTML markup, as opposed to text that merely contains angle brackets
+ * (`Vec<T>`, `a < b > c`, `<https://autolink>`). Only well-known tags count, so
+ * a description is converted only when it is actually HTML.
  */
-export function prepareContentForClickUp(content: string): {
-  description?: string; // For HTML or plain text content
-  markdown_description?: string; // For markdown content
-  text_content?: string; // Plain text version for compatibility
-} {
-  if (!content || typeof content !== 'string') {
-    return { description: '' };
-  }
+const HTML_TAG_PATTERN =
+  /<\/?(?:p|div|span|br|hr|h[1-6]|ul|ol|li|strong|b|em|i|u|s|del|strike|a|code|pre|blockquote|table|thead|tbody|tr|td|th|img|mark)(?:\s[^<>]{0,1000})?\/?>/i;
 
-  // If content looks like markdown, use markdown_description field
-  if (isMarkdown(content)) {
-    const plainText = markdownToPlainText(content);
-
-    return {
-      markdown_description: content, // Send raw markdown to ClickUp
-      text_content: plainText,
-    };
-  }
-
-  // If content is HTML, use description field
-  if (isHtml(content)) {
-    const plainText = htmlToMarkdown(content);
-
-    return {
-      description: content, // Send HTML as-is
-      text_content: markdownToPlainText(plainText),
-    };
-  }
-
-  // Plain text content - use description field
-  return {
-    description: content,
-    text_content: content,
-  };
+export function looksLikeHtml(content: string): boolean {
+  return typeof content === 'string' && HTML_TAG_PATTERN.test(content);
 }
 
 /**
- * Process ClickUp response content for display
- * Converts HTML to markdown for better readability
+ * Prepare a task description for ClickUp API submission.
+ *
+ * Always returns `markdown_description`. Markdown renders plain text exactly
+ * like the plain `description` field does, so there is nothing to gain from
+ * guessing: the old isMarkdown() heuristic missed GFM tables, bare URLs,
+ * horizontal rules and more, and those descriptions were then sent to the
+ * plain field and rendered literally. HTML input (which ClickUp does not
+ * render in either field) is converted to markdown with turndown first.
+ *
+ * @param content The description to prepare (markdown, HTML, or plain text)
+ * @returns `{ markdown_description }` ready to merge into the request body
+ */
+export function prepareContentForClickUp(content: string): {
+  markdown_description: string;
+} {
+  if (!content || typeof content !== 'string') {
+    return { markdown_description: '' };
+  }
+
+  if (looksLikeHtml(content)) {
+    return { markdown_description: htmlToMarkdown(content) };
+  }
+
+  return { markdown_description: content };
+}
+
+/**
+ * Process a ClickUp task response for display.
+ *
+ * When ClickUp returned `markdown_description` (requested with
+ * include_markdown_description=true, the default on this server's task read
+ * tools), it becomes the canonical `description`, and the duplicate plain-text
+ * renderings (`markdown_description`, `text_content`) are dropped. ClickUp's
+ * default `description` is a flattened plain-text rendering, so an agent that
+ * read it and wrote it back destroyed headings, links and checklists.
+ *
  * @param response ClickUp API response with description/text_content
- * @returns Processed content with markdown formatting
+ * @returns Processed content with a markdown description
  */
 export function processClickUpResponse(response: any): any {
   if (!response || typeof response !== 'object') {
@@ -248,29 +252,16 @@ export function processClickUpResponse(response: any): any {
 
   const processed = { ...response };
 
-  // Process description field
-  if (processed.description && isHtml(processed.description)) {
+  if (typeof processed.markdown_description === 'string') {
+    processed.description = processed.markdown_description;
+    delete processed.markdown_description;
+    delete processed.text_content;
+  } else if (processed.description && looksLikeHtml(processed.description)) {
     processed.description_markdown = htmlToMarkdown(processed.description);
   }
 
-  // Process comment fields
-  if (processed.comment_text && processed.comment && Array.isArray(processed.comment)) {
-    // ClickUp comments come as rich text blocks, try to convert to markdown
-    try {
-      const htmlContent = processed.comment
-        .map((block: any) => {
-          if (typeof block === 'string') return block;
-          if (block.text) return block.text;
-          return '';
-        })
-        .join('');
-
-      if (htmlContent && isHtml(htmlContent)) {
-        processed.comment_markdown = htmlToMarkdown(htmlContent);
-      }
-    } catch (error) {
-      console.warn('Failed to process comment blocks:', error);
-    }
+  if (Array.isArray(processed.subtasks)) {
+    processed.subtasks = processed.subtasks.map((subtask: any) => processClickUpResponse(subtask));
   }
 
   return processed;

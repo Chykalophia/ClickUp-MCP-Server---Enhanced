@@ -24,7 +24,10 @@ export function setupTaskTools(server: McpServer): void {
       include_markdown_description: z
         .boolean()
         .optional()
-        .describe('Whether to return task descriptions in Markdown format'),
+        .default(true)
+        .describe(
+          "Return task descriptions as Markdown (default true). The description field then carries the markdown; set false only to get ClickUp's flattened plain-text rendering."
+        ),
       page: z.number().optional().describe('The page number to get'),
       order_by: z
         .enum(['id', 'created', 'updated', 'due_date'])
@@ -56,7 +59,10 @@ export function setupTaskTools(server: McpServer): void {
       include_markdown_description: z
         .boolean()
         .optional()
-        .describe('Whether to return the task description in Markdown format'),
+        .default(true)
+        .describe(
+          "Return the description as Markdown (default true). The description field then carries the markdown, preserving headings, links and checklists for a read-modify-write; set false only to get ClickUp's flattened plain-text rendering."
+        ),
       custom_task_ids: z
         .boolean()
         .optional()
@@ -113,14 +119,26 @@ export function setupTaskTools(server: McpServer): void {
         .describe('The IDs of the users to assign to the task'),
       tags: z.array(z.string()).optional().describe('The tags to add to the task'),
       status: z.string().optional().describe('The status of the task'),
-      priority: z.number().optional().describe('The priority of the task (1-4)'),
-      due_date: z.number().optional().describe('The due date of the task (Unix timestamp)'),
+      priority: z
+        .number()
+        .int()
+        .min(1)
+        .max(4)
+        .optional()
+        .describe('The priority of the task (1 = Urgent, 2 = High, 3 = Normal, 4 = Low)'),
+      due_date: z
+        .number()
+        .optional()
+        .describe('The due date of the task (Unix timestamp in milliseconds)'),
       due_date_time: z.boolean().optional().describe('Whether the due date includes a time'),
       time_estimate: z
         .number()
         .optional()
         .describe('The time estimate for the task (in milliseconds)'),
-      start_date: z.number().optional().describe('The start date of the task (Unix timestamp)'),
+      start_date: z
+        .number()
+        .optional()
+        .describe('The start date of the task (Unix timestamp in milliseconds)'),
       start_date_time: z.boolean().optional().describe('Whether the start date includes a time'),
       notify_all: z.boolean().optional().describe('Whether to notify all assignees'),
       parent: idSchema().optional().describe('The ID of the parent task'),
@@ -183,14 +201,26 @@ export function setupTaskTools(server: McpServer): void {
         .optional()
         .describe('The IDs of the users to assign to the task'),
       status: z.string().optional().describe('The new status of the task'),
-      priority: z.number().optional().describe('The new priority of the task (1-4)'),
-      due_date: z.number().optional().describe('The new due date of the task (Unix timestamp)'),
+      priority: z
+        .number()
+        .int()
+        .min(1)
+        .max(4)
+        .optional()
+        .describe('The new priority of the task (1 = Urgent, 2 = High, 3 = Normal, 4 = Low)'),
+      due_date: z
+        .number()
+        .optional()
+        .describe('The new due date of the task (Unix timestamp in milliseconds)'),
       due_date_time: z.boolean().optional().describe('Whether the due date includes a time'),
       time_estimate: z
         .number()
         .optional()
         .describe('The new time estimate for the task (in milliseconds)'),
-      start_date: z.number().optional().describe('The new start date of the task (Unix timestamp)'),
+      start_date: z
+        .number()
+        .optional()
+        .describe('The new start date of the task (Unix timestamp in milliseconds)'),
       start_date_time: z.boolean().optional().describe('Whether the start date includes a time'),
       custom_task_ids: z
         .boolean()
@@ -397,7 +427,10 @@ export function setupTaskTools(server: McpServer): void {
       include_markdown_description: z
         .boolean()
         .optional()
-        .describe('Whether to return task descriptions in Markdown format'),
+        .default(true)
+        .describe(
+          "Return task descriptions as Markdown (default true). The description field then carries the markdown; set false only to get ClickUp's flattened plain-text rendering."
+        ),
       assignees: z.array(idSchema()).optional().describe('Filter by assignee user IDs'),
       tags: z.array(z.string()).optional().describe('Filter by tag names'),
       due_date_gt: z

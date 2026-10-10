@@ -331,7 +331,12 @@ export function setupListFolderTools(server: McpServer): void {
         .describe('The type of container to create the list in'),
       container_id: idSchema().describe('The ID of the container to create the list in'),
       name: z.string().describe('The name of the list'),
-      content: z.string().optional().describe('The description/content of the list'),
+      content: z
+        .string()
+        .optional()
+        .describe(
+          'The description of the list. Markdown is supported (sent to ClickUp as markdown_content).'
+        ),
       due_date: z
         .number()
         .optional()
@@ -387,7 +392,12 @@ export function setupListFolderTools(server: McpServer): void {
     {
       space_id: idSchema().describe('The ID of the space to create the folderless list in'),
       name: z.string().describe('The name of the folderless list'),
-      content: z.string().optional().describe('The description/content of the list'),
+      content: z
+        .string()
+        .optional()
+        .describe(
+          'The description of the list. Markdown is supported (sent to ClickUp as markdown_content).'
+        ),
       due_date: z
         .number()
         .optional()
@@ -450,7 +460,12 @@ export function setupListFolderTools(server: McpServer): void {
     {
       list_id: idSchema().describe('The ID of the list to update'),
       name: z.string().optional().describe('The new name of the list'),
-      content: z.string().optional().describe('The new description/content of the list'),
+      content: z
+        .string()
+        .optional()
+        .describe(
+          'The new description of the list. Markdown is supported (sent to ClickUp as markdown_content); an empty string clears it.'
+        ),
       due_date: z
         .number()
         .optional()

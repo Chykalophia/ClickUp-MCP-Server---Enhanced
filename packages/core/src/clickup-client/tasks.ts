@@ -163,6 +163,35 @@ export interface CustomTaskIdParams {
   team_id?: string;
 }
 
+/**
+ * Route a task description to the API's markdown field, in place.
+ *
+ * - `markdown_content` (tool-level alias) wins over `description`, matching
+ *   ClickUp's own precedence, and is sent as `markdown_description`.
+ * - A non-empty `description` is always sent as `markdown_description`
+ *   (HTML is converted to markdown first). Markdown renders plain text
+ *   identically, so there is no plain-text branch to guess at.
+ * - An empty `description` is passed through untouched so callers can still
+ *   clear the field.
+ *
+ * `markdown_description` is the field this server has verified live against
+ * ClickUp (see 85c3351); ClickUp's reference also documents `markdown_content`
+ * as the request field, which callers can pass and which is translated here.
+ */
+function applyDescription(body: Record<string, unknown>): void {
+  if (body.markdown_content !== undefined) {
+    body.markdown_description = body.markdown_content;
+    delete body.markdown_content;
+    delete body.description;
+    return;
+  }
+  if (typeof body.description === 'string' && body.description !== '') {
+    const description = body.description;
+    delete body.description;
+    Object.assign(body, prepareContentForClickUp(description));
+  }
+}
+
 export class TasksClient {
   private client: ClickUpClient;
 
@@ -284,31 +313,8 @@ export class TasksClient {
     params: CreateTaskParams,
     query?: CustomTaskIdParams
   ): Promise<Task> {
-    // Process description for markdown support
-    const processedParams = { ...params };
-
-    // Handle description field - check if it contains markdown
-    if (params.description) {
-      const contentData = prepareContentForClickUp(params.description);
-
-      // Remove the original description field
-      delete processedParams.description;
-
-      // Add the appropriate field(s) based on content type
-      if (contentData.markdown_description) {
-        processedParams.markdown_description = contentData.markdown_description;
-      } else if (contentData.description) {
-        processedParams.description = contentData.description;
-      }
-
-      // Note: ClickUp API doesn't accept text_content on create, it generates it
-    }
-
-    // markdown_content is a tool-level alias; the API field is markdown_description
-    if (processedParams.markdown_content !== undefined) {
-      processedParams.markdown_description = processedParams.markdown_content;
-      delete processedParams.markdown_content;
-    }
+    const processedParams: Record<string, unknown> = { ...params };
+    applyDescription(processedParams);
 
     const result = await this.client.post(
       `/list/${listId}/task${this.buildCustomIdQuery(query)}`,
@@ -328,31 +334,8 @@ export class TasksClient {
     params: UpdateTaskParams,
     query?: CustomTaskIdParams
   ): Promise<Task> {
-    // Process description for markdown support
     const processedParams: Record<string, unknown> = { ...params };
-
-    // Handle description field - check if it contains markdown
-    if (params.description) {
-      const contentData = prepareContentForClickUp(params.description);
-
-      // Remove the original description field
-      delete processedParams.description;
-
-      // Add the appropriate field(s) based on content type
-      if (contentData.markdown_description) {
-        processedParams.markdown_description = contentData.markdown_description;
-      } else if (contentData.description) {
-        processedParams.description = contentData.description;
-      }
-
-      // Note: ClickUp API doesn't accept text_content on update, it generates it
-    }
-
-    // markdown_content is a tool-level alias; the API field is markdown_description
-    if (processedParams.markdown_content !== undefined) {
-      processedParams.markdown_description = processedParams.markdown_content;
-      delete processedParams.markdown_content;
-    }
+    applyDescription(processedParams);
 
     // The Update Task endpoint ignores custom_fields in the body — set them
     // via the Set Custom Field Value endpoint after the PUT instead.
@@ -638,7 +621,7 @@ export class TasksClient {
             this.createTask(listId, task).then(t => ({ index: i + j, task: t }))
           )
         );
-        for (const result of chunkResults) {
+        for (const [j, result] of chunkResults.entries()) {
           if (result.status === 'fulfilled') {
             results.push({
               success: true,
@@ -649,7 +632,8 @@ export class TasksClient {
           } else {
             const errorMessage =
               result.reason instanceof Error ? result.reason.message : 'Unknown error';
-            const idx = results.length + i;
+            // allSettled preserves order, so j is the position within this chunk.
+            const idx = i + j;
             results.push({ success: false, error: errorMessage, index: idx });
             errorCount++;
           }
@@ -731,7 +715,7 @@ export class TasksClient {
             return this.updateTask(task_id, updateParams).then(t => ({ index: i + j, task: t }));
           })
         );
-        for (const result of chunkResults) {
+        for (const [j, result] of chunkResults.entries()) {
           if (result.status === 'fulfilled') {
             results.push({
               success: true,
@@ -742,7 +726,8 @@ export class TasksClient {
           } else {
             const errorMessage =
               result.reason instanceof Error ? result.reason.message : 'Unknown error';
-            const idx = results.length + i;
+            // allSettled preserves order, so j is the position within this chunk.
+            const idx = i + j;
             results.push({ success: false, error: errorMessage, index: idx });
             errorCount++;
           }

@@ -374,6 +374,9 @@ export interface CustomFieldsResponse {
 // ENHANCED CUSTOM FIELDS CLIENT
 // ========================================
 
+/** Cap on base64 uploads to a Files custom field (decoded bytes) */
+export const MAX_FIELD_UPLOAD_BYTES = 100 * 1024 * 1024;
+
 export class EnhancedCustomFieldsClient {
   private client: ClickUpClient;
   private http: AxiosInstance;
@@ -765,6 +768,63 @@ export class EnhancedCustomFieldsClient {
   private isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
+  }
+
+  // ========================================
+  // FILES CUSTOM FIELD UPLOADS (v3)
+  // ========================================
+
+  /**
+   * Upload a file to a Files-type Custom Field
+   * (POST /api/v3/workspaces/{ws}/custom_fields/{field_id}/attachments,
+   * multipart/form-data). ClickUp then expects Set Custom Field Value to
+   * attach the uploaded file to a task's field.
+   *
+   * Input is base64 only. Local-path and URL inputs need the shared,
+   * SSRF-guarded file resolver in attachments-enhanced.ts, which is not
+   * exported; until it is, this does not re-implement it.
+   */
+  async uploadFieldAttachment(params: {
+    workspace_id: string;
+    custom_field_id: string;
+    filename: string;
+    file_data: string;
+  }): Promise<Record<string, unknown>> {
+    const estimated = Math.floor(params.file_data.length * 0.75);
+    if (estimated > MAX_FIELD_UPLOAD_BYTES) {
+      throw new Error(
+        `File exceeds the maximum upload size of ${MAX_FIELD_UPLOAD_BYTES / (1024 * 1024)} MB`
+      );
+    }
+    const bytes = Buffer.from(params.file_data, 'base64');
+    if (bytes.length === 0) {
+      throw new Error(
+        'file_data decoded to an empty file; it must be base64-encoded file contents'
+      );
+    }
+
+    const form = new FormData();
+    const view = new Uint8Array(bytes.buffer as ArrayBuffer, bytes.byteOffset, bytes.byteLength);
+    // ClickUp's reference names only the optional `filename` part; the file
+    // part uses the same `attachment` name as the v2 task upload.
+    form.append('attachment', new Blob([view]), params.filename);
+    form.append('filename', params.filename);
+
+    try {
+      const url = `https://api.clickup.com/api/v3/workspaces/${encodeURIComponent(
+        params.workspace_id
+      )}/custom_fields/${encodeURIComponent(params.custom_field_id)}/attachments`;
+      // Clear the instance-level JSON content type so axios sets the
+      // multipart boundary itself.
+      const response = await this.http.post(url, form, { headers: { 'Content-Type': false } });
+      return response.data;
+    } catch (error) {
+      console.error(
+        'Error uploading custom field attachment:',
+        error instanceof Error ? error.message : error
+      );
+      throw this.handleError(error, 'Failed to upload file to custom field');
+    }
   }
 
   private handleError(error: any, context: string): Error {

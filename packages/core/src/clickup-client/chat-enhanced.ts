@@ -127,6 +127,14 @@ export class ChatEnhancedClient {
     return response.data;
   }
 
+  /**
+   * Delete a channel (DELETE /workspaces/{workspace_id}/chat/channels/{channel_id},
+   * 204 No Content)
+   */
+  async deleteChannel(workspaceId: string, channelId: string): Promise<void> {
+    await this.client.delete(`/workspaces/${workspaceId}/chat/channels/${channelId}`);
+  }
+
   // ========================================
   // CHANNEL MEMBERS & FOLLOWERS
   // ========================================

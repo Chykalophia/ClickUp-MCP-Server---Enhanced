@@ -486,6 +486,49 @@ export class EnhancedTimeTrackingClient {
     }
   }
 
+  /**
+   * Remove tags from one or more time entries
+   * (DELETE /team/{team_id}/time_entries/tags). The tags stay in the Workspace.
+   */
+  async removeTagsFromTimeEntries(
+    teamId: string,
+    timeEntryIds: string[],
+    tagNames: string[]
+  ): Promise<void> {
+    try {
+      const endpoint = `/team/${teamId}/time_entries/tags`;
+      await this.getAxiosInstance().delete(endpoint, {
+        data: { time_entry_ids: timeEntryIds, tags: tagNames.map(name => ({ name })) },
+      });
+    } catch (error) {
+      console.error(
+        'Error removing tags from time entries:',
+        error instanceof Error ? error.message : error
+      );
+      throw this.handleError(error, `Failed to remove tags from time entries for team ${teamId}`);
+    }
+  }
+
+  /**
+   * Rename a time entry tag across the Workspace and set its colors
+   * (PUT /team/{team_id}/time_entries/tags). ClickUp requires both colors.
+   */
+  async renameTimeEntryTag(
+    teamId: string,
+    params: { name: string; new_name: string; tag_bg: string; tag_fg: string }
+  ): Promise<void> {
+    try {
+      const endpoint = `/team/${teamId}/time_entries/tags`;
+      await this.getAxiosInstance().put(endpoint, params);
+    } catch (error) {
+      console.error(
+        'Error renaming time entry tag:',
+        error instanceof Error ? error.message : error
+      );
+      throw this.handleError(error, `Failed to rename time entry tag for team ${teamId}`);
+    }
+  }
+
   // ========================================
   // TIME ANALYTICS & REPORTING
   // ========================================

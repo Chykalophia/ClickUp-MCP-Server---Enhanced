@@ -24,7 +24,10 @@ export function setupTaskTools(server: McpServer): void {
       include_markdown_description: z
         .boolean()
         .optional()
-        .describe('Whether to return task descriptions in Markdown format'),
+        .default(true)
+        .describe(
+          "Return task descriptions as Markdown (default true). The description field then carries the markdown; set false only to get ClickUp's flattened plain-text rendering."
+        ),
       page: z.number().optional().describe('The page number to get'),
       order_by: z
         .enum(['id', 'created', 'updated', 'due_date'])
@@ -56,7 +59,10 @@ export function setupTaskTools(server: McpServer): void {
       include_markdown_description: z
         .boolean()
         .optional()
-        .describe('Whether to return the task description in Markdown format'),
+        .default(true)
+        .describe(
+          "Return the description as Markdown (default true). The description field then carries the markdown, preserving headings, links and checklists for a read-modify-write; set false only to get ClickUp's flattened plain-text rendering."
+        ),
       custom_task_ids: z
         .boolean()
         .optional()
@@ -113,14 +119,26 @@ export function setupTaskTools(server: McpServer): void {
         .describe('The IDs of the users to assign to the task'),
       tags: z.array(z.string()).optional().describe('The tags to add to the task'),
       status: z.string().optional().describe('The status of the task'),
-      priority: z.number().optional().describe('The priority of the task (1-4)'),
-      due_date: z.number().optional().describe('The due date of the task (Unix timestamp)'),
+      priority: z
+        .number()
+        .int()
+        .min(1)
+        .max(4)
+        .optional()
+        .describe('The priority of the task (1 = Urgent, 2 = High, 3 = Normal, 4 = Low)'),
+      due_date: z
+        .number()
+        .optional()
+        .describe('The due date of the task (Unix timestamp in milliseconds)'),
       due_date_time: z.boolean().optional().describe('Whether the due date includes a time'),
       time_estimate: z
         .number()
         .optional()
         .describe('The time estimate for the task (in milliseconds)'),
-      start_date: z.number().optional().describe('The start date of the task (Unix timestamp)'),
+      start_date: z
+        .number()
+        .optional()
+        .describe('The start date of the task (Unix timestamp in milliseconds)'),
       start_date_time: z.boolean().optional().describe('Whether the start date includes a time'),
       notify_all: z.boolean().optional().describe('Whether to notify all assignees'),
       parent: idSchema().optional().describe('The ID of the parent task'),
@@ -183,14 +201,26 @@ export function setupTaskTools(server: McpServer): void {
         .optional()
         .describe('The IDs of the users to assign to the task'),
       status: z.string().optional().describe('The new status of the task'),
-      priority: z.number().optional().describe('The new priority of the task (1-4)'),
-      due_date: z.number().optional().describe('The new due date of the task (Unix timestamp)'),
+      priority: z
+        .number()
+        .int()
+        .min(1)
+        .max(4)
+        .optional()
+        .describe('The new priority of the task (1 = Urgent, 2 = High, 3 = Normal, 4 = Low)'),
+      due_date: z
+        .number()
+        .optional()
+        .describe('The new due date of the task (Unix timestamp in milliseconds)'),
       due_date_time: z.boolean().optional().describe('Whether the due date includes a time'),
       time_estimate: z
         .number()
         .optional()
         .describe('The new time estimate for the task (in milliseconds)'),
-      start_date: z.number().optional().describe('The new start date of the task (Unix timestamp)'),
+      start_date: z
+        .number()
+        .optional()
+        .describe('The new start date of the task (Unix timestamp in milliseconds)'),
       start_date_time: z.boolean().optional().describe('Whether the start date includes a time'),
       custom_task_ids: z
         .boolean()
@@ -397,7 +427,10 @@ export function setupTaskTools(server: McpServer): void {
       include_markdown_description: z
         .boolean()
         .optional()
-        .describe('Whether to return task descriptions in Markdown format'),
+        .default(true)
+        .describe(
+          "Return task descriptions as Markdown (default true). The description field then carries the markdown; set false only to get ClickUp's flattened plain-text rendering."
+        ),
       assignees: z.array(idSchema()).optional().describe('Filter by assignee user IDs'),
       tags: z.array(z.string()).optional().describe('Filter by tag names'),
       due_date_gt: z
@@ -508,6 +541,97 @@ export function setupTaskTools(server: McpServer): void {
         };
       } catch (error: unknown) {
         return mcpError('creating task from template', error);
+      }
+    }
+  );
+  server.tool(
+    'clickup_move_task',
+    "Move a task to a different home List (ClickUp v3 Move Task). This changes where the task lives, unlike clickup_add_task_to_list, which only adds a secondary list. If the task's current status does not exist in the destination List, pass status_mappings (status IDs come from clickup_get_list on each list).",
+    {
+      workspace_id: idSchema().describe('The ID of the workspace (team) the task belongs to'),
+      task_id: idSchema().describe(
+        'The ID of the task to move (regular task ID, not a custom task ID)'
+      ),
+      list_id: idSchema().describe('The ID of the destination List'),
+      move_custom_fields: z
+        .boolean()
+        .optional()
+        .describe("Also add the current List's Custom Fields to the destination List"),
+      custom_fields_to_move: z
+        .array(z.string().min(1))
+        .optional()
+        .describe('Custom Field IDs to move (with move_custom_fields). Omit to move all of them'),
+      status_mappings: z
+        .array(
+          z
+            .object({
+              source_status_id: z
+                .string()
+                .min(1)
+                .describe("A status ID from the task's current List"),
+              destination_status_id: z
+                .string()
+                .min(1)
+                .describe('The matching status ID in the destination List'),
+            })
+            .strict()
+        )
+        .optional()
+        .describe(
+          "Map current-List statuses to destination-List statuses. Required when the task's current status does not exist in the destination List"
+        ),
+    },
+    async ({ workspace_id, task_id, list_id, ...options }) => {
+      try {
+        const result = await tasksClient.moveTask(workspace_id, task_id, list_id, options);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result) }],
+        };
+      } catch (error: unknown) {
+        return mcpError('moving task', error);
+      }
+    }
+  );
+
+  server.tool(
+    'clickup_get_task_templates',
+    'List the task templates available in a ClickUp workspace. Use a returned template ID with clickup_create_task_from_template.',
+    {
+      team_id: idSchema().describe('The ID of the workspace (team)'),
+      page: z
+        .number()
+        .int()
+        .min(0)
+        .optional()
+        .default(0)
+        .describe('Page of templates to return, starting at 0'),
+    },
+    async ({ team_id, page }) => {
+      try {
+        const result = await tasksClient.getTaskTemplates(team_id, page);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result) }],
+        };
+      } catch (error: unknown) {
+        return mcpError('getting task templates', error);
+      }
+    }
+  );
+
+  server.tool(
+    'clickup_get_custom_task_types',
+    'List the custom task types (e.g. Bug, Milestone) defined in a ClickUp workspace, with their numeric IDs, names and descriptions.',
+    {
+      team_id: idSchema().describe('The ID of the workspace (team)'),
+    },
+    async ({ team_id }) => {
+      try {
+        const result = await tasksClient.getCustomTaskTypes(team_id);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result) }],
+        };
+      } catch (error: unknown) {
+        return mcpError('getting custom task types', error);
       }
     }
   );

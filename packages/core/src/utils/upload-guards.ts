@@ -37,7 +37,8 @@ export async function resolveUploadFilePath(
 ): Promise<string> {
   if (!uploadDir || uploadDir.trim() === '') {
     throw new Error(
-      `file_path uploads are disabled. Set ${UPLOAD_DIR_ENV} to a directory to allow uploading local files from it, or use file_data / file_url instead.`
+      `file_path uploads are disabled. Set ${UPLOAD_DIR_ENV} to a directory to allow uploading ` +
+        'local files from it, or use file_data / file_url instead.'
     );
   }
   if (filePath.includes('\0')) {

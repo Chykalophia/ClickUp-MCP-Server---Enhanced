@@ -8,6 +8,20 @@ import {
   resolveToolsets,
 } from '../tools/toolsets';
 
+// resolveToolsets defaults to process.env when an argument is undefined, so a
+// runner with CLICKUP_TOOL_MODE / CLICKUP_TOOLSETS set would change these
+// results. Clear both at module load (some describe bodies resolve eagerly)
+// and restore them afterwards.
+const ENV_KEYS = ['CLICKUP_TOOL_MODE', 'CLICKUP_TOOLSETS'] as const;
+const savedEnv = Object.fromEntries(ENV_KEYS.map(key => [key, process.env[key]]));
+ENV_KEYS.forEach(key => delete process.env[key]);
+afterAll(() => {
+  for (const key of ENV_KEYS) {
+    if (savedEnv[key] === undefined) delete process.env[key];
+    else process.env[key] = savedEnv[key];
+  }
+});
+
 describe('resolveToolsets', () => {
   it('defaults to core mode with no extra toolsets', () => {
     const resolved = resolveToolsets(undefined, undefined);
@@ -83,6 +97,22 @@ describe('resolveToolsets', () => {
     const resolved = resolveToolsets('goals', 'all');
     expect(resolved.legacyNarrow).toBe(true);
     expect([...resolved.enabled]).toEqual(['goals']);
+  });
+
+  it('falls back to core (not all) with CLICKUP_TOOL_MODE=all when no named toolset resolves', () => {
+    const resolved = resolveToolsets('bogus', 'all');
+    expect(resolved.isAll).toBe(false);
+    expect(resolved.mode).toBe('core');
+    expect(resolved.legacyNarrow).toBe(false);
+    expect(resolved.fellBack).toBe(true);
+    expect(resolved.unknown).toEqual(['bogus']);
+  });
+
+  it('treats an inherited object key (constructor) as unknown rather than a profile', () => {
+    const resolved = resolveToolsets('constructor', undefined);
+    expect(resolved.enabled.size).toBe(0);
+    expect(resolved.unknown).toEqual(['constructor']);
+    expect(resolved.fellBack).toBe(true);
   });
 
   it('reports an unknown mode and uses core', () => {

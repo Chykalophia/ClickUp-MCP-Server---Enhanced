@@ -152,7 +152,8 @@ export function expandToolsetNames(names: string[]): {
   for (const name of names) {
     if ((ALL_TOOLSETS as string[]).includes(name)) {
       toolsets.add(name as ToolsetName);
-    } else if (name in PROFILES) {
+    } else if (Object.prototype.hasOwnProperty.call(PROFILES, name)) {
+      // Own keys only: `constructor`, `toString` etc. are not profiles.
       PROFILES[name].forEach(t => toolsets.add(t));
     } else {
       unknown.push(name);
@@ -168,7 +169,7 @@ export function expandToolsetNames(names: string[]): {
  * - `all` in CLICKUP_TOOLSETS, or CLICKUP_TOOL_MODE=all with no toolsets: every tool.
  * - Named toolsets/profiles in core mode: core tools + those toolsets.
  * - Named toolsets with CLICKUP_TOOL_MODE=all: only those toolsets (pre-7.0 behaviour).
- * - Names supplied but none valid: core only (caller warns with `unknown`).
+ * - Names supplied but none valid: core only, in either mode (caller warns with `unknown`).
  */
 export function resolveToolsets(
   raw: string | undefined = process.env.CLICKUP_TOOLSETS,
@@ -194,8 +195,21 @@ export function resolveToolsets(
   const { toolsets, unknown } = expandToolsetNames(requested);
 
   if (mode === 'all') {
-    if (toolsets.size === 0 || toolsets.size === ALL_TOOLSETS.length) {
+    if (requested.length === 0 || toolsets.size === ALL_TOOLSETS.length) {
       return all(unknown);
+    }
+    if (toolsets.size === 0) {
+      // Names were given but none resolved (e.g. a typo): fail closed to core,
+      // as core mode does, rather than enabling every tool.
+      return {
+        mode: 'core',
+        enabled: toolsets,
+        unknown,
+        unknownMode,
+        isAll: false,
+        legacyNarrow: false,
+        fellBack: true,
+      };
     }
     return {
       mode,

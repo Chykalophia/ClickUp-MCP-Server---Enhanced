@@ -154,6 +154,23 @@ describe('tool loading', () => {
       expect(harness.created.counts.enabled).toBe((await listTools(harness.client)).tools.length);
     });
 
+    it('ignores the host process.env when an env is injected', async () => {
+      const saved = { mode: process.env.CLICKUP_TOOL_MODE, sets: process.env.CLICKUP_TOOLSETS };
+      process.env.CLICKUP_TOOL_MODE = 'all';
+      process.env.CLICKUP_TOOLSETS = 'goals';
+      try {
+        harness = await connect({});
+        expect(harness.created.resolved.isAll).toBe(false);
+        expect(harness.created.resolved.mode).toBe('core');
+        expect(harness.created.resolved.enabled.size).toBe(0);
+      } finally {
+        if (saved.mode === undefined) delete process.env.CLICKUP_TOOL_MODE;
+        else process.env.CLICKUP_TOOL_MODE = saved.mode;
+        if (saved.sets === undefined) delete process.env.CLICKUP_TOOLSETS;
+        else process.env.CLICKUP_TOOLSETS = saved.sets;
+      }
+    });
+
     it('sends instructions and serverInfo on initialize', async () => {
       harness = await connect();
       expect(harness.client.getInstructions()).toBe(SERVER_INSTRUCTIONS);
@@ -213,6 +230,14 @@ describe('tool loading', () => {
       expect(tools.length).toBeLessThan(30);
     });
 
+    it('with CLICKUP_TOOL_MODE=all, falls back to core (not all) when nothing resolves', async () => {
+      harness = await connect({ CLICKUP_TOOL_MODE: 'all', CLICKUP_TOOLSETS: 'bogus' });
+      expect(harness.created.resolved.fellBack).toBe(true);
+      expect(harness.created.resolved.isAll).toBe(false);
+      const { tools } = await listTools(harness.client);
+      expect(tools.length).toBeLessThan(30);
+    });
+
     it('with CLICKUP_TOOL_MODE=all, narrows to exactly the named toolsets (pre-7.0 behaviour)', async () => {
       harness = await connect({ CLICKUP_TOOL_MODE: 'all', CLICKUP_TOOLSETS: 'goals' });
       const goals = harness.created.registry.byToolset().get('goals')!;
@@ -236,6 +261,24 @@ describe('tool loading', () => {
       expect(tasks.enabled_tools).toBeGreaterThan(0);
       expect(body.toolsets.map((t: any) => t.name)).not.toContain('catalog');
       expect(body.profiles.pm).toContain('tasks');
+      expect(body.startup_mode).toBe('core');
+    });
+
+    it('labels the mode as the startup configuration and reports live counts', async () => {
+      harness = await connect();
+      const before = JSON.parse(
+        textOf(await harness.client.callTool({ name: 'clickup_list_toolsets', arguments: {} }))
+      );
+      await harness.client.callTool({ name: 'clickup_enable_toolset', arguments: { toolsets: ['goals'] } });
+      const after = JSON.parse(
+        textOf(await harness.client.callTool({ name: 'clickup_list_toolsets', arguments: {} }))
+      );
+      expect(after.startup_mode).toBe('core');
+      expect(after.mode).toBeUndefined();
+      expect(after.total_tools).toBe(harness.created.registry.tools.size);
+      const goalCount = harness.created.registry.byToolset().get('goals')!.length;
+      expect(after.enabled_tools).toBe(before.enabled_tools + goalCount);
+      expect(after.toolsets.find((t: any) => t.name === 'goals').enabled).toBe(true);
     });
 
     it('returns JSON schemas for one toolset on request', async () => {

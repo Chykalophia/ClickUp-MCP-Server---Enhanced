@@ -119,8 +119,14 @@ export function setupCatalogTools(
         };
       });
 
+      const allEntries = [...registry.tools.values()];
       return json({
-        mode: resolved.isAll ? 'all' : resolved.mode,
+        // Startup configuration (CLICKUP_TOOL_MODE / CLICKUP_TOOLSETS). It does
+        // not change when clickup_enable_toolset runs; the live state is in
+        // enabled_tools and toolsets[].enabled.
+        startup_mode: resolved.isAll ? 'all' : resolved.mode,
+        enabled_tools: allEntries.filter(e => e.handle.enabled).length,
+        total_tools: allEntries.length,
         toolsets,
         ...(toolset === undefined
           ? {

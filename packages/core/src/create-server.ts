@@ -104,7 +104,9 @@ const falsy = (value: string | undefined) =>
 
 export function createClickUpServer(options: CreateServerOptions = {}): CreatedServer {
   const env = options.env ?? process.env;
-  const resolved = resolveToolsets(env.CLICKUP_TOOLSETS, env.CLICKUP_TOOL_MODE);
+  // resolveToolsets falls back to process.env for undefined arguments; pass
+  // '' for absent keys so an injected env stays isolated from the host's.
+  const resolved = resolveToolsets(env.CLICKUP_TOOLSETS ?? '', env.CLICKUP_TOOL_MODE ?? '');
 
   // enforceStrictParams patches server.tool, so it has to run before any
   // toolset registers. Unknown parameters become an error instead of being

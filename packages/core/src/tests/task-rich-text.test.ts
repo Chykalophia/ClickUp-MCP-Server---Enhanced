@@ -59,6 +59,23 @@ describe('prepareContentForClickUp', () => {
     expect(result.markdown_description).toBe('## Plan\n\nDo **this**');
   });
 
+  it('ignores HTML that only appears in fenced or inline code', () => {
+    const fenced = 'Example:\n\n```html\n<div class="x">hi</div>\n```\n\nDone.';
+    expect(looksLikeHtml(fenced)).toBe(false);
+    expect(prepareContentForClickUp(fenced)).toEqual({ markdown_description: fenced });
+    expect(looksLikeHtml('~~~\n<p>x</p>\n~~~')).toBe(false);
+    expect(looksLikeHtml('Wrap it in `<span>` or ``<br/>``')).toBe(false);
+    expect(looksLikeHtml('Unclosed fence\n```\n<div>')).toBe(false);
+    // Real markup outside the code still counts.
+    expect(looksLikeHtml('`code` and <p>para</p>')).toBe(true);
+  });
+
+  it('recognises common tags beyond the basic set', () => {
+    for (const html of ['<section>x</section>', '<details><summary>s</summary></details>', 'H<sub>2</sub>O']) {
+      expect(looksLikeHtml(html)).toBe(true);
+    }
+  });
+
   it('does not treat angle brackets in prose as HTML', () => {
     expect(looksLikeHtml('Fix Vec<T> bug')).toBe(false);
     expect(prepareContentForClickUp('Fix Vec<T> bug')).toEqual({

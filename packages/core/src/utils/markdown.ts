@@ -199,10 +199,20 @@ export function formatContent(
  * a description is converted only when it is actually HTML.
  */
 const HTML_TAG_PATTERN =
-  /<\/?(?:p|div|span|br|hr|h[1-6]|ul|ol|li|strong|b|em|i|u|s|del|strike|a|code|pre|blockquote|table|thead|tbody|tr|td|th|img|mark)(?:\s[^<>]{0,1000})?\/?>/i;
+  /<\/?(?:p|div|span|br|hr|h[1-6]|ul|ol|li|dl|dt|dd|strong|b|em|i|u|s|del|ins|strike|sub|sup|small|mark|abbr|cite|q|kbd|a|code|pre|blockquote|table|thead|tbody|tfoot|tr|td|th|caption|img|figure|figcaption|details|summary|section|article|header|footer|aside|nav|main|font|center)(?:\s[^<>]{0,1000})?\/?>/i;
+
+/**
+ * Remove fenced code blocks and inline code spans, so a Markdown description
+ * that merely shows HTML as a code sample is not mistaken for HTML.
+ */
+function stripMarkdownCode(content: string): string {
+  return content
+    .replace(/^ {0,3}(`{3,}|~{3,})[^\n]*\n[\s\S]*?(?:^ {0,3}\1[`~]*[ \t]*$|(?![\s\S]))/gm, '')
+    .replace(/(`+)(?!`)[\s\S]*?[^`]\1(?!`)/g, '');
+}
 
 export function looksLikeHtml(content: string): boolean {
-  return typeof content === 'string' && HTML_TAG_PATTERN.test(content);
+  return typeof content === 'string' && HTML_TAG_PATTERN.test(stripMarkdownCode(content));
 }
 
 /**

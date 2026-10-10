@@ -20,6 +20,7 @@ jest.mock('../clickup-client/index.js', () => ({
 }));
 
 import { flattenDocPages, normalizeContentFormat } from '../clickup-client/docs-enhanced';
+import { ApiContentFormatSchema, ContentFormatSchema } from '../schemas/document-schemas';
 import { setupEnhancedDocTools } from '../tools/doc-tools-enhanced';
 import { connectServer, callTool, ConnectedServer } from './mcp-test-harness';
 
@@ -63,6 +64,23 @@ describe('flattenDocPages', () => {
       ] as never)
     ).toBe('# Folder\n\n## Leaf\n\nx\n\n');
   });
+
+  it('keeps the heading of a blank leaf page', () => {
+    expect(
+      flattenDocPages([
+        { name: 'Intro', content: 'hi' },
+        { name: 'TODO', content: '' },
+      ] as never)
+    ).toBe('# Intro\n\nhi\n\n# TODO\n\n');
+  });
+});
+
+describe('document schemas', () => {
+  it("accept the legacy 'markdown' alias while the API schema stays native-only", () => {
+    expect(ContentFormatSchema.parse('markdown')).toBe('markdown');
+    expect(ApiContentFormatSchema.safeParse('markdown').success).toBe(false);
+    expect(ApiContentFormatSchema.parse('text/md')).toBe('text/md');
+  });
 });
 
 describe('doc tools over MCP', () => {
@@ -96,6 +114,20 @@ describe('doc tools over MCP', () => {
       doc_id: 'd',
     });
     expect(outcome.text).toContain('## Sub\n\nb');
+  });
+
+  it("accepts content_format 'markdown' as an alias for text/md", async () => {
+    mockAxiosGet.mockResolvedValue({ data: { id: 'p', name: 'Page', content: '# hi' } });
+    const outcome = await callTool(server.client, 'clickup_get_doc_page', {
+      workspace_id: '1',
+      doc_id: 'd',
+      page_id: 'p',
+      content_format: 'markdown',
+    });
+    expect(outcome.failed).toBe(false);
+    expect(mockAxiosGet).toHaveBeenCalledWith(`${V3}/docs/d/pages/p`, {
+      params: { content_format: 'text/md' },
+    });
   });
 
   it('clickup_get_doc_page reads one page in markdown by default', async () => {

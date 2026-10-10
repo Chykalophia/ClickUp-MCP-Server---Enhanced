@@ -17,8 +17,9 @@ const clickUpClient = createClickUpClient();
 const enhancedDocsClient = createEnhancedDocsClient(clickUpClient);
 // const authClient = createAuthClient(clickUpClient);
 
-// The v3 Docs API accepts only these two page content formats.
-const contentFormatEnum = z.enum(['text/md', 'text/plain']);
+// The v3 Docs API accepts only text/md and text/plain. 'markdown' stays
+// accepted as a legacy alias (normalizeContentFormat maps it to text/md).
+const contentFormatEnum = z.enum(['text/md', 'text/plain', 'markdown']);
 
 // Documented parent_type values for the Search Docs filter
 const parentTypeEnum = z.enum([
@@ -69,7 +70,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
 
   server.tool(
     'clickup_search_docs',
-    'Search for docs in a ClickUp workspace. Supports the documented v3 filters (creator, parent, deleted, archived) plus a free-text name filter applied client-side (the ClickUp API has no full-text doc search). With query, pages of docs are scanned until `limit` matches are found (up to max_pages pages per call). The response carries next_cursor whenever more docs remain: pass it back as cursor to continue.',
+    'Search for docs in a ClickUp workspace. Supports the documented v3 filters (creator, parent, deleted, archived) plus a free-text name filter applied client-side (the ClickUp API has no full-text doc search). With query, pages of docs are scanned until at least `limit` matches (default 10) have been found (up to max_pages pages per call); every match on the pages read is returned, so the count can exceed `limit`. The response carries next_cursor whenever more docs remain: pass it back as cursor to continue.',
     {
       workspace_id: idSchema().describe('The ID of the workspace to search in'),
       query: z
@@ -89,7 +90,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
         .max(100)
         .optional()
         .describe(
-          'Docs per API page (ClickUp allows 10-100, default 50). With query, also the number of matches to collect before stopping (default 10).'
+          'Docs per API page (ClickUp allows 10-100, default 50). With query, also the match count at which scanning stops (default 10); all matches on the pages already read are returned, so more than this can come back.'
         ),
       cursor: z
         .string()

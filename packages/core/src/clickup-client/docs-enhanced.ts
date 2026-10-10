@@ -138,12 +138,11 @@ export function flattenDocPages(pages: Page[] | undefined, depth = 1): string {
   let combined = '';
   for (const page of pages) {
     const hasChildren = Array.isArray(page.pages) && page.pages.length > 0;
-    if (page.content || hasChildren) {
-      const heading = '#'.repeat(Math.min(depth, 6));
-      combined += `${heading} ${page.name}\n\n`;
-      if (page.content) {
-        combined += `${page.content}\n\n`;
-      }
+    // Always emit the heading, so blank pages still show up in the outline.
+    const heading = '#'.repeat(Math.min(depth, 6));
+    combined += `${heading} ${page.name}\n\n`;
+    if (page.content) {
+      combined += `${page.content}\n\n`;
     }
     if (hasChildren) {
       combined += flattenDocPages(page.pages, depth + 1);

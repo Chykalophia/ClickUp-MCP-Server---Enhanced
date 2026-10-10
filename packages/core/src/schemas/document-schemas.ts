@@ -1,12 +1,13 @@
 import { z } from 'zod';
 import { idSchema } from './common.js';
 
-// Content formats the ClickUp v3 Docs API accepts for page content
-// (Create/Edit/Get Page): markdown or plain text. There is no HTML format.
-export const ContentFormatSchema = z.enum(['text/md', 'text/plain']);
+// Content formats accepted from callers for page content (Create/Edit/Get
+// Page): markdown or plain text. 'markdown' is a legacy alias the client
+// normalises to text/md. There is no HTML format.
+export const ContentFormatSchema = z.enum(['markdown', 'text/md', 'text/plain']);
 
-// API-native content format values (same set; kept as a separate export)
-export const ApiContentFormatSchema = ContentFormatSchema;
+// API-native content format values
+export const ApiContentFormatSchema = z.enum(['text/md', 'text/plain']);
 
 // How Edit Page applies new content
 export const ContentEditModeSchema = z.enum(['replace', 'append', 'prepend']);

@@ -140,7 +140,7 @@ const includeRawSchema = z
   .optional()
   .default(false)
   .describe(
-    'Also return ClickUp\'s raw rich-text block array ("comment") and its flattened "comment_text". Off by default: comment_markdown already carries the full formatted body.'
+    'Also return ClickUp\'s raw rich-text block array ("comment") and its flattened "comment_text". Off by default: comment_markdown is a Markdown rendering of the body (ClickUp stores headings only up to level 3, and ordered-list numbering is not preserved).'
   );
 
 export interface CommentToolsOptions {

@@ -357,10 +357,9 @@ npx clickup-mcp-installer
 Visit the web-based configurator for visual setup:
 [ClickUp MCP Configurator](https://chykalophia.github.io/ClickUp-MCP-Server---Enhanced/configurator.html)
 
-1. Select your preferred version
-2. Enter your ClickUp API token  
-3. Download the generated config file
-4. Place it in your Claude Desktop config directory
+1. Enter your ClickUp API token
+2. Download the generated config file
+3. Place it in your Claude Desktop config directory
 
 ### Option 3: NPM Package (Manual Setup)
 
@@ -419,15 +418,14 @@ Add to the MCP settings file:
 
 ### 🔧 Build from Source (Advanced Users)
 
-If you prefer to build from source:
+If you prefer to build from source, point your client at the built server:
 
-#### Standard Version
 ```json
 {
   "mcpServers": {
     "clickup": {
       "command": "node",
-      "args": ["/path/to/clickup-mcp-server/build/index-enhanced.js"],
+      "args": ["/path/to/ClickUp-MCP-Server---Enhanced/packages/core/build/index-enhanced.js"],
       "env": {
         "CLICKUP_API_TOKEN": "YOUR_API_TOKEN_HERE"
       },
@@ -438,28 +436,24 @@ If you prefer to build from source:
 }
 ```
 
-#### Enhanced Efficiency Version ⭐
-```json
-{
-  "mcpServers": {
-    "clickup": {
-      "command": "node",
-      "args": ["/path/to/clickup-mcp-server/build/index-efficiency-simple.js"],
-      "env": {
-        "CLICKUP_API_TOKEN": "YOUR_API_TOKEN_HERE"
-      },
-      "disabled": false,
-      "autoApprove": []
-    }
-  }
-}
-```
+There is a single server. `build/index-enhanced.js` is the entry point; the
+`clickup-mcp-server-basic`, `clickup-mcp-server-enhanced` and
+`clickup-mcp-server-efficiency` bins (and `build/index.js` /
+`build/index-efficiency-simple.js`) are aliases of it, kept so existing configs
+keep working. They all expose the same tools.
 
 ### 📝 Configuration Notes
 
 * **Replace `YOUR_API_TOKEN_HERE`** with your actual ClickUp API token
 * **NPM method** requires no installation or cloning - the package is downloaded automatically
 * **Build from source** requires cloning this repository and running `npm run build`
+* **Local file uploads are off by default.** `clickup_upload_attachment` only
+  accepts `file_path` when you set `CLICKUP_UPLOAD_DIR` to a directory (e.g.
+  `"CLICKUP_UPLOAD_DIR": "/Users/me/clickup-uploads"`); the resolved path,
+  after following symlinks, must stay inside it. `file_data` (base64) and
+  `file_url` work without it. `file_url` must resolve to a public address:
+  private, loopback, link-local, CGNAT and cloud-metadata addresses (IPv4 and
+  IPv6) are refused, and every redirect hop is re-checked.
 
 ## Reducing the Tool Surface (`CLICKUP_TOOLSETS`)
 
@@ -590,8 +584,8 @@ Run examples with: `node examples/basic-usage.js`
 - **API Token Security**: Format validation, secure storage, character validation
 - **Rate Limiting**: Sliding window implementation (1000 API, 100 webhook, 10 upload/min)
 - **HMAC Validation**: Timing-safe webhook signature verification
-- **File Security**: Path traversal prevention, dangerous file blocking, 100MB size limits
-- **URL Validation**: SSRF prevention, private IP blocking, protocol validation
+- **File Security**: Local file uploads disabled unless `CLICKUP_UPLOAD_DIR` is set; symlink-safe containment inside that directory; upload size limits
+- **URL Validation**: SSRF prevention — http(s) only, DNS-resolved addresses checked against private/loopback/link-local/metadata ranges (IPv4 and IPv6), redirects re-validated per hop
 - **Error Handling**: Secure responses without information leakage
 
 ### Security Testing
@@ -668,7 +662,7 @@ npm test
 
 ```bash
 # Test markdown functionality specifically
-npm test -- --testPathPattern=markdown
+npm test -- --testPathPatterns=markdown
 
 # Run all tests with coverage
 npm run test:coverage

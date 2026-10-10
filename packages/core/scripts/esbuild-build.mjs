@@ -10,7 +10,7 @@
 // `npm run typecheck` (tsc over the client/schema/util layers).
 
 import { build } from 'esbuild';
-import { readdirSync, statSync } from 'node:fs';
+import { readdirSync, rmSync, statSync } from 'node:fs';
 import { join, sep } from 'node:path';
 
 function collectTsFiles(dir, out = []) {
@@ -36,6 +36,10 @@ const entryPoints = collectTsFiles('src').filter((p) => {
   const posix = p.split(sep).join('/');
   return !posix.includes('/tests/') && !posix.includes('/__tests__/');
 });
+
+// Start from an empty build/ so modules deleted from src/ (e.g. retired entry
+// points) are not left behind and shipped in the npm package.
+rmSync('build', { recursive: true, force: true });
 
 await build({
   entryPoints,

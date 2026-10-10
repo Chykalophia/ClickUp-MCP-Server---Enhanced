@@ -59,7 +59,7 @@ export async function startRealTimeEngine(params: z.infer<typeof startRealTimeEn
 
     // Set up event listeners for monitoring
     engineInstance.on('event_received', (event) => {
-      console.log(`[Real-Time Engine] Event received: ${event.type} for task ${event.taskId}`);
+      console.error(`[Real-Time Engine] Event received: ${event.type} for task ${event.taskId}`);
     });
 
     engineInstance.on('sla_violation', (violation) => {
@@ -67,7 +67,7 @@ export async function startRealTimeEngine(params: z.infer<typeof startRealTimeEn
     });
 
     engineInstance.on('high_priority_task', (event) => {
-      console.log(`[Real-Time Engine] High priority task created: ${event.taskId}`);
+      console.error(`[Real-Time Engine] High priority task created: ${event.taskId}`);
     });
 
     const metrics = engineInstance.getMetrics();

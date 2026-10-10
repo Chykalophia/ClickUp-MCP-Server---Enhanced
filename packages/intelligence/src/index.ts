@@ -55,6 +55,7 @@ import {
 
 // Shared utilities
 import { formatMarkdownReport, generateExecutiveDashboard } from './utils/report-formatter.js';
+import { isDirectRun } from './utils/direct-run.js';
 
 /**
  * ClickUp Intelligence MCP Server
@@ -302,7 +303,7 @@ class ClickUpIntelligenceServer {
         switch (name) {
           // Phase 1.1 - Project Health Analyzer
           case 'clickup_analyze_project_health': {
-            console.log('[Intelligence] Executing project health analysis...');
+            console.error('[Intelligence] Executing project health analysis...');
             if (!args) throw new Error('Missing required arguments for project health analysis');
 
             const healthParams = args as unknown as ProjectHealthAnalysisParams;
@@ -339,7 +340,7 @@ class ClickUpIntelligenceServer {
 
           // Phase 1.2 - Smart Sprint Planner
           case 'clickup_plan_smart_sprint': {
-            console.log('[Intelligence] Executing smart sprint planning...');
+            console.error('[Intelligence] Executing smart sprint planning...');
             if (!args) throw new Error('Missing required arguments for sprint planning');
             const sprintPlan = await this.smartSprintPlanner.planSprint(args as any);
             return {
@@ -353,7 +354,7 @@ class ClickUpIntelligenceServer {
           }
 
           case 'clickup_analyze_team_velocity': {
-            console.log('[Intelligence] Executing velocity analysis...');
+            console.error('[Intelligence] Executing velocity analysis...');
             if (!args) throw new Error('Missing required arguments for velocity analysis');
             const velocityResult = await this.velocityAnalysisService.analyzeVelocity(args as any);
             return {
@@ -367,7 +368,7 @@ class ClickUpIntelligenceServer {
           }
 
           case 'clickup_model_team_capacity': {
-            console.log('[Intelligence] Executing capacity modeling...');
+            console.error('[Intelligence] Executing capacity modeling...');
             if (!args) throw new Error('Missing required arguments for capacity modeling');
             const capacityResult = await this.capacityModelingService.modelCapacity(args as any);
             return {
@@ -381,7 +382,7 @@ class ClickUpIntelligenceServer {
           }
 
           case 'clickup_optimize_sprint_tasks': {
-            console.log('[Intelligence] Executing sprint optimization...');
+            console.error('[Intelligence] Executing sprint optimization...');
             if (!args) throw new Error('Missing required arguments for sprint optimization');
             const optimizationResult = await this.sprintOptimizationService.optimizeSprint(args as any);
             return {
@@ -396,7 +397,7 @@ class ClickUpIntelligenceServer {
 
           // Phase 1.3 - Task Decomposition Engine
           case 'clickup_decompose_task': {
-            console.log('[Intelligence] Executing task decomposition...');
+            console.error('[Intelligence] Executing task decomposition...');
             if (!args) throw new Error('Missing required arguments for task decomposition');
             const decompositionResult = await this.taskDecompositionEngine.decomposeTask(
               (args as any).task,
@@ -413,7 +414,7 @@ class ClickUpIntelligenceServer {
           }
 
           case 'clickup_analyze_task_complexity': {
-            console.log('[Intelligence] Executing task complexity analysis...');
+            console.error('[Intelligence] Executing task complexity analysis...');
             if (!args) throw new Error('Missing required arguments for complexity analysis');
             const complexityResult = await this.taskDecompositionEngine.analyzeComplexity((args as any).task);
             return {
@@ -427,7 +428,7 @@ class ClickUpIntelligenceServer {
           }
 
           case 'clickup_get_decomposition_templates': {
-            console.log('[Intelligence] Retrieving decomposition templates...');
+            console.error('[Intelligence] Retrieving decomposition templates...');
             const templates = this.taskDecompositionEngine.getAvailableTemplates();
             return {
               content: [
@@ -441,7 +442,7 @@ class ClickUpIntelligenceServer {
 
           // Phase 1.4 - Resource Optimizer
           case 'clickup_analyze_team_workload': {
-            console.log('[Intelligence] Executing team workload analysis...');
+            console.error('[Intelligence] Executing team workload analysis...');
             if (!args) throw new Error('Missing required arguments for workload analysis');
             const workloadResult = await this.resourceOptimizer.analyzeTeamWorkload(args as any);
             return {
@@ -455,7 +456,7 @@ class ClickUpIntelligenceServer {
           }
 
           case 'clickup_optimize_task_assignment': {
-            console.log('[Intelligence] Executing task assignment optimization...');
+            console.error('[Intelligence] Executing task assignment optimization...');
             if (!args) throw new Error('Missing required arguments for task assignment');
             const assignmentResult = await this.resourceOptimizer.optimizeTaskAssignment(args as any);
             return {
@@ -469,7 +470,7 @@ class ClickUpIntelligenceServer {
           }
 
           case 'clickup_analyze_burnout_risk': {
-            console.log('[Intelligence] Executing burnout risk analysis...');
+            console.error('[Intelligence] Executing burnout risk analysis...');
             if (!args) throw new Error('Missing required arguments for burnout analysis');
             const burnoutResult = await this.resourceOptimizer.analyzeBurnoutRisk(args as any);
             return {
@@ -483,7 +484,7 @@ class ClickUpIntelligenceServer {
           }
 
           case 'clickup_forecast_team_capacity': {
-            console.log('[Intelligence] Executing capacity forecasting...');
+            console.error('[Intelligence] Executing capacity forecasting...');
             if (!args) throw new Error('Missing required arguments for capacity forecasting');
             const forecastResult = await this.resourceOptimizer.forecastCapacity(args as any);
             return {
@@ -498,7 +499,7 @@ class ClickUpIntelligenceServer {
 
           // Phase 1.5 - Workflow Intelligence
           case 'clickup_analyze_workflow_patterns': {
-            console.log('[Intelligence] Executing workflow pattern analysis...');
+            console.error('[Intelligence] Executing workflow pattern analysis...');
             if (!args) throw new Error('Missing required arguments for workflow pattern analysis');
             const workflowResult = await this.workflowIntelligence.analyzeWorkflowPatterns(args as any);
             return {
@@ -512,7 +513,7 @@ class ClickUpIntelligenceServer {
           }
 
           case 'clickup_recommend_automations': {
-            console.log('[Intelligence] Executing automation recommendations...');
+            console.error('[Intelligence] Executing automation recommendations...');
             if (!args) throw new Error('Missing required arguments for automation recommendations');
             const automationResult = await this.workflowIntelligence.recommendAutomations(args as any);
             return {
@@ -526,7 +527,7 @@ class ClickUpIntelligenceServer {
           }
 
           case 'clickup_optimize_integrations': {
-            console.log('[Intelligence] Executing integration optimization...');
+            console.error('[Intelligence] Executing integration optimization...');
             if (!args) throw new Error('Missing required arguments for integration optimization');
             const integrationResult = await this.workflowIntelligence.optimizeIntegrations(args as any);
             return {
@@ -541,27 +542,27 @@ class ClickUpIntelligenceServer {
 
           // Phase 3.1 - Real-Time Data Processing Engine
           case 'clickup_start_realtime_engine':
-            console.log('[Intelligence] Starting real-time processing engine...');
+            console.error('[Intelligence] Starting real-time processing engine...');
             return await startRealTimeEngine(args as any);
 
           case 'clickup_process_webhook':
-            console.log('[Intelligence] Processing webhook event...');
+            console.error('[Intelligence] Processing webhook event...');
             return await processWebhookEvent(args as any);
 
           case 'clickup_add_processing_rule':
-            console.log('[Intelligence] Adding processing rule...');
+            console.error('[Intelligence] Adding processing rule...');
             return await addProcessingRule(args as any);
 
           case 'clickup_get_realtime_metrics':
-            console.log('[Intelligence] Getting real-time metrics...');
+            console.error('[Intelligence] Getting real-time metrics...');
             return await getRealTimeMetrics(args as any);
 
           case 'clickup_get_cached_task':
-            console.log('[Intelligence] Getting cached task data...');
+            console.error('[Intelligence] Getting cached task data...');
             return await getCachedTaskData(args as any);
 
           case 'clickup_stop_realtime_engine':
-            console.log('[Intelligence] Stopping real-time processing engine...');
+            console.error('[Intelligence] Stopping real-time processing engine...');
             return await stopRealTimeEngine();
 
           default:
@@ -588,14 +589,8 @@ class ClickUpIntelligenceServer {
   async start(): Promise<void> {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    console.log('[Intelligence] ClickUp Intelligence MCP Server started successfully');
-    console.log('[Intelligence] Phase 1.1: Project Health Analyzer ✅');
-    console.log('[Intelligence] Phase 1.2: Smart Sprint Planner ✅');
-    console.log('[Intelligence] Phase 1.3: Task Decomposition Engine ✅');
-    console.log('[Intelligence] Phase 1.4: Resource Optimizer ✅');
-    console.log('[Intelligence] Phase 1.5: Workflow Intelligence ✅');
-    console.log('[Intelligence] Phase 3.1: Real-Time Data Processing Engine ✅');
-    console.log('[Intelligence] Available tools: 21');
+    // stdout carries the stdio JSON-RPC stream; diagnostics must go to stderr.
+    console.error('[Intelligence] ClickUp Intelligence MCP Server started (stdio)');
   }
 }
 
@@ -626,7 +621,7 @@ export {
 };
 
 // Main entry point
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isDirectRun(import.meta.url)) {
   const server = new ClickUpIntelligenceServer();
   server.start().catch((error) => {
     console.error('[Intelligence] Failed to start server:', error);

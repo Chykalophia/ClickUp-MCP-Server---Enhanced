@@ -372,10 +372,10 @@ npm test -- health-metrics-service.test.ts
 npm run test:watch
 
 # Run integration tests only
-npm test -- --testPathPattern=integration
+npm test -- --testPathPatterns=integration
 
 # Run performance tests
-npm test -- --testPathPattern=performance
+npm test -- --testPathPatterns=performance
 ```
 
 ### CI/CD Integration

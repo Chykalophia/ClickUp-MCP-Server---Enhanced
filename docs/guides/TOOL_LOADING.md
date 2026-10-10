@@ -8,8 +8,8 @@ always-on **catalog tools**.
 | | Tools in `tools/list` | `tools/list` size |
 |---|---:|---:|
 | 6.x (everything, always) | 157 | ~173 KB (~43k tokens) |
-| 7.0 `core` mode (default) | 15 | ~24 KB (~6k tokens) |
-| 7.0 `all` mode | 160 | ~194 KB |
+| 7.0 `core` mode (default) | 17 | ~29 KB (~7k tokens) |
+| 7.0 `all` mode | 180 | ~221 KB |
 
 (Measured over stdio with `initialize` + `tools/list`. `all` mode is larger than
 6.x because every tool now carries annotations, and there are three catalog

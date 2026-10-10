@@ -39,9 +39,8 @@ jest.mock('../utils/markdown', () => ({
   htmlToMarkdown: jest.fn((s: string) => s),
 }));
 
-import { enforceStrictParams } from '../utils/tool-registration.js';
+import { enforceStrictParams, getToolRegistry, UNGROUPED_TOOLSET } from '../utils/tool-registration.js';
 import { PARAM_ALIASES, UNIVERSAL_ALIASES } from '../utils/param-aliases.js';
-import { getToolRegistry, UNGROUPED_TOOLSET } from '../utils/tool-registration.js';
 import { setupTaskTools } from '../tools/task-tools';
 import { setupWorkspaceTools } from '../tools/workspace-tools';
 import { setupListFolderTools } from '../tools/list-folder-tools';

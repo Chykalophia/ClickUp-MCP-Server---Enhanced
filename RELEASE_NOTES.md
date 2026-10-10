@@ -11,7 +11,7 @@ Until 6.x every tool (157) was published in `tools/list` on connect — about
 reconnect. 7.0.0 still **registers** every tool but **enables** only a core set
 by default:
 
-- **Core mode (default):** 15 tools, ~24 KB `tools/list` (~85% smaller).
+- **Core mode (default):** 17 tools, ~29 KB `tools/list` (~83% smaller than 6.x).
   Core: workspace hierarchy, task search/read/create/update, task comments,
   custom fields, timers (plus `clickup_find_member` / `clickup_move_task` when
   present).

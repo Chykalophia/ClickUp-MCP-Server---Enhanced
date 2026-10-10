@@ -38,6 +38,7 @@ import {
   type AliasMap,
   type ToolParamAliases,
 } from './param-aliases.js';
+import { isDestructive, resolveAnnotations, type ToolAnnotationsShape } from './tool-annotations.js';
 
 type RawShape = Record<string, z.ZodTypeAny>;
 type ToolArgs = Record<string, unknown>;
@@ -206,8 +207,10 @@ function resolveAliases(
 export function enforceStrictParams(
   server: McpServer,
   aliases: ToolParamAliases = PARAM_ALIASES,
-  universal: AliasMap = UNIVERSAL_ALIASES
+  universal: AliasMap = UNIVERSAL_ALIASES,
+  options: StrictParamsOptions = {}
 ): McpServer {
+  const registry = createToolRegistry(server, options);
   const target = server as unknown as {
     tool: (...args: unknown[]) => unknown;
     registerTool: (
@@ -253,7 +256,7 @@ export function enforceStrictParams(
     // cb(args, extra), so wrapping one would change its arity. It also owns the
     // error for a malformed annotations bag. Hand the call back untouched.
     if (!shape) {
-      return originalTool(name, ...rest);
+      return registry.record(name, originalTool(name, ...rest) as RegisteredToolHandle);
     }
 
     const callback = pending[0] as ToolHandler;
@@ -326,8 +329,244 @@ export function enforceStrictParams(
       return callback(normalized, extra);
     };
 
-    return originalRegisterTool(name, { description, inputSchema, annotations }, handler);
+    return registry.record(
+      name,
+      originalRegisterTool(
+        name,
+        { description, inputSchema, annotations },
+        handler
+      ) as RegisteredToolHandle
+    );
   };
 
   return server;
+}
+
+// ---------------------------------------------------------------------------
+// Tool registry: toolset tracking, central annotations, destructive-call
+// confirmation.
+//
+// Every registration above funnels through `registry.record`, which
+//   1. records tool name -> toolset (the toolset whose setup function is
+//      running, see `withToolset`) so counts come from what actually
+//      registered, never from a hand-maintained table;
+//   2. applies MCP annotations (title, readOnly/destructive/idempotent/
+//      openWorld hints) from utils/tool-annotations.ts without overwriting any
+//      the call site passed;
+//   3. wraps destructive handlers so that, when the connected client supports
+//      form elicitation, the user confirms before anything is deleted. Clients
+//      without elicitation see exactly the pre-7.0 behaviour.
+// ---------------------------------------------------------------------------
+
+export interface StrictParamsOptions {
+  /**
+   * Ask the user to confirm destructive tools via elicitation when the client
+   * supports it. Default true.
+   */
+  confirmDestructive?: boolean;
+}
+
+/** The parts of the SDK's RegisteredTool this module relies on (all public). */
+export interface RegisteredToolHandle {
+  description?: string;
+  inputSchema?: z.ZodTypeAny;
+  annotations?: ToolAnnotationsShape;
+  handler: (...args: unknown[]) => unknown;
+  enabled: boolean;
+  enable(): void;
+  disable(): void;
+}
+
+export interface ToolEntry {
+  name: string;
+  toolset: string;
+  handle: RegisteredToolHandle;
+}
+
+/**
+ * Toolsets whose tools never prompt for confirmation themselves. The catalog's
+ * clickup_call_tool runs other tools' handlers, which confirm on their own.
+ */
+export const CONFIRM_EXEMPT_TOOLSETS = new Set(['catalog']);
+
+/**
+ * Closest candidate to `name` for a "did you mean" hint: edit distance first,
+ * then a substring match on the part after `clickup_`.
+ */
+export function closestName(name: string, candidates: string[]): string | undefined {
+  const byDistance = closestParam(name, candidates);
+  if (byDistance) return byDistance;
+  const bare = name.replace(/^clickup_/, '').toLowerCase();
+  if (bare.length < 3) return undefined;
+  return candidates.find(c => c.includes(bare) || bare.includes(c.replace(/^clickup_/, '')));
+}
+
+/** Toolset recorded for tools registered outside any `withToolset` block. */
+export const UNGROUPED_TOOLSET = 'other';
+
+export interface ToolRegistry {
+  readonly tools: Map<string, ToolEntry>;
+  /** Run `fn` with every tool it registers attributed to `toolset`. */
+  withToolset<T>(toolset: string, fn: () => T): T;
+  /** toolset -> tool names, in registration order. */
+  byToolset(): Map<string, string[]>;
+  /** Internal: called for every registration. */
+  record(name: string, handle: RegisteredToolHandle): RegisteredToolHandle;
+}
+
+const registries = new WeakMap<object, ToolRegistry>();
+
+/** The registry enforceStrictParams attached to `server`, if any. */
+export function getToolRegistry(server: McpServer): ToolRegistry | undefined {
+  return registries.get(server);
+}
+
+/** Run `fn` with its registrations attributed to `toolset`. */
+export function withToolset<T>(server: McpServer, toolset: string, fn: () => T): T {
+  const registry = registries.get(server);
+  if (!registry) {
+    throw new Error('withToolset requires a server wrapped by enforceStrictParams');
+  }
+  return registry.withToolset(toolset, fn);
+}
+
+interface ElicitCapableServer {
+  getClientCapabilities(): { elicitation?: Record<string, unknown> } | undefined;
+  elicitInput(
+    params: {
+      mode?: 'form';
+      message: string;
+      requestedSchema: Record<string, unknown>;
+    },
+    options?: { relatedRequestId?: string | number }
+  ): Promise<{ action: string; content?: Record<string, unknown> }>;
+}
+
+function supportsFormElicitation(server: ElicitCapableServer): boolean {
+  const elicitation = server.getClientCapabilities()?.elicitation;
+  if (!elicitation || typeof elicitation !== 'object') return false;
+  // `elicitation: {}` is the older spelling of form support.
+  return 'form' in elicitation || Object.keys(elicitation).length === 0;
+}
+
+function summarizeArgs(args: unknown): string {
+  if (args === undefined) return '';
+  let text: string;
+  try {
+    text = JSON.stringify(args);
+  } catch {
+    return '';
+  }
+  return text.length > 400 ? `${text.slice(0, 400)}…` : text;
+}
+
+type CancelledResult = { content: Array<{ type: 'text'; text: string }>; isError: true };
+
+/**
+ * Ask the user to confirm a destructive call. Resolves to undefined to proceed,
+ * or to an error CallToolResult when the user declined, cancelled, or the
+ * confirmation could not be obtained (fail closed: the client said it supports
+ * elicitation, so a failed confirmation is not consent).
+ */
+async function confirmDestructiveCall(
+  server: ElicitCapableServer,
+  name: string,
+  title: string,
+  args: unknown,
+  extra: unknown
+): Promise<CancelledResult | undefined> {
+  const requestId = (extra as { requestId?: string | number } | undefined)?.requestId;
+  const argText = summarizeArgs(args);
+  const cancelled = (reason: string): CancelledResult => ({
+    content: [{ type: 'text', text: `${name} was cancelled${reason}. Nothing was changed.` }],
+    isError: true,
+  });
+
+  try {
+    const result = await server.elicitInput(
+      {
+        mode: 'form',
+        message:
+          `${title} (${name}) permanently changes or removes ClickUp data.` +
+          (argText ? ` Arguments: ${argText}.` : '') +
+          ' Proceed?',
+        requestedSchema: {
+          type: 'object',
+          properties: {
+            confirm: {
+              type: 'boolean',
+              title: 'Proceed',
+              description: `Run ${name}`,
+              default: false,
+            },
+          },
+          required: ['confirm'],
+        },
+      },
+      requestId !== undefined ? { relatedRequestId: requestId } : undefined
+    );
+    if (result.action === 'accept' && result.content?.confirm === true) {
+      return undefined;
+    }
+    const why = result.action === 'accept' ? 'not confirmed' : result.action;
+    return cancelled(` by the user (${why})`);
+  } catch (error) {
+    return cancelled(
+      `: confirmation could not be obtained (${error instanceof Error ? error.message : String(error)})`
+    );
+  }
+}
+
+function createToolRegistry(server: McpServer, options: StrictParamsOptions): ToolRegistry {
+  const confirm = options.confirmDestructive !== false;
+  const tools = new Map<string, ToolEntry>();
+  let currentToolset = UNGROUPED_TOOLSET;
+  const lowLevel = (server as unknown as { server: ElicitCapableServer }).server;
+
+  const registry: ToolRegistry = {
+    tools,
+    withToolset(toolset, fn) {
+      const previous = currentToolset;
+      currentToolset = toolset;
+      try {
+        return fn();
+      } finally {
+        currentToolset = previous;
+      }
+    },
+    byToolset() {
+      const grouped = new Map<string, string[]>();
+      for (const entry of tools.values()) {
+        const names = grouped.get(entry.toolset) ?? [];
+        names.push(entry.name);
+        grouped.set(entry.toolset, names);
+      }
+      return grouped;
+    },
+    record(name, handle) {
+      handle.annotations = resolveAnnotations(name, handle.annotations);
+
+      if (confirm && !CONFIRM_EXEMPT_TOOLSETS.has(currentToolset)) {
+        const inner = handle.handler;
+        const hasArgs = handle.inputSchema !== undefined;
+        // Annotations are read at call time, so a later change applies.
+        handle.handler = async (...callArgs: unknown[]) => {
+          if (isDestructive(handle.annotations) && supportsFormElicitation(lowLevel)) {
+            const args = hasArgs ? callArgs[0] : undefined;
+            const extra = hasArgs ? callArgs[1] : callArgs[0];
+            const title = String(handle.annotations?.title ?? name);
+            const cancelled = await confirmDestructiveCall(lowLevel, name, title, args, extra);
+            if (cancelled) return cancelled;
+          }
+          return inner(...callArgs);
+        };
+      }
+
+      tools.set(name, { name, toolset: currentToolset, handle });
+      return handle;
+    },
+  };
+
+  registries.set(server, registry);
+  return registry;
 }

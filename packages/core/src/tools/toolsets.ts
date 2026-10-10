@@ -1,116 +1,255 @@
 /**
- * Toolset gating for the ClickUp MCP server.
+ * Toolsets, profiles, and the tool-loading mode for the ClickUp MCP server.
  *
- * Every registered tool's JSON Schema is published to the client on connect —
- * all 157 of them, ~157KB, re-sent on every reconnect. Clients that bridge a
- * local server to a remote session (Claude Desktop's remote-tools bridge) pay
- * that cost on each connection rotation, and the definitions occupy context
- * before the first prompt.
+ * Every tool is always *registered*; what changes is which tools are *enabled*
+ * (published in tools/list). Publishing all ~160 JSON Schemas on connect costs
+ * ~170 KB / ~43k tokens of context before the first prompt, and clients that
+ * bridge a local server to a remote session pay it on every reconnect.
  *
- * Most workflows need a fraction of the surface. `CLICKUP_TOOLSETS` narrows it:
+ * Since 7.0.0 the default is `core` mode: a small set of everyday tools plus
+ * three always-on catalog tools (clickup_list_toolsets, clickup_enable_toolset,
+ * clickup_call_tool) that let the model discover and switch on the rest at
+ * runtime. See docs/guides/TOOL_LOADING.md.
  *
- *   CLICKUP_TOOLSETS=tasks,comments,custom-fields,attachments,lists,bulk
+ *   CLICKUP_TOOL_MODE=core|all          (default core)
+ *   CLICKUP_TOOLSETS=pm,time,goals      (toolsets or profiles to add to core)
+ *   CLICKUP_TOOLSETS=all                (everything, same as CLICKUP_TOOL_MODE=all)
  *
- * Unset, empty, or `all` keeps every toolset, so existing installs are
- * unaffected.
+ * Tool counts are deliberately NOT declared here: the registry in
+ * utils/tool-registration.ts records which toolset each tool registered under,
+ * so counts always reflect what actually registered.
  */
 
-/** Toolset name -> what it covers, and how many tools it registers. */
+/** Toolset name -> what it covers, and whether other ClickUp MCP servers lack it. */
 export const TOOLSETS = {
-  tasks: { count: 13, description: 'Task create/read/update/delete, search, assignees, status' },
-  lists: {
-    count: 18,
-    description: 'Lists, folders, folderless lists, and the workspace hierarchy map',
+  tasks: {
+    description: 'Task create/read/update/delete, search, filtering, tags, templates, merging',
+    unique: false,
   },
-  chat: { count: 19, description: 'Chat channels, messages, reactions, replies' },
-  'time-tracking': { count: 14, description: 'Time entries, timers, and time summaries' },
-  goals: { count: 12, description: 'Goals and goal targets' },
-  views: { count: 12, description: 'Views, view filters, grouping, and sorting' },
-  // 10 by default; CLICKUP_DEBUG_TOOLS adds clickup_create_task_comment_raw_test.
-  comments: { count: 10, description: 'Task, list, chat-view, and threaded comments' },
-  docs: { count: 9, description: 'Docs, doc pages, and doc search' },
-  spaces: { count: 9, description: 'Spaces and space tags' },
-  dependencies: { count: 8, description: 'Task dependencies, links, and dependency graphs' },
-  'custom-fields': { count: 7, description: 'Custom field definitions and values' },
-  webhooks: { count: 7, description: 'Webhook management, processing, and signature validation' },
-  checklists: { count: 6, description: 'Checklists and checklist items' },
-  workspace: { count: 6, description: 'Workspaces, members, seats, plan, and authorized user' },
-  bulk: { count: 5, description: 'Bulk task create/update/delete and bulk custom-field writes' },
-  attachments: { count: 2, description: 'Task attachments and uploads' },
+  lists: {
+    description: 'Lists, folders, folderless lists, templates, and list membership',
+    unique: false,
+  },
+  chat: { description: 'Chat channels, messages, reactions, replies', unique: true },
+  'time-tracking': {
+    description: 'Time entries, timers, tags, history, and time-in-status',
+    unique: true,
+  },
+  goals: { description: 'Goals and goal targets', unique: true },
+  views: { description: 'Views, view filters, grouping, and sorting', unique: true },
+  comments: { description: 'Task, list, chat-view, and threaded comments', unique: false },
+  docs: { description: 'Docs, doc pages, and doc search', unique: false },
+  spaces: { description: 'Spaces and space tags', unique: true },
+  dependencies: {
+    description: 'Task dependencies, links, conflict checks, and dependency graphs',
+    unique: true,
+  },
+  'custom-fields': { description: 'Custom field definitions and values', unique: false },
+  webhooks: {
+    description: 'Webhook management, processing, and signature validation',
+    unique: true,
+  },
+  checklists: { description: 'Checklists and checklist items', unique: true },
+  workspace: {
+    description: 'Workspaces, hierarchy, members, seats, plan, roles, and authorized user',
+    unique: false,
+  },
+  bulk: {
+    description: 'Bulk task create/update/delete and bulk custom-field writes',
+    unique: false,
+  },
+  attachments: { description: 'Task attachments and uploads', unique: false },
 } as const;
 
 export type ToolsetName = keyof typeof TOOLSETS;
 
 export const ALL_TOOLSETS = Object.keys(TOOLSETS) as ToolsetName[];
 
-export const TOTAL_TOOL_COUNT = ALL_TOOLSETS.reduce((sum, name) => sum + TOOLSETS[name].count, 0);
-
-export interface ResolvedToolsets {
-  /** Toolsets to register. */
-  enabled: Set<ToolsetName>;
-  /** Names supplied that matched no known toolset. */
-  unknown: string[];
-  /** True when every toolset is on (the default). */
-  isAll: boolean;
-  /** Sum of `count` across enabled toolsets — the approximate published surface. */
-  toolCount: number;
-}
+/** Pseudo-toolset the catalog tools register under. Always enabled. */
+export const CATALOG_TOOLSET = 'catalog';
 
 /**
- * Parse a `CLICKUP_TOOLSETS` value into the set of toolsets to register.
- *
- * Accepts a comma- or space-separated list, case-insensitive, with `_` treated
- * as `-` so `custom_fields` and `custom-fields` both work. Unset, empty, or
- * `all` selects everything. If a value is supplied but nothing in it resolves,
- * we fall back to all toolsets rather than starting a server with no tools —
- * the caller is expected to surface `unknown` as a warning.
+ * Profiles: shorthand names usable anywhere a toolset name is accepted in
+ * CLICKUP_TOOLSETS. A real toolset name always wins over a profile of the same
+ * name (`chat`, `docs` are both, and expand to themselves).
  */
-export function resolveToolsets(
-  raw: string | undefined = process.env.CLICKUP_TOOLSETS
-): ResolvedToolsets {
-  const requested = (raw ?? '')
+export const PROFILES: Record<string, ToolsetName[]> = {
+  pm: ['tasks', 'comments', 'lists', 'custom-fields', 'checklists', 'dependencies'],
+  time: ['time-tracking'],
+  chat: ['chat'],
+  docs: ['docs'],
+  admin: ['spaces', 'views', 'webhooks', 'goals', 'workspace'],
+};
+
+/**
+ * Tools enabled in every mode. Names that do not exist in this build are
+ * skipped silently, so the list can name tools that are added later.
+ */
+export const CORE_TOOLS: readonly string[] = [
+  'clickup_get_workspace_hierarchy',
+  'clickup_find_member',
+  'clickup_get_filtered_team_tasks',
+  'clickup_get_tasks',
+  'clickup_get_task_details',
+  'clickup_get_task_comments',
+  'clickup_create_task',
+  'clickup_update_task',
+  'clickup_create_task_comment',
+  'clickup_move_task',
+  'clickup_get_custom_fields',
+  'clickup_set_custom_field_value',
+  'clickup_start_timer',
+  'clickup_stop_timer',
+];
+
+export type ToolMode = 'core' | 'all';
+
+export interface ResolvedToolsets {
+  /** core: core tools + `enabled` toolsets. all: every tool (or `enabled` only, see `legacyNarrow`). */
+  mode: ToolMode;
+  /** Toolsets switched on in full, beyond the core tools. */
+  enabled: Set<ToolsetName>;
+  /** Names supplied in CLICKUP_TOOLSETS that matched no toolset or profile. */
+  unknown: string[];
+  /** Unknown CLICKUP_TOOL_MODE value, if one was supplied. */
+  unknownMode?: string;
+  /** True when every tool is enabled. */
+  isAll: boolean;
+  /**
+   * CLICKUP_TOOL_MODE=all together with an explicit toolset list: the pre-7.0
+   * behaviour, where only the named toolsets are enabled (no core extras).
+   */
+  legacyNarrow: boolean;
+  /** CLICKUP_TOOLSETS was set but nothing in it resolved; fell back to core. */
+  fellBack: boolean;
+}
+
+/** Split, lowercase, and normalise `_` to `-`. */
+function parseNames(raw: string | undefined): string[] {
+  return (raw ?? '')
     .split(/[,\s]+/)
     .map(part => part.trim().toLowerCase().replace(/_/g, '-'))
     .filter(Boolean);
+}
 
-  const all = (): ResolvedToolsets => ({
-    enabled: new Set(ALL_TOOLSETS),
-    unknown: [],
-    isAll: true,
-    toolCount: TOTAL_TOOL_COUNT,
-  });
+export function resolveToolMode(raw: string | undefined): { mode: ToolMode; unknown?: string } {
+  const value = (raw ?? '').trim().toLowerCase();
+  if (value === '' || value === 'core') return { mode: 'core' };
+  if (value === 'all') return { mode: 'all' };
+  return { mode: 'core', unknown: value };
+}
 
-  if (requested.length === 0 || requested.includes('all')) {
-    return all();
-  }
-
-  const enabled = new Set<ToolsetName>();
+/**
+ * Expand toolset and profile names. Returns the toolsets and the names that
+ * resolved to nothing.
+ */
+export function expandToolsetNames(names: string[]): {
+  toolsets: Set<ToolsetName>;
+  unknown: string[];
+} {
+  const toolsets = new Set<ToolsetName>();
   const unknown: string[] = [];
-  for (const name of requested) {
+  for (const name of names) {
     if ((ALL_TOOLSETS as string[]).includes(name)) {
-      enabled.add(name as ToolsetName);
+      toolsets.add(name as ToolsetName);
+    } else if (name in PROFILES) {
+      PROFILES[name].forEach(t => toolsets.add(t));
     } else {
       unknown.push(name);
     }
   }
+  return { toolsets, unknown };
+}
 
-  if (enabled.size === 0) {
-    return { ...all(), unknown };
+/**
+ * Resolve CLICKUP_TOOL_MODE and CLICKUP_TOOLSETS into what to enable.
+ *
+ * - Unset/empty CLICKUP_TOOLSETS in core mode: core tools only.
+ * - `all` in CLICKUP_TOOLSETS, or CLICKUP_TOOL_MODE=all with no toolsets: every tool.
+ * - Named toolsets/profiles in core mode: core tools + those toolsets.
+ * - Named toolsets with CLICKUP_TOOL_MODE=all: only those toolsets (pre-7.0 behaviour).
+ * - Names supplied but none valid: core only (caller warns with `unknown`).
+ */
+export function resolveToolsets(
+  raw: string | undefined = process.env.CLICKUP_TOOLSETS,
+  modeRaw: string | undefined = process.env.CLICKUP_TOOL_MODE
+): ResolvedToolsets {
+  const { mode, unknown: unknownMode } = resolveToolMode(modeRaw);
+  const requested = parseNames(raw);
+
+  const all = (unknown: string[] = []): ResolvedToolsets => ({
+    mode: 'all',
+    enabled: new Set(ALL_TOOLSETS),
+    unknown,
+    unknownMode,
+    isAll: true,
+    legacyNarrow: false,
+    fellBack: false,
+  });
+
+  if (requested.includes('all')) {
+    return all(requested.filter(n => n !== 'all' && expandToolsetNames([n]).unknown.length > 0));
   }
 
-  const toolCount = [...enabled].reduce((sum, name) => sum + TOOLSETS[name].count, 0);
-  return { enabled, unknown, isAll: enabled.size === ALL_TOOLSETS.length, toolCount };
+  const { toolsets, unknown } = expandToolsetNames(requested);
+
+  if (mode === 'all') {
+    if (toolsets.size === 0 || toolsets.size === ALL_TOOLSETS.length) {
+      return all(unknown);
+    }
+    return {
+      mode,
+      enabled: toolsets,
+      unknown,
+      unknownMode,
+      isAll: false,
+      legacyNarrow: true,
+      fellBack: false,
+    };
+  }
+
+  return {
+    mode,
+    enabled: toolsets,
+    unknown,
+    unknownMode,
+    isAll: toolsets.size === ALL_TOOLSETS.length,
+    legacyNarrow: false,
+    fellBack: requested.length > 0 && toolsets.size === 0,
+  };
+}
+
+/** Whether a tool is active under `resolved`, given the toolset it registered in. */
+export function isToolActive(
+  name: string,
+  toolset: string,
+  resolved: ResolvedToolsets
+): boolean {
+  if (toolset === CATALOG_TOOLSET) return true;
+  if (resolved.isAll) return true;
+  if ((resolved.enabled as Set<string>).has(toolset)) return true;
+  return !resolved.legacyNarrow && CORE_TOOLS.includes(name);
+}
+
+export interface ToolCounts {
+  total: number;
+  enabled: number;
 }
 
 /**
  * Human-readable startup summary. Written to stderr by the entrypoint — stdout
  * is the JSON-RPC channel and must never carry log output.
  */
-export function describeToolsets(resolved: ResolvedToolsets): string {
+export function describeToolsets(resolved: ResolvedToolsets, counts: ToolCounts): string {
+  const withheld = counts.total - counts.enabled;
   if (resolved.isAll) {
-    return `all ${resolved.toolCount} tools (set CLICKUP_TOOLSETS to narrow: ${ALL_TOOLSETS.join(', ')})`;
+    return `all ${counts.total} tools enabled (CLICKUP_TOOL_MODE=all)`;
   }
-  const names = [...resolved.enabled].join(', ');
-  const saved = TOTAL_TOOL_COUNT - resolved.toolCount;
-  return `~${resolved.toolCount} of ${TOTAL_TOOL_COUNT} tools — toolsets: ${names} (${saved} withheld)`;
+  const extra = resolved.enabled.size > 0 ? ` + toolsets: ${[...resolved.enabled].join(', ')}` : '';
+  const base = resolved.legacyNarrow ? `toolsets: ${[...resolved.enabled].join(', ')}` : `core${extra}`;
+  return (
+    `${counts.enabled} of ${counts.total} tools enabled — ${base} (${withheld} available on demand ` +
+    'via clickup_list_toolsets / clickup_enable_toolset / clickup_call_tool; ' +
+    'CLICKUP_TOOL_MODE=all enables everything)'
+  );
 }

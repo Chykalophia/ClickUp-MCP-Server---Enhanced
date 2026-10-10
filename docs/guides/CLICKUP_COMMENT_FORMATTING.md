@@ -99,9 +99,11 @@ This gets converted to ClickUp's format:
 
 - **`comment_text`** — plain GitHub Flavored Markdown. Converted to the block
   array above before sending. This is the right choice for ordinary prose and is
-  the same parameter the first-party ClickUp MCP uses.
-- **`comment`** — a pre-built block array. Needed for `@mentions`, which have no
-  markdown spelling: `{ "type": "tag", "user": { "id": 38366580 } }`.
+  the same parameter the first-party ClickUp MCP uses. `@mentions` have a
+  markdown spelling here too — see below.
+- **`comment`** — a pre-built block array. Use it when you already have blocks,
+  or for block types with no markdown spelling (emoticons:
+  `{ "type": "emoticon", "emoticon": { "code": "1f389" } }`).
 
 Supply one or the other. When both are given, `comment` wins. Supplying neither
 is an error naming both options. Only the `comment` array is ever sent to
@@ -109,6 +111,64 @@ ClickUp — sending `comment_text` alongside it duplicates the comment body.
 
 > Before v6.2.0, `clickup_create_task_comment` accepted **only** the block array,
 > so posting a plain markdown comment meant hand-building blocks first.
+
+### `@mentions` in markdown text
+
+Write a mention inline as `@[Display Name](userId)`, where `userId` is a numeric
+ClickUp user ID (get one from `clickup_get_list_members`, or
+`clickup_get_workspaces` with `include_members: true`). It becomes a real tag
+block — `{ "type": "tag", "text": "@Jane", "user": { "id": 81344 } }` — so it
+notifies the user like any other mention:
+
+```jsonc
+{
+  "task_id": "868kzbrwy",
+  "comment_text": "## Findings\n\nThe **mismatch** is fixed — see [the PR](https://github.com/x/y/pull/1).\n\nOver to @[Jane](81344) for review."
+}
+```
+
+**Mentions and Markdown are not a trade-off.** Every formatting feature that
+works in a plain comment still works in a comment that mentions someone, so
+there is never a reason to flatten a structured comment to plain text in order
+to tag a person.
+
+The target must be digits only. `[text](https://example.com)` — and
+`@[text](not-a-number)` — stay ordinary links, so existing link markdown is
+unaffected.
+
+Verified against the live API: ClickUp stores the block as `{"type":"tag",
+"text":"@Jane"}` and resolves the ID to the member's full name in the rendered
+`comment_text`, alongside the bold/code/link attributes from the rest of the
+comment.
+
+### What ClickUp comments actually render
+
+ClickUp's comment model is a flat list of text blocks. Inline styling rides on
+the block itself; **block-level formatting rides on the `"\n"` that terminates
+the line**, not on the line's text:
+
+```jsonc
+{ "text": "Findings", "attributes": {} },
+{ "text": "\n", "attributes": { "header": 2 } }   // <- this makes it a heading
+```
+
+| Markdown | Result in a ClickUp comment |
+| --- | --- |
+| `**bold**`, `*italic*`, `~~strike~~`, `` `code` `` | real attributes |
+| `[text](url)` | real link attribute |
+| `# Heading` … `### Heading` | real heading (`header: 1-3`; deeper levels clamp to 3) |
+| `- item` / `1. item` | real bullet / ordered list block |
+| `> quote` | real blockquote |
+| ` ```lang ` fenced block | real code block, fence language preserved |
+| Tables | **left as literal `\|` pipe text** — there is no table block |
+
+Tables are the only real gap, and the one that surprises people: a markdown
+table posts as raw pipe characters. For tabular findings, prefer bolded labels
+and lines over a table.
+
+Every row above was verified by round-tripping a comment through the live API.
+`clickup_get_task_comments` reconstructs all of it in `comment_markdown`, so a
+comment written as markdown reads back as the same markdown.
 
 ### Advanced Formatting Examples
 

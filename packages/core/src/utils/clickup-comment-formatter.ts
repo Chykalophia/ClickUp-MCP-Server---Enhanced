@@ -29,6 +29,13 @@ export interface ClickUpCommentBlock {
     link?: {
       url: string;
     };
+    // Block-level attributes. ClickUp carries these on the '\n' that terminates
+    // a line, not on the line's text. All verified against the live API.
+    header?: number;
+    list?: {
+      list: 'bullet' | 'ordered' | 'checked' | 'unchecked' | string;
+    };
+    blockquote?: boolean;
     'code-block'?: {
       'code-block': string;
     };
@@ -42,6 +49,16 @@ export interface ClickUpCommentFormat {
 }
 
 /**
+ * Inline @mention syntax accepted inside markdown comment text:
+ * `@[Display Name](<numeric user id>)`. Same spelling the first-party ClickUp
+ * MCP uses, so a caller can mention someone without dropping to a hand-built
+ * block array — and therefore without giving up markdown in the rest of the
+ * comment. The id must be digits only; `[text](url)` with anything else in the
+ * parentheses stays an ordinary link.
+ */
+const INLINE_MENTION_PATTERN = /^@\[([^\]]+)\]\((\d+)\)$/;
+
+/**
  * Convert markdown text to ClickUp's structured comment format
  * @param markdown The markdown text to convert
  * @returns ClickUp comment format structure
@@ -53,17 +70,34 @@ export function markdownToClickUpComment(markdown: string): ClickUpCommentFormat
 
   const blocks: ClickUpCommentBlock[] = [];
 
-  // Improved regex pattern that properly captures links
+  // One capturing group only — the whole token. Inner groups are non-capturing
+  // because String.split emits every capture, and the link alternative's inner
+  // groups used to leak the bare URL back into the output as a stray text block.
+  // The mention alternative comes first so `@[Name](123)` wins over the link
+  // alternative, which would otherwise match `[Name](123)` and orphan the `@`.
   const parts = markdown.split(
-    /(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|~~[^~]+~~|__[^_]+__|_[^_]+_|\[([^\]]+)\]\(([^)]+)\))/g
+    /(@\[[^\]]+\]\(\d+\)|\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|~~[^~]+~~|__[^_]+__|_[^_]+_|\[[^\]]+\]\([^)]+\))/g
   );
 
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
     if (!part) continue;
 
+    // @mention: @[Display Name](userId) -> tag block, not a link
+    const mention = part.match(INLINE_MENTION_PATTERN);
+    if (mention) {
+      const [, displayName, userId] = mention;
+      // Combined shape ({type, text, user}) is the most defensive of the three
+      // ClickUp accepts: the id drives the notification, the text keeps the
+      // name if a surface renders the block literally.
+      blocks.push({
+        type: 'tag',
+        text: `@${displayName}`,
+        user: { id: Number(userId) },
+      });
+    }
     // Bold text: **text**
-    if (part.startsWith('**') && part.endsWith('**')) {
+    else if (part.startsWith('**') && part.endsWith('**')) {
       const text = part.slice(2, -2);
       blocks.push({
         text,
@@ -116,11 +150,6 @@ export function markdownToClickUpComment(markdown: string): ClickUpCommentFormat
         });
       }
     }
-    // Check if this is a captured group from link regex (skip these)
-    else if (i > 0 && parts[i - 1] && parts[i - 1].match(/^\[([^\]]+)\]\(([^)]+)\)$/)) {
-      // This is a captured group from the link regex, skip it
-      continue;
-    }
     // Plain text
     else {
       if (part.trim()) {
@@ -153,34 +182,84 @@ export function clickUpCommentToMarkdown(commentFormat: ClickUpCommentFormat): s
     return '';
   }
 
-  return commentFormat.comment
-    .map(block => {
-      let text = block.text || '';
-      const attrs = block.attributes || {};
+  const inline = (block: ClickUpCommentBlock): string => {
+    if (block.type === 'tag') {
+      const name = (block.text ?? '').replace(/^@/, '');
+      return typeof block.user?.id === 'number' && name
+        ? `@[${name}](${block.user.id})`
+        : (block.text ?? '');
+    }
 
-      // Apply formatting based on attributes
-      if (attrs.bold) {
-        text = `**${text}**`;
-      }
-      if (attrs.italic) {
-        text = `*${text}*`;
-      }
-      if (attrs.underline) {
-        text = `__${text}__`;
-      }
-      if (attrs.strikethrough) {
-        text = `~~${text}~~`;
-      }
-      if (attrs.code) {
-        text = `\`${text}\``;
-      }
-      if (attrs.link) {
-        text = `[${text}](${attrs.link.url})`;
-      }
+    let text = block.text || '';
+    const attrs = block.attributes || {};
 
-      return text;
-    })
-    .join('');
+    // Apply formatting based on attributes
+    if (attrs.bold) {
+      text = `**${text}**`;
+    }
+    if (attrs.italic) {
+      text = `*${text}*`;
+    }
+    if (attrs.underline) {
+      text = `__${text}__`;
+    }
+    if (attrs.strikethrough) {
+      text = `~~${text}~~`;
+    }
+    if (attrs.code) {
+      text = `\`${text}\``;
+    }
+    if (attrs.link) {
+      text = `[${text}](${attrs.link.url})`;
+    }
+
+    return text;
+  };
+
+  // A '\n' block carries the finished line's block-level formatting, so lines
+  // are buffered and only spelled out as markdown once their terminator says
+  // what kind of line they were.
+  const lines: string[] = [];
+  let current = '';
+  let ordinal = 0;
+
+  for (const block of commentFormat.comment) {
+    if (block.text !== '\n') {
+      current += inline(block);
+      continue;
+    }
+
+    const attrs = block.attributes || {};
+    const listKind = attrs.list?.list;
+
+    if (typeof attrs.header === 'number') {
+      lines.push(`${'#'.repeat(attrs.header)} ${current}`);
+    } else if (listKind === 'ordered') {
+      lines.push(`${(ordinal += 1)}. ${current}`);
+    } else if (listKind === 'checked' || listKind === 'unchecked') {
+      lines.push(`- [${listKind === 'checked' ? 'x' : ' '}] ${current}`);
+    } else if (listKind) {
+      lines.push(`- ${current}`);
+    } else if (attrs.blockquote) {
+      lines.push(`> ${current}`);
+    } else if (attrs['code-block']) {
+      const language = attrs['code-block']['code-block'] ?? '';
+      lines.push(`\`\`\`${language === 'plain' ? '' : language}\n${current}\n\`\`\``);
+    } else {
+      lines.push(current);
+    }
+
+    if (listKind !== 'ordered') {
+      ordinal = 0;
+    }
+    current = '';
+  }
+
+  if (current) {
+    lines.push(current);
+  }
+
+  return lines.join('\n');
 }
 
 /**
@@ -294,6 +373,17 @@ export function parseMarkdownToClickUpComment(markdown: string): ClickUpCommentF
   const lines = markdown.split('\n');
   const blocks: ClickUpCommentBlock[] = [];
 
+  // ClickUp carries block-level formatting on the newline that TERMINATES the
+  // line, not on the line's text. So a heading is the heading text followed by
+  // {text:'\n', attributes:{header:1}}. Every one of these was verified against
+  // the live API — ClickUp echoes header/list/blockquote/code-block back
+  // unchanged. The line break is mandatory for a block-typed line, including
+  // the last line of the comment, or the formatting is lost.
+  const pushLine = (text: string, lineAttributes: ClickUpCommentBlock['attributes'] = {}): void => {
+    blocks.push(...markdownToClickUpComment(text).comment);
+    blocks.push({ text: '\n', attributes: lineAttributes });
+  };
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
 
@@ -305,40 +395,42 @@ export function parseMarkdownToClickUpComment(markdown: string): ClickUpCommentF
       continue;
     }
 
-    // Handle headers
-    if (line.startsWith('#')) {
-      // const level = line.match(/^#+/)?.[0].length || 1;
-      const headerText = line.replace(/^#+\s*/, '');
-      blocks.push({
-        text: headerText,
-        attributes: { bold: true }, // ClickUp doesn't have header formatting, use bold
-      });
-      blocks.push({ text: '\n', attributes: {} });
+    // Handle headers -> real ClickUp heading, not bold text.
+    // ClickUp's editor offers three levels; deeper markdown headings clamp to 3.
+    const header = line.match(/^(#{1,6})\s+(.*)$/);
+    if (header) {
+      const [, hashes, headerText] = header;
+      pushLine(headerText, { header: Math.min(hashes.length, 3) });
       continue;
     }
 
-    // Handle list items
-    if (line.match(/^[-*+]\s+/) || line.match(/^\d+\.\s+/)) {
-      const listText = line.replace(/^[-*+\d.]\s*/, '• ');
-      const converted = markdownToClickUpComment(listText);
-      blocks.push(...converted.comment);
-      blocks.push({ text: '\n', attributes: {} });
+    // Handle list items -> real bullet/ordered list blocks.
+    // The old code replaced the marker with a literal '• ' character, which
+    // rendered as a bullet-shaped glyph in a paragraph rather than a list, and
+    // its `^[-*+\d.]\s*` pattern stripped only the FIRST character of an
+    // ordered marker, so `1. Item` became `• . Item`.
+    const bullet = line.match(/^[-*+]\s+(.*)$/);
+    if (bullet) {
+      pushLine(bullet[1], { list: { list: 'bullet' } });
       continue;
     }
 
-    // Handle blockquotes
+    const ordered = line.match(/^\d+[.)]\s+(.*)$/);
+    if (ordered) {
+      pushLine(ordered[1], { list: { list: 'ordered' } });
+      continue;
+    }
+
+    // Handle blockquotes -> real blockquote block, not a literal '> ' prefix
     if (line.startsWith('>')) {
-      const quoteText = line.replace(/^>\s*/, '');
-      blocks.push({ text: '> ', attributes: {} });
-      const converted = markdownToClickUpComment(quoteText);
-      blocks.push(...converted.comment);
-      blocks.push({ text: '\n', attributes: {} });
+      pushLine(line.replace(/^>\s*/, ''), { blockquote: true });
       continue;
     }
 
-    // Handle code blocks
+    // Handle fenced code blocks -> real code block, not the inline-code
+    // attribute. The fence's language rides along; ClickUp defaults to 'plain'.
     if (line.startsWith('```')) {
-      // For code blocks, we'll treat the content as code
+      const language = line.slice(3).trim() || 'plain';
       const codeLines = [];
       i++; // Skip the opening ```
       while (i < lines.length && !lines[i].trim().startsWith('```')) {
@@ -347,11 +439,8 @@ export function parseMarkdownToClickUpComment(markdown: string): ClickUpCommentF
       }
 
       if (codeLines.length > 0) {
-        blocks.push({
-          text: codeLines.join('\n'),
-          attributes: { code: true },
-        });
-        blocks.push({ text: '\n', attributes: {} });
+        blocks.push({ text: codeLines.join('\n'), attributes: {} });
+        blocks.push({ text: '\n', attributes: { 'code-block': { 'code-block': language } } });
       }
       continue;
     }
@@ -570,10 +659,15 @@ export function ensureCodeBlockSeparation(blocks: ClickUpCommentBlock[]): ClickU
     const currentBlock = blocks[i];
     const previousBlock = i > 0 ? blocks[i - 1] : null;
 
-    // Check if current block is a code block
-    const isCodeBlock =
-      currentBlock.attributes &&
-      (currentBlock.attributes['code-block'] || currentBlock.attributes.code);
+    // Check if current block is a code block.
+    // Inline `code` used to count here, which broke list items: in
+    // "- `x` in a list" the separator was injected into the bullet's own text
+    // block, splitting the line. And a bare '\n' marker carrying the code-block
+    // attribute IS the terminator of a code block, so it needs no separator of
+    // its own — that added a blank line inside every fenced block.
+    const isCodeBlock = Boolean(
+      currentBlock.attributes && currentBlock.attributes['code-block'] && currentBlock.text !== '\n'
+    );
 
     // If this is a code block and there's a previous block
     if (isCodeBlock && previousBlock) {
@@ -624,7 +718,10 @@ export function prepareCommentForClickUp(content: string): {
 
   // Check if content contains actual markdown formatting patterns (not just individual characters)
   const hasMarkdown =
-    /(\*\*.+?\*\*|__.+?__|`.+?`|~~.+?~~|^#{1,6}\s|\[.+?\]\(.+?\)|^>\s|^-\s|^\d+\.\s|```)/m.test(
+    // Kept in step with the line handlers in parseMarkdownToClickUpComment:
+    // anything that function treats as a block must be detected here, or the
+    // content takes the plain-text path and the markup posts literally.
+    /(\*\*.+?\*\*|__.+?__|`.+?`|~~.+?~~|^#{1,6}\s|\[.+?\]\(.+?\)|^>\s|^[-*+]\s|^\d+[.)]\s|```)/m.test(
       content
     );
 

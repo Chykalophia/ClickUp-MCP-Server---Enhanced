@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { ClickUpClient } from './index.js';
 import axios, { AxiosInstance } from 'axios';
+import { decodeBase64Upload } from '../utils/upload-guards.js';
 
 // ========================================
 // CUSTOM FIELD TYPE DEFINITIONS
@@ -790,18 +791,8 @@ export class EnhancedCustomFieldsClient {
     filename: string;
     file_data: string;
   }): Promise<Record<string, unknown>> {
-    const estimated = Math.floor(params.file_data.length * 0.75);
-    if (estimated > MAX_FIELD_UPLOAD_BYTES) {
-      throw new Error(
-        `File exceeds the maximum upload size of ${MAX_FIELD_UPLOAD_BYTES / (1024 * 1024)} MB`
-      );
-    }
-    const bytes = Buffer.from(params.file_data, 'base64');
-    if (bytes.length === 0) {
-      throw new Error(
-        'file_data decoded to an empty file; it must be base64-encoded file contents'
-      );
-    }
+    // Rejects malformed base64 and oversize input (padding-aware) before decoding.
+    const bytes = decodeBase64Upload(params.file_data, MAX_FIELD_UPLOAD_BYTES);
 
     const form = new FormData();
     const view = new Uint8Array(bytes.buffer as ArrayBuffer, bytes.byteOffset, bytes.byteLength);

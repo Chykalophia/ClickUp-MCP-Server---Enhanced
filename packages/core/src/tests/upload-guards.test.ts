@@ -4,8 +4,10 @@ import type { AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
+  decodeBase64Upload,
   fetchUploadUrl,
   isBlockedAddress,
+  readUploadFile,
   resolveUploadFilePath,
 } from '../utils/upload-guards';
 
@@ -118,6 +120,38 @@ describe('resolveUploadFilePath', () => {
     await expect(resolveUploadFilePath('missing.txt', uploadDir)).rejects.toThrow(/not found/i);
     await expect(resolveUploadFilePath('ok.txt\0', uploadDir)).rejects.toThrow(/Invalid/);
   });
+
+  it('readUploadFile reads through one validated descriptor', async () => {
+    await expect(readUploadFile('ok.txt', { maxBytes: 10, uploadDir })).resolves.toEqual(Buffer.from('ok'));
+    await expect(readUploadFile('inner-link.txt', { maxBytes: 10, uploadDir })).resolves.toEqual(
+      Buffer.from('ok')
+    );
+    await expect(readUploadFile('escape-link.txt', { maxBytes: 10, uploadDir })).rejects.toThrow(/outside/);
+    await expect(readUploadFile('ok.txt', { maxBytes: 1, uploadDir })).rejects.toThrow(/maximum upload size/);
+    await expect(readUploadFile('ok.txt', { maxBytes: 10, uploadDir: undefined })).rejects.toThrow(/disabled/);
+  });
+});
+
+describe('decodeBase64Upload', () => {
+  it('decodes standard, unpadded, URL-safe and whitespace-wrapped base64', () => {
+    expect(decodeBase64Upload('aGVsbG8=', 10).toString()).toBe('hello');
+    expect(decodeBase64Upload('aGVsbG8', 10).toString()).toBe('hello');
+    expect(decodeBase64Upload('aGVs\nbG8=', 10).toString()).toBe('hello');
+    expect(decodeBase64Upload('-_8=', 10)).toEqual(Buffer.from([0xfb, 0xff]));
+  });
+
+  it('rejects malformed input instead of silently decoding part of it', () => {
+    for (const bad of ['hello!', 'aGVsbG8=x', 'a', 'aGVsb=', '====', 'aGVsbG8===']) {
+      expect(() => decodeBase64Upload(bad, 100)).toThrow(/valid base64/);
+    }
+    expect(() => decodeBase64Upload('', 100)).toThrow(/empty/);
+  });
+
+  it('accounts for padding so a file exactly at the limit is accepted', () => {
+    const atLimit = Buffer.alloc(4).toString('base64'); // 'AAAAAA==' -> 4 bytes
+    expect(decodeBase64Upload(atLimit, 4)).toHaveLength(4);
+    expect(() => decodeBase64Upload(atLimit, 3)).toThrow(/maximum upload size/);
+  });
 });
 
 describe('fetchUploadUrl', () => {
@@ -174,6 +208,12 @@ describe('fetchUploadUrl', () => {
           res.writeHead(302, { location: 'http://169.254.169.254/latest/meta-data/' }).end();
         } else if (req.url === '/redirect-ipv6-loopback') {
           res.writeHead(302, { location: 'http://[::ffff:10.0.0.1]:1/' }).end();
+        } else if (req.url === '/redirect-bad-location') {
+          res.writeHead(302, { location: 'http://[bad' }).end();
+        } else if (req.url === '/trickle') {
+          res.writeHead(200);
+          const timer = setInterval(() => res.write('x'), 10);
+          res.on('close', () => clearInterval(timer));
         } else if (req.url === '/redirect-loop') {
           res.writeHead(302, { location: '/redirect-loop' }).end();
         } else {
@@ -208,6 +248,22 @@ describe('fetchUploadUrl', () => {
       await expect(
         fetchUploadUrl(`${origin}/redirect-ipv6-loopback`, { maxBytes: MAX, isAddressAllowed: allowLocalServer })
       ).rejects.toThrow(/private|loopback/);
+    });
+
+    it('rejects a malformed redirect Location instead of throwing out of the callback', async () => {
+      await expect(
+        fetchUploadUrl(`${origin}/redirect-bad-location`, { maxBytes: MAX, isAddressAllowed: allowLocalServer })
+      ).rejects.toThrow(/invalid Location/);
+    });
+
+    it('enforces a wall-clock deadline even while bytes keep trickling in', async () => {
+      await expect(
+        fetchUploadUrl(`${origin}/trickle`, {
+          maxBytes: MAX * 100,
+          timeoutMs: 150,
+          isAddressAllowed: allowLocalServer,
+        })
+      ).rejects.toThrow(/Timed out/);
     });
 
     it('caps the number of redirects', async () => {

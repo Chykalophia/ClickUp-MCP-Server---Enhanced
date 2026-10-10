@@ -14,7 +14,8 @@
  *    manually with every hop re-validated.
  */
 import { lookup as dnsLookup } from 'node:dns';
-import { realpath, stat } from 'node:fs/promises';
+import { constants as fsConstants } from 'node:fs';
+import { open, realpath, stat } from 'node:fs/promises';
 import http from 'node:http';
 import https from 'node:https';
 import { isIP, type LookupFunction } from 'node:net';
@@ -71,6 +72,72 @@ export async function resolveUploadFilePath(
     throw new Error(`Not a regular file: ${filePath}`);
   }
   return canonicalTarget;
+}
+
+/**
+ * Resolve file_path as resolveUploadFilePath does, then open it once and
+ * verify the opened descriptor is still the validated file before reading.
+ * This closes the window in which the path could be swapped for a symlink
+ * pointing outside the upload directory between validation and read.
+ */
+export async function readUploadFile(
+  filePath: string,
+  options: { maxBytes: number; uploadDir?: string }
+): Promise<Buffer> {
+  const uploadDir = 'uploadDir' in options ? options.uploadDir : process.env[UPLOAD_DIR_ENV];
+  const canonicalTarget = await resolveUploadFilePath(filePath, uploadDir);
+  // O_NOFOLLOW refuses a final-component symlink (0 where unsupported).
+  const handle = await open(canonicalTarget, fsConstants.O_RDONLY | (fsConstants.O_NOFOLLOW ?? 0));
+  try {
+    const opened = await handle.stat();
+    // Re-validate after opening: the path must still canonicalise to itself
+    // and name the same inode as the descriptor we hold. A swapped
+    // intermediate directory or replaced file fails one of these checks.
+    const [current, onDisk] = await Promise.all([realpath(canonicalTarget), stat(canonicalTarget)]);
+    if (current !== canonicalTarget || onDisk.dev !== opened.dev || onDisk.ino !== opened.ino) {
+      throw new Error('file_path changed while it was being read; refusing to upload');
+    }
+    if (!opened.isFile()) {
+      throw new Error(`Not a regular file: ${filePath}`);
+    }
+    if (opened.size > options.maxBytes) {
+      throw sizeError(options.maxBytes);
+    }
+    return await handle.readFile();
+  } finally {
+    await handle.close();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// file_data
+// ---------------------------------------------------------------------------
+
+/**
+ * Decode base64 file_data, rejecting malformed input (Buffer.from silently
+ * skips invalid characters, which would upload different bytes) and anything
+ * over maxBytes before allocating. Whitespace is ignored; the URL-safe
+ * alphabet is accepted.
+ */
+export function decodeBase64Upload(data: string, maxBytes: number): Buffer {
+  const normalized = data.replace(/\s+/g, '');
+  const padding = normalized.endsWith('==') ? 2 : normalized.endsWith('=') ? 1 : 0;
+  if (
+    !/^[A-Za-z0-9+/_-]*={0,2}$/.test(normalized) ||
+    normalized.length % 4 === 1 ||
+    (padding > 0 && normalized.length % 4 !== 0)
+  ) {
+    throw new Error('file_data must be valid base64-encoded file contents');
+  }
+  // Exact decoded length: 3 bytes per 4 chars, minus padding.
+  const decodedLength = Math.floor((normalized.length * 3) / 4) - padding;
+  if (decodedLength > maxBytes) {
+    throw sizeError(maxBytes);
+  }
+  if (decodedLength === 0) {
+    throw new Error('file_data decoded to an empty file; it must be base64-encoded file contents');
+  }
+  return Buffer.from(normalized, 'base64');
 }
 
 function isInsideDirectory(root: string, target: string): boolean {
@@ -191,7 +258,7 @@ export interface GuardedFetchOptions {
   maxBytes: number;
   /** Redirect hops to follow (each one re-validated). Default 3. */
   maxRedirects?: number;
-  /** Overall per-request timeout in ms. Default 30s. */
+  /** Wall-clock deadline per request (headers and body) in ms. Default 30s. */
   timeoutMs?: number;
   /** Test hook: decides whether a resolved address may be contacted. */
   isAddressAllowed?: (address: string) => boolean;
@@ -264,7 +331,23 @@ function requestOnce(
   }
 
   const transport = url.protocol === 'https:' ? https : http;
-  return new Promise((resolvePromise, rejectPromise) => {
+  return new Promise((resolveRaw, rejectRaw) => {
+    // The socket `timeout` option only bounds inactivity, so a server that
+    // trickles bytes could hold the request open forever; enforce a
+    // wall-clock deadline as well.
+    const deadline = setTimeout(() => {
+      const error = new Error('Timed out fetching file_url');
+      rejectPromise(error);
+      request.destroy(error);
+    }, options.timeoutMs);
+    const resolvePromise = (value: { redirect?: string; body?: Buffer }): void => {
+      clearTimeout(deadline);
+      resolveRaw(value);
+    };
+    const rejectPromise = (error: Error): void => {
+      clearTimeout(deadline);
+      rejectRaw(error);
+    };
     const request = transport.get(
       url,
       {
@@ -278,7 +361,16 @@ function requestOnce(
         const status = response.statusCode ?? 0;
         if (status >= 300 && status < 400 && response.headers.location) {
           response.resume();
-          resolvePromise({ redirect: new URL(response.headers.location, url).toString() });
+          // A malformed Location would throw inside this callback and escape
+          // the promise as an uncaught exception, so reject instead.
+          let target: string;
+          try {
+            target = new URL(response.headers.location, url).toString();
+          } catch {
+            rejectPromise(new BlockedUrlError('file_url redirected to an invalid Location'));
+            return;
+          }
+          resolvePromise({ redirect: target });
           return;
         }
         if (status < 200 || status >= 300) {

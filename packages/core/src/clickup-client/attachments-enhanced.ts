@@ -1,6 +1,5 @@
-import { readFile, stat } from 'fs/promises';
 import { ClickUpClient } from './index.js';
-import { fetchUploadUrl, resolveUploadFilePath } from '../utils/upload-guards.js';
+import { decodeBase64Upload, fetchUploadUrl, readUploadFile } from '../utils/upload-guards.js';
 import type {
   UploadAttachmentRequest,
   GetAttachmentsRequest,
@@ -90,32 +89,18 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
 
   private async resolveFileBytes(request: UploadAttachmentRequest): Promise<Buffer> {
     if (request.file_data) {
-      // Estimate the decoded size before allocating (4 base64 chars -> 3 bytes)
-      this.assertWithinSizeLimit(Math.floor(request.file_data.length * 0.75));
-      const bytes = Buffer.from(request.file_data, 'base64');
-      this.assertWithinSizeLimit(bytes.length);
-      return bytes;
+      // Validated and size-checked before allocating.
+      return decodeBase64Upload(request.file_data, MAX_UPLOAD_SIZE_BYTES);
     }
     if (request.file_path) {
-      // Denied unless CLICKUP_UPLOAD_DIR is set; the realpath must stay inside it.
-      const resolvedPath = await resolveUploadFilePath(request.file_path);
-      const stats = await stat(resolvedPath);
-      this.assertWithinSizeLimit(stats.size);
-      return readFile(resolvedPath);
+      // Denied unless CLICKUP_UPLOAD_DIR is set; the realpath must stay inside
+      // it, and the opened descriptor is re-validated before reading.
+      return readUploadFile(request.file_path, { maxBytes: MAX_UPLOAD_SIZE_BYTES });
     }
     if (request.file_url) {
       // SSRF-guarded: public addresses only, redirects re-validated, size capped.
       return fetchUploadUrl(request.file_url, { maxBytes: MAX_UPLOAD_SIZE_BYTES });
     }
     throw new Error('One of file_data, file_path, or file_url must be provided');
-  }
-
-  /** ClickUp caps attachments at 1 GB; a lower cap avoids exhausting process memory. */
-  private assertWithinSizeLimit(sizeBytes: number): void {
-    if (sizeBytes > MAX_UPLOAD_SIZE_BYTES) {
-      throw new Error(
-        `File exceeds the maximum upload size of ${Math.floor(MAX_UPLOAD_SIZE_BYTES / (1024 * 1024))} MB`
-      );
-    }
   }
 }

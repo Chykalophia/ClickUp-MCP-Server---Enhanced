@@ -35,7 +35,7 @@ export function setupWorkspaceTools(server: McpServer): void {
         .boolean()
         .optional()
         .describe(
-          'Include the full member roster and workspace avatar URL. Off by default: on a real workspace the roster is ~10 KB per workspace and is almost never what the caller wanted. Use clickup_get_list_members to look one person up instead, and turn this on only when you genuinely need every member (e.g. resolving a user ID for an @mention).'
+          'Include the full member roster and workspace avatar URL. Off by default: on a real workspace the roster is ~10 KB per workspace and is almost never what the caller wanted. Use clickup_get_list_members to inspect the members of a specific list instead, and turn this on only when you genuinely need every workspace member (e.g. resolving a user ID for an @mention).'
         ),
     },
     async ({ include_members }) => {

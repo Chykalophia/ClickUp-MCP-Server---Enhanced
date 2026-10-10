@@ -40,7 +40,7 @@ fixed.
 
 - **Markdown comments now use ClickUp's real block types.** ClickUp carries
   block-level formatting on the `"\n"` that terminates a line, and the converter
-  never used it — so every structured comment this server posted was a flat
+  never used it — so every comment this server generated from markdown was a flat
   paragraph wearing a costume:
 
   | Markdown | Was posted as | Now posted as |
@@ -58,7 +58,8 @@ fixed.
 - **`comment_markdown` on read now reconstructs those blocks.** The reverse
   conversion ignored block-level attributes, so headings, lists, quotes and code
   blocks came back as undifferentiated lines. A comment written as markdown now
-  reads back as the same markdown, and tag blocks round-trip to
+  reads back with its formatting intact (headings deeper than `###` clamp to
+  level 3, and ordered lists renumber from 1), and tag blocks round-trip to
   `@[Name](userId)` when the API returns a user ID.
 
 ### 🐛 Bug Fixes

@@ -162,13 +162,14 @@ the line**, not on the line's text:
 | ` ```lang ` fenced block | real code block, fence language preserved |
 | Tables | **left as literal `\|` pipe text** — there is no table block |
 
-Tables are the only real gap, and the one that surprises people: a markdown
-table posts as raw pipe characters. For tabular findings, prefer bolded labels
+Tables are the biggest gap, and the one that surprises people: a markdown
+table posts as raw pipe characters. Task-list syntax (`- [ ] item`) is another:
+it posts as a bullet with literal `[ ]` text, not a checklist item. For tabular findings, prefer bolded labels
 and lines over a table.
 
 Every row above was verified by round-tripping a comment through the live API.
-`clickup_get_task_comments` reconstructs all of it in `comment_markdown`, so a
-comment written as markdown reads back as the same markdown.
+`clickup_get_task_comments` reconstructs the formatting in `comment_markdown`,
+though heading levels clamp to 3 and ordered lists renumber from 1.
 
 ### Advanced Formatting Examples
 

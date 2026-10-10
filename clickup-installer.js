@@ -11,12 +11,9 @@ const rl = createInterface({
 
 const question = (prompt) => new Promise(resolve => rl.question(prompt, resolve));
 
-const VERSIONS = {
-  '1': { name: 'Basic', command: 'clickup-mcp-server-basic', description: 'Essential tools (~150)' },
-  '2': { name: 'Enhanced', command: 'clickup-mcp-server-enhanced', description: 'Production ready (170+ tools) ⭐' },
-  '3': { name: 'Efficiency', command: 'clickup-mcp-server-efficiency', description: 'Smart shortcuts (170+ tools) 🚀' },
-  '4': { name: 'AI-Powered', command: 'clickup-mcp-server-ai', description: 'Intelligent suggestions (170+ tools) 🧠' }
-};
+// There is a single server. The -basic/-enhanced/-efficiency bins in the
+// package are aliases of it, kept only for existing configs.
+const SERVER_PACKAGE = '@chykalophia/clickup-mcp-server@latest';
 
 function getConfigPath() {
   const platform = process.platform;
@@ -31,20 +28,6 @@ function getConfigPath() {
 
 async function main() {
   console.log('🚀 ClickUp MCP Server Installer\n');
-  
-  // Version selection
-  console.log('Available versions:');
-  Object.entries(VERSIONS).forEach(([key, version]) => {
-    console.log(`${key}. ${version.name} - ${version.description}`);
-  });
-  
-  const versionChoice = await question('\nSelect version (1-4): ');
-  const version = VERSIONS[versionChoice];
-  
-  if (!version) {
-    console.log('❌ Invalid selection');
-    process.exit(1);
-  }
   
   // API token input
   const apiToken = await question('\nEnter your ClickUp API token: ');
@@ -74,7 +57,7 @@ async function main() {
   // Add ClickUp server
   config.mcpServers.clickup = {
     command: 'npx',
-    args: ['-y', version.command],
+    args: ['-y', SERVER_PACKAGE],
     env: {
       CLICKUP_API_TOKEN: apiToken
     }
@@ -83,7 +66,7 @@ async function main() {
   // Write config
   writeFileSync(configPath, JSON.stringify(config, null, 2));
   
-  console.log(`\n✅ Successfully installed ClickUp MCP Server (${version.name})`);
+  console.log('\n✅ Successfully installed ClickUp MCP Server');
   console.log(`📁 Config saved to: ${configPath}`);
   console.log('\n🔄 Please restart Claude Desktop to activate the server');
   

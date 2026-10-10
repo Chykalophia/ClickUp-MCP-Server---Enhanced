@@ -14,7 +14,7 @@
     "dev": "ts-node --esm src/index.ts",
     "start": "node build/index-enhanced.js",
     "start:enhanced": "node build/index-enhanced.js",
-    "start:efficiency": "node build/index-enhanced-efficiency.js",
+    "start:efficiency": "node build/index-enhanced.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",

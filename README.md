@@ -357,10 +357,9 @@ npx clickup-mcp-installer
 Visit the web-based configurator for visual setup:
 [ClickUp MCP Configurator](https://chykalophia.github.io/ClickUp-MCP-Server---Enhanced/configurator.html)
 
-1. Select your preferred version
-2. Enter your ClickUp API token  
-3. Download the generated config file
-4. Place it in your Claude Desktop config directory
+1. Enter your ClickUp API token
+2. Download the generated config file
+3. Place it in your Claude Desktop config directory
 
 ### Option 3: NPM Package (Manual Setup)
 
@@ -419,15 +418,14 @@ Add to the MCP settings file:
 
 ### 🔧 Build from Source (Advanced Users)
 
-If you prefer to build from source:
+If you prefer to build from source, point your client at the built server:
 
-#### Standard Version
 ```json
 {
   "mcpServers": {
     "clickup": {
       "command": "node",
-      "args": ["/path/to/clickup-mcp-server/build/index-enhanced.js"],
+      "args": ["/path/to/ClickUp-MCP-Server---Enhanced/packages/core/build/index-enhanced.js"],
       "env": {
         "CLICKUP_API_TOKEN": "YOUR_API_TOKEN_HERE"
       },
@@ -438,22 +436,11 @@ If you prefer to build from source:
 }
 ```
 
-#### Enhanced Efficiency Version ⭐
-```json
-{
-  "mcpServers": {
-    "clickup": {
-      "command": "node",
-      "args": ["/path/to/clickup-mcp-server/build/index-efficiency-simple.js"],
-      "env": {
-        "CLICKUP_API_TOKEN": "YOUR_API_TOKEN_HERE"
-      },
-      "disabled": false,
-      "autoApprove": []
-    }
-  }
-}
-```
+There is a single server. `build/index-enhanced.js` is the entry point; the
+`clickup-mcp-server-basic`, `clickup-mcp-server-enhanced` and
+`clickup-mcp-server-efficiency` bins (and `build/index.js` /
+`build/index-efficiency-simple.js`) are aliases of it, kept so existing configs
+keep working. They all expose the same tools.
 
 ### 📝 Configuration Notes
 

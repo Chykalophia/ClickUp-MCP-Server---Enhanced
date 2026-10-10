@@ -1,5 +1,54 @@
 # Release Notes - ClickUp MCP Server Suite
 
+## Version 7.0.0 - Core Tool Loading and Runtime Toolset Catalog
+
+**Affects**: `@chykalophia/clickup-mcp-server` (core)
+
+### Breaking change: only core tools are published by default
+
+Until 6.x every tool (157) was published in `tools/list` on connect — about
+173 KB, roughly 43k tokens of context before the first prompt, re-sent on every
+reconnect. 7.0.0 still **registers** every tool but **enables** only a core set
+by default:
+
+- **Core mode (default):** 15 tools, ~24 KB `tools/list` (~85% smaller).
+  Core: workspace hierarchy, task search/read/create/update, task comments,
+  custom fields, timers (plus `clickup_find_member` / `clickup_move_task` when
+  present).
+- **Restore the old behaviour with `CLICKUP_TOOL_MODE=all`.** With
+  `CLICKUP_TOOLSETS` also set, `all` mode enables exactly those toolsets, as
+  `CLICKUP_TOOLSETS` did in 6.x.
+- `CLICKUP_TOOLSETS` in core mode adds whole toolsets on top of core and accepts
+  profiles: `pm`, `time`, `chat`, `docs`, `admin`. `CLICKUP_TOOLSETS=all` still
+  enables everything. If no name resolves, the server warns on stderr and falls
+  back to core (6.x fell back to all).
+
+### New: catalog tools (always on)
+
+- `clickup_list_toolsets` — toolsets, their tools, enabled state, and a
+  `unique` flag for capabilities most ClickUp MCP servers lack; optional JSON
+  schemas per toolset.
+- `clickup_enable_toolset` — enable/disable toolsets at runtime; the server
+  emits `notifications/tools/list_changed`.
+- `clickup_call_tool` — run any registered tool (enabled or not) with the same
+  strict parameter validation as a direct call.
+
+### Also new
+
+- **Tool annotations** on every tool: `title`, `readOnlyHint`,
+  `destructiveHint`, `idempotentHint`, `openWorldHint`, inferred centrally from
+  tool names with an override table.
+- **Confirmation for destructive tools** via MCP elicitation when the client
+  supports it (unchanged behaviour otherwise; `CLICKUP_CONFIRM_DESTRUCTIVE=false`
+  disables it).
+- **Server `instructions`** in the `initialize` response, and `title` /
+  `websiteUrl` in `serverInfo`.
+- Toolset tool counts are derived from what actually registers, not a
+  hand-maintained table. `TOOLSETS[...].count` and `TOTAL_TOOL_COUNT` were
+  removed from `tools/toolsets.ts`.
+
+See [docs/guides/TOOL_LOADING.md](docs/guides/TOOL_LOADING.md).
+
 ## Version 6.0.0 - Full API Routes Overhaul (audit against current ClickUp API)
 
 **Release Date**: July 21, 2026

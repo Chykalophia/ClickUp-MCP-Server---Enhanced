@@ -49,7 +49,7 @@ by default:
 
 See [docs/guides/TOOL_LOADING.md](docs/guides/TOOL_LOADING.md).
 
-## 7.0.0 (also includes) - Comment Formatting Maintenance Release
+## Version 7.0.0 (continued) - Comment Formatting
 
 **Status**: Merged, unreleased
 **Affects**: `@chykalophia/clickup-mcp-server` (core)

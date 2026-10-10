@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createCommentsClient } from '../clickup-client/comments.js';
@@ -20,9 +19,8 @@ export function setupCommentResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const task_id = params.task_id as string;
-        console.log('[CommentResources] Fetching comments for task:', task_id);
+        console.error('[CommentResources] Fetching comments for task:', task_id);
         const comments = await commentsClient.getTaskComments(task_id);
-        console.log('[CommentResources] Got comments:', comments);
 
         return {
           contents: [
@@ -50,9 +48,8 @@ export function setupCommentResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const view_id = params.view_id as string;
-        console.log('[CommentResources] Fetching comments for chat view:', view_id);
+        console.error('[CommentResources] Fetching comments for chat view:', view_id);
         const comments = await commentsClient.getChatViewComments(view_id);
-        console.log('[CommentResources] Got comments:', comments);
 
         return {
           contents: [
@@ -80,9 +77,8 @@ export function setupCommentResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const list_id = params.list_id as string;
-        console.log('[CommentResources] Fetching comments for list:', list_id);
+        console.error('[CommentResources] Fetching comments for list:', list_id);
         const comments = await commentsClient.getListComments(list_id);
-        console.log('[CommentResources] Got comments:', comments);
 
         return {
           contents: [
@@ -110,9 +106,8 @@ export function setupCommentResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const comment_id = params.comment_id as string;
-        console.log('[CommentResources] Fetching threaded comments for comment:', comment_id);
+        console.error('[CommentResources] Fetching threaded comments for comment:', comment_id);
         const comments = await commentsClient.getThreadedComments(comment_id);
-        console.log('[CommentResources] Got comments:', comments);
 
         return {
           contents: [
@@ -125,63 +120,6 @@ export function setupCommentResources(server: McpServer): void {
         };
       } catch (error: unknown) {
         resourceError('fetching threaded comments', error);
-      }
-    }
-  );
-
-  // Add some example static resources for discoverability
-  server.resource(
-    'example-task-comments',
-    'clickup://task/868czp2t3/comments',
-    {
-      description: 'An example task comments resource demonstrating the comment data format.',
-    },
-    async uri => {
-      try {
-        const task_id = '868czp2t3';
-        console.log('[CommentResources] Fetching comments for example task:', task_id);
-        const comments = await commentsClient.getTaskComments(task_id);
-        console.log('[CommentResources] Got comments:', comments);
-
-        return {
-          contents: [
-            {
-              uri: uri.toString(),
-              mimeType: 'application/json',
-              text: JSON.stringify(comments),
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        resourceError('fetching example task comments', error);
-      }
-    }
-  );
-
-  server.resource(
-    'example-list-comments',
-    'clickup://list/901109776097/comments',
-    {
-      description: 'An example list comments resource demonstrating the comment data format.',
-    },
-    async uri => {
-      try {
-        const list_id = '901109776097';
-        console.log('[CommentResources] Fetching comments for example list:', list_id);
-        const comments = await commentsClient.getListComments(list_id);
-        console.log('[CommentResources] Got comments:', comments);
-
-        return {
-          contents: [
-            {
-              uri: uri.toString(),
-              mimeType: 'application/json',
-              text: JSON.stringify(comments),
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        resourceError('fetching example list comments', error);
       }
     }
   );

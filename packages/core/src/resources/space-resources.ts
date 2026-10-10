@@ -1,4 +1,4 @@
-/* eslint-disable no-console, max-len */
+/* eslint-disable max-len */
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createSpacesClient } from '../clickup-client/spaces.js';
@@ -20,9 +20,8 @@ export function setupSpaceResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const workspace_id = params.workspace_id as string;
-        console.log('[SpaceResources] Fetching spaces for workspace:', workspace_id);
+        console.error('[SpaceResources] Fetching spaces for workspace:', workspace_id);
         const spaces = await spacesClient.getSpacesFromWorkspace(workspace_id);
-        console.log('[SpaceResources] Got spaces count:', spaces.length);
 
         return {
           contents: [
@@ -50,9 +49,8 @@ export function setupSpaceResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const space_id = params.space_id as string;
-        console.log('[SpaceResources] Fetching space:', space_id);
+        console.error('[SpaceResources] Fetching space:', space_id);
         const space = await spacesClient.getSpace(space_id);
-        console.log('[SpaceResources] Got space:', space.name);
 
         return {
           contents: [
@@ -65,63 +63,6 @@ export function setupSpaceResources(server: McpServer): void {
         };
       } catch (error: unknown) {
         resourceError('fetching space', error);
-      }
-    }
-  );
-
-  // Add some example static resources for discoverability
-  server.resource(
-    'example-workspace-spaces',
-    'clickup://workspace/9011839976/spaces',
-    {
-      description: 'An example workspace spaces resource demonstrating the space list format.',
-    },
-    async uri => {
-      try {
-        const workspace_id = '9011839976';
-        console.log('[SpaceResources] Fetching spaces for example workspace:', workspace_id);
-        const spaces = await spacesClient.getSpacesFromWorkspace(workspace_id);
-        console.log('[SpaceResources] Got example spaces count:', spaces.length);
-
-        return {
-          contents: [
-            {
-              uri: uri.toString(),
-              mimeType: 'application/json',
-              text: JSON.stringify(spaces),
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        resourceError('fetching example workspace spaces', error);
-      }
-    }
-  );
-
-  server.resource(
-    'example-space',
-    'clickup://space/90113637923',
-    {
-      description: 'An example space resource demonstrating the space details format.',
-    },
-    async uri => {
-      try {
-        const space_id = '90113637923';
-        console.log('[SpaceResources] Fetching example space:', space_id);
-        const space = await spacesClient.getSpace(space_id);
-        console.log('[SpaceResources] Got example space:', space.name);
-
-        return {
-          contents: [
-            {
-              uri: uri.toString(),
-              mimeType: 'application/json',
-              text: JSON.stringify(space),
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        resourceError('fetching example space', error);
       }
     }
   );

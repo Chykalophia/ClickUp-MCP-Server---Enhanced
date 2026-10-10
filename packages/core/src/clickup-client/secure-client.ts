@@ -85,7 +85,7 @@ export class SecureClickUpClient {
       response => {
         // Log successful requests in debug mode
         if (process.env.NODE_ENV === 'development') {
-          console.debug(
+          console.error(
             `[${response.config.headers['X-Request-ID']}] ${response.config.method?.toUpperCase()} ${response.config.url} - ${response.status}`
           );
         }

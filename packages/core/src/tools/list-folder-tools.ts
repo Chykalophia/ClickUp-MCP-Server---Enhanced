@@ -681,4 +681,39 @@ export function setupListFolderTools(server: McpServer): void {
       }
     }
   );
+  server.tool(
+    'clickup_get_list_templates',
+    'List the List templates available in a ClickUp workspace. Use a returned template ID (it starts with "t-") with clickup_create_list_from_template_in_folder or clickup_create_list_from_template_in_space.',
+    {
+      team_id: idSchema().describe('The ID of the workspace (team) to get List templates from'),
+    },
+    async ({ team_id }) => {
+      try {
+        const result = await listsClient.getListTemplates(team_id);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result) }],
+        };
+      } catch (error: unknown) {
+        return mcpError('getting list templates', error);
+      }
+    }
+  );
+
+  server.tool(
+    'clickup_get_shared_hierarchy',
+    'Get the tasks, Lists and Folders that have been shared with the authenticated user but sit outside the spaces they belong to. Use it to find items a guest or limited member can reach that clickup_get_workspace_hierarchy does not show.',
+    {
+      team_id: idSchema().describe('The ID of the workspace (team)'),
+    },
+    async ({ team_id }) => {
+      try {
+        const result = await listsClient.getSharedHierarchy(team_id);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result) }],
+        };
+      } catch (error: unknown) {
+        return mcpError('getting shared hierarchy', error);
+      }
+    }
+  );
 }

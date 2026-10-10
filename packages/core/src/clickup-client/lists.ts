@@ -204,6 +204,26 @@ export class ListsClient {
       params
     );
   }
+
+  /**
+   * List the List templates available in a workspace (GET /team/{team_id}/list_template).
+   * Template IDs carry a `t-` prefix; pass them whole to the create-from-template calls.
+   */
+  async getListTemplates(
+    teamId: string
+  ): Promise<{ templates: Array<{ id: string; name: string }> }> {
+    return this.client.get(`/team/${encodeURIComponent(teamId)}/list_template`);
+  }
+
+  /**
+   * Get the tasks, Lists and Folders that have been shared with the
+   * authenticated user (GET /team/{team_id}/shared).
+   */
+  async getSharedHierarchy(teamId: string): Promise<{
+    shared: { tasks: unknown[]; lists: unknown[]; folders: unknown[] };
+  }> {
+    return this.client.get(`/team/${encodeURIComponent(teamId)}/shared`);
+  }
 }
 
 export const createListsClient = (client: ClickUpClient): ListsClient => {

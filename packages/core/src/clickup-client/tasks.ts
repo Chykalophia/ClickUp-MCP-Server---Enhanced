@@ -158,6 +158,19 @@ export interface GetFilteredTeamTasksParams {
   }>;
 }
 
+export interface MoveTaskOptions {
+  /** Add the Custom Fields from the current List to the new List */
+  move_custom_fields?: boolean;
+  /** Custom Field IDs to move; omit to move all of them */
+  custom_fields_to_move?: string[];
+  /** Map statuses of the current List to statuses of the destination List */
+  status_mappings?: Array<{ source_status_id: string; destination_status_id: string }>;
+}
+
+// Move Task only exists in the v3 API. The shared client is bound to the v2
+// base URL; axios ignores baseURL when the request URL is absolute.
+const V3_API_BASE_URL = 'https://api.clickup.com/api/v3';
+
 export interface CustomTaskIdParams {
   custom_task_ids?: boolean;
   team_id?: string;
@@ -453,6 +466,58 @@ export class TasksClient {
   ): Promise<Task> {
     const result = await this.client.post(`/list/${listId}/taskTemplate/${templateId}`, params);
     return processClickUpResponse(result);
+  }
+
+  /**
+   * Move a task to a new home List (v3 Move Task):
+   * PUT /api/v3/workspaces/{workspace_id}/tasks/{task_id}/home_list/{list_id}.
+   *
+   * Unlike add-task-to-list (which adds a secondary list), this changes the
+   * task's home list. status_mappings is required when the task's current
+   * status does not exist in the destination list.
+   */
+  async moveTask(
+    workspaceId: string,
+    taskId: string,
+    listId: string,
+    options: MoveTaskOptions = {}
+  ): Promise<{ data: { task_id: string; new_list_id: string } }> {
+    const body: Record<string, unknown> = {};
+    if (options.move_custom_fields !== undefined) {
+      body.move_custom_fields = options.move_custom_fields;
+    }
+    if (options.custom_fields_to_move !== undefined) {
+      body.custom_fields_to_move = options.custom_fields_to_move;
+    }
+    if (options.status_mappings !== undefined) {
+      body.status_mappings = options.status_mappings;
+    }
+    return this.client.put(
+      `${V3_API_BASE_URL}/workspaces/${encodeURIComponent(workspaceId)}/tasks/${encodeURIComponent(
+        taskId
+      )}/home_list/${encodeURIComponent(listId)}`,
+      body
+    );
+  }
+
+  /**
+   * List the task templates in a workspace (GET /team/{team_id}/taskTemplate).
+   * `page` is required by the API and starts at 0.
+   */
+  async getTaskTemplates(
+    teamId: string,
+    page: number = 0
+  ): Promise<{ templates: Array<{ id: string; name: string } | string> }> {
+    return this.client.get(`/team/${encodeURIComponent(teamId)}/taskTemplate`, { page });
+  }
+
+  /**
+   * List the custom task types defined in a workspace (GET /team/{team_id}/custom_item).
+   */
+  async getCustomTaskTypes(teamId: string): Promise<{
+    custom_items: Array<{ id: number; name: string; name_plural?: string; description?: string }>;
+  }> {
+    return this.client.get(`/team/${encodeURIComponent(teamId)}/custom_item`);
   }
 
   /**

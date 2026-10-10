@@ -401,4 +401,26 @@ export function setupCustomFieldTools(server: McpServer): void {
       }
     }
   );
+  server.tool(
+    'clickup_create_entity_attachment',
+    "Upload a file to a Files-type Custom Field (ClickUp v3 Create Attachment, entity type custom_fields). Then attach it to a task's field with clickup_set_custom_field_value, using the returned attachment. List a field's files with clickup_get_attachments (entity_type custom_field). File contents must be base64; for an ordinary task attachment use clickup_upload_attachment instead.",
+    {
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      custom_field_id: idSchema().describe(
+        'The ID of the Files-type Custom Field (from clickup_get_custom_fields)'
+      ),
+      filename: z.string().min(1).describe('File name including its extension, e.g. "spec.pdf"'),
+      file_data: z.string().min(1).describe('Base64-encoded file contents (max 100 MB decoded)'),
+    },
+    async args => {
+      try {
+        const result = await customFieldsClient.uploadFieldAttachment(args);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result) }],
+        };
+      } catch (error: unknown) {
+        return mcpError('uploading file to custom field', error);
+      }
+    }
+  );
 }

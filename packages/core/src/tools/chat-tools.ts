@@ -219,6 +219,31 @@ export function setupChatTools(server: McpServer): void {
   );
 
   server.tool(
+    'clickup_delete_chat_channel',
+    '⚠️ DESTRUCTIVE: Delete a chat channel and its messages. This cannot be undone.',
+    {
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      channel_id: idSchema().describe('The ID of the channel to delete'),
+    },
+    async args => {
+      try {
+        await chatClient.deleteChannel(args.workspace_id, args.channel_id);
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Channel ${args.channel_id} deleted successfully`,
+            },
+          ],
+        };
+      } catch (error: unknown) {
+        return mcpError('deleting channel', error);
+      }
+    }
+  );
+
+  server.tool(
     'clickup_update_chat_channel',
     "Update a chat channel's name, description, topic, visibility, or location.",
     {

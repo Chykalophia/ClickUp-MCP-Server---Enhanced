@@ -101,7 +101,7 @@ export class WorkflowIntelligenceService {
    * Analyze workflow patterns in a workspace
    */
   async analyzeWorkflowPatterns(input: z.infer<typeof WorkflowPatternAnalysisInputSchema>): Promise<WorkflowAnalysisResult> {
-    console.log('[WorkflowIntelligence] Analyzing workflow patterns...');
+    console.error('[WorkflowIntelligence] Analyzing workflow patterns...');
     
     // Mock implementation for Phase 1.5
     const patterns: WorkflowPattern[] = [
@@ -231,7 +231,7 @@ export class WorkflowIntelligenceService {
    * Generate automation recommendations
    */
   async recommendAutomations(input: z.infer<typeof AutomationRecommendationInputSchema>): Promise<AutomationOpportunity[]> {
-    console.log('[WorkflowIntelligence] Generating automation recommendations...');
+    console.error('[WorkflowIntelligence] Generating automation recommendations...');
     
     // Mock implementation with realistic automation opportunities
     const automations: AutomationOpportunity[] = [
@@ -295,7 +295,7 @@ export class WorkflowIntelligenceService {
    * Optimize integration recommendations
    */
   async optimizeIntegrations(input: z.infer<typeof IntegrationOptimizationInputSchema>): Promise<IntegrationRecommendation[]> {
-    console.log('[WorkflowIntelligence] Optimizing integration recommendations...');
+    console.error('[WorkflowIntelligence] Optimizing integration recommendations...');
     
     const allIntegrations: IntegrationRecommendation[] = [
       {

@@ -1,5 +1,162 @@
 # Release Notes - ClickUp MCP Server Suite
 
+## Version 7.0.0 - Core Tool Loading and Runtime Toolset Catalog
+
+**Affects**: `@chykalophia/clickup-mcp-server` (core)
+
+### Breaking change: only core tools are published by default
+
+Until 6.x every tool (157) was published in `tools/list` on connect — about
+173 KB, roughly 43k tokens of context before the first prompt, re-sent on every
+reconnect. 7.0.0 still **registers** every tool but **enables** only a core set
+by default:
+
+- **Core mode (default):** 17 tools, ~29 KB `tools/list` (~83% smaller than 6.x).
+  Core: workspace hierarchy, task search/read/create/update, task comments,
+  custom fields, timers (plus `clickup_find_member` / `clickup_move_task` when
+  present).
+- **Restore the old behaviour with `CLICKUP_TOOL_MODE=all`.** With
+  `CLICKUP_TOOLSETS` also set, `all` mode enables exactly those toolsets, as
+  `CLICKUP_TOOLSETS` did in 6.x.
+- `CLICKUP_TOOLSETS` in core mode adds whole toolsets on top of core and accepts
+  profiles: `pm`, `time`, `chat`, `docs`, `admin`. `CLICKUP_TOOLSETS=all` still
+  enables everything. If no name resolves (in either mode), the server warns on
+  stderr and falls back to core (6.x fell back to all).
+- The declared Node.js floor is now 18.14.0 (`engines`), the minimum Jest 30
+  supports.
+- The `clickup-mcp-server-efficiency` bin (`bin/clickup-mcp-server-efficiency.js`)
+  and the `build/index-efficiency-simple.js` entry point are now aliases of the
+  main server. Its separate tools
+  `clickup_find_chat_channels`, `clickup_get_workspace_overview` and
+  `clickup_analyze_workflow_efficiency` are gone: use
+  `clickup_search_chat_channels`, `clickup_get_workspace_hierarchy` and the
+  catalog tools instead.
+
+### New: catalog tools (always on)
+
+- `clickup_list_toolsets` — toolsets, their tools, enabled state, and a
+  `unique` flag for capabilities most ClickUp MCP servers lack; optional JSON
+  schemas per toolset.
+- `clickup_enable_toolset` — enable/disable toolsets at runtime; the server
+  emits `notifications/tools/list_changed`.
+- `clickup_call_tool` — run any registered tool (enabled or not) with the same
+  strict parameter validation as a direct call.
+
+### Also new
+
+- **Tool annotations** on every tool: `title`, `readOnlyHint`,
+  `destructiveHint`, `idempotentHint`, `openWorldHint`, inferred centrally from
+  tool names with an override table.
+- **Confirmation for destructive tools** via MCP elicitation when the client
+  advertises form elicitation (`elicitation.form`, or the older empty
+  `elicitation: {}`); other clients behave as before.
+  `CLICKUP_CONFIRM_DESTRUCTIVE=false` disables it.
+- **Server `instructions`** in the `initialize` response, and `title` /
+  `websiteUrl` in `serverInfo`.
+- Toolset tool counts are derived from what actually registers, not a
+  hand-maintained table. `TOOLSETS[...].count` and `TOTAL_TOOL_COUNT` were
+  removed from `tools/toolsets.ts`.
+
+See [docs/guides/TOOL_LOADING.md](docs/guides/TOOL_LOADING.md).
+
+## Version 7.0.0 (continued) - Comment Formatting
+
+**Status**: Merged, unreleased
+**Affects**: `@chykalophia/clickup-mcp-server` (core)
+
+### Overview
+
+Everything a markdown comment is supposed to render, verified against the live
+ClickUp API rather than assumed. `@mentions` gain a markdown spelling, the
+converter starts using ClickUp's real block types instead of faking them with
+bold text and bullet characters, and five long-standing formatting defects are
+fixed.
+
+### ✨ Features
+
+- **`@mentions` now have a markdown spelling.** Write `@[Display Name](userId)`
+  anywhere in `comment_text` and it is converted to a real tag block
+  (`{type:"tag", text:"@Jane", user:{id:81344}}`) before the request is sent, so
+  it notifies like any other mention. Applies to `clickup_create_task_comment`,
+  `clickup_create_list_comment`, `clickup_create_chat_view_comment`,
+  `clickup_create_threaded_comment` and `clickup_update_comment`.
+
+  Previously a mention meant hand-building the `comment` block array, and blocks
+  take precedence over `comment_text` — so mentioning someone cost you every
+  heading, list and code block in the same comment. **Mentions and Markdown are
+  no longer a trade-off**, and the tool descriptions now say so; the old wording
+  ("structured comment blocks for @mentions") pushed callers into flattening
+  structured comments to plain text in order to tag a person.
+
+  Verified against the live API: ClickUp stores the block as
+  `{"type":"tag","text":"@Peter"}` and resolves the ID to the member's full name
+  in the rendered `comment_text`, with the rest of the comment's formatting
+  intact. Mentions inside a heading or a list item are converted too, rather
+  than left as literal syntax.
+
+  The target must be digits only. `[text](https://example.com)` and
+  `@[text](not-a-number)` are still ordinary links.
+
+- **Markdown comments now use ClickUp's real block types.** ClickUp carries
+  block-level formatting on the `"\n"` that terminates a line, and the converter
+  never used it — so every comment this server generated from markdown was a flat
+  paragraph wearing a costume:
+
+  | Markdown | Was posted as | Now posted as |
+  | --- | --- | --- |
+  | `# Heading` | bold text | real heading (`header: 1-3`) |
+  | `- item` | the literal character `• ` | real bullet list block |
+  | `1. item` | the literal text `• . item` | real ordered list block |
+  | `> quote` | a literal `> ` prefix | real blockquote block |
+  | ` ```js ` fence | the *inline* code attribute | real code block, language kept |
+
+  All five verified against the live API, which echoes each attribute back
+  unchanged. Markdown tables remain literal pipe text — ClickUp's comment model
+  genuinely has no table block.
+
+- **`comment_markdown` on read now reconstructs those blocks.** The reverse
+  conversion ignored block-level attributes, so headings, lists, quotes and code
+  blocks came back as undifferentiated lines. A comment written as markdown now
+  reads back with its formatting intact (headings deeper than `###` clamp to
+  level 3, and ordered lists renumber from 1), and tag blocks round-trip to
+  `@[Name](userId)` when the API returns a user ID.
+
+### 🐛 Bug Fixes
+
+- **Markdown links duplicated their URL as trailing plain text.** The markdown
+  tokenizer split on a regex whose link alternative used *capturing* inner
+  groups, and `String.split` emits every capture — so
+  `[link](https://example.com)` produced the link block **plus** a stray
+  `https://example.com` text block in the comment body. Inner groups are now
+  non-capturing, which also removed a dead branch that existed to paper over
+  half of the same leak.
+
+- **Ordered list markers were mangled.** `^[-*+\d.]\s*` matched a single
+  character, so `1. Item` had only the `1` stripped and posted as `• . Item`
+  (and `10. Item` as `• 0. Item`).
+
+- **Inline code inside a list item split the line.** `ensureCodeBlockSeparation`
+  treated the inline `code` attribute as a code block and injected its separator
+  newline into the bullet's own text block, so ``- `x` in a list`` posted as a
+  bare bullet followed by the text on the next line. Only real `code-block`
+  attributes trigger the separator now.
+
+- **Fenced code blocks gained a blank first line.** The `"\n"` marker carrying
+  the `code-block` attribute *is* the block terminator, and it was itself being
+  given a separator.
+
+- **`clickup_get_workspaces` pointed at a tool that does not exist.** Its
+  `include_members` description told callers to use `clickup_get_workspace_members`
+  to look people up; no such tool is registered in this server. It now names
+  `clickup_get_list_members`, and says when turning `include_members` on is in
+  fact the right call (resolving a user ID for an `@mention`).
+
+### 📝 Documentation
+
+- `docs/guides/CLICKUP_COMMENT_FORMATTING.md` documents the
+  newline-carries-the-block-attribute model, and gains a verified table of what
+  ClickUp comments do and do not render.
+
 ## Version 6.0.0 - Full API Routes Overhaul (audit against current ClickUp API)
 
 **Release Date**: July 21, 2026

@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createListsClient } from '../clickup-client/lists.js';
@@ -20,9 +19,8 @@ export function setupListResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const space_id = params.space_id as string;
-        console.log('[ListResources] Fetching lists for space:', space_id);
+        console.error('[ListResources] Fetching lists for space:', space_id);
         const result = await listsClient.getListsFromSpace(space_id);
-        console.log('[ListResources] Got lists:', result);
 
         return {
           contents: [
@@ -50,9 +48,8 @@ export function setupListResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const list_id = params.list_id as string;
-        console.log('[ListResources] Fetching list:', list_id);
+        console.error('[ListResources] Fetching list:', list_id);
         const list = await listsClient.getList(list_id);
-        console.log('[ListResources] Got list:', list);
 
         return {
           contents: [
@@ -65,63 +62,6 @@ export function setupListResources(server: McpServer): void {
         };
       } catch (error: unknown) {
         resourceError('fetching list', error);
-      }
-    }
-  );
-
-  // Add some example static resources for discoverability
-  server.resource(
-    'example-list',
-    'clickup://list/901109776097',
-    {
-      description: 'An example list resource demonstrating the list details format.',
-    },
-    async uri => {
-      try {
-        const list_id = '901109776097';
-        console.log('[ListResources] Fetching example list:', list_id);
-        const list = await listsClient.getList(list_id);
-        console.log('[ListResources] Got list:', list);
-
-        return {
-          contents: [
-            {
-              uri: uri.toString(),
-              mimeType: 'application/json',
-              text: JSON.stringify(list),
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        resourceError('fetching example list', error);
-      }
-    }
-  );
-
-  server.resource(
-    'example-space-lists',
-    'clickup://space/90113637923/lists',
-    {
-      description: 'An example space lists resource demonstrating the list data format.',
-    },
-    async uri => {
-      try {
-        const space_id = '90113637923';
-        console.log('[ListResources] Fetching lists for example space:', space_id);
-        const result = await listsClient.getListsFromSpace(space_id);
-        console.log('[ListResources] Got lists:', result);
-
-        return {
-          contents: [
-            {
-              uri: uri.toString(),
-              mimeType: 'application/json',
-              text: JSON.stringify(result),
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        resourceError('fetching example space lists', error);
       }
     }
   );

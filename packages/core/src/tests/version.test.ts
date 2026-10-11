@@ -27,7 +27,23 @@ const readSource = (relative: string): string => readFileSync(join(PACKAGE_ROOT,
 // able to turn this guard red while version reporting is still correct.
 const Q = '[\'"]';
 
-const ENTRY_POINTS = ['src/index-enhanced.ts', 'src/index-efficiency-simple.ts'];
+const ENTRY_POINTS = ['src/index-enhanced.ts'];
+
+// The basic/efficiency bins are aliases of the one canonical server. They must
+// stay thin re-exports so they cannot drift into a second server definition
+// with its own (stale) version or tool set.
+const ALIAS_ENTRY_POINTS = ['src/index.ts', 'src/index-efficiency-simple.ts'];
+
+describe('entry point aliases', () => {
+  it.each(ALIAS_ENTRY_POINTS)('%s only delegates to index-enhanced', entry => {
+    const code = readSource(entry)
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/\/\/.*$/gm, '')
+      .replace(/^#!.*$/m, '')
+      .trim();
+    expect(code).toMatch(new RegExp(`^import ${Q}\\./index-enhanced\\.js${Q};?$`));
+  });
+});
 
 describe('server version reporting', () => {
   it.each(ENTRY_POINTS)('%s advertises VERSION, not a literal', entry => {

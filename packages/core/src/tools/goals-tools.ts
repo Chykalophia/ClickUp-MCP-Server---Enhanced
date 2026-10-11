@@ -374,7 +374,7 @@ export function setupGoalsTools(server: McpServer): void {
         .string()
         .optional()
         .describe('Unit of measurement (e.g., "tasks", "users", "points")'),
-      due_date: z.number().positive().describe('Goal due date (Unix timestamp)'),
+      due_date: z.number().positive().describe('Goal due date (Unix timestamp in milliseconds)'),
       description: z.string().optional().describe('Goal description'),
       owners: z.array(z.number().positive()).min(1).describe('Array of user IDs who own this goal'),
       color: z
@@ -442,7 +442,7 @@ export function setupGoalsTools(server: McpServer): void {
         .optional()
         .default('USD')
         .describe('Currency code (e.g., "USD", "EUR", "GBP")'),
-      due_date: z.number().positive().describe('Goal due date (Unix timestamp)'),
+      due_date: z.number().positive().describe('Goal due date (Unix timestamp in milliseconds)'),
       description: z.string().optional().describe('Goal description'),
       owners: z.array(z.number().positive()).min(1).describe('Array of user IDs who own this goal'),
       color: z

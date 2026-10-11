@@ -39,9 +39,8 @@ jest.mock('../utils/markdown', () => ({
   htmlToMarkdown: jest.fn((s: string) => s),
 }));
 
-import { enforceStrictParams } from '../utils/tool-registration.js';
+import { enforceStrictParams, getToolRegistry, UNGROUPED_TOOLSET } from '../utils/tool-registration.js';
 import { PARAM_ALIASES, UNIVERSAL_ALIASES } from '../utils/param-aliases.js';
-import { TOTAL_TOOL_COUNT } from '../tools/toolsets.js';
 import { setupTaskTools } from '../tools/task-tools';
 import { setupWorkspaceTools } from '../tools/workspace-tools';
 import { setupListFolderTools } from '../tools/list-folder-tools';
@@ -99,11 +98,13 @@ describe('alias tables', () => {
     expect(() => registerEverything(server)).not.toThrow();
   });
 
-  it('registers the tool count the toolset table advertises', () => {
+  it('records every registered tool in the registry', () => {
     registerEverything(server);
-    // The comments toolset's count already excludes the debug-only
-    // clickup_create_task_comment_raw_test, which is not registered here.
-    expect(Object.keys(registeredTools(server))).toHaveLength(TOTAL_TOOL_COUNT);
+    // Counts are derived from the registry, never from a hand-kept table.
+    const registry = getToolRegistry(server)!;
+    expect(registry.tools.size).toBe(Object.keys(registeredTools(server)).length);
+    // Nothing here runs inside withToolset, so everything is ungrouped.
+    expect([...registry.byToolset().keys()]).toEqual([UNGROUPED_TOOLSET]);
   });
 
   it('names only real tools in PARAM_ALIASES', () => {

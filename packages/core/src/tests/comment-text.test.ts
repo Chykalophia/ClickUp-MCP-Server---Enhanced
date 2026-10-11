@@ -216,4 +216,32 @@ describe('clickup_create_task_comment', () => {
     expect(outcome.text).toContain('team_id is required');
     expect(mockPost).not.toHaveBeenCalled();
   });
+
+  it('turns an inline @[Name](id) mention in comment_text into a tag block', async () => {
+    await callTool(client, 'clickup_create_task_comment', {
+      task_id: '868kzbrwy',
+      comment_text: 'Hey @[Jane](81344), please review',
+    });
+
+    const blocks = lastPostBody().comment ?? [];
+    expect(blocks).toContainEqual({ type: 'tag', text: '@Jane', user: { id: 81344 } });
+    // The mention must not survive as literal syntax anywhere in the body.
+    expect(blocks.map(block => block.text ?? '').join('')).not.toContain('@[Jane]');
+  });
+
+  it('keeps markdown formatting in a comment that also mentions someone', async () => {
+    await callTool(client, 'clickup_create_task_comment', {
+      task_id: '868kzbrwy',
+      comment_text: '## Findings\n\nThe **mismatch** is fixed — over to @[Jane](81344)',
+    });
+
+    const blocks = lastPostBody().comment ?? [];
+    expect(blocks).toContainEqual({ type: 'tag', text: '@Jane', user: { id: 81344 } });
+    expect(blocks.some(block => block.text === 'mismatch' && block.attributes?.bold === true)).toBe(
+      true
+    );
+    // The heading rides on the line's terminating newline, not on its text.
+    expect(blocks.some(block => block.text === 'Findings')).toBe(true);
+    expect(blocks).toContainEqual({ text: '\n', attributes: { header: 2 } });
+  });
 });

@@ -563,6 +563,26 @@ describe('tool loading', () => {
       expect(message).not.toContain('…');
     });
 
+    it('refuses an oversized bulk call without prompting', async () => {
+      const elicitation = jest
+        .fn()
+        .mockResolvedValue({ action: 'accept', content: { confirm: true } });
+      harness = await connect({}, { elicitation });
+      const dependencies = Array.from({ length: 101 }, (_, i) => ({
+        task_id: `blocked${i}xyz`,
+        depends_on: `waiting${i}xyz`,
+      }));
+      const result = await harness.client.callTool({
+        name: 'clickup_call_tool',
+        arguments: {
+          tool: 'clickup_bulk_dependency_operations',
+          arguments: { operation: 'delete', dependencies },
+        },
+      });
+      expect(result.isError).toBe(true);
+      expect(elicitation).not.toHaveBeenCalled();
+    });
+
     it('does not prompt for non-destructive tools', async () => {
       const elicitation = jest.fn();
       mockAxiosGet.mockResolvedValue({ data: { goals: [] } });

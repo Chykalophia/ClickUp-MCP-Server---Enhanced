@@ -506,6 +506,9 @@ function summarizeArgs(args: unknown): string {
   return parts.join('; ');
 }
 
+/** Longest argument summary a confirmation prompt will carry. */
+const MAX_CONFIRM_ARGS_LENGTH = 20_000;
+
 type CancelledResult = { content: Array<{ type: 'text'; text: string }>; isError: true };
 
 /**
@@ -527,6 +530,12 @@ async function confirmDestructiveCall(
     content: [{ type: 'text', text: `${name} was cancelled${reason}. Nothing was changed.` }],
     isError: true,
   });
+  // Never truncate what the user is confirming: refuse a call too large to show.
+  if (argText.length > MAX_CONFIRM_ARGS_LENGTH) {
+    return cancelled(
+      ': its arguments are too large to show for confirmation; split it into smaller calls'
+    );
+  }
 
   try {
     const result = await server.elicitInput(

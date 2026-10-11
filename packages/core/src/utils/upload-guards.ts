@@ -131,7 +131,11 @@ export async function readUploadFile(
       total += bytesRead;
     }
     if (total > options.maxBytes) throw sizeError(options.maxBytes);
-    return buffer.subarray(0, total);
+    // Copy when the file shrank during the read, so a short result does not
+    // keep a stat-sized backing buffer alive.
+    return buffer.length - total > 64 * 1024
+      ? Buffer.from(buffer.subarray(0, total))
+      : buffer.subarray(0, total);
   } finally {
     await handle.close();
   }

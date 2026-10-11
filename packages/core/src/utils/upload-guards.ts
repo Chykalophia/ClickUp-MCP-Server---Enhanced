@@ -86,8 +86,12 @@ export async function readUploadFile(
 ): Promise<Buffer> {
   const uploadDir = 'uploadDir' in options ? options.uploadDir : process.env[UPLOAD_DIR_ENV];
   const canonicalTarget = await resolveUploadFilePath(filePath, uploadDir);
-  // O_NOFOLLOW refuses a final-component symlink (0 where unsupported).
-  const handle = await open(canonicalTarget, fsConstants.O_RDONLY | (fsConstants.O_NOFOLLOW ?? 0));
+  // O_NOFOLLOW refuses a final-component symlink, and O_NONBLOCK keeps a file
+  // swapped for a FIFO from blocking the open (each is 0 where unsupported).
+  const handle = await open(
+    canonicalTarget,
+    fsConstants.O_RDONLY | (fsConstants.O_NOFOLLOW ?? 0) | (fsConstants.O_NONBLOCK ?? 0)
+  );
   try {
     const opened = await handle.stat();
     // Re-validate after opening: the path must still canonicalise to itself
@@ -237,6 +241,7 @@ const BLOCKED_V6: Cidr[] = [
 ];
 
 const V4_MAPPED = cidr6('::ffff:0:0', 96);
+const V4_TRANSLATED = cidr6('::ffff:0:0:0', 96); // SIIT, RFC 2765
 const NAT64 = cidr6('64:ff9b::', 96);
 const SIX_TO_FOUR = cidr6('2002::', 16);
 
@@ -247,7 +252,7 @@ function bigIntToIpv4(value: bigint): string {
 /**
  * True if the address must not be contacted: private, loopback, link-local,
  * ULA, CGNAT, multicast, reserved, cloud metadata, or an IPv6 form embedding
- * such an IPv4 address (IPv4-mapped, NAT64, 6to4). Unparseable input is blocked.
+ * such an IPv4 address (IPv4-mapped or -translated, NAT64, 6to4). Unparseable input is blocked.
  */
 export function isBlockedAddress(address: string): boolean {
   const unbracketed = address.replace(/^\[(.*)\]$/, '$1');
@@ -258,7 +263,11 @@ export function isBlockedAddress(address: string): boolean {
   }
   if (family === 6) {
     const value = ipv6ToBigInt(unbracketed);
-    if (inCidr(value, V4_MAPPED, 128) || inCidr(value, NAT64, 128)) {
+    if (
+      inCidr(value, V4_MAPPED, 128) ||
+      inCidr(value, V4_TRANSLATED, 128) ||
+      inCidr(value, NAT64, 128)
+    ) {
       return isBlockedAddress(bigIntToIpv4(value & 0xffffffffn));
     }
     if (inCidr(value, SIX_TO_FOUR, 128)) {

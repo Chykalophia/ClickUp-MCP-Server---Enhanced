@@ -27,6 +27,61 @@ export interface Workspace {
   }>;
 }
 
+export interface MemberMatch {
+  id: number;
+  username: string;
+  email: string;
+  workspace_id: string;
+  role?: number;
+}
+
+export interface GuestPermissionParams {
+  can_edit_tags?: boolean;
+  can_see_time_spent?: boolean;
+  can_see_time_estimated?: boolean;
+  can_create_views?: boolean;
+  can_see_points_estimated?: boolean;
+  custom_role_id?: number;
+}
+
+export interface GuestInviteParams extends GuestPermissionParams {
+  email: string;
+}
+
+export type GuestItemType = 'task' | 'list' | 'folder';
+export type GuestPermissionLevel = 'read' | 'comment' | 'edit' | 'create';
+
+export interface GuestItemOptions {
+  include_shared?: boolean;
+  /** Task items only: task_id is a custom task ID (requires team_id) */
+  custom_task_ids?: boolean;
+  team_id?: string;
+}
+
+function guestItemPath(itemType: GuestItemType, itemId: string, guestId: string): string {
+  return `/${itemType}/${encodeURIComponent(itemId)}/guest/${encodeURIComponent(guestId)}`;
+}
+
+/** Query-string suffix ('' or '?...') for the guest item endpoints. */
+function guestItemQuery(itemType: GuestItemType, options: GuestItemOptions): string {
+  const query = new URLSearchParams();
+  if (options.include_shared !== undefined) {
+    query.set('include_shared', String(options.include_shared));
+  }
+  if (options.custom_task_ids) {
+    if (itemType !== 'task') {
+      throw new Error('custom_task_ids only applies to task items');
+    }
+    if (!options.team_id) {
+      throw new Error('team_id is required when custom_task_ids is true');
+    }
+    query.set('custom_task_ids', 'true');
+    query.set('team_id', options.team_id);
+  }
+  const queryString = query.toString();
+  return queryString ? `?${queryString}` : '';
+}
+
 export class AuthClient {
   private client: ClickUpClient;
 
@@ -428,6 +483,157 @@ export class AuthClient {
       console.error('Error getting custom roles:', error instanceof Error ? error.message : error);
       throw error;
     }
+  }
+
+  // ========================================
+  // MEMBER LOOKUP
+  // ========================================
+
+  /**
+   * Find workspace members whose username or email contains `query`
+   * (case-insensitive substring). Uses the authorized-workspaces endpoint
+   * (GET /team), which carries each workspace's member roster. When
+   * workspaceId is omitted, every authorized workspace is searched.
+   */
+  async findMembers(query: string, workspaceId?: string): Promise<MemberMatch[]> {
+    const needle = query.trim().toLowerCase();
+    if (!needle) {
+      throw new Error('query must not be empty');
+    }
+    const { teams } = await this.getWorkspaces();
+    const workspaces = (teams ?? []).filter(
+      team => workspaceId === undefined || String(team.id) === String(workspaceId)
+    );
+    if (workspaceId !== undefined && workspaces.length === 0) {
+      throw new Error(`Workspace ${workspaceId} is not one of the authorized workspaces`);
+    }
+
+    const matches: MemberMatch[] = [];
+    for (const team of workspaces) {
+      for (const member of team.members ?? []) {
+        const user = member?.user;
+        if (!user) continue;
+        const username = typeof user.username === 'string' ? user.username : '';
+        const email = typeof user.email === 'string' ? user.email : '';
+        if (username.toLowerCase().includes(needle) || email.toLowerCase().includes(needle)) {
+          matches.push({
+            id: user.id,
+            username,
+            email,
+            workspace_id: String(team.id),
+            ...(member.role !== undefined ? { role: member.role } : {}),
+          });
+        }
+      }
+    }
+    return matches;
+  }
+
+  // ========================================
+  // USER GROUPS
+  // ========================================
+
+  /** Create a User Group (POST /team/{team_id}/group). */
+  async createUserGroup(
+    workspaceId: string,
+    params: { name: string; members: number[]; handle?: string }
+  ): Promise<Record<string, unknown>> {
+    return this.client.post(`/team/${encodeURIComponent(workspaceId)}/group`, params);
+  }
+
+  /**
+   * Update a User Group (PUT /group/{group_id}). Membership changes are a
+   * delta: ClickUp requires both `add` and `rem` inside `members`.
+   */
+  async updateUserGroup(
+    groupId: string,
+    params: { name?: string; handle?: string; add_members?: number[]; remove_members?: number[] }
+  ): Promise<Record<string, unknown>> {
+    const body: Record<string, unknown> = {};
+    if (params.name !== undefined) body.name = params.name;
+    if (params.handle !== undefined) body.handle = params.handle;
+    if (params.add_members !== undefined || params.remove_members !== undefined) {
+      body.members = { add: params.add_members ?? [], rem: params.remove_members ?? [] };
+    }
+    if (Object.keys(body).length === 0) {
+      throw new Error('Provide at least one of name, handle, add_members or remove_members');
+    }
+    return this.client.put(`/group/${encodeURIComponent(groupId)}`, body);
+  }
+
+  /** Delete a User Group (DELETE /group/{group_id}). */
+  async deleteUserGroup(groupId: string): Promise<Record<string, never>> {
+    return this.client.delete(`/group/${encodeURIComponent(groupId)}`);
+  }
+
+  // ========================================
+  // GUESTS (Enterprise plan)
+  // ========================================
+
+  /** Invite a guest to a workspace (POST /team/{team_id}/guest). */
+  async inviteGuest(
+    workspaceId: string,
+    params: GuestInviteParams
+  ): Promise<Record<string, unknown>> {
+    return this.client.post(`/team/${encodeURIComponent(workspaceId)}/guest`, params);
+  }
+
+  /** Get a guest (GET /team/{team_id}/guest/{guest_id}). */
+  async getGuest(workspaceId: string, guestId: string): Promise<Record<string, unknown>> {
+    return this.client.get(
+      `/team/${encodeURIComponent(workspaceId)}/guest/${encodeURIComponent(guestId)}`
+    );
+  }
+
+  /** Edit a guest's workspace permissions (PUT /team/{team_id}/guest/{guest_id}). */
+  async editGuest(
+    workspaceId: string,
+    guestId: string,
+    params: GuestPermissionParams
+  ): Promise<Record<string, unknown>> {
+    return this.client.put(
+      `/team/${encodeURIComponent(workspaceId)}/guest/${encodeURIComponent(guestId)}`,
+      params
+    );
+  }
+
+  /** Remove a guest from a workspace (DELETE /team/{team_id}/guest/{guest_id}). */
+  async removeGuest(workspaceId: string, guestId: string): Promise<Record<string, unknown>> {
+    return this.client.delete(
+      `/team/${encodeURIComponent(workspaceId)}/guest/${encodeURIComponent(guestId)}`
+    );
+  }
+
+  /**
+   * Share a task, List or Folder with a guest
+   * (POST /{task|list|folder}/{id}/guest/{guest_id}).
+   */
+  async addGuestToItem(
+    itemType: GuestItemType,
+    itemId: string,
+    guestId: string,
+    permissionLevel: GuestPermissionLevel,
+    options: GuestItemOptions = {}
+  ): Promise<Record<string, unknown>> {
+    return this.client.post(
+      `${guestItemPath(itemType, itemId, guestId)}${guestItemQuery(itemType, options)}`,
+      { permission_level: permissionLevel }
+    );
+  }
+
+  /**
+   * Stop sharing a task, List or Folder with a guest
+   * (DELETE /{task|list|folder}/{id}/guest/{guest_id}).
+   */
+  async removeGuestFromItem(
+    itemType: GuestItemType,
+    itemId: string,
+    guestId: string,
+    options: GuestItemOptions = {}
+  ): Promise<Record<string, unknown>> {
+    return this.client.delete(
+      `${guestItemPath(itemType, itemId, guestId)}${guestItemQuery(itemType, options)}`
+    );
   }
 }
 

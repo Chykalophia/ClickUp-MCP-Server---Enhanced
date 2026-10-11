@@ -2,7 +2,11 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { createClickUpClient } from '../clickup-client/index.js';
-import { createEnhancedDocsClient } from '../clickup-client/docs-enhanced.js';
+import {
+  createEnhancedDocsClient,
+  flattenDocPages,
+  DEFAULT_SEARCH_MAX_PAGES,
+} from '../clickup-client/docs-enhanced.js';
 import {} from /* createAuthClient */ '../clickup-client/auth.js';
 import {} from /* DocumentToolSchemas */ '../schemas/document-schemas.js';
 import { mcpError } from '../utils/error-handling.js';
@@ -13,9 +17,9 @@ const clickUpClient = createClickUpClient();
 const enhancedDocsClient = createEnhancedDocsClient(clickUpClient);
 // const authClient = createAuthClient(clickUpClient);
 
-// Tool-facing content format values; 'markdown' and 'html' are normalized to
-// the API values ('text/md'/'text/html') by the client before sending.
-const contentFormatEnum = z.enum(['markdown', 'html', 'text/md', 'text/plain', 'text/html']);
+// The v3 Docs API accepts only text/md and text/plain. 'markdown' stays
+// accepted as a legacy alias (normalizeContentFormat maps it to text/md).
+const contentFormatEnum = z.enum(['text/md', 'text/plain', 'markdown']);
 
 // Documented parent_type values for the Search Docs filter
 const parentTypeEnum = z.enum([
@@ -38,29 +42,22 @@ export function setupEnhancedDocTools(server: McpServer): void {
 
   server.tool(
     'clickup_get_doc_content',
-    'Get the content of a specific ClickUp doc. Returns combined content from all pages in the doc.',
+    'Get the full content of a ClickUp doc as one markdown document: every page and every nested sub-page, each under a heading whose level follows its depth (# top-level page, ## sub-page, ...). For one page only, use clickup_get_doc_page.',
     {
       workspace_id: idSchema().describe('The ID of the workspace containing the doc'),
       doc_id: idSchema().describe('The ID of the doc to get'),
       content_format: contentFormatEnum
         .optional()
         .default('text/md')
-        .describe(
-          'The format to return the content in (markdown maps to text/md, html to text/html)'
-        ),
+        .describe('The format to return the content in: text/md (markdown, default) or text/plain'),
     },
     async ({ doc_id, workspace_id, content_format }) => {
       try {
         const pages = await enhancedDocsClient.getDocPages(workspace_id, doc_id, content_format);
 
-        let combinedContent = '';
-        if (Array.isArray(pages)) {
-          for (const page of pages) {
-            if (page.content) {
-              combinedContent += `# ${page.name}\n\n${page.content}\n\n`;
-            }
-          }
-        }
+        // Sub-pages nest under each page's `pages`; walk the whole tree so
+        // their content is not silently dropped.
+        const combinedContent = flattenDocPages(pages);
 
         return {
           content: [{ type: 'text', text: combinedContent || 'No content found in this doc.' }],
@@ -73,7 +70,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
 
   server.tool(
     'clickup_search_docs',
-    'Search for docs in a ClickUp workspace. Supports the documented v3 filters (creator, parent, deleted, archived) plus a free-text name filter applied client-side (the ClickUp API has no full-text doc search).',
+    'Search for docs in a ClickUp workspace. Supports the documented v3 filters (creator, parent, deleted, archived) plus a free-text name filter applied client-side (the ClickUp API has no full-text doc search). With query, pages of docs are scanned until at least `limit` matches (default 10) have been found (up to max_pages pages per call); every match on the pages read is returned, so the count can exceed `limit`. The response carries next_cursor whenever more docs remain: pass it back as cursor to continue.',
     {
       workspace_id: idSchema().describe('The ID of the workspace to search in'),
       query: z
@@ -89,14 +86,26 @@ export function setupEnhancedDocTools(server: McpServer): void {
       limit: z
         .number()
         .int()
-        .min(1)
+        .min(10)
         .max(100)
         .optional()
-        .describe('Maximum number of docs to return'),
+        .describe(
+          'Docs per API page (ClickUp allows 10-100, default 50). With query, also the match count at which scanning stops (default 10); all matches on the pages already read are returned, so more than this can come back.'
+        ),
       cursor: z
         .string()
         .optional()
-        .describe('Cursor for pagination (next_cursor from a previous response)'),
+        .describe('Resume from a previous response: pass its next_cursor here'),
+      max_pages: z
+        .number()
+        .int()
+        .min(1)
+        .max(50)
+        .optional()
+        .default(DEFAULT_SEARCH_MAX_PAGES)
+        .describe(
+          `With query: maximum pages of docs to scan in this call (default ${DEFAULT_SEARCH_MAX_PAGES}). Ignored without query.`
+        ),
     },
     async ({
       workspace_id,
@@ -109,19 +118,24 @@ export function setupEnhancedDocTools(server: McpServer): void {
       parent_type,
       limit,
       cursor,
+      max_pages,
     }) => {
       try {
-        const result = await enhancedDocsClient.searchDocs(workspace_id, {
-          query,
-          id: doc_id,
-          creator,
-          deleted,
-          archived,
-          parent_id,
-          parent_type,
-          limit,
-          cursor,
-        });
+        const result = await enhancedDocsClient.searchDocs(
+          workspace_id,
+          {
+            query,
+            id: doc_id,
+            creator,
+            deleted,
+            archived,
+            parent_id,
+            parent_type,
+            limit,
+            cursor,
+          },
+          max_pages
+        );
         return {
           content: [{ type: 'text', text: JSON.stringify(result) }],
         };
@@ -183,9 +197,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
       content_format: contentFormatEnum
         .optional()
         .default('text/md')
-        .describe(
-          'The format to return the content in (markdown maps to text/md, html to text/html)'
-        ),
+        .describe('The format to return the content in: text/md (markdown, default) or text/plain'),
     },
     async ({ doc_id, workspace_id, content_format }) => {
       try {
@@ -224,6 +236,35 @@ export function setupEnhancedDocTools(server: McpServer): void {
         };
       } catch (error: unknown) {
         return mcpError('listing doc pages', error);
+      }
+    }
+  );
+
+  server.tool(
+    'clickup_get_doc_page',
+    'Get ONE page of a ClickUp doc with its content (markdown by default). Cheaper than clickup_get_doc_content when you only need a single page; find page IDs with clickup_list_doc_pages.',
+    {
+      workspace_id: idSchema().describe('The ID of the workspace containing the doc'),
+      doc_id: idSchema().describe('The ID of the doc containing the page'),
+      page_id: idSchema().describe('The ID of the page to get'),
+      content_format: contentFormatEnum
+        .optional()
+        .default('text/md')
+        .describe('The format to return the content in: text/md (markdown, default) or text/plain'),
+    },
+    async ({ workspace_id, doc_id, page_id, content_format }) => {
+      try {
+        const page = await enhancedDocsClient.getPage(
+          workspace_id,
+          doc_id,
+          page_id,
+          content_format
+        );
+        return {
+          content: [{ type: 'text', text: JSON.stringify(page) }],
+        };
+      } catch (error: unknown) {
+        return mcpError('getting doc page', error);
       }
     }
   );
@@ -359,7 +400,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
       content_format: contentFormatEnum
         .optional()
         .default('text/md')
-        .describe('The format of the content (markdown maps to text/md, html to text/html)'),
+        .describe('The format of the content: text/md (markdown, default) or text/plain'),
       parent_page_id: idSchema().optional().describe('ID of parent page for nesting'),
     },
     async ({ workspace_id, doc_id, name, content, sub_title, content_format, parent_page_id }) => {
@@ -403,7 +444,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
         .describe('How to apply the content: replace (default), append, or prepend'),
       content_format: contentFormatEnum
         .optional()
-        .describe('Format of the content (markdown maps to text/md, html to text/html)'),
+        .describe('Format of the content: text/md (markdown) or text/plain'),
     },
     async ({
       workspace_id,

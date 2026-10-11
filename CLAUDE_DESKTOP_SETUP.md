@@ -4,7 +4,7 @@
 
 No compilation required! Use the published npm package and add to your Claude Desktop configuration.
 
-### 🚀 Recommended: Enhanced ClickUp MCP Server
+### 🚀 Recommended: npm package
 ```json
 {
   "mcpServers": {
@@ -12,7 +12,7 @@ No compilation required! Use the published npm package and add to your Claude De
       "command": "npx",
       "args": [
         "-y",
-        "@chykalophia/clickup-mcp-server"
+        "@chykalophia/clickup-mcp-server@latest"
       ],
       "env": {
         "CLICKUP_API_TOKEN": "YOUR_API_TOKEN_HERE"
@@ -28,13 +28,12 @@ No compilation required! Use the published npm package and add to your Claude De
 
 If you prefer to build from source or need to modify the code:
 
-#### Enhanced Version (Production Ready) ⭐ Recommended
 ```json
 {
   "mcpServers": {
     "clickup": {
       "command": "node",
-      "args": ["/path/to/clickup-mcp-server/build/index-enhanced.js"],
+      "args": ["/path/to/ClickUp-MCP-Server---Enhanced/packages/core/build/index-enhanced.js"],
       "env": {
         "CLICKUP_API_TOKEN": "YOUR_API_TOKEN_HERE"
       },
@@ -45,22 +44,9 @@ If you prefer to build from source or need to modify the code:
 }
 ```
 
-#### Efficiency Version (Smart Shortcuts) 🚀
-```json
-{
-  "mcpServers": {
-    "clickup": {
-      "command": "node",
-      "args": ["/path/to/clickup-mcp-server/build/index-efficiency-simple.js"],
-      "env": {
-        "CLICKUP_API_TOKEN": "YOUR_API_TOKEN_HERE"
-      },
-      "disabled": false,
-      "autoApprove": []
-    }
-  }
-}
-```
+There is only one server. The older `index.js` / `index-efficiency-simple.js`
+entry points and the `clickup-mcp-server-basic` / `-enhanced` / `-efficiency`
+bins are aliases of `index-enhanced.js` with the same tools.
 
 ## Setup Steps
 

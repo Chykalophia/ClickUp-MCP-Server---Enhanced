@@ -41,7 +41,8 @@ module.exports = {
     'no-useless-concat': 'error',
     
     // Error prevention
-    'no-console': ['warn', { allow: ['warn', 'error'] }],
+    // stdout is the MCP stdio JSON-RPC channel: diagnostics must go to stderr.
+    'no-console': ['error', { allow: ['warn', 'error'] }],
     'no-debugger': 'error',
     'no-alert': 'error',
     'no-duplicate-imports': 'error',

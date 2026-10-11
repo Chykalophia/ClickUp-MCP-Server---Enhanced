@@ -8,16 +8,16 @@
   <a href="https://www.npmjs.com/package/@chykalophia/clickup-mcp-server"><img src="https://img.shields.io/npm/v/@chykalophia/clickup-mcp-server.svg" alt="Core Server Version"></a>
   <a href="https://www.npmjs.com/package/@chykalophia/clickup-intelligence-mcp-server"><img src="https://img.shields.io/npm/v/@chykalophia/clickup-intelligence-mcp-server.svg" alt="Intelligence Server Version"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
-  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen" alt="Node.js Version"></a>
+  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D18.14.0-brightgreen" alt="Node.js Version"></a>
   <a href="https://github.com/modelcontextprotocol/typescript-sdk"><img src="https://img.shields.io/badge/MCP%20SDK-1.6.1-orange" alt="MCP SDK"></a>
 </p>
 
-A comprehensive Model Context Protocol (MCP) server suite providing AI assistants with complete ClickUp integration. Features **157 core tools**, **AI-powered project intelligence**, **production-grade security**, and **full GitHub Flavored Markdown support**.
+A comprehensive Model Context Protocol (MCP) server suite providing AI assistants with complete ClickUp integration. Features **177 ClickUp tools** (a small core set loads by default; the rest load on demand), **AI-powered project intelligence**, **production-grade security**, and **full GitHub Flavored Markdown support**.
 
 ## 📦 Package Suite
 
 ### Core Server: `@chykalophia/clickup-mcp-server`
-Complete ClickUp API integration with **157 tools** covering all major functionality:
+Complete ClickUp API integration with **177 tools** covering all major functionality:
 - Tasks, Lists, Spaces, Folders, Workspaces
 - Comments, Attachments, Custom Fields, Views
 - Time Tracking, Goals, Dependencies, Webhooks
@@ -44,7 +44,7 @@ This project uses a monorepo structure with multiple packages:
 clickup-mcp-server/
 ├── packages/
 │   ├── core/                          # @chykalophia/clickup-mcp-server
-│   │   ├── 157 core tools            # Complete ClickUp API coverage
+│   │   ├── 177 tools                  # Complete ClickUp API coverage
 │   │   ├── Production security        # Zero vulnerabilities
 │   │   └── Markdown support           # GitHub Flavored Markdown
 │   ├── intelligence/                  # @chykalophia/clickup-intelligence-mcp-server
@@ -103,7 +103,7 @@ This Enhanced version is based on the original ClickUp MCP Server codebase by [D
 - **Backward Compatible**: Existing plain text content continues to work
 
 ### 🛠️ **Comprehensive API Coverage**
-- **157 Total Tools** covering 100% of major ClickUp API endpoints
+- **177 Total Tools** covering 100% of major ClickUp API endpoints
 - **9 Feature Domains**: Tasks, comments, docs, webhooks, views, dependencies, attachments, time tracking, goals
 - **Real-time Integration**: Webhook processing with HMAC validation
 - **Advanced Workflows**: Dependencies, custom fields, bulk operations
@@ -121,7 +121,7 @@ This Enhanced version is based on the original ClickUp MCP Server codebase by [D
 - **Backward Compatibility**: Previous tool names are deprecated but documented for migration
 - **Examples**: `clickup_create_task`, `clickup_get_workspaces`, `clickup_update_comment`
 
-## 📊 Complete Tool Inventory (157 Tools)
+## 📊 Complete Tool Inventory (177 Tools, plus 3 catalog tools)
 
 ### 🧠 Efficiency & Intelligence Tools (20+ tools) ⭐
 - **Smart Discovery**: `clickup_find_chat_channels`, `clickup_search_views_by_name`, `clickup_get_workspace_overview`
@@ -357,10 +357,9 @@ npx clickup-mcp-installer
 Visit the web-based configurator for visual setup:
 [ClickUp MCP Configurator](https://chykalophia.github.io/ClickUp-MCP-Server---Enhanced/configurator.html)
 
-1. Select your preferred version
-2. Enter your ClickUp API token  
-3. Download the generated config file
-4. Place it in your Claude Desktop config directory
+1. Enter your ClickUp API token
+2. Download the generated config file
+3. Place it in your Claude Desktop config directory
 
 ### Option 3: NPM Package (Manual Setup)
 
@@ -419,15 +418,14 @@ Add to the MCP settings file:
 
 ### 🔧 Build from Source (Advanced Users)
 
-If you prefer to build from source:
+If you prefer to build from source, point your client at the built server:
 
-#### Standard Version
 ```json
 {
   "mcpServers": {
     "clickup": {
       "command": "node",
-      "args": ["/path/to/clickup-mcp-server/build/index-enhanced.js"],
+      "args": ["/path/to/ClickUp-MCP-Server---Enhanced/packages/core/build/index-enhanced.js"],
       "env": {
         "CLICKUP_API_TOKEN": "YOUR_API_TOKEN_HERE"
       },
@@ -438,38 +436,49 @@ If you prefer to build from source:
 }
 ```
 
-#### Enhanced Efficiency Version ⭐
-```json
-{
-  "mcpServers": {
-    "clickup": {
-      "command": "node",
-      "args": ["/path/to/clickup-mcp-server/build/index-efficiency-simple.js"],
-      "env": {
-        "CLICKUP_API_TOKEN": "YOUR_API_TOKEN_HERE"
-      },
-      "disabled": false,
-      "autoApprove": []
-    }
-  }
-}
-```
+There is a single server. `build/index-enhanced.js` is the entry point; the
+`clickup-mcp-server-basic`, `clickup-mcp-server-enhanced` and
+`clickup-mcp-server-efficiency` bins (and `build/index.js` /
+`build/index-efficiency-simple.js`) are aliases of it, kept so existing configs
+keep working. They all expose the same tools.
 
 ### 📝 Configuration Notes
 
 * **Replace `YOUR_API_TOKEN_HERE`** with your actual ClickUp API token
 * **NPM method** requires no installation or cloning - the package is downloaded automatically
 * **Build from source** requires cloning this repository and running `npm run build`
+* **Local file uploads are off by default.** `clickup_upload_attachment` only
+  accepts `file_path` when you set `CLICKUP_UPLOAD_DIR` to a directory (e.g.
+  `"CLICKUP_UPLOAD_DIR": "/Users/me/clickup-uploads"`); the resolved path,
+  after following symlinks, must stay inside it. `file_data` (base64) and
+  `file_url` work without it. `file_url` must resolve to a public address:
+  private, loopback, link-local, CGNAT and cloud-metadata addresses (IPv4 and
+  IPv6) are refused, and every redirect hop is re-checked.
 
-## Reducing the Tool Surface (`CLICKUP_TOOLSETS`)
+## Tool Loading (`CLICKUP_TOOL_MODE`, `CLICKUP_TOOLSETS`)
 
-The server registers **156 tools** by default. Every tool's JSON Schema is sent
-to the client on connect — about 156KB — and re-sent on every reconnect. That
-occupies context before your first prompt, and clients that bridge a local
-server to a remote session pay the cost again on each connection rotation.
+**Changed in 7.0.0:** the server registers every tool but publishes only a
+**core** set on connect — 17 tools, ~29 KB of `tools/list` instead of ~173 KB.
+Everything else stays one call away through three always-on catalog tools:
 
-Most workflows need a fraction of it. Set `CLICKUP_TOOLSETS` to a comma-separated
-list to register only what you use:
+* `clickup_list_toolsets` — every toolset, its tools, and whether it is enabled
+  (`include_schemas: true` with a `toolset` returns full input schemas)
+* `clickup_enable_toolset` — switch toolsets on or off at runtime; the client is
+  notified via `notifications/tools/list_changed`
+* `clickup_call_tool` — run any tool by name, enabled or not, with the same
+  strict parameter validation as a direct call
+
+| Variable | Effect |
+|---|---|
+| `CLICKUP_TOOL_MODE=core` | Default. Core tools + catalog tools. |
+| `CLICKUP_TOOL_MODE=all` | **Every tool, as in 6.x.** |
+| `CLICKUP_TOOLSETS=goals,time` | Add whole toolsets or profiles to core (`all` = everything). |
+
+Toolsets: `tasks`, `lists`, `comments`, `custom-fields`, `docs`, `workspace`,
+`bulk`, `attachments`, `time-tracking`, `goals`, `views`, `webhooks`,
+`checklists`, `chat`, `spaces`, `dependencies`. Profiles: `pm` (tasks, comments,
+lists, custom-fields, checklists, dependencies), `time`, `chat`, `docs`,
+`admin` (spaces, views, webhooks, goals, workspace).
 
 ```json
 {
@@ -479,45 +488,20 @@ list to register only what you use:
       "args": ["-y", "@chykalophia/clickup-mcp-server@latest"],
       "env": {
         "CLICKUP_API_TOKEN": "YOUR_API_TOKEN_HERE",
-        "CLICKUP_TOOLSETS": "tasks,comments,custom-fields,attachments,lists,bulk,workspace"
+        "CLICKUP_TOOLSETS": "pm,time"
       }
     }
   }
 }
 ```
 
-That example serves **60 tools instead of 156 — a 58% smaller payload.**
+Every tool also carries MCP annotations (title, read-only / destructive /
+idempotent hints), and destructive tools ask for confirmation when the client
+supports elicitation (`CLICKUP_CONFIRM_DESTRUCTIVE=false` turns that off).
+Resources are always registered. `CLICKUP_DEBUG_TOOLS=true` adds the raw-API
+debugging tool `clickup_create_task_comment_raw_test`.
 
-| Toolset | Tools | Covers |
-|---|---:|---|
-| `chat` | 19 | Chat channels, messages, reactions, replies |
-| `lists` | 17 | Lists, folders, folderless lists |
-| `time-tracking` | 14 | Time entries, timers, time summaries |
-| `tasks` | 13 | Task CRUD, search, assignees, status |
-| `goals` | 12 | Goals and goal targets |
-| `views` | 12 | Views, filters, grouping, sorting |
-| `comments` | 10 | Task, list, chat-view, threaded comments |
-| `docs` | 9 | Docs, doc pages, doc search |
-| `spaces` | 9 | Spaces and space tags |
-| `dependencies` | 8 | Dependencies, links, dependency graphs |
-| `custom-fields` | 7 | Custom field definitions and values |
-| `webhooks` | 7 | Webhook management, processing, signatures |
-| `checklists` | 6 | Checklists and checklist items |
-| `workspace` | 6 | Workspaces, members, seats, plan, authorized user |
-| `bulk` | 5 | Bulk create/update/delete, bulk custom fields |
-| `attachments` | 2 | Task attachments and uploads |
-
-Notes:
-
-* Unset, empty, or `all` keeps every toolset — existing installs are unaffected.
-* Names are case-insensitive and `_` is treated as `-`, so `Custom_Fields` works.
-* Unrecognised names are ignored with a warning on stderr. If *nothing* in your
-  value resolves, the server falls back to all toolsets rather than starting
-  with no tools.
-* Resources (task, doc, checklist, comment, space, folder, list) are always
-  registered; they are not part of the tool payload.
-* `CLICKUP_DEBUG_TOOLS=true` adds `clickup_create_task_comment_raw_test`, a
-  raw-API debugging aid that is off by default.
+Full details: [docs/guides/TOOL_LOADING.md](docs/guides/TOOL_LOADING.md).
 
 ## Parameter Handling
 
@@ -590,8 +574,8 @@ Run examples with: `node examples/basic-usage.js`
 - **API Token Security**: Format validation, secure storage, character validation
 - **Rate Limiting**: Sliding window implementation (1000 API, 100 webhook, 10 upload/min)
 - **HMAC Validation**: Timing-safe webhook signature verification
-- **File Security**: Path traversal prevention, dangerous file blocking, 100MB size limits
-- **URL Validation**: SSRF prevention, private IP blocking, protocol validation
+- **File Security**: Local file uploads disabled unless `CLICKUP_UPLOAD_DIR` is set; symlink-safe containment inside that directory; upload size limits
+- **URL Validation**: SSRF prevention — http(s) only, DNS-resolved addresses checked against private/loopback/link-local/metadata ranges (IPv4 and IPv6), redirects re-validated per hop
 - **Error Handling**: Secure responses without information leakage
 
 ### Security Testing
@@ -668,7 +652,7 @@ npm test
 
 ```bash
 # Test markdown functionality specifically
-npm test -- --testPathPattern=markdown
+npm test -- --testPathPatterns=markdown
 
 # Run all tests with coverage
 npm run test:coverage

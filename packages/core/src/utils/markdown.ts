@@ -194,52 +194,114 @@ export function formatContent(
 }
 
 /**
- * Prepare content for ClickUp API submission
- * Uses markdown_description field for markdown, description for HTML/plain text
- * @param content The content to prepare (markdown, HTML, or plain text)
- * @returns Object with appropriate field for ClickUp API
+ * Real HTML markup, as opposed to text that merely contains angle brackets
+ * (`Vec<T>`, `a < b > c`, `<https://autolink>`). Only well-known tags count, so
+ * a description is converted only when it is actually HTML.
  */
-export function prepareContentForClickUp(content: string): {
-  description?: string; // For HTML or plain text content
-  markdown_description?: string; // For markdown content
-  text_content?: string; // Plain text version for compatibility
-} {
-  if (!content || typeof content !== 'string') {
-    return { description: '' };
-  }
+const HTML_TAG_PATTERN =
+  /<\/?(?:p|div|span|br|hr|h[1-6]|ul|ol|li|dl|dt|dd|strong|b|em|i|u|s|del|ins|strike|sub|sup|small|mark|abbr|cite|q|kbd|a|code|pre|blockquote|table|thead|tbody|tfoot|tr|td|th|caption|img|figure|figcaption|details|summary|section|article|header|footer|aside|nav|main|font|center)(?:\s[^<>]{0,1000})?\/?>/i;
 
-  // If content looks like markdown, use markdown_description field
-  if (isMarkdown(content)) {
-    const plainText = markdownToPlainText(content);
-
-    return {
-      markdown_description: content, // Send raw markdown to ClickUp
-      text_content: plainText,
-    };
-  }
-
-  // If content is HTML, use description field
-  if (isHtml(content)) {
-    const plainText = htmlToMarkdown(content);
-
-    return {
-      description: content, // Send HTML as-is
-      text_content: markdownToPlainText(plainText),
-    };
-  }
-
-  // Plain text content - use description field
-  return {
-    description: content,
-    text_content: content,
-  };
+/**
+ * Remove fenced code blocks and inline code spans, so a Markdown description
+ * that merely shows HTML as a code sample is not mistaken for HTML.
+ */
+function stripMarkdownCode(content: string): string {
+  const withoutFences = content.replace(
+    /^ {0,3}(`{3,}(?!`)|~{3,}(?!~))[^\n]*\n[\s\S]*?(?:^ {0,3}\1[`~]*[ \t]*$|(?![\s\S]))/gm,
+    ''
+  );
+  return stripInlineCode(withoutFences);
 }
 
 /**
- * Process ClickUp response content for display
- * Converts HTML to markdown for better readability
+ * Remove inline code spans: a run of N backticks up to the next run of exactly
+ * N backticks. A linear scan rather than a backreference regex, which
+ * backtracks quadratically on long runs of backticks.
+ */
+function stripInlineCode(content: string): string {
+  const runs: Array<{ start: number; end: number }> = [];
+  const byLength = new Map<number, number[]>();
+  for (let i = 0; i < content.length; ) {
+    if (content[i] !== '`') {
+      i++;
+      continue;
+    }
+    let end = i;
+    while (content[end] === '`') end++;
+    const length = end - i;
+    const indexes = byLength.get(length) ?? [];
+    indexes.push(runs.length);
+    byLength.set(length, indexes);
+    runs.push({ start: i, end });
+    i = end;
+  }
+  if (runs.length < 2) return content;
+
+  // For each run length, a cursor into its list of run indexes, so the search
+  // for a closing run never revisits earlier candidates.
+  const cursors = new Map<number, number>();
+  let out = '';
+  let copied = 0;
+  for (let r = 0; r < runs.length; r++) {
+    const run = runs[r];
+    if (run.start < copied) continue; // inside a span already removed
+    const length = run.end - run.start;
+    const indexes = byLength.get(length) as number[];
+    let cursor = cursors.get(length) ?? 0;
+    while (cursor < indexes.length && indexes[cursor] <= r) cursor++;
+    cursors.set(length, cursor);
+    if (cursor === indexes.length) continue; // no closing run: literal backticks
+    const close = runs[indexes[cursor]];
+    out += content.slice(copied, run.start);
+    copied = close.end;
+    r = indexes[cursor];
+  }
+  return out + content.slice(copied);
+}
+
+export function looksLikeHtml(content: string): boolean {
+  return typeof content === 'string' && HTML_TAG_PATTERN.test(stripMarkdownCode(content));
+}
+
+/**
+ * Prepare a task description for ClickUp API submission.
+ *
+ * Always returns `markdown_description`. Markdown renders plain text exactly
+ * like the plain `description` field does, so there is nothing to gain from
+ * guessing: the old isMarkdown() heuristic missed GFM tables, bare URLs,
+ * horizontal rules and more, and those descriptions were then sent to the
+ * plain field and rendered literally. HTML input (which ClickUp does not
+ * render in either field) is converted to markdown with turndown first.
+ *
+ * @param content The description to prepare (markdown, HTML, or plain text)
+ * @returns `{ markdown_description }` ready to merge into the request body
+ */
+export function prepareContentForClickUp(content: string): {
+  markdown_description: string;
+} {
+  if (!content || typeof content !== 'string') {
+    return { markdown_description: '' };
+  }
+
+  if (looksLikeHtml(content)) {
+    return { markdown_description: htmlToMarkdown(content) };
+  }
+
+  return { markdown_description: content };
+}
+
+/**
+ * Process a ClickUp task response for display.
+ *
+ * When ClickUp returned `markdown_description` (requested with
+ * include_markdown_description=true, the default on this server's task read
+ * tools), it becomes the canonical `description`, and the duplicate plain-text
+ * renderings (`markdown_description`, `text_content`) are dropped. ClickUp's
+ * default `description` is a flattened plain-text rendering, so an agent that
+ * read it and wrote it back destroyed headings, links and checklists.
+ *
  * @param response ClickUp API response with description/text_content
- * @returns Processed content with markdown formatting
+ * @returns Processed content with a markdown description
  */
 export function processClickUpResponse(response: any): any {
   if (!response || typeof response !== 'object') {
@@ -248,29 +310,16 @@ export function processClickUpResponse(response: any): any {
 
   const processed = { ...response };
 
-  // Process description field
-  if (processed.description && isHtml(processed.description)) {
+  if (typeof processed.markdown_description === 'string') {
+    processed.description = processed.markdown_description;
+    delete processed.markdown_description;
+    delete processed.text_content;
+  } else if (processed.description && looksLikeHtml(processed.description)) {
     processed.description_markdown = htmlToMarkdown(processed.description);
   }
 
-  // Process comment fields
-  if (processed.comment_text && processed.comment && Array.isArray(processed.comment)) {
-    // ClickUp comments come as rich text blocks, try to convert to markdown
-    try {
-      const htmlContent = processed.comment
-        .map((block: any) => {
-          if (typeof block === 'string') return block;
-          if (block.text) return block.text;
-          return '';
-        })
-        .join('');
-
-      if (htmlContent && isHtml(htmlContent)) {
-        processed.comment_markdown = htmlToMarkdown(htmlContent);
-      }
-    } catch (error) {
-      console.warn('Failed to process comment blocks:', error);
-    }
+  if (Array.isArray(processed.subtasks)) {
+    processed.subtasks = processed.subtasks.map((subtask: any) => processClickUpResponse(subtask));
   }
 
   return processed;

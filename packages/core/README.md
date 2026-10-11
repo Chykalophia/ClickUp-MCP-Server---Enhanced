@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://www.npmjs.com/package/@chykalophia/clickup-mcp-server"><img src="https://img.shields.io/npm/v/@chykalophia/clickup-mcp-server.svg" alt="Version"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
-  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen" alt="Node.js Version"></a>
+  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D18.14.0-brightgreen" alt="Node.js Version"></a>
 </p>
 
 A comprehensive Model Context Protocol (MCP) server providing AI assistants with complete ClickUp integration. Features **177+ core tools**, **production-grade security**, and **full GitHub Flavored Markdown support**.

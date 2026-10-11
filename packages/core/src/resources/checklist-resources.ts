@@ -95,44 +95,4 @@ export function setupChecklistResources(server: McpServer): void {
       }
     }
   );
-
-  // Add some example static resources for discoverability
-  server.resource(
-    'example-task-checklists',
-    'clickup://task/86rkjvttt/checklist',
-    {
-      description: 'An example task checklists resource demonstrating the checklist data format.',
-    },
-    async uri => {
-      try {
-        const task_id = '86rkjvttt';
-
-        // Get the task details
-        const task = await tasksClient.getTask(task_id);
-
-        // Placeholder for checklists
-        const checklists: Checklist[] = [];
-
-        return {
-          contents: [
-            {
-              uri: uri.toString(),
-              mimeType: 'application/json',
-              text: JSON.stringify(
-                {
-                  task_id,
-                  task_name: task.name,
-                  checklists,
-                },
-                null,
-                2
-              ),
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        resourceError('fetching example checklists', error);
-      }
-    }
-  );
 }

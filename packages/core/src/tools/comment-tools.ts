@@ -10,7 +10,6 @@ import {
   UpdateCommentParams,
   CreateThreadedCommentParams,
 } from '../clickup-client/comments-enhanced.js';
-import { /* applyMarkdownStyling, */ createMarkdownPreview } from '../utils/markdown-styling.js';
 import { processCommentBlocks } from '../utils/clickup-comment-formatter.js';
 import { mcpError } from '../utils/error-handling.js';
 import { idSchema } from '../schemas/common.js';
@@ -65,11 +64,14 @@ const commentBlocksSchema = z
             color: z.string().optional().describe('Text color'),
             background_color: z.string().optional().describe('Background color'),
             link: z
-              .object({
-                url: z.string().describe('Link URL'),
-              })
+              .union([
+                z.string().describe('Link URL'),
+                z.object({ url: z.string().describe('Link URL') }),
+              ])
               .optional()
-              .describe('Link attributes'),
+              .describe(
+                'Link URL. ClickUp documents this as a plain string ("link": "https://..."); the legacy {url} object form is accepted and converted.'
+              ),
             'code-block': z
               .object({
                 'code-block': z
@@ -90,42 +92,56 @@ const commentBlocksSchema = z
   .min(1);
 
 /**
- * Format comment response with enhanced markdown styling
+ * Shape comment read results for an LLM client.
+ *
+ * ClickUp returns every comment body twice (the `comment` block array and the
+ * flattened `comment_text`), the client adds a third copy as
+ * `comment_markdown`, and this tool used to add a fourth: an ANSI-coloured,
+ * box-drawn `styled_preview` that serialised as `\u001b[...m` noise. A 1 KB
+ * comment cost 4-6 KB of tokens. The default now returns the identifying
+ * fields plus ONE body (`comment_markdown`); the raw block array and
+ * `comment_text` are returned only when include_raw is set.
  */
-function formatCommentResponse(result: any, title?: string): any {
-  try {
-    // Create a styled preview if we have markdown content
-    if (result.comment_markdown) {
-      const styledPreview = createMarkdownPreview(
-        result.comment_markdown,
-        title || 'Comment Preview',
-        { useColors: true, useEmojis: true }
-      );
-
-      // Add the styled preview to the response
-      result.styled_preview = styledPreview;
-    }
-
-    // If we have multiple comments, style each one
-    if (result.comments && Array.isArray(result.comments)) {
-      result.comments = result.comments.map((comment: any, index: number) => {
-        if (comment.comment_markdown) {
-          comment.styled_preview = createMarkdownPreview(
-            comment.comment_markdown,
-            `Comment ${index + 1}`,
-            { useColors: true, useEmojis: true }
-          );
-        }
-        return comment;
-      });
-    }
-
-    return result;
-  } catch (error) {
-    console.warn('Failed to apply markdown styling:', error);
-    return result;
-  }
+export function slimCommentsResponse(
+  result: { comments?: unknown[] } | null | undefined,
+  includeRaw = false
+): { comments: Record<string, unknown>[] } {
+  const comments = Array.isArray(result?.comments) ? result.comments : [];
+  return { comments: comments.map(comment => slimComment(comment, includeRaw)) };
 }
+
+const slimUser = (user: unknown): Record<string, unknown> | undefined => {
+  if (!user || typeof user !== 'object') return undefined;
+  const { id, username, email } = user as Record<string, unknown>;
+  return { id, username, email };
+};
+
+function slimComment(comment: unknown, includeRaw: boolean): Record<string, unknown> {
+  const source = (comment ?? {}) as Record<string, unknown>;
+  const slim: Record<string, unknown> = {
+    id: source.id,
+    user: slimUser(source.user),
+    date: source.date,
+    comment_markdown: source.comment_markdown ?? source.comment_text ?? '',
+  };
+  if (source.resolved !== undefined) slim.resolved = source.resolved;
+  if (source.assignee) slim.assignee = slimUser(source.assignee);
+  if (source.reply_count !== undefined) slim.reply_count = source.reply_count;
+  if (source.parent !== undefined) slim.parent = source.parent;
+  if (includeRaw) {
+    slim.comment = source.comment;
+    slim.comment_text = source.comment_text;
+  }
+  return slim;
+}
+
+const includeRawSchema = z
+  .boolean()
+  .optional()
+  .default(false)
+  .describe(
+    'Also return ClickUp\'s raw rich-text block array ("comment") and its flattened "comment_text". Off by default: comment_markdown is a Markdown rendering of the body (ClickUp stores headings only up to level 3, and ordered-list numbering is not preserved).'
+  );
 
 export interface CommentToolsOptions {
   /**
@@ -161,11 +177,18 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
   // Register get_task_comments tool
   server.tool(
     'clickup_get_task_comments',
-    'Get comments for a ClickUp task. Returns comment details including text, author, and timestamps with enhanced markdown styling.',
+    "Get comments for a ClickUp task. Each comment returns id, user (id/username/email), date (Unix ms), resolved, reply_count and the body as markdown (comment_markdown). Set include_raw for ClickUp's raw rich-text blocks. Returns the newest 25 comments; page older ones with start + start_id taken from the oldest comment returned.",
     {
       task_id: idSchema().describe('The ID of the task to get comments for'),
-      start: z.number().optional().describe('Pagination start (timestamp)'),
-      start_id: idSchema().optional().describe('Pagination start ID'),
+      start: z
+        .number()
+        .optional()
+        .describe(
+          'Pagination: the date (Unix timestamp in milliseconds) of the oldest comment from the previous page'
+        ),
+      start_id: idSchema()
+        .optional()
+        .describe('Pagination: the id of the oldest comment from the previous page'),
       custom_task_ids: z
         .boolean()
         .optional()
@@ -173,16 +196,18 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
       team_id: idSchema()
         .optional()
         .describe('The Workspace ID. Required when custom_task_ids is true'),
+      include_raw: includeRawSchema,
     },
-    async ({ task_id, ...params }) => {
+    async ({ task_id, include_raw, ...params }) => {
       try {
         if (params.custom_task_ids && params.team_id === undefined) {
           throw new Error('team_id is required when custom_task_ids is true');
         }
         const result = await commentsClient.getTaskComments(task_id, params);
-        const styledResult = formatCommentResponse(result, 'Task Comments');
         return {
-          content: [{ type: 'text', text: JSON.stringify(styledResult) }],
+          content: [
+            { type: 'text', text: JSON.stringify(slimCommentsResponse(result, include_raw)) },
+          ],
         };
       } catch (error: unknown) {
         return mcpError('getting task comments', error);
@@ -252,17 +277,27 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
   // Register get_chat_view_comments tool
   server.tool(
     'clickup_get_chat_view_comments',
-    'Get comments for a ClickUp chat view. Returns comment details with pagination support.',
+    'Get comments for a ClickUp chat view. Each comment returns id, user, date (Unix ms) and the body as markdown (comment_markdown); set include_raw for the raw rich-text blocks. Paginate with start + start_id from the oldest comment returned.',
     {
       view_id: idSchema().describe('The ID of the chat view to get comments for'),
-      start: z.number().optional().describe('Pagination start (timestamp)'),
-      start_id: idSchema().optional().describe('Pagination start ID'),
+      start: z
+        .number()
+        .optional()
+        .describe(
+          'Pagination: the date (Unix timestamp in milliseconds) of the oldest comment from the previous page'
+        ),
+      start_id: idSchema()
+        .optional()
+        .describe('Pagination: the id of the oldest comment from the previous page'),
+      include_raw: includeRawSchema,
     },
-    async ({ view_id, ...params }) => {
+    async ({ view_id, include_raw, ...params }) => {
       try {
         const result = await commentsClient.getChatViewComments(view_id, params);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result) }],
+          content: [
+            { type: 'text', text: JSON.stringify(slimCommentsResponse(result, include_raw)) },
+          ],
         };
       } catch (error: unknown) {
         return mcpError('getting chat view comments', error);
@@ -313,17 +348,27 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
   // Register get_list_comments tool
   server.tool(
     'clickup_get_list_comments',
-    'Get comments for a ClickUp list. Returns comment details with pagination support.',
+    'Get comments for a ClickUp list. Each comment returns id, user, date (Unix ms) and the body as markdown (comment_markdown); set include_raw for the raw rich-text blocks. Paginate with start + start_id from the oldest comment returned.',
     {
       list_id: idSchema().describe('The ID of the list to get comments for'),
-      start: z.number().optional().describe('Pagination start (timestamp)'),
-      start_id: idSchema().optional().describe('Pagination start ID'),
+      start: z
+        .number()
+        .optional()
+        .describe(
+          'Pagination: the date (Unix timestamp in milliseconds) of the oldest comment from the previous page'
+        ),
+      start_id: idSchema()
+        .optional()
+        .describe('Pagination: the id of the oldest comment from the previous page'),
+      include_raw: includeRawSchema,
     },
-    async ({ list_id, ...params }) => {
+    async ({ list_id, include_raw, ...params }) => {
       try {
         const result = await commentsClient.getListComments(list_id, params);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result) }],
+          content: [
+            { type: 'text', text: JSON.stringify(slimCommentsResponse(result, include_raw)) },
+          ],
         };
       } catch (error: unknown) {
         return mcpError('getting list comments', error);
@@ -444,17 +489,27 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
   // Register get_threaded_comments tool
   server.tool(
     'clickup_get_threaded_comments',
-    'Get threaded comments (replies) for a parent comment. Returns comment details with pagination support.',
+    'Get threaded comments (replies) for a parent comment. Each reply returns id, user, date (Unix ms) and the body as markdown (comment_markdown); set include_raw for the raw rich-text blocks.',
     {
       comment_id: idSchema().describe('The ID of the parent comment'),
-      start: z.number().optional().describe('Pagination start (timestamp)'),
-      start_id: idSchema().optional().describe('Pagination start ID'),
+      start: z
+        .number()
+        .optional()
+        .describe(
+          'Pagination: the date (Unix timestamp in milliseconds) of the oldest reply from the previous page'
+        ),
+      start_id: idSchema()
+        .optional()
+        .describe('Pagination: the id of the oldest reply from the previous page'),
+      include_raw: includeRawSchema,
     },
-    async ({ comment_id, ...params }) => {
+    async ({ comment_id, include_raw, ...params }) => {
       try {
         const result = await commentsClient.getThreadedComments(comment_id, params);
         return {
-          content: [{ type: 'text', text: JSON.stringify(result) }],
+          content: [
+            { type: 'text', text: JSON.stringify(slimCommentsResponse(result, include_raw)) },
+          ],
         };
       } catch (error: unknown) {
         return mcpError('getting threaded comments', error);

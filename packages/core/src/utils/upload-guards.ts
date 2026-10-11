@@ -103,7 +103,20 @@ export async function readUploadFile(
     if (opened.size > options.maxBytes) {
       throw sizeError(options.maxBytes);
     }
-    return await handle.readFile();
+    // The file can grow after the stat, so bound the read itself: read at
+    // most maxBytes + 1 and treat the extra byte as overflow.
+    const buffer = Buffer.alloc(Math.min(opened.size, options.maxBytes) + 1);
+    let length = 0;
+    for (;;) {
+      if (length === buffer.length) {
+        if (length > options.maxBytes) throw sizeError(options.maxBytes);
+        break;
+      }
+      const { bytesRead } = await handle.read(buffer, length, buffer.length - length, null);
+      if (bytesRead === 0) break;
+      length += bytesRead;
+    }
+    return buffer.subarray(0, length);
   } finally {
     await handle.close();
   }
@@ -120,6 +133,13 @@ export async function readUploadFile(
  * alphabet is accepted.
  */
 export function decodeBase64Upload(data: string, maxBytes: number): Buffer {
+  // Bound the raw input before normalising it, so an oversized payload is
+  // rejected without allocating a second full-size copy. The slack allows
+  // MIME-style line breaks (at most 2 per 76 characters) and stray spaces.
+  const maxEncoded = Math.ceil(maxBytes / 3) * 4;
+  if (data.length > maxEncoded + Math.ceil(maxEncoded / 32) + 64) {
+    throw sizeError(maxBytes);
+  }
   const normalized = data.replace(/\s+/g, '');
   const padding = normalized.endsWith('==') ? 2 : normalized.endsWith('=') ? 1 : 0;
   if (
@@ -292,7 +312,11 @@ function parseAllowedUrl(rawUrl: string): URL {
  * as the socket's lookup so the address checked is the address connected to.
  */
 function guardedLookup(isAllowed: (address: string) => boolean): LookupFunction {
-  return ((hostname: string, options: { all?: boolean }, callback: (...args: unknown[]) => void) => {
+  return ((
+    hostname: string,
+    options: { all?: boolean },
+    callback: (...args: unknown[]) => void
+  ) => {
     dnsLookup(hostname, { ...options, all: true, verbatim: true }, (error, addresses) => {
       if (error) {
         callback(error);
@@ -326,20 +350,17 @@ function requestOnce(
   // (http://2130706433/, http://0x7f.1/) to dotted quads.
   if (isIP(hostname) && !options.isAddressAllowed(hostname)) {
     return Promise.reject(
-      new BlockedUrlError('file_url must not point to a private, loopback, link-local or reserved address')
+      new BlockedUrlError(
+        'file_url must not point to a private, loopback, link-local or reserved address'
+      )
     );
   }
 
   const transport = url.protocol === 'https:' ? https : http;
   return new Promise((resolveRaw, rejectRaw) => {
-    // The socket `timeout` option only bounds inactivity, so a server that
-    // trickles bytes could hold the request open forever; enforce a
-    // wall-clock deadline as well.
-    const deadline = setTimeout(() => {
-      const error = new Error('Timed out fetching file_url');
-      rejectPromise(error);
-      request.destroy(error);
-    }, options.timeoutMs);
+    // Started once the request exists (below), so a request that fails to
+    // construct cannot leave a timer behind.
+    let deadline: ReturnType<typeof setTimeout> | undefined = undefined;
     const resolvePromise = (value: { redirect?: string; body?: Buffer }): void => {
       clearTimeout(deadline);
       resolveRaw(value);
@@ -348,64 +369,84 @@ function requestOnce(
       clearTimeout(deadline);
       rejectRaw(error);
     };
-    const request = transport.get(
-      url,
-      {
-        lookup: guardedLookup(options.isAddressAllowed),
-        timeout: options.timeoutMs,
-        headers: { 'user-agent': 'clickup-mcp-server' },
-        // Never reuse pooled sockets: each hop must go through the guarded lookup.
-        agent: false,
-      },
-      response => {
-        const status = response.statusCode ?? 0;
-        if (status >= 300 && status < 400 && response.headers.location) {
-          response.resume();
-          // A malformed Location would throw inside this callback and escape
-          // the promise as an uncaught exception, so reject instead.
-          let target: string;
-          try {
-            target = new URL(response.headers.location, url).toString();
-          } catch {
-            rejectPromise(new BlockedUrlError('file_url redirected to an invalid Location'));
+    let request: http.ClientRequest;
+    try {
+      request = transport.get(
+        url,
+        {
+          lookup: guardedLookup(options.isAddressAllowed),
+          timeout: options.timeoutMs,
+          headers: { 'user-agent': 'clickup-mcp-server' },
+          // Never reuse pooled sockets: each hop must go through the guarded lookup.
+          agent: false,
+        },
+        response => {
+          const status = response.statusCode ?? 0;
+          if (status >= 300 && status < 400 && response.headers.location) {
+            response.resume();
+            // A malformed Location would throw inside this callback and escape
+            // the promise as an uncaught exception, so reject instead.
+            let target: string;
+            try {
+              target = new URL(response.headers.location, url).toString();
+            } catch {
+              rejectPromise(new BlockedUrlError('file_url redirected to an invalid Location'));
+              return;
+            }
+            resolvePromise({ redirect: target });
             return;
           }
-          resolvePromise({ redirect: target });
-          return;
-        }
-        if (status < 200 || status >= 300) {
-          response.resume();
-          rejectPromise(new Error(`Failed to fetch file from URL (${status} ${response.statusMessage ?? ''})`.trim()));
-          return;
-        }
-        const declared = Number(response.headers['content-length']);
-        if (Number.isFinite(declared) && declared > options.maxBytes) {
-          response.destroy();
-          rejectPromise(sizeError(options.maxBytes));
-          return;
-        }
-        const chunks: Buffer[] = [];
-        let received = 0;
-        response.on('data', (chunk: Buffer) => {
-          received += chunk.length;
-          if (received > options.maxBytes) {
+          if (status < 200 || status >= 300) {
+            response.resume();
+            rejectPromise(
+              new Error(
+                `Failed to fetch file from URL (${status} ${response.statusMessage ?? ''})`.trim()
+              )
+            );
+            return;
+          }
+          const declared = Number(response.headers['content-length']);
+          if (Number.isFinite(declared) && declared > options.maxBytes) {
             response.destroy();
             rejectPromise(sizeError(options.maxBytes));
             return;
           }
-          chunks.push(chunk);
-        });
-        response.on('end', () => resolvePromise({ body: Buffer.concat(chunks) }));
-        response.on('error', rejectPromise);
-      }
-    );
+          const chunks: Buffer[] = [];
+          let received = 0;
+          response.on('data', (chunk: Buffer) => {
+            received += chunk.length;
+            if (received > options.maxBytes) {
+              response.destroy();
+              rejectPromise(sizeError(options.maxBytes));
+              return;
+            }
+            chunks.push(chunk);
+          });
+          response.on('end', () => resolvePromise({ body: Buffer.concat(chunks) }));
+          response.on('error', rejectPromise);
+        }
+      );
+    } catch (error) {
+      rejectPromise(error instanceof Error ? error : new Error(String(error)));
+      return;
+    }
     request.on('timeout', () => request.destroy(new Error('Timed out fetching file_url')));
     request.on('error', rejectPromise);
+    // The socket `timeout` option only bounds inactivity, so a server that
+    // trickles bytes could hold the request open forever; enforce a
+    // wall-clock deadline as well.
+    deadline = setTimeout(() => {
+      const error = new Error('Timed out fetching file_url');
+      rejectPromise(error);
+      request.destroy(error);
+    }, options.timeoutMs);
   });
 }
 
 function sizeError(maxBytes: number): Error {
-  return new Error(`File exceeds the maximum upload size of ${Math.floor(maxBytes / (1024 * 1024))} MB`);
+  return new Error(
+    `File exceeds the maximum upload size of ${Math.floor(maxBytes / (1024 * 1024))} MB`
+  );
 }
 
 /**
@@ -413,7 +454,10 @@ function sizeError(maxBytes: number): Error {
  * credentials, every resolved address must be public, redirects re-validated
  * hop by hop, response size capped while streaming.
  */
-export async function fetchUploadUrl(rawUrl: string, options: GuardedFetchOptions): Promise<Buffer> {
+export async function fetchUploadUrl(
+  rawUrl: string,
+  options: GuardedFetchOptions
+): Promise<Buffer> {
   const resolved = {
     maxBytes: options.maxBytes,
     timeoutMs: options.timeoutMs ?? 30_000,

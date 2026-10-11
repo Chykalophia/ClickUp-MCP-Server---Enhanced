@@ -206,9 +206,57 @@ const HTML_TAG_PATTERN =
  * that merely shows HTML as a code sample is not mistaken for HTML.
  */
 function stripMarkdownCode(content: string): string {
-  return content
-    .replace(/^ {0,3}(`{3,}|~{3,})[^\n]*\n[\s\S]*?(?:^ {0,3}\1[`~]*[ \t]*$|(?![\s\S]))/gm, '')
-    .replace(/(`+)(?!`)[\s\S]*?[^`]\1(?!`)/g, '');
+  const withoutFences = content.replace(
+    /^ {0,3}(`{3,}|~{3,})[^\n]*\n[\s\S]*?(?:^ {0,3}\1[`~]*[ \t]*$|(?![\s\S]))/gm,
+    ''
+  );
+  return stripInlineCode(withoutFences);
+}
+
+/**
+ * Remove inline code spans: a run of N backticks up to the next run of exactly
+ * N backticks. A linear scan rather than a backreference regex, which
+ * backtracks quadratically on long runs of backticks.
+ */
+function stripInlineCode(content: string): string {
+  const runs: Array<{ start: number; end: number }> = [];
+  const byLength = new Map<number, number[]>();
+  for (let i = 0; i < content.length; ) {
+    if (content[i] !== '`') {
+      i++;
+      continue;
+    }
+    let end = i;
+    while (content[end] === '`') end++;
+    const length = end - i;
+    const indexes = byLength.get(length) ?? [];
+    indexes.push(runs.length);
+    byLength.set(length, indexes);
+    runs.push({ start: i, end });
+    i = end;
+  }
+  if (runs.length < 2) return content;
+
+  // For each run length, a cursor into its list of run indexes, so the search
+  // for a closing run never revisits earlier candidates.
+  const cursors = new Map<number, number>();
+  let out = '';
+  let copied = 0;
+  for (let r = 0; r < runs.length; r++) {
+    const run = runs[r];
+    if (run.start < copied) continue; // inside a span already removed
+    const length = run.end - run.start;
+    const indexes = byLength.get(length) as number[];
+    let cursor = cursors.get(length) ?? 0;
+    while (cursor < indexes.length && indexes[cursor] <= r) cursor++;
+    cursors.set(length, cursor);
+    if (cursor === indexes.length) continue; // no closing run: literal backticks
+    const close = runs[indexes[cursor]];
+    out += content.slice(copied, run.start);
+    copied = close.end;
+    r = indexes[cursor];
+  }
+  return out + content.slice(copied);
 }
 
 export function looksLikeHtml(content: string): boolean {

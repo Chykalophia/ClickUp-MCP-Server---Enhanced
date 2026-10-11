@@ -42,6 +42,21 @@ function collectSourceFiles(dir: string, out: string[] = []): string[] {
  * regex: `//` inside a string ('http://...') or template literal is not a
  * comment and must not hide code after it on the same line.
  */
+/**
+ * True when a `/` at this point starts a regex literal rather than division:
+ * the previous significant token is an operator, opening bracket, or a
+ * keyword such as `return`, never a value (identifier, number, `)` or `]`).
+ */
+function regexAllowed(before: string): boolean {
+  const trimmed = before.slice(-200).trimEnd();
+  if (trimmed === '') return true;
+  const word = trimmed.match(/[A-Za-z_$][\w$]*$/);
+  if (word) {
+    return /^(?:return|typeof|case|do|else|in|of|new|delete|void|throw|instanceof|yield|await)$/.test(word[0]);
+  }
+  return !/[\w$)\]'"`]$/.test(trimmed);
+}
+
 function stripComments(source: string): string {
   let out = '';
   let i = 0;
@@ -62,6 +77,20 @@ function stripComments(source: string): string {
       const stop = end === -1 ? source.length : end + 2;
       out += blank(source.slice(i, stop));
       i = stop;
+    } else if (ch === '/' && regexAllowed(out)) {
+      // Copy a regex literal whole, so `/*` or `//` inside it (escaped, or in
+      // a character class like /[/*]/) is not read as a comment start.
+      let j = i + 1;
+      let inClass = false;
+      while (j < source.length && source[j] !== '\n') {
+        if (source[j] === '\\') j++;
+        else if (source[j] === '[') inClass = true;
+        else if (source[j] === ']') inClass = false;
+        else if (source[j] === '/' && !inClass) break;
+        j++;
+      }
+      out += source.slice(i, j + 1);
+      i = j + 1;
     } else if (ch === "'" || ch === '"' || ch === '`') {
       // Copy a string (or a template literal up to its end or next ${).
       let j = i + 1;
@@ -157,5 +186,7 @@ describe('runtime code never writes diagnostics to stdout', () => {
   it('still ignores comments and other streams', () => {
     expect(findStdoutWrites('// console.log(x)\n/* console.log(y) */ console.error(z);', 'f')).toEqual([]);
     expect(findStdoutWrites('const re = /a\\/*/; console.warn(re); // console.log()', 'f')).toEqual([]);
+    expect(findStdoutWrites('const re = /[/*]/; console.log(re); // */', 'f')).toHaveLength(1);
+    expect(findStdoutWrites('const half = total / 2; /* console.log(x) */', 'f')).toEqual([]);
   });
 });

@@ -68,6 +68,14 @@ describe('prepareContentForClickUp', () => {
     expect(looksLikeHtml('Unclosed fence\n```\n<div>')).toBe(false);
     // Real markup outside the code still counts.
     expect(looksLikeHtml('`code` and <p>para</p>')).toBe(true);
+    expect(looksLikeHtml('`` ` `` then `unclosed <p>para</p>')).toBe(true);
+  });
+
+  it('strips inline code in linear time on long backtick runs', () => {
+    const start = Date.now();
+    expect(looksLikeHtml('`'.repeat(20_000))).toBe(false);
+    expect(looksLikeHtml(`${'`a'.repeat(20_000)}<p>x</p>`)).toBe(true);
+    expect(Date.now() - start).toBeLessThan(500);
   });
 
   it('recognises common tags beyond the basic set', () => {

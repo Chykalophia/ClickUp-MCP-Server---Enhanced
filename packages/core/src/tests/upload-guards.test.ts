@@ -1,5 +1,5 @@
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
-import { createServer, type Server } from 'node:http';
+import http, { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -152,6 +152,19 @@ describe('decodeBase64Upload', () => {
     expect(decodeBase64Upload(atLimit, 4)).toHaveLength(4);
     expect(() => decodeBase64Upload(atLimit, 3)).toThrow(/maximum upload size/);
   });
+
+  it('rejects oversized input before normalising it', () => {
+    const replace = jest.spyOn(String.prototype, 'replace');
+    try {
+      expect(() => decodeBase64Upload('A'.repeat(10_000), 300)).toThrow(/maximum upload size/);
+      expect(replace).not.toHaveBeenCalled();
+    } finally {
+      replace.mockRestore();
+    }
+    // Line-wrapped input at the limit still fits within the allowed slack.
+    const wrapped = (Buffer.alloc(570).toString('base64').match(/.{1,76}/g) as string[]).join('\r\n');
+    expect(decodeBase64Upload(wrapped, 570)).toHaveLength(570);
+  });
 });
 
 describe('fetchUploadUrl', () => {
@@ -180,6 +193,20 @@ describe('fetchUploadUrl', () => {
     'http://[fd00:ec2::254]/',
   ])('rejects private/loopback/metadata literal %s', async url => {
     await expect(fetchUploadUrl(url, { maxBytes: MAX })).rejects.toThrow(/private|loopback/);
+  });
+
+  it('rejects cleanly, leaving no timer behind, when the request cannot be created', async () => {
+    jest.useFakeTimers();
+    const get = jest.spyOn(http, 'get').mockImplementation(() => {
+      throw new Error('boom');
+    });
+    try {
+      await expect(fetchUploadUrl('http://example.com/f', { maxBytes: MAX })).rejects.toThrow('boom');
+      expect(jest.getTimerCount()).toBe(0);
+    } finally {
+      get.mockRestore();
+      jest.useRealTimers();
+    }
   });
 
   it('rejects hostnames that resolve to loopback (checked after DNS resolution)', async () => {

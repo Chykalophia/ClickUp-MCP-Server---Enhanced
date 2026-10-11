@@ -123,10 +123,9 @@ This Enhanced version is based on the original ClickUp MCP Server codebase by [D
 
 ## 📊 Complete Tool Inventory (177 Tools, plus 3 catalog tools)
 
-### 🧠 Efficiency & Intelligence Tools (20+ tools) ⭐
-- **Smart Discovery**: `clickup_find_chat_channels`, `clickup_search_views_by_name`, `clickup_get_workspace_overview`
-- **Workflow Analysis**: `clickup_analyze_tool_efficiency`, `clickup_suggest_tools_for_task`
-- **Enhanced Metadata**: All 153 core tools enhanced with efficiency hints and alternatives
+### 🧠 Discovery & Tool Loading ⭐
+- **Catalog tools (always on)**: `clickup_list_toolsets`, `clickup_enable_toolset`, `clickup_call_tool` reach every tool without loading all schemas up front (see [Tool loading](docs/guides/TOOL_LOADING.md))
+- **Smart Discovery**: `clickup_get_workspace_hierarchy` (names to IDs in one call), `clickup_find_member`, `clickup_search_chat_channels`
 
 ### Core Workspace Management (54 tools)
 - **Workspaces**: `clickup_get_workspaces`, `clickup_get_workspace_seats`
@@ -152,25 +151,15 @@ This Enhanced version is based on the original ClickUp MCP Server codebase by [D
 
 ## 🚀 Efficiency Examples
 
-### Smart Chat Discovery (60% faster)
+### Smart Chat Discovery
 
 Instead of hierarchical navigation:
 ```typescript
 // ❌ OLD WAY (4+ API calls)
 clickup_get_workspaces() → clickup_get_spaces() → clickup_get_views() → filter for chat
 
-// ✅ NEW WAY (1 API call)
-clickup_find_chat_channels({ channel_name: "development" })
-```
-
-### Workflow Analysis
-```typescript
-clickup_analyze_workflow_efficiency({
-  goal: "Post message to team chat",
-  planned_tools: ["clickup_get_workspaces", "clickup_get_spaces", "clickup_get_views"],
-  time_constraint: "urgent"
-})
-// Returns: Optimized workflow with 55% efficiency gain
+// ✅ NEW WAY (1 tool call; searches up to the first 1,000 channels)
+clickup_search_chat_channels({ workspace_id: "123", query: "development" })
 ```
 
 ### Bulk Task Operations
@@ -471,7 +460,7 @@ Everything else stays one call away through three always-on catalog tools:
 | Variable | Effect |
 |---|---|
 | `CLICKUP_TOOL_MODE=core` | Default. Core tools + catalog tools. |
-| `CLICKUP_TOOL_MODE=all` | **Every tool, as in 6.x.** |
+| `CLICKUP_TOOL_MODE=all` | **Every tool, as in 6.x** (with `CLICKUP_TOOLSETS` unset or `all`; named toolsets narrow it to exactly those). |
 | `CLICKUP_TOOLSETS=goals,time` | Add whole toolsets or profiles to core (`all` = everything). |
 
 Toolsets: `tasks`, `lists`, `comments`, `custom-fields`, `docs`, `workspace`,
@@ -497,7 +486,8 @@ lists, custom-fields, checklists, dependencies), `time`, `chat`, `docs`,
 
 Every tool also carries MCP annotations (title, read-only / destructive /
 idempotent hints), and destructive tools ask for confirmation when the client
-supports elicitation (`CLICKUP_CONFIRM_DESTRUCTIVE=false` turns that off).
+advertises form elicitation (`elicitation.form`, or the older empty
+`elicitation: {}`; `CLICKUP_CONFIRM_DESTRUCTIVE=false` turns that off).
 Resources are always registered. `CLICKUP_DEBUG_TOOLS=true` adds the raw-API
 debugging tool `clickup_create_task_comment_raw_test`.
 
@@ -508,8 +498,8 @@ Full details: [docs/guides/TOOL_LOADING.md](docs/guides/TOOL_LOADING.md).
 ### Unknown parameters are rejected
 
 Every tool validates its arguments strictly. A parameter name the tool does not
-declare is an error naming the offending key, the closest valid name, and the
-full valid set:
+declare is an error naming the offending key, the closest valid name when one
+is close enough, and the full valid set:
 
 ```
 MCP error -32602: Unknown parameter(s) for clickup_create_task: markdown_contnet.
@@ -619,7 +609,7 @@ Run examples with: `node examples/basic-usage.js`
 ## Development
 
 ### Environment Requirements
-- **Node.js**: Version 18.x or higher
+- **Node.js**: Version 18.14.0 or higher
 - **Package Manager**: npm or yarn
 - **IDE**: VSCode recommended with TypeScript support
 

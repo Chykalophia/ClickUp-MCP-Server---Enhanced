@@ -269,7 +269,10 @@ describe('tool loading', () => {
       const before = JSON.parse(
         textOf(await harness.client.callTool({ name: 'clickup_list_toolsets', arguments: {} }))
       );
-      await harness.client.callTool({ name: 'clickup_enable_toolset', arguments: { toolsets: ['goals'] } });
+      await harness.client.callTool({
+        name: 'clickup_enable_toolset',
+        arguments: { toolsets: ['goals'] },
+      });
       const after = JSON.parse(
         textOf(await harness.client.callTool({ name: 'clickup_list_toolsets', arguments: {} }))
       );
@@ -420,7 +423,9 @@ describe('tool loading', () => {
       expect(byName.clickup_bulk_delete_tasks).toMatchObject({ destructiveHint: true });
       expect(byName.clickup_merge_tasks).toMatchObject({ destructiveHint: true });
       expect(byName.clickup_bulk_dependency_operations).toMatchObject({ destructiveHint: true });
-      expect(byName.clickup_remove_tags_from_time_entries).toMatchObject({ destructiveHint: false });
+      expect(byName.clickup_remove_tags_from_time_entries).toMatchObject({
+        destructiveHint: false,
+      });
       expect(byName.clickup_update_task).toMatchObject({
         readOnlyHint: false,
         destructiveHint: false,
@@ -516,6 +521,84 @@ describe('tool loading', () => {
       expect(elicitation.mock.calls[0][0].params.message).toContain('clickup_delete_task');
       expect(result.isError).toBeFalsy();
       expect(mockDelete).toHaveBeenCalledTimes(1);
+    });
+
+    it('lists every targeted ID when confirming a large bulk call', async () => {
+      const elicitation = jest.fn().mockResolvedValue({ action: 'decline' });
+      harness = await connect({}, { elicitation });
+      const taskIds = Array.from({ length: 50 }, (_, i) => `task${i}abc`);
+      await harness.client.callTool({
+        name: 'clickup_call_tool',
+        arguments: {
+          tool: 'clickup_bulk_delete_tasks',
+          arguments: { task_ids: taskIds, confirm_deletion: true },
+        },
+      });
+      expect(elicitation).toHaveBeenCalledTimes(1);
+      const message: string = elicitation.mock.calls[0][0].params.message;
+      expect(message).toContain('task_ids (50 items)');
+      for (const id of taskIds) expect(message).toContain(id);
+      expect(message).not.toContain('…');
+    });
+
+    it('shows both ends of each dependency when confirming a bulk delete', async () => {
+      const elicitation = jest.fn().mockResolvedValue({ action: 'decline' });
+      harness = await connect({}, { elicitation });
+      const dependencies = Array.from({ length: 100 }, (_, i) => ({
+        task_id: `blocked${i}xyz`,
+        depends_on: `waiting${i}xyz`,
+      }));
+      await harness.client.callTool({
+        name: 'clickup_call_tool',
+        arguments: {
+          tool: 'clickup_bulk_dependency_operations',
+          arguments: { operation: 'delete', dependencies },
+        },
+      });
+      expect(elicitation).toHaveBeenCalledTimes(1);
+      const message: string = elicitation.mock.calls[0][0].params.message;
+      for (const dep of dependencies) {
+        expect(message).toContain(`${dep.task_id} depends_on=${dep.depends_on}`);
+      }
+      expect(message).not.toContain('…');
+    });
+
+    it('refuses an oversized bulk call without prompting', async () => {
+      const elicitation = jest
+        .fn()
+        .mockResolvedValue({ action: 'accept', content: { confirm: true } });
+      harness = await connect({}, { elicitation });
+      const dependencies = Array.from({ length: 101 }, (_, i) => ({
+        task_id: `blocked${i}xyz`,
+        depends_on: `waiting${i}xyz`,
+      }));
+      const result = await harness.client.callTool({
+        name: 'clickup_call_tool',
+        arguments: {
+          tool: 'clickup_bulk_dependency_operations',
+          arguments: { operation: 'delete', dependencies },
+        },
+      });
+      expect(result.isError).toBe(true);
+      expect(elicitation).not.toHaveBeenCalled();
+    });
+
+    it('refuses a confirmation too large to show in full', async () => {
+      const elicitation = jest
+        .fn()
+        .mockResolvedValue({ action: 'accept', content: { confirm: true } });
+      harness = await connect({}, { elicitation });
+      const taskIds = Array.from({ length: 50 }, (_, i) => `${i}`.padEnd(500, 'x'));
+      const result = await harness.client.callTool({
+        name: 'clickup_call_tool',
+        arguments: {
+          tool: 'clickup_bulk_delete_tasks',
+          arguments: { task_ids: taskIds, confirm_deletion: true },
+        },
+      });
+      expect(result.isError).toBe(true);
+      expect(JSON.stringify(result.content)).toContain('too large to show for confirmation');
+      expect(elicitation).not.toHaveBeenCalled();
     });
 
     it('does not prompt for non-destructive tools', async () => {

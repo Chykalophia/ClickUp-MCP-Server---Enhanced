@@ -401,6 +401,15 @@ describe('ClickUp Comment Formatter', () => {
       });
     });
 
+    it('reads the language after a fence longer than three backticks', () => {
+      const result = parseMarkdownToClickUpComment('````ts\nconst a = "```";\n````');
+
+      expect(result.comment).toEqual([
+        { text: 'const a = "```";', attributes: {} },
+        { text: '\n', attributes: { 'code-block': { 'code-block': 'ts' } } },
+      ]);
+    });
+
     it('terminates a block-typed last line so its formatting is not lost', () => {
       // The line break carries the attribute, so omitting it on the final line
       // would silently drop the heading.
@@ -726,6 +735,30 @@ Visit [ClickUp](https://clickup.com) for more info.`;
   });
 
   describe('clickUpCommentToMarkdown — block-level attributes', () => {
+    it('formats only the line a terminator ends, not plain lines before it', () => {
+      const markdown = clickUpCommentToMarkdown({
+        comment: [
+          { text: 'intro\nmore intro\nTitle', attributes: {} },
+          { text: '\n', attributes: { header: 2 } },
+          { text: 'plain\nconst x = 1;', attributes: {} },
+          { text: '\n', attributes: { 'code-block': { 'code-block': 'js' } } },
+        ],
+      });
+
+      expect(markdown).toBe('intro\nmore intro\n## Title\nplain\n```js\nconst x = 1;\n```');
+    });
+
+    it('keeps inline styling inside each line when a styled block spans lines', () => {
+      const markdown = clickUpCommentToMarkdown({
+        comment: [
+          { text: 'first\nTitle', attributes: { bold: true } },
+          { text: '\n', attributes: { header: 2 } },
+        ],
+      });
+
+      expect(markdown).toBe('**first**\n## **Title**');
+    });
+
     it('rebuilds headings, lists, quotes and code blocks from the line markers', () => {
       const markdown = clickUpCommentToMarkdown({
         comment: [

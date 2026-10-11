@@ -19,7 +19,7 @@ import { open, realpath, stat } from 'node:fs/promises';
 import http from 'node:http';
 import https from 'node:https';
 import { isIP, type LookupFunction } from 'node:net';
-import { isAbsolute, relative, resolve } from 'node:path';
+import { isAbsolute, relative, resolve, sep } from 'node:path';
 
 export const UPLOAD_DIR_ENV = 'CLICKUP_UPLOAD_DIR';
 
@@ -107,20 +107,35 @@ export async function readUploadFile(
     if (opened.size > options.maxBytes) {
       throw sizeError(options.maxBytes);
     }
-    // The file can grow after the stat, so bound the read itself: read at
-    // most maxBytes + 1 and treat the extra byte as overflow.
-    const buffer = Buffer.alloc(Math.min(opened.size, options.maxBytes) + 1);
-    let length = 0;
+    // The file can grow after the stat, so read to EOF in chunks rather than
+    // trusting the stat size, and fail once more than maxBytes arrive.
+    // Read into one buffer sized from the stat (plus one byte to detect
+    // growth), so the file is held once rather than as chunks plus a copy.
+    let buffer = Buffer.alloc(Math.min(opened.size + 1, options.maxBytes + 1));
+    let total = 0;
     for (;;) {
-      if (length === buffer.length) {
-        if (length > options.maxBytes) throw sizeError(options.maxBytes);
-        break;
+      if (total === buffer.length) {
+        if (total > options.maxBytes) throw sizeError(options.maxBytes);
+        // The file grew after the stat: grow the buffer, still capped.
+        const grown = Buffer.alloc(Math.min(buffer.length * 2, options.maxBytes + 1));
+        buffer.copy(grown, 0, 0, total);
+        buffer = grown;
       }
-      const { bytesRead } = await handle.read(buffer, length, buffer.length - length, null);
+      const { bytesRead } = await handle.read(
+        buffer,
+        total,
+        Math.min(64 * 1024, buffer.length - total),
+        null
+      );
       if (bytesRead === 0) break;
-      length += bytesRead;
+      total += bytesRead;
     }
-    return buffer.subarray(0, length);
+    if (total > options.maxBytes) throw sizeError(options.maxBytes);
+    // Copy when the file shrank during the read, so a short result does not
+    // keep a stat-sized backing buffer alive.
+    return buffer.length - total > 64 * 1024
+      ? Buffer.from(buffer.subarray(0, total))
+      : buffer.subarray(0, total);
   } finally {
     await handle.close();
   }
@@ -166,7 +181,8 @@ export function decodeBase64Upload(data: string, maxBytes: number): Buffer {
 
 function isInsideDirectory(root: string, target: string): boolean {
   const rel = relative(root, target);
-  return rel !== '' && !rel.startsWith('..') && !isAbsolute(rel);
+  const escapes = rel === '..' || rel.startsWith(`..${sep}`);
+  return rel !== '' && !escapes && !isAbsolute(rel);
 }
 
 // ---------------------------------------------------------------------------
@@ -392,7 +408,9 @@ function requestOnce(
         response => {
           const status = response.statusCode ?? 0;
           if (status >= 300 && status < 400 && response.headers.location) {
-            response.resume();
+            // Destroy rather than drain: once the promise settles the deadline
+            // is cleared, so a trickled body could hold the socket open.
+            response.destroy();
             // A malformed Location would throw inside this callback and escape
             // the promise as an uncaught exception, so reject instead.
             let target: string;
@@ -406,7 +424,7 @@ function requestOnce(
             return;
           }
           if (status < 200 || status >= 300) {
-            response.resume();
+            response.destroy();
             rejectPromise(
               new Error(
                 `Failed to fetch file from URL (${status} ${response.statusMessage ?? ''})`.trim()

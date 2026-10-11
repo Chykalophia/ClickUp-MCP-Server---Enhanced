@@ -100,9 +100,13 @@ describe('resolveUploadFilePath', () => {
   });
 
   it('allows files inside the upload dir (absolute, relative, nested, internal symlink)', async () => {
-    await expect(resolveUploadFilePath(join(uploadDir, 'ok.txt'), uploadDir)).resolves.toMatch(/ok\.txt$/);
+    await expect(resolveUploadFilePath(join(uploadDir, 'ok.txt'), uploadDir)).resolves.toMatch(
+      /ok\.txt$/
+    );
     await expect(resolveUploadFilePath('ok.txt', uploadDir)).resolves.toMatch(/ok\.txt$/);
-    await expect(resolveUploadFilePath('nested/deep.txt', uploadDir)).resolves.toMatch(/deep\.txt$/);
+    await expect(resolveUploadFilePath('nested/deep.txt', uploadDir)).resolves.toMatch(
+      /deep\.txt$/
+    );
     await expect(resolveUploadFilePath('inner-link.txt', uploadDir)).resolves.toMatch(/ok\.txt$/);
   });
 
@@ -113,7 +117,9 @@ describe('resolveUploadFilePath', () => {
 
   it('rejects symlinks that escape the upload dir', async () => {
     await expect(resolveUploadFilePath('escape-link.txt', uploadDir)).rejects.toThrow(/outside/);
-    await expect(resolveUploadFilePath('escape-dir/secret.txt', uploadDir)).rejects.toThrow(/outside/);
+    await expect(resolveUploadFilePath('escape-dir/secret.txt', uploadDir)).rejects.toThrow(
+      /outside/
+    );
   });
 
   it('rejects the directory itself, missing files and NUL bytes', async () => {
@@ -124,13 +130,90 @@ describe('resolveUploadFilePath', () => {
   });
 
   it('readUploadFile reads through one validated descriptor', async () => {
-    await expect(readUploadFile('ok.txt', { maxBytes: 10, uploadDir })).resolves.toEqual(Buffer.from('ok'));
+    await expect(readUploadFile('ok.txt', { maxBytes: 10, uploadDir })).resolves.toEqual(
+      Buffer.from('ok')
+    );
     await expect(readUploadFile('inner-link.txt', { maxBytes: 10, uploadDir })).resolves.toEqual(
       Buffer.from('ok')
     );
-    await expect(readUploadFile('escape-link.txt', { maxBytes: 10, uploadDir })).rejects.toThrow(/outside/);
-    await expect(readUploadFile('ok.txt', { maxBytes: 1, uploadDir })).rejects.toThrow(/maximum upload size/);
-    await expect(readUploadFile('ok.txt', { maxBytes: 10, uploadDir: undefined })).rejects.toThrow(/disabled/);
+    await expect(readUploadFile('escape-link.txt', { maxBytes: 10, uploadDir })).rejects.toThrow(
+      /outside/
+    );
+    await expect(readUploadFile('ok.txt', { maxBytes: 1, uploadDir })).rejects.toThrow(
+      /maximum upload size/
+    );
+    await expect(readUploadFile('ok.txt', { maxBytes: 10, uploadDir: undefined })).rejects.toThrow(
+      /disabled/
+    );
+  });
+
+  it('caps a file that grows after the size check', async () => {
+    const big = Buffer.alloc(200_000, 7);
+    writeFileSync(join(uploadDir, 'grows.bin'), big);
+    // Make the opened handle report a small size, as if the file grew after the stat.
+    const fsp = jest.requireActual<typeof import('node:fs/promises')>('node:fs/promises');
+    const realOpen = fsp.open;
+    const spy = jest
+      .spyOn(fsp, 'open')
+      .mockImplementation(async (...args: Parameters<typeof realOpen>) => {
+        const handle = await realOpen(...args);
+        const realStat = handle.stat.bind(handle);
+        handle.stat = (async (opts?: { bigint?: false }) =>
+          Object.assign(await realStat(opts), { size: 10 })) as typeof handle.stat;
+        return handle;
+      });
+    try {
+      await expect(readUploadFile('grows.bin', { maxBytes: 199_999, uploadDir })).rejects.toThrow(
+        /maximum upload size/
+      );
+      await expect(readUploadFile('grows.bin', { maxBytes: 200_000, uploadDir })).resolves.toEqual(
+        big
+      );
+      expect(spy).toHaveBeenCalled();
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it('returns a file that shrank after the size check', async () => {
+    writeFileSync(join(uploadDir, 'shrinks.bin'), Buffer.from('short'));
+    // Make the opened handle report a large size, as if the file shrank after the stat.
+    const fsp = jest.requireActual<typeof import('node:fs/promises')>('node:fs/promises');
+    const realOpen = fsp.open;
+    const spy = jest
+      .spyOn(fsp, 'open')
+      .mockImplementation(async (...args: Parameters<typeof realOpen>) => {
+        const handle = await realOpen(...args);
+        const realStat = handle.stat.bind(handle);
+        handle.stat = (async (opts?: { bigint?: false }) =>
+          Object.assign(await realStat(opts), { size: 500_000 })) as typeof handle.stat;
+        return handle;
+      });
+    try {
+      const result = await readUploadFile('shrinks.bin', { maxBytes: 1_000_000, uploadDir });
+      expect(result).toEqual(Buffer.from('short'));
+      // Copied out rather than a view onto the stat-sized buffer.
+      expect(result.buffer.byteLength).toBeLessThan(64 * 1024);
+      expect(spy).toHaveBeenCalled();
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it('reads files larger than one chunk, up to exactly maxBytes', async () => {
+    const big = Buffer.alloc(200_000, 7);
+    writeFileSync(join(uploadDir, 'big.bin'), big);
+    await expect(readUploadFile('big.bin', { maxBytes: 200_000, uploadDir })).resolves.toEqual(big);
+    await expect(readUploadFile('big.bin', { maxBytes: 199_999, uploadDir })).rejects.toThrow(
+      /maximum upload size/
+    );
+  });
+
+  it('accepts in-root names that merely start with two dots', async () => {
+    writeFileSync(join(uploadDir, '..draft.txt'), 'draft');
+    await expect(readUploadFile('..draft.txt', { maxBytes: 10, uploadDir })).resolves.toEqual(
+      Buffer.from('draft')
+    );
   });
 });
 
@@ -164,7 +247,11 @@ describe('decodeBase64Upload', () => {
       replace.mockRestore();
     }
     // Line-wrapped input at the limit still fits within the allowed slack.
-    const wrapped = (Buffer.alloc(570).toString('base64').match(/.{1,76}/g) as string[]).join('\r\n');
+    const wrapped = (
+      Buffer.alloc(570)
+        .toString('base64')
+        .match(/.{1,76}/g) as string[]
+    ).join('\r\n');
     expect(decodeBase64Upload(wrapped, 570)).toHaveLength(570);
   });
 });
@@ -203,7 +290,9 @@ describe('fetchUploadUrl', () => {
       throw new Error('boom');
     });
     try {
-      await expect(fetchUploadUrl('http://example.com/f', { maxBytes: MAX })).rejects.toThrow('boom');
+      await expect(fetchUploadUrl('http://example.com/f', { maxBytes: MAX })).rejects.toThrow(
+        'boom'
+      );
       expect(jest.getTimerCount()).toBe(0);
     } finally {
       get.mockRestore();
@@ -258,7 +347,10 @@ describe('fetchUploadUrl', () => {
     });
 
     it('downloads the body', async () => {
-      const body = await fetchUploadUrl(`${origin}/file`, { maxBytes: MAX, isAddressAllowed: allowLocalServer });
+      const body = await fetchUploadUrl(`${origin}/file`, {
+        maxBytes: MAX,
+        isAddressAllowed: allowLocalServer,
+      });
       expect(body.toString()).toBe('hello');
     });
 
@@ -272,16 +364,25 @@ describe('fetchUploadUrl', () => {
 
     it('refuses redirects to metadata or private addresses', async () => {
       await expect(
-        fetchUploadUrl(`${origin}/redirect-metadata`, { maxBytes: MAX, isAddressAllowed: allowLocalServer })
+        fetchUploadUrl(`${origin}/redirect-metadata`, {
+          maxBytes: MAX,
+          isAddressAllowed: allowLocalServer,
+        })
       ).rejects.toThrow(/private|loopback/);
       await expect(
-        fetchUploadUrl(`${origin}/redirect-ipv6-loopback`, { maxBytes: MAX, isAddressAllowed: allowLocalServer })
+        fetchUploadUrl(`${origin}/redirect-ipv6-loopback`, {
+          maxBytes: MAX,
+          isAddressAllowed: allowLocalServer,
+        })
       ).rejects.toThrow(/private|loopback/);
     });
 
     it('rejects a malformed redirect Location instead of throwing out of the callback', async () => {
       await expect(
-        fetchUploadUrl(`${origin}/redirect-bad-location`, { maxBytes: MAX, isAddressAllowed: allowLocalServer })
+        fetchUploadUrl(`${origin}/redirect-bad-location`, {
+          maxBytes: MAX,
+          isAddressAllowed: allowLocalServer,
+        })
       ).rejects.toThrow(/invalid Location/);
     });
 
@@ -315,7 +416,9 @@ describe('fetchUploadUrl', () => {
     });
 
     it('refuses the local server itself under the default policy', async () => {
-      await expect(fetchUploadUrl(`${origin}/file`, { maxBytes: MAX })).rejects.toThrow(/private|loopback/);
+      await expect(fetchUploadUrl(`${origin}/file`, { maxBytes: MAX })).rejects.toThrow(
+        /private|loopback/
+      );
     });
   });
 });

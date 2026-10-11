@@ -42,7 +42,7 @@ export function setupEnhancedDocTools(server: McpServer): void {
 
   server.tool(
     'clickup_get_doc_content',
-    'Get the full content of a ClickUp doc as one markdown document: every page and every nested sub-page, each under a heading whose level follows its depth (# top-level page, ## sub-page, ...). For one page only, use clickup_get_doc_page.',
+    'Get the full content of a ClickUp doc as one document: every page and every nested sub-page, each under a heading whose level follows its depth (# top-level page, ## sub-page, ...; a bare title line with text/plain). For one page only, use clickup_get_doc_page.',
     {
       workspace_id: idSchema().describe('The ID of the workspace containing the doc'),
       doc_id: idSchema().describe('The ID of the doc to get'),
@@ -57,7 +57,10 @@ export function setupEnhancedDocTools(server: McpServer): void {
 
         // Sub-pages nest under each page's `pages`; walk the whole tree so
         // their content is not silently dropped.
-        const combinedContent = flattenDocPages(pages);
+        const combinedContent = flattenDocPages(
+          pages,
+          content_format === 'text/plain' ? 'text/plain' : 'text/md'
+        );
 
         return {
           content: [{ type: 'text', text: combinedContent || 'No content found in this doc.' }],

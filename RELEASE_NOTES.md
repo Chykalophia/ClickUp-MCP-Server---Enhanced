@@ -24,6 +24,13 @@ by default:
   stderr and falls back to core (6.x fell back to all).
 - The declared Node.js floor is now 18.14.0 (`engines`), the minimum Jest 30
   supports.
+- The `clickup-mcp-server-efficiency` bin (`bin/clickup-mcp-server-efficiency.js`)
+  and the `build/index-efficiency-simple.js` entry point are now aliases of the
+  main server. Its separate tools
+  `clickup_find_chat_channels`, `clickup_get_workspace_overview` and
+  `clickup_analyze_workflow_efficiency` are gone: use
+  `clickup_search_chat_channels`, `clickup_get_workspace_hierarchy` and the
+  catalog tools instead.
 
 ### New: catalog tools (always on)
 
@@ -41,8 +48,9 @@ by default:
   `destructiveHint`, `idempotentHint`, `openWorldHint`, inferred centrally from
   tool names with an override table.
 - **Confirmation for destructive tools** via MCP elicitation when the client
-  supports it (unchanged behaviour otherwise; `CLICKUP_CONFIRM_DESTRUCTIVE=false`
-  disables it).
+  advertises form elicitation (`elicitation.form`, or the older empty
+  `elicitation: {}`); other clients behave as before.
+  `CLICKUP_CONFIRM_DESTRUCTIVE=false` disables it.
 - **Server `instructions`** in the `initialize` response, and `title` /
   `websiteUrl` in `serverInfo`.
 - Toolset tool counts are derived from what actually registers, not a

@@ -277,6 +277,7 @@ export function setupDependenciesTools(server: McpServer): void {
           })
         )
         .min(1)
+        .max(100)
         .describe(
           'Array of dependencies to create or delete (each with exactly one of depends_on or dependency_of)'
         ),

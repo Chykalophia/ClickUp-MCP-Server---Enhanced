@@ -37,19 +37,18 @@ function collectSourceFiles(dir: string, out: string[] = []): string[] {
 }
 
 /**
- * Blank out block and line comments (keeping newlines, so line numbers hold)
- * so documentation mentioning console.log is allowed. A small lexer, not a
- * regex: `//` inside a string ('http://...') or template literal is not a
- * comment and must not hide code after it on the same line.
- */
-/**
  * True when a `/` at this point starts a regex literal rather than division:
  * the previous significant token is an operator, opening bracket, or a
  * keyword such as `return`, never a value (identifier, number, `)` or `]`).
+ * The exception is a `)` closing the condition of if/while/for/with, which
+ * ends a statement head, not a value: `controlParenEnd` is the length `before`
+ * had right after such a `)`.
  */
-function regexAllowed(before: string): boolean {
-  const trimmed = before.slice(-200).trimEnd();
+function regexAllowed(before: string, controlParenEnd: number): boolean {
+  const offset = Math.max(0, before.length - 200);
+  const trimmed = before.slice(offset).trimEnd();
   if (trimmed === '') return true;
+  if (offset + trimmed.length === controlParenEnd) return true;
   const word = trimmed.match(/[A-Za-z_$][\w$]*$/);
   if (word) {
     return /^(?:return|typeof|case|do|else|in|of|new|delete|void|throw|instanceof|yield|await)$/.test(word[0]);
@@ -57,13 +56,43 @@ function regexAllowed(before: string): boolean {
   return !/[\w$)\]'"`]$/.test(trimmed);
 }
 
-function stripComments(source: string): string {
+/**
+ * Blank out everything that is not code (keeping newlines, so line numbers
+ * hold): comments, string contents, the literal parts of template literals and
+ * regex literal bodies. Quote and delimiter characters stay, and code inside a
+ * template's `${ }` substitutions is kept, so a call there is still found. A
+ * small lexer, not a regex: `//` inside a string ('http://...') or template
+ * literal is not a comment and must not hide code after it on the same line,
+ * and documentation or string data mentioning console.log is allowed.
+ */
+function maskNonCode(source: string): string {
   let out = '';
   let i = 0;
   // Each frame is a template literal awaiting its closing backtick, or the
   // brace depth inside one of its ${ } substitutions.
   const templateBraces: number[] = [];
+  // One entry per open `(`: whether it opened an if/while/for/with condition.
+  const parens: boolean[] = [];
+  let controlParenEnd = -1;
   const blank = (text: string) => text.replace(/[^\n]/g, ' ');
+  // Scan template literal text from `start` to its closing backtick or next
+  // `${`, emitting the text blanked; returns the index after what it emitted.
+  const templateText = (start: number): number => {
+    let j = start;
+    while (j < source.length && source[j] !== '`') {
+      if (source[j] === '\\') j++;
+      else if (source[j] === '$' && source[j + 1] === '{') break;
+      j++;
+    }
+    out += blank(source.slice(start, j));
+    if (source[j] === '$') {
+      templateBraces.push(0);
+      out += '${';
+      return j + 2;
+    }
+    out += source.slice(j, j + 1);
+    return j + 1;
+  };
   while (i < source.length) {
     const ch = source[i];
     const next = source[i + 1];
@@ -77,8 +106,8 @@ function stripComments(source: string): string {
       const stop = end === -1 ? source.length : end + 2;
       out += blank(source.slice(i, stop));
       i = stop;
-    } else if (ch === '/' && regexAllowed(out)) {
-      // Copy a regex literal whole, so `/*` or `//` inside it (escaped, or in
+    } else if (ch === '/' && regexAllowed(out, controlParenEnd)) {
+      // Skip a regex literal whole, so `/*` or `//` inside it (escaped, or in
       // a character class like /[/*]/) is not read as a comment start.
       let j = i + 1;
       let inClass = false;
@@ -89,25 +118,19 @@ function stripComments(source: string): string {
         else if (source[j] === '/' && !inClass) break;
         j++;
       }
-      out += source.slice(i, j + 1);
+      out += `/${blank(source.slice(i + 1, j))}${source.slice(j, j + 1)}`;
       i = j + 1;
-    } else if (ch === "'" || ch === '"' || ch === '`') {
-      // Copy a string (or a template literal up to its end or next ${).
+    } else if (ch === "'" || ch === '"') {
       let j = i + 1;
-      while (j < source.length && source[j] !== ch) {
+      while (j < source.length && source[j] !== ch && source[j] !== '\n') {
         if (source[j] === '\\') j++;
-        else if (ch === '`' && source[j] === '$' && source[j + 1] === '{') break;
-        else if (ch !== '`' && source[j] === '\n') break;
         j++;
       }
-      if (ch === '`' && source[j] === '$') {
-        templateBraces.push(0);
-        out += source.slice(i, j + 2);
-        i = j + 2;
-      } else {
-        out += source.slice(i, j + 1);
-        i = j + 1;
-      }
+      out += `${ch}${blank(source.slice(i + 1, j))}${source.slice(j, j + 1)}`;
+      i = j + 1;
+    } else if (ch === '`') {
+      out += ch;
+      i = templateText(i + 1);
     } else if (templateBraces.length > 0 && (ch === '{' || ch === '}')) {
       const top = templateBraces.length - 1;
       if (ch === '{') {
@@ -119,25 +142,20 @@ function stripComments(source: string): string {
         out += ch;
         i++;
       } else {
-        // End of a ${ } substitution: resume the template literal as a string.
+        // End of a ${ } substitution: resume the template literal text.
         templateBraces.pop();
-        let j = i + 1;
-        while (j < source.length && source[j] !== '`') {
-          if (source[j] === '\\') j++;
-          else if (source[j] === '$' && source[j + 1] === '{') break;
-          j++;
-        }
-        if (source[j] === '$') {
-          templateBraces.push(0);
-          out += source.slice(i, j + 2);
-          i = j + 2;
-        } else {
-          out += source.slice(i, j + 1);
-          i = j + 1;
-        }
+        out += ch;
+        i = templateText(i + 1);
       }
+    } else if (ch === '(') {
+      parens.push(/(?<![\w$])(?<!\.\s*)(?:if|while|for(?:\s+await)?|with)\s*$/.test(out.slice(-200)));
+      out += ch;
+      i++;
+    } else if (ch === ')') {
+      out += ch;
+      i++;
+      if (parens.pop() === true) controlParenEnd = out.length;
     } else if (ch === '\\') {
-      // Escapes in regex literals (e.g. /\/*/) are not comment starts.
       out += source.slice(i, i + 2);
       i += 2;
     } else {
@@ -150,7 +168,7 @@ function stripComments(source: string): string {
 
 /** `file:line: code` for every forbidden call, including ones split over lines. */
 function findStdoutWrites(source: string, label: string): string[] {
-  const stripped = stripComments(source);
+  const stripped = maskNonCode(source);
   const offenders: string[] = [];
   for (const match of stripped.matchAll(FORBIDDEN)) {
     const line = stripped.slice(0, match.index).split('\n').length;
@@ -181,6 +199,13 @@ describe('runtime code never writes diagnostics to stdout', () => {
     expect(findStdoutWrites('const u = "//"; process.stdout.write(u);', 'f')).toHaveLength(1);
     expect(findStdoutWrites("\nconsole.log\n  ('diag');", 'f')).toEqual(['f:2: console.log (']);
     expect(findStdoutWrites('console\n  .debug(1);', 'f')).toHaveLength(1);
+    // eslint-disable-next-line no-template-curly-in-string -- source text under test
+    expect(findStdoutWrites('const s = `${console.log(x)}`;', 'f')).toHaveLength(1);
+    // eslint-disable-next-line no-template-curly-in-string -- source text under test
+    expect(findStdoutWrites('const s = `a${`b${console.debug(x)}`}c`;', 'f')).toHaveLength(1);
+    // A `)` closing an if condition ends no value, so the `/` starts a regex.
+    expect(findStdoutWrites('if (ok) /[//]/.test(x); console.log(x)', 'f')).toHaveLength(1);
+    expect(findStdoutWrites('while (f(a)) /\\//.test(x); console.log(x)', 'f')).toHaveLength(1);
   });
 
   it('still ignores comments and other streams', () => {
@@ -188,5 +213,13 @@ describe('runtime code never writes diagnostics to stdout', () => {
     expect(findStdoutWrites('const re = /a\\/*/; console.warn(re); // console.log()', 'f')).toEqual([]);
     expect(findStdoutWrites('const re = /[/*]/; console.log(re); // */', 'f')).toHaveLength(1);
     expect(findStdoutWrites('const half = total / 2; /* console.log(x) */', 'f')).toEqual([]);
+    expect(findStdoutWrites('const half = f(total) / 2; /* console.log(x) */', 'f')).toEqual([]);
+    expect(findStdoutWrites('x.if(a) / 2; /* console.log(x) */', 'f')).toEqual([]);
+    // Strings and template text are data, not code.
+    expect(findStdoutWrites("const example = 'console.log(';", 'f')).toEqual([]);
+    expect(findStdoutWrites('const example = "process.stdout.write(";', 'f')).toEqual([]);
+    // eslint-disable-next-line no-template-curly-in-string -- source text under test
+    expect(findStdoutWrites('const doc = `call console.log(${n}) here`;', 'f')).toEqual([]);
+    expect(findStdoutWrites('const doc = `\nconsole.info(\n`;', 'f')).toEqual([]);
   });
 });

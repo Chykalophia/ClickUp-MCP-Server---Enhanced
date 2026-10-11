@@ -204,10 +204,17 @@ const HTML_TAG_PATTERN =
 /**
  * Remove fenced code blocks and inline code spans, so a Markdown description
  * that merely shows HTML as a code sample is not mistaken for HTML.
+ *
+ * The opening fence may sit inside a container: after indentation and any
+ * blockquote (`>`) or list (`-`, `*`, `+`, `1.`, `1)`) markers. The closing
+ * fence may be preceded by spaces, tabs and `>`. Each repetition of the
+ * container prefix must start with a marker character, never whitespace, so
+ * the quantifiers cannot split one whitespace run several ways: a failed
+ * match backtracks linearly over a line, not polynomially.
  */
 function stripMarkdownCode(content: string): string {
   const withoutFences = content.replace(
-    /^ {0,3}(`{3,}(?!`)|~{3,}(?!~))[^\n]*\n[\s\S]*?(?:^ {0,3}\1[`~]*[ \t]*$|(?![\s\S]))/gm,
+    /^[ \t]*(?:>[ \t]*|(?:[-*+]|\d{1,9}[.)])[ \t]+)*(`{3,}(?!`)|~{3,}(?!~))[^\n]*\n[\s\S]*?(?:^[ \t>]*\1[`~]*[ \t]*$|(?![\s\S]))/gm,
     ''
   );
   return stripInlineCode(withoutFences);

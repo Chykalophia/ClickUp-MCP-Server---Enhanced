@@ -66,6 +66,11 @@ describe('prepareContentForClickUp', () => {
     expect(looksLikeHtml('~~~\n<p>x</p>\n~~~')).toBe(false);
     expect(looksLikeHtml('Wrap it in `<span>` or ``<br/>``')).toBe(false);
     expect(looksLikeHtml('Unclosed fence\n```\n<div>')).toBe(false);
+    // Fences inside a blockquote or a list item are code too.
+    expect(looksLikeHtml('> Quote:\n> ```html\n> <div>x</div>\n> ```\n> done')).toBe(false);
+    expect(looksLikeHtml('- item\n- ```html\n  <div>x</div>\n  ```\n- next')).toBe(false);
+    expect(looksLikeHtml('1. step\n\n   ```html\n   <div>x</div>\n   ```')).toBe(false);
+    expect(looksLikeHtml('> ```\n> <p>x</p>\n> ```\n\n<p>real</p>')).toBe(true);
     // Real markup outside the code still counts.
     expect(looksLikeHtml('`code` and <p>para</p>')).toBe(true);
     expect(looksLikeHtml('`` ` `` then `unclosed <p>para</p>')).toBe(true);
@@ -76,6 +81,11 @@ describe('prepareContentForClickUp', () => {
     // 200k backticks, so a quadratic regression shows up as a test timeout.
     expect(looksLikeHtml('`'.repeat(200_000))).toBe(false);
     expect(looksLikeHtml(`${'`a'.repeat(20_000)}<p>x</p>`)).toBe(true);
+    // Long runs of indentation or container markers with no fence after them.
+    expect(looksLikeHtml(' '.repeat(100_000))).toBe(false);
+    expect(looksLikeHtml(`${' '.repeat(100_000)}<p>x</p>`)).toBe(true);
+    expect(looksLikeHtml(`${'> '.repeat(50_000)}<p>x</p>`)).toBe(true);
+    expect(looksLikeHtml(`\`\`\`\n${' '.repeat(100_000)}x`)).toBe(false);
   });
 
   it('recognises common tags beyond the basic set', () => {

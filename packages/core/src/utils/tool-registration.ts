@@ -453,6 +453,36 @@ function supportsFormElicitation(server: ElicitCapableServer): boolean {
   return 'form' in elicitation || Object.keys(elicitation).length === 0;
 }
 
+/** Keys of a bulk item that name another object (besides id / *_id). */
+const REFERENCE_KEYS = new Set(['depends_on', 'dependency_of', 'links_to']);
+
+/**
+ * The identifying values of one bulk item: itself, or its id / *_id field
+ * followed by any other references, e.g. `abc depends_on=def`.
+ */
+function itemId(item: unknown): string | undefined {
+  if (typeof item === 'string' || typeof item === 'number') return String(item);
+  if (item && typeof item === 'object') {
+    const refs = Object.entries(item as Record<string, unknown>).filter(
+      ([k, v]) =>
+        (k === 'id' || k.endsWith('_id') || REFERENCE_KEYS.has(k)) &&
+        (typeof v === 'string' || typeof v === 'number')
+    );
+    if (refs.length === 0) return undefined;
+    const primary = refs.findIndex(([k]) => k === 'id' || k.endsWith('_id'));
+    const [, head] = refs[primary === -1 ? 0 : primary];
+    const rest = refs.filter((_, i) => i !== (primary === -1 ? 0 : primary));
+    return [String(head), ...rest.map(([k, v]) => `${k}=${String(v)}`)].join(' ');
+  }
+  return undefined;
+}
+
+/**
+ * Arguments as shown in a confirmation prompt. Short arguments are shown as
+ * JSON. Long ones (bulk calls) are summarised per field so every targeted ID
+ * stays visible instead of being cut off mid-list. The ID lists are never
+ * truncated; their length is bounded by each tool's own item limit.
+ */
 function summarizeArgs(args: unknown): string {
   if (args === undefined) return '';
   let text: string;
@@ -461,8 +491,23 @@ function summarizeArgs(args: unknown): string {
   } catch {
     return '';
   }
-  return text.length > 400 ? `${text.slice(0, 400)}…` : text;
+  if (text.length <= 400 || !args || typeof args !== 'object' || Array.isArray(args)) {
+    return text.length > 400 ? `${text.slice(0, 400)}…` : text;
+  }
+  const parts = Object.entries(args as Record<string, unknown>).map(([key, value]) => {
+    if (Array.isArray(value)) {
+      const ids = value.map(itemId).filter((id): id is string => id !== undefined);
+      const shown = ids.length > 0 ? `: ${ids.join(', ')}` : '';
+      return `${key} (${value.length} item${value.length === 1 ? '' : 's'})${shown}`;
+    }
+    const scalar = JSON.stringify(value) ?? String(value);
+    return `${key}=${scalar.length > 80 ? `${scalar.slice(0, 80)}…` : scalar}`;
+  });
+  return parts.join('; ');
 }
+
+/** Longest argument summary a confirmation prompt will carry. */
+const MAX_CONFIRM_ARGS_LENGTH = 20_000;
 
 type CancelledResult = { content: Array<{ type: 'text'; text: string }>; isError: true };
 
@@ -485,6 +530,12 @@ async function confirmDestructiveCall(
     content: [{ type: 'text', text: `${name} was cancelled${reason}. Nothing was changed.` }],
     isError: true,
   });
+  // Never truncate what the user is confirming: refuse a call too large to show.
+  if (argText.length > MAX_CONFIRM_ARGS_LENGTH) {
+    return cancelled(
+      ': its arguments are too large to show for confirmation; split it into smaller calls'
+    );
+  }
 
   try {
     const result = await server.elicitInput(

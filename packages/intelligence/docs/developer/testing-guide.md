@@ -371,11 +371,11 @@ npm test -- health-metrics-service.test.ts
 # Run tests in watch mode
 npm run test:watch
 
-# Run integration tests only
-npm test -- --testPathPatterns=integration
+# Run only the service tests
+npm test -- --testPathPatterns=services
 
-# Run performance tests
-npm test -- --testPathPatterns=performance
+# Run one test file
+npm test -- --testPathPatterns=real-time-processing-engine
 ```
 
 ### CI/CD Integration

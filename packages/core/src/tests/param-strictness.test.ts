@@ -9,9 +9,7 @@
  * call would skip entirely.
  */
 
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
+import type { Client } from '@modelcontextprotocol/sdk/client/index.js';
 
 // Mock functions must be declared before jest.mock hoisting can reference them
 const mockPost = jest.fn();
@@ -48,61 +46,13 @@ jest.mock('../utils/markdown', () => ({
 }));
 
 // Imported after the mocks so the tool modules pick them up at load time.
-import { enforceStrictParams, unknownParamMessage } from '../utils/tool-registration.js';
+import { unknownParamMessage } from '../utils/tool-registration.js';
+import { connectServer, callTool } from './mcp-test-harness';
 import { PARAM_ALIASES } from '../utils/param-aliases.js';
 import { setupTaskTools } from '../tools/task-tools';
 import { setupWorkspaceTools } from '../tools/workspace-tools';
 import { setupSpaceTools } from '../tools/space-tools';
 import { setupEnhancedDocTools } from '../tools/doc-tools-enhanced';
-
-interface ToolCallOutcome {
-  failed: boolean;
-  text: string;
-}
-
-/**
- * Call a tool and normalise how a rejection arrives. Depending on the SDK
- * version a validation failure comes back either as a CallToolResult with
- * isError set or as a thrown McpError; the assertions here care that the call
- * failed and what it said, not which envelope carried it.
- */
-async function callTool(
-  client: Client,
-  name: string,
-  args: Record<string, unknown>
-): Promise<ToolCallOutcome> {
-  try {
-    const result = (await client.callTool({ name, arguments: args })) as {
-      isError?: boolean;
-      content?: Array<{ text?: string }>;
-    };
-    return {
-      failed: result.isError === true,
-      text: (result.content ?? []).map(entry => entry.text ?? '').join('\n'),
-    };
-  } catch (error: unknown) {
-    return { failed: true, text: error instanceof Error ? error.message : String(error) };
-  }
-}
-
-async function connectServer(
-  register: (server: McpServer) => void
-): Promise<{ client: Client; close: () => Promise<void> }> {
-  const server = enforceStrictParams(new McpServer({ name: 'test-server', version: '1.0.0' }));
-  register(server);
-
-  const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
-  const client = new Client({ name: 'test-client', version: '1.0.0' });
-  await Promise.all([server.connect(serverTransport), client.connect(clientTransport)]);
-
-  return {
-    client,
-    close: async () => {
-      await client.close();
-      await server.close();
-    },
-  };
-}
 
 describe('strict tool parameters', () => {
   let client: Client;

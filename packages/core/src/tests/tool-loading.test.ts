@@ -583,6 +583,24 @@ describe('tool loading', () => {
       expect(elicitation).not.toHaveBeenCalled();
     });
 
+    it('refuses a confirmation too large to show in full', async () => {
+      const elicitation = jest
+        .fn()
+        .mockResolvedValue({ action: 'accept', content: { confirm: true } });
+      harness = await connect({}, { elicitation });
+      const taskIds = Array.from({ length: 50 }, (_, i) => `${i}`.padEnd(500, 'x'));
+      const result = await harness.client.callTool({
+        name: 'clickup_call_tool',
+        arguments: {
+          tool: 'clickup_bulk_delete_tasks',
+          arguments: { task_ids: taskIds, confirm_deletion: true },
+        },
+      });
+      expect(result.isError).toBe(true);
+      expect(JSON.stringify(result.content)).toContain('too large to show for confirmation');
+      expect(elicitation).not.toHaveBeenCalled();
+    });
+
     it('does not prompt for non-destructive tools', async () => {
       const elicitation = jest.fn();
       mockAxiosGet.mockResolvedValue({ data: { goals: [] } });

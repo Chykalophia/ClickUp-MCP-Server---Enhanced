@@ -175,6 +175,31 @@ describe('resolveUploadFilePath', () => {
     }
   });
 
+  it('returns a file that shrank after the size check', async () => {
+    writeFileSync(join(uploadDir, 'shrinks.bin'), Buffer.from('short'));
+    // Make the opened handle report a large size, as if the file shrank after the stat.
+    const fsp = jest.requireActual<typeof import('node:fs/promises')>('node:fs/promises');
+    const realOpen = fsp.open;
+    const spy = jest
+      .spyOn(fsp, 'open')
+      .mockImplementation(async (...args: Parameters<typeof realOpen>) => {
+        const handle = await realOpen(...args);
+        const realStat = handle.stat.bind(handle);
+        handle.stat = (async (opts?: { bigint?: false }) =>
+          Object.assign(await realStat(opts), { size: 500_000 })) as typeof handle.stat;
+        return handle;
+      });
+    try {
+      const result = await readUploadFile('shrinks.bin', { maxBytes: 1_000_000, uploadDir });
+      expect(result).toEqual(Buffer.from('short'));
+      // Copied out rather than a view onto the stat-sized buffer.
+      expect(result.buffer.byteLength).toBeLessThan(64 * 1024);
+      expect(spy).toHaveBeenCalled();
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
   it('reads files larger than one chunk, up to exactly maxBytes', async () => {
     const big = Buffer.alloc(200_000, 7);
     writeFileSync(join(uploadDir, 'big.bin'), big);

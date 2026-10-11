@@ -71,11 +71,11 @@ describe('prepareContentForClickUp', () => {
     expect(looksLikeHtml('`` ` `` then `unclosed <p>para</p>')).toBe(true);
   });
 
-  it('strips inline code in linear time on long backtick runs', () => {
-    const start = Date.now();
-    expect(looksLikeHtml('`'.repeat(20_000))).toBe(false);
+  it('handles long backtick runs', () => {
+    // No wall-clock assertion: the old backreference regex took minutes on
+    // 200k backticks, so a quadratic regression shows up as a test timeout.
+    expect(looksLikeHtml('`'.repeat(200_000))).toBe(false);
     expect(looksLikeHtml(`${'`a'.repeat(20_000)}<p>x</p>`)).toBe(true);
-    expect(Date.now() - start).toBeLessThan(500);
   });
 
   it('recognises common tags beyond the basic set', () => {

@@ -24,6 +24,12 @@ by default:
   stderr and falls back to core (6.x fell back to all).
 - The declared Node.js floor is now 18.14.0 (`engines`), the minimum Jest 30
   supports.
+- The `clickup-mcp-server-efficiency` bin (`build/index-efficiency-simple.js`)
+  is now an alias of the main server. Its separate tools
+  `clickup_find_chat_channels`, `clickup_get_workspace_overview` and
+  `clickup_analyze_workflow_efficiency` are gone: use
+  `clickup_search_chat_channels`, `clickup_get_workspace_hierarchy` and the
+  catalog tools instead.
 
 ### New: catalog tools (always on)
 

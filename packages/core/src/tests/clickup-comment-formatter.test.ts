@@ -726,6 +726,19 @@ Visit [ClickUp](https://clickup.com) for more info.`;
   });
 
   describe('clickUpCommentToMarkdown — block-level attributes', () => {
+    it('formats only the line a terminator ends, not plain lines before it', () => {
+      const markdown = clickUpCommentToMarkdown({
+        comment: [
+          { text: 'intro\nmore intro\nTitle', attributes: {} },
+          { text: '\n', attributes: { header: 2 } },
+          { text: 'plain\nconst x = 1;', attributes: {} },
+          { text: '\n', attributes: { 'code-block': { 'code-block': 'js' } } },
+        ],
+      });
+
+      expect(markdown).toBe('intro\nmore intro\n## Title\nplain\n```js\nconst x = 1;\n```');
+    });
+
     it('rebuilds headings, lists, quotes and code blocks from the line markers', () => {
       const markdown = clickUpCommentToMarkdown({
         comment: [

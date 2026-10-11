@@ -123,10 +123,9 @@ This Enhanced version is based on the original ClickUp MCP Server codebase by [D
 
 ## 📊 Complete Tool Inventory (177 Tools, plus 3 catalog tools)
 
-### 🧠 Efficiency & Intelligence Tools (20+ tools) ⭐
-- **Smart Discovery**: `clickup_find_chat_channels`, `clickup_search_views_by_name`, `clickup_get_workspace_overview`
-- **Workflow Analysis**: `clickup_analyze_tool_efficiency`, `clickup_suggest_tools_for_task`
-- **Enhanced Metadata**: All 153 core tools enhanced with efficiency hints and alternatives
+### 🧠 Discovery & Tool Loading ⭐
+- **Catalog tools (always on)**: `clickup_list_toolsets`, `clickup_enable_toolset`, `clickup_call_tool` reach every tool without loading all schemas up front (see [Tool loading](docs/guides/TOOL_LOADING.md))
+- **Smart Discovery**: `clickup_get_workspace_hierarchy` (names to IDs in one call), `clickup_find_member`, `clickup_search_chat_channels`
 
 ### Core Workspace Management (54 tools)
 - **Workspaces**: `clickup_get_workspaces`, `clickup_get_workspace_seats`
@@ -152,25 +151,15 @@ This Enhanced version is based on the original ClickUp MCP Server codebase by [D
 
 ## 🚀 Efficiency Examples
 
-### Smart Chat Discovery (60% faster)
+### Smart Chat Discovery
 
 Instead of hierarchical navigation:
 ```typescript
 // ❌ OLD WAY (4+ API calls)
 clickup_get_workspaces() → clickup_get_spaces() → clickup_get_views() → filter for chat
 
-// ✅ NEW WAY (1 API call)
-clickup_find_chat_channels({ channel_name: "development" })
-```
-
-### Workflow Analysis
-```typescript
-clickup_analyze_workflow_efficiency({
-  goal: "Post message to team chat",
-  planned_tools: ["clickup_get_workspaces", "clickup_get_spaces", "clickup_get_views"],
-  time_constraint: "urgent"
-})
-// Returns: Optimized workflow with 55% efficiency gain
+// ✅ NEW WAY (1 call)
+clickup_search_chat_channels({ workspace_id: "123", query: "development" })
 ```
 
 ### Bulk Task Operations

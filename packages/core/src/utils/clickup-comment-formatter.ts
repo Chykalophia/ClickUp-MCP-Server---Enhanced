@@ -289,6 +289,15 @@ export function clickUpCommentToMarkdown(commentFormat: ClickUpCommentFormat): s
     }
 
     const attrs = block.attributes || {};
+    // A text block can carry earlier, unformatted lines. Only the segment after
+    // the last embedded newline belongs to the line this terminator ends.
+    const cut = current.lastIndexOf('\n');
+    if (cut >= 0) {
+      flushCode();
+      lines.push(...current.slice(0, cut).split('\n'));
+      ordinals.length = 0;
+      current = current.slice(cut + 1);
+    }
     const listKind = attrs.list?.list;
     const indent = typeof attrs.indent === 'number' && attrs.indent > 0 ? attrs.indent : 0;
     const pad = '  '.repeat(indent);

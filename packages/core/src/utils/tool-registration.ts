@@ -453,22 +453,35 @@ function supportsFormElicitation(server: ElicitCapableServer): boolean {
   return 'form' in elicitation || Object.keys(elicitation).length === 0;
 }
 
-/** The identifying value of one bulk item: itself, or its id / *_id field. */
+/** Keys of a bulk item that name another object (besides id / *_id). */
+const REFERENCE_KEYS = new Set(['depends_on', 'dependency_of', 'links_to']);
+
+/**
+ * The identifying values of one bulk item: itself, or its id / *_id field
+ * followed by any other references, e.g. `abc depends_on=def`.
+ */
 function itemId(item: unknown): string | undefined {
   if (typeof item === 'string' || typeof item === 'number') return String(item);
   if (item && typeof item === 'object') {
-    const record = item as Record<string, unknown>;
-    const key = 'id' in record ? 'id' : Object.keys(record).find(k => k.endsWith('_id'));
-    const value = key ? record[key] : undefined;
-    if (typeof value === 'string' || typeof value === 'number') return String(value);
+    const refs = Object.entries(item as Record<string, unknown>).filter(
+      ([k, v]) =>
+        (k === 'id' || k.endsWith('_id') || REFERENCE_KEYS.has(k)) &&
+        (typeof v === 'string' || typeof v === 'number')
+    );
+    if (refs.length === 0) return undefined;
+    const primary = refs.findIndex(([k]) => k === 'id' || k.endsWith('_id'));
+    const [, head] = refs[primary === -1 ? 0 : primary];
+    const rest = refs.filter((_, i) => i !== (primary === -1 ? 0 : primary));
+    return [String(head), ...rest.map(([k, v]) => `${k}=${String(v)}`)].join(' ');
   }
   return undefined;
 }
 
 /**
  * Arguments as shown in a confirmation prompt. Short arguments are shown as
- * JSON. Long ones (bulk calls of up to 50 items) are summarised per field so
- * every targeted ID stays visible instead of being cut off mid-list.
+ * JSON. Long ones (bulk calls) are summarised per field so every targeted ID
+ * stays visible instead of being cut off mid-list. The ID lists are never
+ * truncated; their length is bounded by each tool's own item limit.
  */
 function summarizeArgs(args: unknown): string {
   if (args === undefined) return '';
@@ -490,8 +503,7 @@ function summarizeArgs(args: unknown): string {
     const scalar = JSON.stringify(value) ?? String(value);
     return `${key}=${scalar.length > 80 ? `${scalar.slice(0, 80)}…` : scalar}`;
   });
-  const summary = parts.join('; ');
-  return summary.length > 4000 ? `${summary.slice(0, 4000)}…` : summary;
+  return parts.join('; ');
 }
 
 type CancelledResult = { content: Array<{ type: 'text'; text: string }>; isError: true };

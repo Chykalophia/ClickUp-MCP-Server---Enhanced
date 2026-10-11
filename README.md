@@ -158,7 +158,7 @@ Instead of hierarchical navigation:
 // ❌ OLD WAY (4+ API calls)
 clickup_get_workspaces() → clickup_get_spaces() → clickup_get_views() → filter for chat
 
-// ✅ NEW WAY (1 tool call; the server pages through channels for you)
+// ✅ NEW WAY (1 tool call; searches up to the first 1,000 channels)
 clickup_search_chat_channels({ workspace_id: "123", query: "development" })
 ```
 

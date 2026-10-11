@@ -214,7 +214,7 @@ const HTML_TAG_PATTERN =
  */
 function stripMarkdownCode(content: string): string {
   const withoutFences = content.replace(
-    /^[ \t]*(?:(?:>|[-*+]|\d{1,9}[.)])[ \t]*)*(`{3,}(?!`)|~{3,}(?!~))[^\n]*\n[\s\S]*?(?:^[ \t>]*\1[`~]*[ \t]*$|(?![\s\S]))/gm,
+    /^[ \t]*(?:>[ \t]*|(?:[-*+]|\d{1,9}[.)])[ \t]+)*(`{3,}(?!`)|~{3,}(?!~))[^\n]*\n[\s\S]*?(?:^[ \t>]*\1[`~]*[ \t]*$|(?![\s\S]))/gm,
     ''
   );
   return stripInlineCode(withoutFences);

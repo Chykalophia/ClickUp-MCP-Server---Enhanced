@@ -148,7 +148,7 @@ function maskNonCode(source: string): string {
         i = templateText(i + 1);
       }
     } else if (ch === '(') {
-      parens.push(/(?:^|[^\w$.])(?:if|while|for|with)\s*$/.test(out.slice(-200)));
+      parens.push(/(?<![\w$])(?<!\.\s*)(?:if|while|for(?:\s+await)?|with)\s*$/.test(out.slice(-200)));
       out += ch;
       i++;
     } else if (ch === ')') {

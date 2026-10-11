@@ -109,17 +109,29 @@ export async function readUploadFile(
     }
     // The file can grow after the stat, so read to EOF in chunks rather than
     // trusting the stat size, and fail once more than maxBytes arrive.
-    const chunks: Buffer[] = [];
+    // Read into one buffer sized from the stat (plus one byte to detect
+    // growth), so the file is held once rather than as chunks plus a copy.
+    let buffer = Buffer.alloc(Math.min(opened.size + 1, options.maxBytes + 1));
     let total = 0;
     for (;;) {
-      const chunk = Buffer.alloc(Math.min(64 * 1024, options.maxBytes + 1 - total));
-      const { bytesRead } = await handle.read(chunk, 0, chunk.length, null);
+      if (total === buffer.length) {
+        if (total > options.maxBytes) throw sizeError(options.maxBytes);
+        // The file grew after the stat: grow the buffer, still capped.
+        const grown = Buffer.alloc(Math.min(buffer.length * 2, options.maxBytes + 1));
+        buffer.copy(grown, 0, 0, total);
+        buffer = grown;
+      }
+      const { bytesRead } = await handle.read(
+        buffer,
+        total,
+        Math.min(64 * 1024, buffer.length - total),
+        null
+      );
       if (bytesRead === 0) break;
       total += bytesRead;
-      if (total > options.maxBytes) throw sizeError(options.maxBytes);
-      chunks.push(chunk.subarray(0, bytesRead));
     }
-    return Buffer.concat(chunks, total);
+    if (total > options.maxBytes) throw sizeError(options.maxBytes);
+    return buffer.subarray(0, total);
   } finally {
     await handle.close();
   }

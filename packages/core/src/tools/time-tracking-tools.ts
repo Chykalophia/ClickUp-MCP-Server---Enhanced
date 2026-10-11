@@ -446,6 +446,63 @@ export function setupTimeTrackingTools(server: McpServer): void {
     }
   );
 
+  server.tool(
+    'clickup_remove_tags_from_time_entries',
+    'Remove tags from one or more time entries in bulk. The tags themselves stay in the Workspace.',
+    {
+      team_id: idSchema().describe('The ID of the team (Workspace)'),
+      time_entry_ids: z
+        .array(idSchema())
+        .min(1)
+        .describe('Array of time entry IDs to remove the tags from'),
+      tag_names: z.array(z.string().min(1)).min(1).describe('Names of the tags to remove'),
+    },
+    async ({ team_id, time_entry_ids, tag_names }) => {
+      try {
+        await timeTrackingClient.removeTagsFromTimeEntries(team_id, time_entry_ids, tag_names);
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Tags removed from ${time_entry_ids.length} time entr${time_entry_ids.length === 1 ? 'y' : 'ies'} in team ${team_id}.`,
+            },
+          ],
+        };
+      } catch (error: unknown) {
+        return mcpError('removing tags from time entries', error);
+      }
+    }
+  );
+
+  server.tool(
+    'clickup_rename_time_entry_tag',
+    'Rename a time entry tag everywhere it is used in a Workspace. ClickUp requires the tag colors on every rename; read the current ones with clickup_get_time_entry_tags to keep them.',
+    {
+      team_id: idSchema().describe('The ID of the team (Workspace)'),
+      name: z.string().min(1).describe('Current tag name'),
+      new_name: z.string().min(1).describe('New tag name'),
+      tag_bg: z.string().min(1).describe('Tag background color, e.g. "#7B68EE"'),
+      tag_fg: z.string().min(1).describe('Tag foreground (text) color, e.g. "#FFFFFF"'),
+    },
+    async ({ team_id, ...params }) => {
+      try {
+        await timeTrackingClient.renameTimeEntryTag(team_id, params);
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `Time entry tag "${params.name}" renamed to "${params.new_name}" in team ${team_id}.`,
+            },
+          ],
+        };
+      } catch (error: unknown) {
+        return mcpError('renaming time entry tag', error);
+      }
+    }
+  );
+
   // ========================================
   // TIMER OPERATIONS
   // ========================================

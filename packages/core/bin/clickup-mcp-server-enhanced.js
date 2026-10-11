@@ -1,9 +1,11 @@
 #!/usr/bin/env node
-import { fileURLToPath } from 'url';
+// Alias of the single ClickUp MCP server (build/index-enhanced.js). The
+// -basic/-enhanced/-efficiency bins all start the same server; they are kept
+// so existing client configs keep working.
+import { fileURLToPath, pathToFileURL } from 'url';
 import { dirname, join } from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Execute the enhanced version
-await import(join(__dirname, '../build/index-enhanced.js'));
+// import() needs a file URL, not a bare path, to work on Windows.
+await import(pathToFileURL(join(__dirname, '../build/index-enhanced.js')).href);

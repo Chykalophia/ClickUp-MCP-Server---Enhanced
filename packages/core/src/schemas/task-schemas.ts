@@ -16,11 +16,23 @@ export const BulkCreateTaskItemSchema = z.object({
   assignees: z.array(z.number()).optional().describe('The IDs of the users to assign to the task'),
   tags: z.array(z.string()).optional().describe('The tags to add to the task'),
   status: z.string().optional().describe('The status of the task'),
-  priority: z.number().min(1).max(4).optional().describe('The priority of the task (1-4)'),
-  due_date: z.number().optional().describe('The due date of the task (Unix timestamp)'),
+  priority: z
+    .number()
+    .int()
+    .min(1)
+    .max(4)
+    .optional()
+    .describe('The priority of the task (1 = Urgent, 2 = High, 3 = Normal, 4 = Low)'),
+  due_date: z
+    .number()
+    .optional()
+    .describe('The due date of the task (Unix timestamp in milliseconds)'),
   due_date_time: z.boolean().optional().describe('Whether the due date includes a time'),
   time_estimate: z.number().optional().describe('The time estimate for the task (in milliseconds)'),
-  start_date: z.number().optional().describe('The start date of the task (Unix timestamp)'),
+  start_date: z
+    .number()
+    .optional()
+    .describe('The start date of the task (Unix timestamp in milliseconds)'),
   start_date_time: z.boolean().optional().describe('Whether the start date includes a time'),
   notify_all: z.boolean().optional().describe('Whether to notify all assignees'),
   parent: z.string().optional().describe('The ID of the parent task'),
@@ -56,14 +68,26 @@ export const BulkUpdateTaskItemSchema = z.object({
     .describe('Raw markdown content for the task description (alternative to description field)'),
   assignees: z.array(z.number()).optional().describe('The IDs of the users to assign to the task'),
   status: z.string().optional().describe('The new status of the task'),
-  priority: z.number().min(1).max(4).optional().describe('The new priority of the task (1-4)'),
-  due_date: z.number().optional().describe('The new due date of the task (Unix timestamp)'),
+  priority: z
+    .number()
+    .int()
+    .min(1)
+    .max(4)
+    .optional()
+    .describe('The new priority of the task (1 = Urgent, 2 = High, 3 = Normal, 4 = Low)'),
+  due_date: z
+    .number()
+    .optional()
+    .describe('The new due date of the task (Unix timestamp in milliseconds)'),
   due_date_time: z.boolean().optional().describe('Whether the due date includes a time'),
   time_estimate: z
     .number()
     .optional()
     .describe('The new time estimate for the task (in milliseconds)'),
-  start_date: z.number().optional().describe('The new start date of the task (Unix timestamp)'),
+  start_date: z
+    .number()
+    .optional()
+    .describe('The new start date of the task (Unix timestamp in milliseconds)'),
   start_date_time: z.boolean().optional().describe('Whether the start date includes a time'),
 });
 

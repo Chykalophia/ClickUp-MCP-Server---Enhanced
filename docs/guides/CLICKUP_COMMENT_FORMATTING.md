@@ -281,7 +281,7 @@ Comprehensive tests cover all formatting scenarios:
 
 ```bash
 # Run ClickUp comment formatting tests
-npm test -- --testPathPattern=clickup-comment-formatter
+npm test -- --testPathPatterns=clickup-comment-formatter
 
 # Test specific formatting features
 npm test -- --testNamePattern="bold|italic|links"

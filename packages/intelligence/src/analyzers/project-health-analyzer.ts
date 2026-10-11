@@ -65,13 +65,13 @@ export class ProjectHealthAnalyzer {
    */
   async analyzeProjectHealth(params: ProjectHealthAnalysisParams): Promise<ProjectHealthAnalysisResult> {
     try {
-      console.log(`[ProjectHealthAnalyzer] Starting analysis for workspace: ${params.workspace_id}`);
+      console.error(`[ProjectHealthAnalyzer] Starting analysis for workspace: ${params.workspace_id}`);
       
       // Fetch project data
       const tasks = await this.fetchTasks(params);
       const teamMembers = await this.fetchTeamMembers(params.workspace_id);
       
-      console.log(`[ProjectHealthAnalyzer] Analyzing ${tasks.length} tasks with ${teamMembers.length} team members`);
+      console.error(`[ProjectHealthAnalyzer] Analyzing ${tasks.length} tasks with ${teamMembers.length} team members`);
       
       // Calculate detailed health metrics
       const metrics = this.healthMetricsService.calculateHealthScore({
@@ -96,7 +96,7 @@ export class ProjectHealthAnalyzer {
       // Create summary
       const summary = this.createSummary(metrics);
 
-      console.log(`[ProjectHealthAnalyzer] Analysis complete. Overall score: ${summary.overallScore}`);
+      console.error(`[ProjectHealthAnalyzer] Analysis complete. Overall score: ${summary.overallScore}`);
 
       return {
         summary,

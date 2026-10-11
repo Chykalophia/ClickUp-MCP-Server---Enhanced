@@ -331,7 +331,12 @@ export function setupListFolderTools(server: McpServer): void {
         .describe('The type of container to create the list in'),
       container_id: idSchema().describe('The ID of the container to create the list in'),
       name: z.string().describe('The name of the list'),
-      content: z.string().optional().describe('The description/content of the list'),
+      content: z
+        .string()
+        .optional()
+        .describe(
+          'The description of the list. Markdown is supported (sent to ClickUp as markdown_content).'
+        ),
       due_date: z
         .number()
         .optional()
@@ -387,7 +392,12 @@ export function setupListFolderTools(server: McpServer): void {
     {
       space_id: idSchema().describe('The ID of the space to create the folderless list in'),
       name: z.string().describe('The name of the folderless list'),
-      content: z.string().optional().describe('The description/content of the list'),
+      content: z
+        .string()
+        .optional()
+        .describe(
+          'The description of the list. Markdown is supported (sent to ClickUp as markdown_content).'
+        ),
       due_date: z
         .number()
         .optional()
@@ -450,7 +460,12 @@ export function setupListFolderTools(server: McpServer): void {
     {
       list_id: idSchema().describe('The ID of the list to update'),
       name: z.string().optional().describe('The new name of the list'),
-      content: z.string().optional().describe('The new description/content of the list'),
+      content: z
+        .string()
+        .optional()
+        .describe(
+          'The new description of the list. Markdown is supported (sent to ClickUp as markdown_content); an empty string clears it.'
+        ),
       due_date: z
         .number()
         .optional()
@@ -663,6 +678,41 @@ export function setupListFolderTools(server: McpServer): void {
         };
       } catch (error: unknown) {
         return mcpError('getting folder templates', error);
+      }
+    }
+  );
+  server.tool(
+    'clickup_get_list_templates',
+    'List the List templates available in a ClickUp workspace. Use a returned template ID (it starts with "t-") with clickup_create_list_from_template_in_folder or clickup_create_list_from_template_in_space.',
+    {
+      team_id: idSchema().describe('The ID of the workspace (team) to get List templates from'),
+    },
+    async ({ team_id }) => {
+      try {
+        const result = await listsClient.getListTemplates(team_id);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result) }],
+        };
+      } catch (error: unknown) {
+        return mcpError('getting list templates', error);
+      }
+    }
+  );
+
+  server.tool(
+    'clickup_get_shared_hierarchy',
+    'Get the tasks, Lists and Folders that have been shared with the authenticated user but sit outside the spaces they belong to. Use it to find items a guest or limited member can reach that clickup_get_workspace_hierarchy does not show.',
+    {
+      team_id: idSchema().describe('The ID of the workspace (team)'),
+    },
+    async ({ team_id }) => {
+      try {
+        const result = await listsClient.getSharedHierarchy(team_id);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result) }],
+        };
+      } catch (error: unknown) {
+        return mcpError('getting shared hierarchy', error);
       }
     }
   );

@@ -27,8 +27,8 @@ const config = {
       // integration) builds a type graph over the SDK tool() x zod generics
       // that exhausts the 4 GB Node heap and OOM-kills the jest worker. Per-file
       // transpile keeps memory bounded; types are still enforced by `npm run
-      // typecheck`.
-      isolatedModules: true,
+      // typecheck`. (Set via tsconfig.isolatedModules below; ts-jest reads it
+      // from there and has deprecated its own top-level `isolatedModules`.)
       tsconfig: {
         module: 'esnext',
         target: 'es2020',

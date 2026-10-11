@@ -131,21 +131,27 @@ export const DEFAULT_SEARCH_MAX_PAGES = 10;
  * Flatten a page tree (as returned by GET /docs/{id}/pages with
  * max_page_depth=-1, where child pages nest under each page's `pages`) into
  * one markdown document. Top-level pages get `#`, children `##`, and so on,
- * capped at `######`.
+ * capped at `######`. For text/plain the page title is a bare line instead,
+ * so the output carries no markdown markers.
  */
-export function flattenDocPages(pages: Page[] | undefined, depth = 1): string {
+export function flattenDocPages(
+  pages: Page[] | undefined,
+  format: 'text/md' | 'text/plain' = 'text/md',
+  depth = 1
+): string {
   if (!Array.isArray(pages)) return '';
   let combined = '';
   for (const page of pages) {
     const hasChildren = Array.isArray(page.pages) && page.pages.length > 0;
     // Always emit the heading, so blank pages still show up in the outline.
-    const heading = '#'.repeat(Math.min(depth, 6));
-    combined += `${heading} ${page.name}\n\n`;
+    const title =
+      format === 'text/plain' ? page.name : `${'#'.repeat(Math.min(depth, 6))} ${page.name}`;
+    combined += `${title}\n\n`;
     if (page.content) {
       combined += `${page.content}\n\n`;
     }
     if (hasChildren) {
-      combined += flattenDocPages(page.pages, depth + 1);
+      combined += flattenDocPages(page.pages, format, depth + 1);
     }
   }
   return combined;

@@ -146,9 +146,9 @@ list and the new tools appear. Core and catalog tools are never disabled.
 ```
 
 Runs any registered tool, enabled or not. `arguments` is validated with that
-tool's strict schema (unknown parameters are rejected with a "did you mean"
-hint, exactly as a direct call would be) and the tool's result is returned
-unchanged. An unknown tool name returns an error, with a "did you mean" hint
+tool's strict schema (unknown parameters are rejected exactly as a direct call
+would be, with a "did you mean" hint when a declared name is close enough) and
+the tool's result is returned unchanged. An unknown tool name returns an error, with a "did you mean" hint
 when a registered name is close enough.
 Catalog tools cannot be called through it.
 
@@ -159,8 +159,10 @@ call that does not justify loading a whole toolset.
 
 Every tool carries MCP annotations, applied centrally from its name:
 
-- `title` — humanised from the name (`clickup_get_task_details` → "Get Task Details")
-- `readOnlyHint` — `get_`, `list_`, `search_`, `validate_`, `format_`, `check_`, `find_`, `resolve_`
+- `title` — humanised from the name by default (`clickup_get_task_details` →
+  "Get Task Details"); the catalog tools have explicit titles
+- `readOnlyHint` — `get_`, `list_`, `search_`, `validate_`, `format_`, `check_`, `find_`, `resolve_`,
+  plus overrides such as `clickup_process_webhook` (it parses a payload locally)
 - `destructiveHint` — `delete_`, `remove_`, `merge_`, `bulk_delete_`; explicitly
   `false` for other write tools (the MCP default is `true`)
 - `idempotentHint` — reads and `update_` / `set_` / `edit_` / `add_tag` / `move_`

@@ -73,6 +73,15 @@ describe('flattenDocPages', () => {
       ] as never)
     ).toBe('# Intro\n\nhi\n\n# TODO\n\n');
   });
+
+  it('emits bare title lines with no markdown markers for text/plain', () => {
+    expect(
+      flattenDocPages(
+        [{ name: 'Top', content: 'a', pages: [{ name: 'Child', content: 'b' }] }] as never,
+        'text/plain'
+      )
+    ).toBe('Top\n\na\n\nChild\n\nb\n\n');
+  });
 });
 
 describe('document schemas', () => {

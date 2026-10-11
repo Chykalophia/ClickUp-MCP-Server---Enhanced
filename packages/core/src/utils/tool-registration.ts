@@ -453,6 +453,23 @@ function supportsFormElicitation(server: ElicitCapableServer): boolean {
   return 'form' in elicitation || Object.keys(elicitation).length === 0;
 }
 
+/** The identifying value of one bulk item: itself, or its id / *_id field. */
+function itemId(item: unknown): string | undefined {
+  if (typeof item === 'string' || typeof item === 'number') return String(item);
+  if (item && typeof item === 'object') {
+    const record = item as Record<string, unknown>;
+    const key = 'id' in record ? 'id' : Object.keys(record).find(k => k.endsWith('_id'));
+    const value = key ? record[key] : undefined;
+    if (typeof value === 'string' || typeof value === 'number') return String(value);
+  }
+  return undefined;
+}
+
+/**
+ * Arguments as shown in a confirmation prompt. Short arguments are shown as
+ * JSON. Long ones (bulk calls of up to 50 items) are summarised per field so
+ * every targeted ID stays visible instead of being cut off mid-list.
+ */
 function summarizeArgs(args: unknown): string {
   if (args === undefined) return '';
   let text: string;
@@ -461,7 +478,20 @@ function summarizeArgs(args: unknown): string {
   } catch {
     return '';
   }
-  return text.length > 400 ? `${text.slice(0, 400)}…` : text;
+  if (text.length <= 400 || !args || typeof args !== 'object' || Array.isArray(args)) {
+    return text.length > 400 ? `${text.slice(0, 400)}…` : text;
+  }
+  const parts = Object.entries(args as Record<string, unknown>).map(([key, value]) => {
+    if (Array.isArray(value)) {
+      const ids = value.map(itemId).filter((id): id is string => id !== undefined);
+      const shown = ids.length > 0 ? `: ${ids.join(', ')}` : '';
+      return `${key} (${value.length} item${value.length === 1 ? '' : 's'})${shown}`;
+    }
+    const scalar = JSON.stringify(value) ?? String(value);
+    return `${key}=${scalar.length > 80 ? `${scalar.slice(0, 80)}…` : scalar}`;
+  });
+  const summary = parts.join('; ');
+  return summary.length > 4000 ? `${summary.slice(0, 4000)}…` : summary;
 }
 
 type CancelledResult = { content: Array<{ type: 'text'; text: string }>; isError: true };

@@ -284,20 +284,28 @@ export function clickUpCommentToMarkdown(commentFormat: ClickUpCommentFormat): s
 
   for (const block of commentFormat.comment) {
     if (block.text !== '\n') {
-      current += inline(block);
+      // A text block can carry earlier, unformatted lines. Each embedded
+      // newline ends a plain line; only the text after the last one belongs to
+      // the line the next terminator formats. Inline styling is applied per
+      // segment so its delimiters never straddle a line break.
+      if (typeof block.text !== 'string' || !block.text.includes('\n')) {
+        current += inline(block);
+        continue;
+      }
+      const segments = block.text.split('\n');
+      segments.forEach((segment, index) => {
+        if (segment) current += inline({ ...block, text: segment });
+        if (index < segments.length - 1) {
+          flushCode();
+          lines.push(current);
+          ordinals.length = 0;
+          current = '';
+        }
+      });
       continue;
     }
 
     const attrs = block.attributes || {};
-    // A text block can carry earlier, unformatted lines. Only the segment after
-    // the last embedded newline belongs to the line this terminator ends.
-    const cut = current.lastIndexOf('\n');
-    if (cut >= 0) {
-      flushCode();
-      lines.push(...current.slice(0, cut).split('\n'));
-      ordinals.length = 0;
-      current = current.slice(cut + 1);
-    }
     const listKind = attrs.list?.list;
     const indent = typeof attrs.indent === 'number' && attrs.indent > 0 ? attrs.indent : 0;
     const pad = '  '.repeat(indent);
@@ -538,11 +546,19 @@ export function parseMarkdownToClickUpComment(markdown: string): ClickUpCommentF
 
     // Handle fenced code blocks -> real code block, not the inline-code
     // attribute. The fence's language rides along; ClickUp defaults to 'plain'.
-    if (line.startsWith('```')) {
-      const language = line.slice(3).trim() || 'plain';
+    const fenceOpen = line.match(/^(`{3,})(.*)$/);
+    if (fenceOpen) {
+      // The fence can be longer than three backticks; the language follows the
+      // whole run, and only a run at least as long closes the block.
+      const fence = fenceOpen[1];
+      const language = fenceOpen[2].trim() || 'plain';
+      const isClose = (candidate: string): boolean => {
+        const run = candidate.trim().match(/^`+/);
+        return run !== null && run[0].length >= fence.length && candidate.trim() === run[0];
+      };
       const codeLines = [];
-      i++; // Skip the opening ```
-      while (i < lines.length && !lines[i].trim().startsWith('```')) {
+      i++; // Skip the opening fence
+      while (i < lines.length && !isClose(lines[i])) {
         codeLines.push(lines[i]);
         i++;
       }

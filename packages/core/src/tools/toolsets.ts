@@ -253,7 +253,7 @@ export interface ToolCounts {
 export function describeToolsets(resolved: ResolvedToolsets, counts: ToolCounts): string {
   const withheld = counts.total - counts.enabled;
   if (resolved.isAll) {
-    return `all ${counts.total} tools enabled (CLICKUP_TOOL_MODE=all)`;
+    return `all ${counts.total} tools enabled`;
   }
   const extra = resolved.enabled.size > 0 ? ` + toolsets: ${[...resolved.enabled].join(', ')}` : '';
   const base = resolved.legacyNarrow

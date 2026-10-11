@@ -158,7 +158,7 @@ Instead of hierarchical navigation:
 // ❌ OLD WAY (4+ API calls)
 clickup_get_workspaces() → clickup_get_spaces() → clickup_get_views() → filter for chat
 
-// ✅ NEW WAY (1 call)
+// ✅ NEW WAY (1 tool call; the server pages through channels for you)
 clickup_search_chat_channels({ workspace_id: "123", query: "development" })
 ```
 
@@ -460,7 +460,7 @@ Everything else stays one call away through three always-on catalog tools:
 | Variable | Effect |
 |---|---|
 | `CLICKUP_TOOL_MODE=core` | Default. Core tools + catalog tools. |
-| `CLICKUP_TOOL_MODE=all` | **Every tool, as in 6.x.** |
+| `CLICKUP_TOOL_MODE=all` | **Every tool, as in 6.x** (with `CLICKUP_TOOLSETS` unset or `all`; named toolsets narrow it to exactly those). |
 | `CLICKUP_TOOLSETS=goals,time` | Add whole toolsets or profiles to core (`all` = everything). |
 
 Toolsets: `tasks`, `lists`, `comments`, `custom-fields`, `docs`, `workspace`,
@@ -486,7 +486,8 @@ lists, custom-fields, checklists, dependencies), `time`, `chat`, `docs`,
 
 Every tool also carries MCP annotations (title, read-only / destructive /
 idempotent hints), and destructive tools ask for confirmation when the client
-supports elicitation (`CLICKUP_CONFIRM_DESTRUCTIVE=false` turns that off).
+advertises form elicitation (`elicitation.form`, or the older empty
+`elicitation: {}`; `CLICKUP_CONFIRM_DESTRUCTIVE=false` turns that off).
 Resources are always registered. `CLICKUP_DEBUG_TOOLS=true` adds the raw-API
 debugging tool `clickup_create_task_comment_raw_test`.
 
@@ -497,8 +498,8 @@ Full details: [docs/guides/TOOL_LOADING.md](docs/guides/TOOL_LOADING.md).
 ### Unknown parameters are rejected
 
 Every tool validates its arguments strictly. A parameter name the tool does not
-declare is an error naming the offending key, the closest valid name, and the
-full valid set:
+declare is an error naming the offending key, the closest valid name when one
+is close enough, and the full valid set:
 
 ```
 MCP error -32602: Unknown parameter(s) for clickup_create_task: markdown_contnet.
@@ -608,7 +609,7 @@ Run examples with: `node examples/basic-usage.js`
 ## Development
 
 ### Environment Requirements
-- **Node.js**: Version 18.x or higher
+- **Node.js**: Version 18.14.0 or higher
 - **Package Manager**: npm or yarn
 - **IDE**: VSCode recommended with TypeScript support
 

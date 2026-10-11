@@ -132,6 +132,22 @@ describe('resolveUploadFilePath', () => {
     await expect(readUploadFile('ok.txt', { maxBytes: 1, uploadDir })).rejects.toThrow(/maximum upload size/);
     await expect(readUploadFile('ok.txt', { maxBytes: 10, uploadDir: undefined })).rejects.toThrow(/disabled/);
   });
+
+  it('reads files larger than one chunk, up to exactly maxBytes', async () => {
+    const big = Buffer.alloc(200_000, 7);
+    writeFileSync(join(uploadDir, 'big.bin'), big);
+    await expect(readUploadFile('big.bin', { maxBytes: 200_000, uploadDir })).resolves.toEqual(big);
+    await expect(readUploadFile('big.bin', { maxBytes: 199_999, uploadDir })).rejects.toThrow(
+      /maximum upload size/
+    );
+  });
+
+  it('accepts in-root names that merely start with two dots', async () => {
+    writeFileSync(join(uploadDir, '..draft.txt'), 'draft');
+    await expect(readUploadFile('..draft.txt', { maxBytes: 10, uploadDir })).resolves.toEqual(
+      Buffer.from('draft')
+    );
+  });
 });
 
 describe('decodeBase64Upload', () => {

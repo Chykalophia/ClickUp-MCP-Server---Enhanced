@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { createHmac, timingSafeEqual } from 'crypto';
 import { z } from 'zod';
 import { RealTimeProcessingEngine } from '../services/real-time-processing-engine.js';
 import { ProcessingRule } from '../services/event-stream-processor.js';
@@ -16,10 +17,10 @@ export const startRealTimeEngineSchema = z.object({
 });
 
 export const processWebhookSchema = z.object({
-  payload: z.any(),
+  payload: z.any().describe('Webhook body; pass the raw request body string when validating signatures'),
   validateSignature: z.boolean().optional().default(false),
-  signature: z.string().optional(),
-  secret: z.string().optional(),
+  signature: z.string().optional().describe("ClickUp's X-Signature header (hex HMAC-SHA256 of the raw body)"),
+  secret: z.string().optional().describe('The webhook secret returned when the webhook was created'),
 });
 
 export const addProcessingRuleSchema = z.object({
@@ -95,6 +96,20 @@ export async function startRealTimeEngine(params: z.infer<typeof startRealTimeEn
   }
 }
 
+/**
+ * Verify a ClickUp webhook signature: the X-Signature header is the lowercase hex
+ * HMAC-SHA256 of the raw request body, keyed with the webhook secret.
+ */
+export function isValidWebhookSignature(rawBody: string, signature: string, secret: string): boolean {
+  const received = signature.trim().replace(/^sha256=/i, '');
+  if (!/^[a-f0-9]{64}$/i.test(received)) {
+    return false;
+  }
+
+  const expected = createHmac('sha256', secret).update(rawBody, 'utf8').digest();
+  return timingSafeEqual(expected, Buffer.from(received, 'hex'));
+}
+
 export async function processWebhookEvent(params: z.infer<typeof processWebhookSchema>) {
   try {
     if (!engineInstance) {
@@ -107,12 +122,37 @@ export async function processWebhookEvent(params: z.infer<typeof processWebhookS
       };
     }
 
-    // TODO: Add signature validation if required
-    if (params.validateSignature && params.signature && params.secret) {
-      // Implement HMAC validation here
+    let payload = params.payload;
+
+    if (params.validateSignature) {
+      if (!params.signature || !params.secret) {
+        return {
+          content: [{
+            type: 'text',
+            text: 'Webhook rejected: validateSignature is true but signature and secret were not both provided.',
+          }],
+          isError: true,
+        };
+      }
+
+      // ClickUp signs the raw request body; an object payload is signed as its JSON serialization.
+      const rawBody = typeof payload === 'string' ? payload : JSON.stringify(payload);
+      if (!isValidWebhookSignature(rawBody ?? '', params.signature, params.secret)) {
+        return {
+          content: [{
+            type: 'text',
+            text: 'Webhook rejected: signature does not match the payload and secret.',
+          }],
+          isError: true,
+        };
+      }
+
+      if (typeof payload === 'string') {
+        payload = JSON.parse(payload);
+      }
     }
 
-    const result = await engineInstance.processWebhookEvent(params.payload);
+    const result = await engineInstance.processWebhookEvent(payload);
 
     return {
       content: [{

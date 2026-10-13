@@ -2,6 +2,7 @@ import { createHmac } from 'crypto';
 import {
   isValidWebhookSignature,
   processWebhookEvent,
+  processWebhookSchema,
   startRealTimeEngine,
   stopRealTimeEngine,
 } from '../tools/real-time-tools';
@@ -65,7 +66,7 @@ describe('processWebhookEvent signature validation', () => {
   });
 
   it('processes an unsigned payload when validation is off (unchanged default)', async () => {
-    const result = await processWebhookEvent({ payload, validateSignature: false });
+    const result = await processWebhookEvent(processWebhookSchema.parse({ payload }));
     expect(processed(result)).toBe(true);
   });
 

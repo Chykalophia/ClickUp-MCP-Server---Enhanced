@@ -5,14 +5,10 @@
  * access (e.g., response.tasks, response.goal) fails fast with a clear
  * validation error rather than silently returning undefined.
  *
- * Inner objects use z.record(z.unknown()) or z.unknown() — we validate
- * the envelope, not every nested field.
+ * Inner objects use z.record(z.unknown()) or z.unknown(): only the envelope
+ * is validated, not every nested field.
  */
 import { z } from 'zod';
-
-// ========================================
-// PRIMITIVE RESPONSE SHAPES
-// ========================================
 
 /** Generic success response from DELETE operations */
 export const SuccessResponseSchema = z.object({}).passthrough();
@@ -22,10 +18,6 @@ const entityResponse = (key: string) => z.object({ [key]: z.record(z.unknown()) 
 
 /** Wrapper with an array of entities */
 const listResponse = (key: string) => z.object({ [key]: z.array(z.unknown()) }).passthrough();
-
-// ========================================
-// AUTH / WORKSPACE
-// ========================================
 
 export const UserResponseSchema = z
   .object({
@@ -39,44 +31,20 @@ export const TeamsResponseSchema = z
   })
   .passthrough();
 
-// ========================================
-// TASKS
-// ========================================
-
 export const TasksResponseSchema = listResponse('tasks');
 export const TaskResponseSchema = z.record(z.unknown()); // direct object
-
-// ========================================
-// SPACES
-// ========================================
 
 export const SpacesResponseSchema = listResponse('spaces');
 export const SpaceResponseSchema = z.record(z.unknown());
 
-// ========================================
-// LISTS
-// ========================================
-
 export const ListsResponseSchema = listResponse('lists');
 export const ListResponseSchema = z.record(z.unknown());
-
-// ========================================
-// FOLDERS
-// ========================================
 
 export const FoldersResponseSchema = listResponse('folders');
 export const FolderResponseSchema = z.record(z.unknown());
 
-// ========================================
-// COMMENTS
-// ========================================
-
 export const CommentsResponseSchema = listResponse('comments');
 export const CommentResponseSchema = z.record(z.unknown());
-
-// ========================================
-// GOALS
-// ========================================
 
 export const GoalsResponseSchema = z
   .object({
@@ -95,10 +63,6 @@ export const GoalTargetResponseSchema = z
     key_result: z.record(z.unknown()),
   })
   .passthrough();
-
-// ========================================
-// TIME IN STATUS
-// ========================================
 
 /**
  * A single status_history entry. ClickUp's API legitimately omits `orderindex`
@@ -158,10 +122,6 @@ export const BulkTasksTimeInStatusResponseSchema = z.record(
     .passthrough()
 );
 
-// ========================================
-// TIME TRACKING
-// ========================================
-
 export const TimeEntriesResponseSchema = z
   .object({
     data: z.array(z.unknown()),
@@ -187,37 +147,17 @@ export const CurrentTimeEntryResponseSchema = z
   })
   .passthrough();
 
-// ========================================
-// VIEWS
-// ========================================
-
 export const ViewsResponseSchema = listResponse('views');
 export const ViewResponseSchema = entityResponse('view');
-
-// ========================================
-// WEBHOOKS
-// ========================================
 
 export const WebhooksResponseSchema = listResponse('webhooks');
 export const WebhookResponseSchema = entityResponse('webhook');
 
-// ========================================
-// DEPENDENCIES
-// ========================================
-
 export const DependenciesResponseSchema = listResponse('dependencies');
 export const DependencyResponseSchema = entityResponse('dependency');
 
-// ========================================
-// CUSTOM FIELDS
-// ========================================
-
 export const CustomFieldsResponseSchema = listResponse('fields');
 export const CustomFieldResponseSchema = z.record(z.unknown());
-
-// ========================================
-// DOCS (v3 API)
-// ========================================
 
 export const DocsResponseSchema = z
   .object({
@@ -227,23 +167,11 @@ export const DocsResponseSchema = z
 
 export const DocResponseSchema = z.record(z.unknown());
 
-// ========================================
-// ATTACHMENTS
-// ========================================
-
 export const AttachmentResponseSchema = entityResponse('attachment');
 export const AttachmentsResponseSchema = z.record(z.unknown()); // varies by endpoint
 
-// ========================================
-// CHECKLISTS
-// ========================================
-
 export const ChecklistsResponseSchema = listResponse('checklists');
 export const ChecklistResponseSchema = z.record(z.unknown());
-
-// ========================================
-// VALIDATION UTILITY
-// ========================================
 
 /**
  * Validate an API response against a schema.

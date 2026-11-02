@@ -2,32 +2,18 @@
 import { z } from 'zod';
 import { idSchema } from './common.js';
 
-// ========================================
-// GOALS VALIDATION SCHEMAS
-// ========================================
-
-// Team ID validation
 export const TeamIdSchema = idSchema('Team ID is required');
 
-// Goal ID validation
 export const GoalIdSchema = idSchema('Goal ID is required');
 
-// Target ID validation
 export const TargetIdSchema = idSchema('Target ID is required');
 
-// User ID validation
 export const UserIdSchema = z.number().positive('User ID must be positive');
 
-// ========================================
-// GOAL SCHEMAS
-// ========================================
-
-// Goal color validation (hex color)
 export const GoalColorSchema = z
   .string()
   .regex(/^#[0-9A-Fa-f]{6}$/, 'Color must be a valid hex color');
 
-// Create goal schema
 export const CreateGoalSchema = z.object({
   team_id: TeamIdSchema,
   name: z.string().min(1, 'Goal name is required').max(255, 'Goal name too long'),
@@ -38,7 +24,6 @@ export const CreateGoalSchema = z.object({
   color: GoalColorSchema.optional().default('#007cff'),
 });
 
-// Update goal schema
 export const UpdateGoalSchema = z.object({
   goal_id: GoalIdSchema,
   name: z.string().min(1).max(255).optional(),
@@ -49,20 +34,14 @@ export const UpdateGoalSchema = z.object({
   color: GoalColorSchema.optional(),
 });
 
-// Delete goal schema
 export const DeleteGoalSchema = z.object({
   goal_id: GoalIdSchema,
 });
 
-// Get goals schema
 export const GetGoalsSchema = z.object({
   team_id: TeamIdSchema,
   include_completed: z.boolean().optional().default(false),
 });
-
-// ========================================
-// GOAL TARGET SCHEMAS
-// ========================================
 
 // Goal target (key result) types
 export const GoalTargetTypeSchema = z.enum([
@@ -93,16 +72,10 @@ export const UpdateGoalTargetSchema = z.object({
   note: z.string().optional(),
 });
 
-// Delete target schema
 export const DeleteGoalTargetSchema = z.object({
   target_id: TargetIdSchema,
 });
 
-// ========================================
-// GOAL PROGRESS SCHEMAS
-// ========================================
-
-// Progress update schema
 export const UpdateGoalProgressSchema = z.object({
   target_id: TargetIdSchema,
   steps_current: z.number().min(0, 'Current value must be non-negative'),
@@ -122,11 +95,6 @@ export const GoalProgressSchema = z.object({
   unit: z.string().nullable(),
 });
 
-// ========================================
-// RESPONSE TYPE SCHEMAS
-// ========================================
-
-// Goal member schema
 export const GoalMemberSchema = z.object({
   id: z.number(),
   username: z.string(),
@@ -154,7 +122,6 @@ export const GoalTargetResponseSchema = z.object({
   percent_completed: z.number(),
 });
 
-// Goal response schema
 export const GoalResponseSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -177,10 +144,6 @@ export const GoalResponseSchema = z.object({
   pretty_url: z.string(),
 });
 
-// ========================================
-// UTILITY FUNCTIONS
-// ========================================
-
 /**
  * Calculate progress percentage for a target
  */
@@ -192,7 +155,7 @@ export function calculateTargetProgress(
   if (targetValue === startValue) return 100; // Avoid division by zero
 
   const progress = ((currentValue - startValue) / (targetValue - startValue)) * 100;
-  return Math.min(Math.max(progress, 0), 100); // Clamp between 0 and 100
+  return Math.min(Math.max(progress, 0), 100);
 }
 
 /**
@@ -280,30 +243,22 @@ export function getGoalStatus(
   if (percentCompleted >= 100) return 'completed';
   if (now > due) return 'overdue';
 
-  // Simple heuristic: a goal is at risk when the deadline is near (< 7 days)
-  // and completion is still low. Without a start date, elapsed-time ratios
-  // against a bare epoch timestamp are meaningless.
+  // At risk when the deadline is near (< 7 days) and completion is low; with no
+  // start date, an elapsed-time ratio cannot be computed.
   const daysLeft = (due - now) / (1000 * 60 * 60 * 24);
   if (daysLeft < 7 && percentCompleted < 80) return 'at_risk';
   return 'on_track';
 }
 
-// ========================================
-// COMBINED TOOL SCHEMAS
-// ========================================
-
 export const GoalsToolSchemas = {
-  // Goal operations
   getGoals: GetGoalsSchema,
   createGoal: CreateGoalSchema,
   updateGoal: UpdateGoalSchema,
   deleteGoal: DeleteGoalSchema,
 
-  // Target operations
   createGoalTarget: CreateGoalTargetSchema,
   updateGoalTarget: UpdateGoalTargetSchema,
   deleteGoalTarget: DeleteGoalTargetSchema,
 
-  // Progress operations
   updateGoalProgress: UpdateGoalProgressSchema,
 };

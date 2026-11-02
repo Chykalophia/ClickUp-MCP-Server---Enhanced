@@ -30,8 +30,7 @@ export const UploadAttachmentSchema = z
     message: 'team_id is required when custom_task_ids is true',
   });
 
-// Get attachments schema
-// (GET /api/v3/workspaces/{workspace_id}/{entity_type}/{entity_id}/attachments)
+// GET /api/v3/workspaces/{workspace_id}/{entity_type}/{entity_id}/attachments
 export const GetAttachmentsSchema = z.object({
   workspace_id: z.string().min(1).describe('The ID of the workspace (team)'),
   entity_type: AttachmentEntityTypeSchema.describe('The type of entity the attachments belong to'),
@@ -46,7 +45,6 @@ export const GetAttachmentsSchema = z.object({
     .describe('Cursor from a previous response to fetch the next page'),
 });
 
-// Type exports
 export type AttachmentEntityType = z.infer<typeof AttachmentEntityTypeSchema>;
 export type UploadAttachmentRequest = z.infer<typeof UploadAttachmentSchema>;
 export type GetAttachmentsRequest = z.infer<typeof GetAttachmentsSchema>;

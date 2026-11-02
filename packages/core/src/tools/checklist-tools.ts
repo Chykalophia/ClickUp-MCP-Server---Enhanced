@@ -12,12 +12,10 @@ import {
 import { mcpError } from '../utils/error-handling.js';
 import { idSchema } from '../schemas/common.js';
 
-// Create clients
 const clickUpClient = createClickUpClient();
 const checklistsClient = createChecklistsClient(clickUpClient);
 
 export function setupChecklistTools(server: McpServer): void {
-  // Register create_checklist tool
   server.tool(
     'clickup_create_checklist',
     'Create a new checklist in a ClickUp task. Returns the created checklist details.',
@@ -52,7 +50,6 @@ export function setupChecklistTools(server: McpServer): void {
     }
   );
 
-  // Register update_checklist tool
   server.tool(
     'clickup_update_checklist',
     "Update an existing ClickUp checklist's name and/or position (order of appearance on the task; 0 = top). The ClickUp API returns an empty response for this operation; use get_task to see the updated state.",
@@ -93,7 +90,6 @@ export function setupChecklistTools(server: McpServer): void {
     }
   );
 
-  // Register delete_checklist tool
   server.tool(
     'clickup_delete_checklist',
     'Delete a checklist from a ClickUp task. Removes the checklist and all its items.',
@@ -118,7 +114,6 @@ export function setupChecklistTools(server: McpServer): void {
     }
   );
 
-  // Register create_checklist_item tool
   server.tool(
     'clickup_create_checklist_item',
     'Create a new item in a ClickUp checklist. Supports optional assignee and resolved status (resolved is applied via a follow-up update, since the create endpoint does not accept it). Returns the full parent checklist including all items.',
@@ -163,7 +158,6 @@ export function setupChecklistTools(server: McpServer): void {
     }
   );
 
-  // Register update_checklist_item tool
   server.tool(
     'clickup_update_checklist_item',
     "Update an existing ClickUp checklist item's properties including name, assignee (null to unassign), resolved status, and parent (nest under another item, or null to un-nest). Returns the full parent checklist including all items.",
@@ -204,7 +198,6 @@ export function setupChecklistTools(server: McpServer): void {
     }
   );
 
-  // Register delete_checklist_item tool
   server.tool(
     'clickup_delete_checklist_item',
     'Delete an item from a ClickUp checklist.',

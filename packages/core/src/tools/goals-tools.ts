@@ -13,15 +13,10 @@ import {
   GoalColorSchema,
 } from '../schemas/goals-schemas.js';
 
-// Create clients
 const clickUpClient = createClickUpClient();
 const goalsClient = createEnhancedGoalsClient(clickUpClient);
 
 export function setupGoalsTools(server: McpServer): void {
-  // ========================================
-  // GOAL MANAGEMENT OPERATIONS
-  // ========================================
-
   server.tool(
     'clickup_get_goals',
     'Get goals for a team with optional filtering. Returns goal details including progress, targets, and team members.',
@@ -199,7 +194,6 @@ export function setupGoalsTools(server: McpServer): void {
       try {
         const goal = await goalsClient.getGoal(goal_id);
 
-        // Add formatted progress information
         const formattedGoal = {
           ...goal,
           progress_summary: {
@@ -224,10 +218,6 @@ export function setupGoalsTools(server: McpServer): void {
       }
     }
   );
-
-  // ========================================
-  // GOAL TARGET MANAGEMENT
-  // ========================================
 
   server.tool(
     'clickup_create_goal_target',
@@ -330,10 +320,6 @@ export function setupGoalsTools(server: McpServer): void {
     }
   );
 
-  // ========================================
-  // GOAL ANALYTICS & REPORTING
-  // ========================================
-
   server.tool(
     'clickup_get_goal_summary',
     'Get comprehensive goal analytics and summary for a team. Includes progress statistics, status breakdown, and upcoming deadlines.',
@@ -357,10 +343,6 @@ export function setupGoalsTools(server: McpServer): void {
       }
     }
   );
-
-  // ========================================
-  // HELPER TOOLS
-  // ========================================
 
   server.tool(
     'clickup_create_number_goal',
@@ -396,7 +378,6 @@ export function setupGoalsTools(server: McpServer): void {
       color,
     }) => {
       try {
-        // Create the goal
         const goal = await goalsClient.createGoal(team_id, {
           name: goal_name,
           due_date: goalsClient.normalizeGoalDate(due_date),
@@ -406,7 +387,6 @@ export function setupGoalsTools(server: McpServer): void {
           color,
         });
 
-        // Create the number target
         const target = await goalsClient.createGoalTarget(goal.id, {
           name: target_name,
           type: 'number',
@@ -464,7 +444,6 @@ export function setupGoalsTools(server: McpServer): void {
       color,
     }) => {
       try {
-        // Create the goal
         const goal = await goalsClient.createGoal(team_id, {
           name: goal_name,
           due_date: goalsClient.normalizeGoalDate(due_date),
@@ -474,7 +453,6 @@ export function setupGoalsTools(server: McpServer): void {
           color,
         });
 
-        // Create the currency target
         const target = await goalsClient.createGoalTarget(goal.id, {
           name: target_name,
           type: 'currency',
@@ -483,7 +461,6 @@ export function setupGoalsTools(server: McpServer): void {
           unit: currency,
         });
 
-        // Format the target value for display
         const formattedValue = goalsClient.formatCurrencyValue(target_value, currency);
 
         return {

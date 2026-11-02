@@ -6,14 +6,11 @@ import { createEnhancedCustomFieldsClient } from '../clickup-client/custom-field
 import { mcpError } from '../utils/error-handling.js';
 import { idSchema } from '../schemas/common.js';
 
-// Create clients
 const clickUpClient = createClickUpClient();
 const customFieldsClient = createEnhancedCustomFieldsClient(clickUpClient);
 
-// NOTE: The ClickUp public API does NOT support creating, updating, or deleting
-// custom field DEFINITIONS — fields must be created in the ClickUp UI. Only
-// listing field definitions and getting/setting/removing field VALUES is
-// supported, so no create/update/delete field tools are registered here.
+// The ClickUp public API cannot create, update, or delete custom field definitions
+// (only list them and set/remove values), so no definition-editing tools exist here.
 
 const VALUE_FORMAT_GUIDE =
   'Value format by field type: ' +
@@ -32,10 +29,6 @@ const VALUE_FORMAT_GUIDE =
   'automatic_progress is computed by ClickUp and cannot be set.';
 
 export function setupCustomFieldTools(server: McpServer): void {
-  // ========================================
-  // GET CUSTOM FIELDS OPERATIONS
-  // ========================================
-
   server.tool(
     'clickup_get_custom_fields',
     'Get custom field definitions for a ClickUp list, folder, space, or team (workspace). List-level requests include fields inherited from parent levels; folder, space, and team requests return only fields created at that exact level. Note: the ClickUp API cannot create, update, or delete custom field definitions — fields must be created in the ClickUp UI.',
@@ -84,10 +77,6 @@ export function setupCustomFieldTools(server: McpServer): void {
       }
     }
   );
-
-  // ========================================
-  // CUSTOM FIELD VALUE OPERATIONS
-  // ========================================
 
   server.tool(
     'clickup_set_custom_field_value',
@@ -260,7 +249,6 @@ export function setupCustomFieldTools(server: McpServer): void {
         if (custom_task_ids && !team_id) {
           throw new Error('team_id is required when custom_task_ids is true');
         }
-        // Ensure all field_values have the required properties
         const validatedFieldValues = field_values.map(fv => ({
           field_id: fv.field_id,
           value: fv.value,
@@ -335,10 +323,6 @@ export function setupCustomFieldTools(server: McpServer): void {
     }
   );
 
-  // ========================================
-  // FIELD VALUE VALIDATION HELPER
-  // ========================================
-
   server.tool(
     'clickup_validate_custom_field_value',
     `Validate a custom field value against its field type and configuration. Useful for checking values before setting them. ${VALUE_FORMAT_GUIDE}`,
@@ -354,7 +338,6 @@ export function setupCustomFieldTools(server: McpServer): void {
     },
     async ({ field_id, container_type, container_id, value }) => {
       try {
-        // Get the field definition first
         let fields;
         switch (container_type) {
           case 'list':
@@ -385,7 +368,6 @@ export function setupCustomFieldTools(server: McpServer): void {
           };
         }
 
-        // Validate the value
         const isValid = customFieldsClient.validateFieldValue(field, value);
 
         return {

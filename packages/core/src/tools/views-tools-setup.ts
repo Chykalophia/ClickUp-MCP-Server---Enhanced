@@ -25,14 +25,9 @@ import {
 import { mcpError } from '../utils/error-handling.js';
 import { idSchema } from '../schemas/common.js';
 
-// Create clients
 const viewsClient = new ViewsEnhancedClient(getApiToken());
 
 export function setupViewsTools(server: McpServer): void {
-  // ========================================
-  // VIEW MANAGEMENT OPERATIONS
-  // ========================================
-
   server.tool(
     'clickup_create_view',
     'Create a new view in a ClickUp Workspace (team), space, folder, or list. Supports the API view types: list, board, calendar, table, timeline, workload, activity, map, conversation (chat), and gantt.',
@@ -312,10 +307,6 @@ export function setupViewsTools(server: McpServer): void {
       }
     }
   );
-
-  // ========================================
-  // ADDITIONAL VIEW OPERATIONS
-  // ========================================
 
   server.tool(
     'clickup_get_view_tasks',

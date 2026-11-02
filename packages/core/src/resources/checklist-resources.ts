@@ -2,16 +2,13 @@
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createTasksClient } from '../clickup-client/tasks.js';
-import { /* createChecklistsClient, */ Checklist } from '../clickup-client/checklists.js';
+import { Checklist } from '../clickup-client/checklists.js';
 import { resourceError } from '../utils/error-handling.js';
 
-// Create clients
 const clickUpClient = createClickUpClient();
 const tasksClient = createTasksClient(clickUpClient);
-// const checklistsClient = createChecklistsClient(clickUpClient);
 
 export function setupChecklistResources(server: McpServer): void {
-  // Register task checklists resource
   server.resource(
     'task-checklists',
     new ResourceTemplate('clickup://task/{task_id}/checklist', { list: undefined }),
@@ -23,18 +20,10 @@ export function setupChecklistResources(server: McpServer): void {
       try {
         const task_id = params.task_id as string;
 
-        // Get the task details
         const task = await tasksClient.getTask(task_id);
 
-        // Note: The ClickUp API doesn't return checklists directly with task data
-        // We would need to make a separate call to get checklists for a task
-        // This would need to be implemented in the checklistsClient if API supports it
-
-        // For now, return an empty array with proper typing
+        // Stub: checklists are not fetched yet, so this always returns an empty array.
         const checklists: Checklist[] = [];
-
-        // In a real implementation, we might do something like:
-        // const checklists = await checklistsClient.getChecklistsForTask(task_id);
 
         return {
           contents: [
@@ -59,7 +48,6 @@ export function setupChecklistResources(server: McpServer): void {
     }
   );
 
-  // Register checklist items resource
   server.resource(
     'checklist-items',
     new ResourceTemplate('clickup://checklist/{checklist_id}/items', { list: undefined }),
@@ -71,11 +59,7 @@ export function setupChecklistResources(server: McpServer): void {
       try {
         const checklist_id = params.checklist_id as string;
 
-        // For now, this is a placeholder as we'd need to implement a method
-        // to get all items for a checklist - we'll need to implement this endpoint
-        // or extract this data from the checklist details
-
-        // Placeholder for response format
+        // Stub: items are not fetched yet, so this always returns an empty array.
         const checklistItems = {
           checklist_id,
           items: [],

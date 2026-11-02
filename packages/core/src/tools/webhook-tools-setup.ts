@@ -14,14 +14,9 @@ import {
 import { mcpError } from '../utils/error-handling.js';
 import { idSchema } from '../schemas/common.js';
 
-// Create clients
 const webhooksClient = new WebhooksEnhancedClient(getApiToken());
 
 export function setupWebhookTools(server: McpServer): void {
-  // ========================================
-  // WEBHOOK MANAGEMENT OPERATIONS
-  // ========================================
-
   server.tool(
     'clickup_create_webhook',
     'Create a new webhook in a ClickUp workspace. Webhooks allow real-time notifications when events occur. The response includes the webhook secret (returned only at creation) — store it for signature verification.',

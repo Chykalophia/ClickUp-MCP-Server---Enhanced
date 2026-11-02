@@ -3,12 +3,10 @@ import { createClickUpClient } from '../clickup-client/index.js';
 import { createDocsClient } from '../clickup-client/docs.js';
 import { resourceError } from '../utils/error-handling.js';
 
-// Create clients
 const clickUpClient = createClickUpClient();
 const docsClient = createDocsClient(clickUpClient);
 
 export function setupDocResources(server: McpServer): void {
-  // Register doc content resource
   server.resource(
     'doc-content',
     new ResourceTemplate('clickup://workspace/{workspace_id}/doc/{doc_id}', { list: undefined }),
@@ -23,10 +21,8 @@ export function setupDocResources(server: McpServer): void {
 
         console.error('[DocResources] Getting doc:', doc_id, 'from workspace:', workspace_id);
 
-        // Get the pages of the doc
         const pages = await docsClient.getDocPages(workspace_id, doc_id);
 
-        // Combine the content of all pages
         let combinedContent = '';
         if (Array.isArray(pages)) {
           for (const page of pages) {

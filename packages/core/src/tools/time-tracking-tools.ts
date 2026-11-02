@@ -9,11 +9,7 @@ import {
 } from '../clickup-client/time-tracking-enhanced.js';
 import { mcpError } from '../utils/error-handling.js';
 import { idSchema } from '../schemas/common.js';
-// Schemas imported from time-tracking-schemas if needed:
-// TeamIdSchema, TimerIdSchema, CreateTimeEntrySchema,
-// UpdateTimeEntrySchema, GetTimeEntriesSchema, TimeEntryTagSchema
 
-// Create clients
 const clickUpClient = createClickUpClient();
 const timeTrackingClient = createEnhancedTimeTrackingClient(clickUpClient);
 
@@ -665,7 +661,6 @@ export function setupTimeTrackingTools(server: McpServer): void {
 
         const timeSummary = await timeTrackingClient.getTimeSummary(team_id, params);
 
-        // Format durations for better readability
         const formatDuration = (ms: number) => timeTrackingClient.formatDuration(ms);
 
         const formattedSummary = {

@@ -1,6 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
-// ClickUp API base URL
 const API_BASE_URL = 'https://api.clickup.com/api/v2';
 
 // Maximum automatic retries after a 429 rate-limit response
@@ -39,7 +38,6 @@ export class ClickUpClient {
       },
     });
 
-    // Add response interceptor for rate-limit retries and error handling
     this.axiosInstance.interceptors.response.use(
       response => response,
       async error => {
@@ -73,7 +71,6 @@ export class ClickUpClient {
         }
 
         if (error.response) {
-          // Format error message with status, ClickUp ECODE, and error text
           const ecode = error.response.data?.ECODE;
           const message = `ClickUp API Error (${error.response.status}${ecode ? ` ${ecode}` : ''}): ${
             error.response.data?.err || error.message
@@ -90,7 +87,6 @@ export class ClickUpClient {
     return this.axiosInstance;
   }
 
-  // Basic API methods that can be used directly
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async get<T = unknown>(endpoint: string, params?: any): Promise<T> {
     const response = await this.axiosInstance.get(endpoint, { params });
@@ -121,7 +117,6 @@ export class ClickUpClient {
   }
 }
 
-// Singleton instance cache
 let _clientInstance: ClickUpClient | null = null;
 
 // Create or return the singleton client instance

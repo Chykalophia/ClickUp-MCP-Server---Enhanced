@@ -46,7 +46,6 @@ const COLORS = {
   bgWhite: '\x1b[47m',
 };
 
-// Emoji mappings for enhanced visual display
 const EMOJI_MAP = {
   h1: '🔥',
   h2: '⚡',
@@ -69,25 +68,16 @@ const EMOJI_MAP = {
   error: '❌',
 };
 
-/**
- * Apply color styling to text
- */
 function colorize(text: string, color: string, options: MarkdownStyleOptions): string {
   if (!options.useColors) return text;
   return `${color}${text}${COLORS.reset}`;
 }
 
-/**
- * Add emoji prefix to text
- */
 function addEmoji(text: string, emoji: string, options: MarkdownStyleOptions): string {
   if (!options.useEmojis) return text;
   return `${emoji} ${text}`;
 }
 
-/**
- * Process headers with styling
- */
 function processHeaders(content: string, options: MarkdownStyleOptions): string {
   return content.replace(/^(#{1,6})\s+(.+)$/gm, (match, hashes, text) => {
     const level = hashes.length;
@@ -121,17 +111,12 @@ function processHeaders(content: string, options: MarkdownStyleOptions): string 
   });
 }
 
-/**
- * Process bold and italic text
- */
 function processEmphasis(content: string, options: MarkdownStyleOptions): string {
-  // Bold text
   content = content.replace(/\*\*([^*]+)\*\*/g, (match, text) => {
     const styled = colorize(text, COLORS.bright, options);
     return options.useEmojis ? `💪 ${styled}` : styled;
   });
 
-  // Italic text
   content = content.replace(/\*([^*]+)\*/g, (match, text) => {
     const styled = colorize(text, COLORS.italic, options);
     return options.useEmojis ? `✨ ${styled}` : styled;
@@ -140,11 +125,7 @@ function processEmphasis(content: string, options: MarkdownStyleOptions): string
   return content;
 }
 
-/**
- * Process code blocks and inline code
- */
 function processCode(content: string, options: MarkdownStyleOptions): string {
-  // Code blocks
   content = content.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
     const langLabel = lang ? ` (${lang})` : '';
     const header = colorize(`CODE${langLabel}`, COLORS.bgBlue + COLORS.white, options);
@@ -154,7 +135,6 @@ function processCode(content: string, options: MarkdownStyleOptions): string {
     return `\n${addEmoji(header, EMOJI_MAP.code, options)}\n${border}\n${styledCode}\n${border}\n`;
   });
 
-  // Inline code
   content = content.replace(/`([^`]+)`/g, (match, code) => {
     const styled = colorize(code, COLORS.bgBlack + COLORS.yellow, options);
     return options.useEmojis ? `💻 ${styled}` : styled;
@@ -163,27 +143,19 @@ function processCode(content: string, options: MarkdownStyleOptions): string {
   return content;
 }
 
-/**
- * Process lists
- */
 function processLists(content: string, options: MarkdownStyleOptions): string {
-  // const indent = ' '.repeat(options.indentSize || 2);
-
-  // Unordered lists
   content = content.replace(/^(\s*)[-*+]\s+(.+)$/gm, (match, spaces, text) => {
     const bullet = options.useEmojis ? '📋' : '•';
     const styled = colorize(text, COLORS.white, options);
     return `${spaces}${bullet} ${styled}`;
   });
 
-  // Ordered lists
   content = content.replace(/^(\s*)(\d+)\.\s+(.+)$/gm, (match, spaces, num, text) => {
     const bullet = options.useEmojis ? `${num}️⃣` : `${num}.`;
     const styled = colorize(text, COLORS.white, options);
     return `${spaces}${bullet} ${styled}`;
   });
 
-  // Checkboxes
   content = content.replace(/^(\s*)- \[([x ])\]\s+(.+)$/gm, (match, spaces, check, text) => {
     const checkbox = check === 'x' ? EMOJI_MAP.check : EMOJI_MAP.uncheck;
     const styled =
@@ -196,9 +168,6 @@ function processLists(content: string, options: MarkdownStyleOptions): string {
   return content;
 }
 
-/**
- * Process blockquotes
- */
 function processBlockquotes(content: string, options: MarkdownStyleOptions): string {
   return content.replace(/^>\s+(.+)$/gm, (match, text) => {
     const styled = colorize(text, COLORS.italic + COLORS.cyan, options);
@@ -207,17 +176,12 @@ function processBlockquotes(content: string, options: MarkdownStyleOptions): str
   });
 }
 
-/**
- * Process links and images
- */
 function processLinks(content: string, options: MarkdownStyleOptions): string {
-  // Images
   content = content.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, url) => {
     const styled = colorize(`[${alt || 'Image'}]`, COLORS.bright + COLORS.magenta, options);
     return addEmoji(`${styled} (${url})`, EMOJI_MAP.image, options);
   });
 
-  // Links
   content = content.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, text, url) => {
     const styled = colorize(text, COLORS.underline + COLORS.blue, options);
     return addEmoji(`${styled} (${url})`, EMOJI_MAP.link, options);
@@ -226,9 +190,6 @@ function processLinks(content: string, options: MarkdownStyleOptions): string {
   return content;
 }
 
-/**
- * Process horizontal rules
- */
 function processHorizontalRules(content: string, options: MarkdownStyleOptions): string {
   return content.replace(/^---+$/gm, () => {
     const rule = '═'.repeat(Math.min(60, options.maxWidth || 80));
@@ -236,15 +197,10 @@ function processHorizontalRules(content: string, options: MarkdownStyleOptions):
   });
 }
 
-/**
- * Add visual separators and spacing
- */
 function addVisualEnhancements(content: string, _options: MarkdownStyleOptions): string {
-  // Add spacing around sections
   content = content.replace(/\n(#{1,6})/g, '\n\n$1');
   content = content.replace(/(#{1,6}[^\n]+)\n/g, '$1\n\n');
 
-  // Clean up excessive newlines
   content = content.replace(/\n{3,}/g, '\n\n');
 
   return content.trim();
@@ -265,7 +221,6 @@ export function applyMarkdownStyling(markdown: string, options: MarkdownStyleOpt
 
   let styled = markdown;
 
-  // Apply styling in order
   styled = processHeaders(styled, opts);
   styled = processCode(styled, opts);
   styled = processEmphasis(styled, opts);
@@ -381,28 +336,24 @@ export function createMarkdownSummary(
   const opts = { ...DEFAULT_OPTIONS, ...options };
   const summary: string[] = [];
 
-  // Extract headers
   const headers = extractStyledSections(markdown, 'headers', opts);
   if (headers.length > 0) {
     summary.push(colorize('📋 SECTIONS:', COLORS.bright + COLORS.blue, opts));
-    summary.push(...headers.slice(0, 5)); // Limit to first 5 headers
+    summary.push(...headers.slice(0, 5));
   }
 
-  // Extract code blocks
   const codeBlocks = extractStyledSections(markdown, 'code', opts);
   if (codeBlocks.length > 0) {
     summary.push(colorize('💻 CODE BLOCKS:', COLORS.bright + COLORS.green, opts));
     summary.push(`${codeBlocks.length} code block(s) found`);
   }
 
-  // Extract lists
   const lists = extractStyledSections(markdown, 'lists', opts);
   if (lists.length > 0) {
     summary.push(colorize('📝 LISTS:', COLORS.bright + COLORS.yellow, opts));
     summary.push(`${lists.length} list item(s) found`);
   }
 
-  // Extract links
   const links = extractStyledSections(markdown, 'links', opts);
   if (links.length > 0) {
     summary.push(colorize('🔗 LINKS:', COLORS.bright + COLORS.cyan, opts));

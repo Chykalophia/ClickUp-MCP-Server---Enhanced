@@ -1,29 +1,19 @@
 /**
  * Strict parameter validation for every tool this server registers.
  *
- * ## The defect this fixes
- *
  * `McpServer.tool()` takes a *raw zod shape* and the SDK wraps it with
  * `z.object(shape)`. Zod v3 objects **strip** unknown keys instead of rejecting
- * them, so a caller that misspells a parameter gets that parameter silently
- * discarded and the operation runs anyway. A real subtask was created on a
- * client board this way: HTTP success, a complete task object in the response,
- * and `description: ""` — because the description had been passed under a name
- * the tool did not declare. Nothing errored and nothing warned.
- *
- * That behaviour also contradicts the server's own published contract: the
- * JSON Schema sent to clients on connect already carries
- * `additionalProperties: false` for every tool. Making the runtime strict does
- * not add a restriction — it makes the runtime obey the schema it advertises.
- *
- * ## How it is fixed here, once, for all ~157 tools
+ * them, so a misspelled parameter is silently discarded and the operation runs
+ * anyway (e.g. a task created with `description: ""`). The JSON Schema sent to
+ * clients already carries `additionalProperties: false` for every tool; making
+ * the runtime strict makes it obey the schema it advertises.
  *
  * `tool()` cannot take a full `ZodObject` — it mis-routes anything that is not
  * a raw shape into its annotations branch and throws. `registerTool()` can, and
  * `normalizeObjectSchema` passes an object schema through untouched. So this
  * module replaces `server.tool` with a function that mirrors the SDK's own
  * overload parsing, upgrades the raw shape to `z.strictObject(...)`, and
- * forwards to `registerTool`. Call sites are untouched; there are 174 of them.
+ * forwards to `registerTool`, leaving call sites untouched.
  *
  * The same pass applies PARAM_ALIASES (see ./param-aliases.ts), so alternative
  * spellings validate as first-class parameters and reach handlers under the
@@ -129,8 +119,7 @@ function closestParam(unknownKey: string, candidates: string[]): string | undefi
 /**
  * The message a caller sees when a parameter name is not recognised. It names
  * what was rejected, suggests the nearest real name when there is one, and
- * always lists the full set — the failure mode being fixed was a caller with no
- * way to discover the right spelling.
+ * always lists the full set so the caller can discover the right spelling.
  */
 export function unknownParamMessage(
   toolName: string,
@@ -359,7 +348,7 @@ export function enforceStrictParams(
 //      the call site passed;
 //   3. wraps destructive handlers so that, when the connected client supports
 //      form elicitation, the user confirms before anything is deleted. Clients
-//      without elicitation see exactly the pre-7.0 behaviour.
+//      without elicitation are not prompted.
 // ---------------------------------------------------------------------------
 
 export interface StrictParamsOptions {

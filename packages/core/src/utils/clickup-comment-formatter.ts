@@ -64,8 +64,8 @@ const INLINE_MENTION_PATTERN = /^@\[([^\]]+)\]\((\d+)\)$/;
 /**
  * Inline token pattern. Every alternative is non-capturing because the whole
  * token is wrapped in ONE capture for String.split, which emits every capture
- * (inner groups used to leak the bare URL of a link back into the output as a
- * stray text block).
+ * (inner groups would leak a link's bare URL into the output as a stray text
+ * block).
  *
  * Order matters at a given position: the mention wins over the link so
  * `@[Name](123)` is not read as a link with an orphaned `@`, and `***x***`
@@ -147,8 +147,8 @@ function tokenizeInline(markdown: string, inherited: InlineAttributes = {}): Cli
     ) {
       nested(part.slice(1, -1), { italic: true });
     } else {
-      // Whitespace-only parts are kept: dropping them ran adjacent tokens
-      // together ("**a** *b*" posted as "ab").
+      // Whitespace-only parts are kept: dropping them runs adjacent tokens
+      // together ("**a** *b*" posts as "ab").
       blocks.push({ text: part, attributes: { ...inherited } });
     }
   }
@@ -168,7 +168,6 @@ export function markdownToClickUpComment(markdown: string): ClickUpCommentFormat
 
   const blocks = tokenizeInline(markdown);
 
-  // If no blocks were created, add the original text as plain text
   if (blocks.length === 0) {
     blocks.push({
       text: markdown,
@@ -465,16 +464,14 @@ export function parseMarkdownToClickUpComment(markdown: string): ClickUpCommentF
     return createPlainTextComment('');
   }
 
-  // Handle line breaks and paragraphs
   const lines = markdown.split('\n');
   const blocks: ClickUpCommentBlock[] = [];
 
   // ClickUp carries block-level formatting on the newline that TERMINATES the
-  // line, not on the line's text. So a heading is the heading text followed by
-  // {text:'\n', attributes:{header:1}}. Every one of these was verified against
-  // the live API — ClickUp echoes header/list/blockquote/code-block back
-  // unchanged. The line break is mandatory for a block-typed line, including
-  // the last line of the comment, or the formatting is lost.
+  // line, not on the line's text: a heading is its text followed by
+  // {text:'\n', attributes:{header:1}} (verified against the live API). The
+  // line break is mandatory for a block-typed line, including the last line of
+  // the comment, or the formatting is lost.
   const pushLine = (text: string, lineAttributes: ClickUpCommentBlock['attributes'] = {}): void => {
     blocks.push(...markdownToClickUpComment(text).comment);
     blocks.push({ text: '\n', attributes: lineAttributes });
@@ -484,15 +481,13 @@ export function parseMarkdownToClickUpComment(markdown: string): ClickUpCommentF
     const line = lines[i].trim();
 
     if (!line) {
-      // Add line break for empty lines (except at the end)
       if (i < lines.length - 1) {
         blocks.push({ text: '\n', attributes: {} });
       }
       continue;
     }
 
-    // Handle headers -> real ClickUp heading, not bold text.
-    // ClickUp's editor offers three levels; deeper markdown headings clamp to 3.
+    // ClickUp's editor offers three heading levels; deeper ones clamp to 3.
     const header = line.match(/^(#{1,6})\s+(.*)$/);
     if (header) {
       const [, hashes, headerText] = header;
@@ -500,12 +495,6 @@ export function parseMarkdownToClickUpComment(markdown: string): ClickUpCommentF
       continue;
     }
 
-    // Handle list items -> real bullet/ordered list blocks.
-    // The old code replaced the marker with a literal '• ' character, which
-    // rendered as a bullet-shaped glyph in a paragraph rather than a list, and
-    // its `^[-*+\d.]\s*` pattern stripped only the FIRST character of an
-    // ordered marker, so `1. Item` became `• . Item`.
-    //
     // Leading indentation (two spaces, or a tab, per level) becomes ClickUp's
     // numeric `indent` line attribute so nested lists keep their nesting.
     const leading = lines[i].match(/^[ \t]*/)?.[0] ?? '';
@@ -538,14 +527,12 @@ export function parseMarkdownToClickUpComment(markdown: string): ClickUpCommentF
       continue;
     }
 
-    // Handle blockquotes -> real blockquote block, not a literal '> ' prefix
     if (line.startsWith('>')) {
       pushLine(line.replace(/^>\s*/, ''), { blockquote: true });
       continue;
     }
 
-    // Handle fenced code blocks -> real code block, not the inline-code
-    // attribute. The fence's language rides along; ClickUp defaults to 'plain'.
+    // The fence's language rides along; ClickUp defaults to 'plain'.
     const fenceOpen = line.match(/^(`{3,})(.*)$/);
     if (fenceOpen) {
       // The fence can be longer than three backticks; the language follows the
@@ -557,18 +544,16 @@ export function parseMarkdownToClickUpComment(markdown: string): ClickUpCommentF
         return run !== null && run[0].length >= fence.length && candidate.trim() === run[0];
       };
       const codeLines = [];
-      i++; // Skip the opening fence
+      i++;
       while (i < lines.length && !isClose(lines[i])) {
         codeLines.push(lines[i]);
         i++;
       }
 
       // ClickUp's comment format is a Quill-style delta: every '\n' ends its
-      // own line, and a line's block format lives on ITS terminator. Joining
-      // the code with embedded '\n's and attaching code-block only to the final
-      // terminator therefore formatted just the last line as code. Each line
-      // gets its own code-block terminator instead (blank lines included, so
-      // they stay inside the block).
+      // own line, and a line's block format lives on ITS terminator, so each
+      // line gets its own code-block terminator (blank lines included, so they
+      // stay inside the block).
       for (const codeLine of codeLines) {
         if (codeLine) {
           blocks.push({ text: codeLine, attributes: {} });
@@ -578,11 +563,9 @@ export function parseMarkdownToClickUpComment(markdown: string): ClickUpCommentF
       continue;
     }
 
-    // Handle regular text with inline formatting
     const converted = markdownToClickUpComment(line);
     blocks.push(...converted.comment);
 
-    // Add line break if not the last line
     if (i < lines.length - 1) {
       blocks.push({ text: '\n', attributes: {} });
     }
@@ -603,39 +586,29 @@ export function markdownToPlainText(markdown: string): string {
 
   let plainText = markdown;
 
-  // Remove headers
   plainText = plainText.replace(/^#{1,6}\s+/gm, '');
 
-  // Remove bold and italic
   plainText = plainText.replace(/\*\*([^*]+)\*\*/g, '$1');
   plainText = plainText.replace(/\*([^*]+)\*/g, '$1');
   plainText = plainText.replace(/__([^_]+)__/g, '$1');
   plainText = plainText.replace(/_([^_]+)_/g, '$1');
 
-  // Remove strikethrough
   plainText = plainText.replace(/~~([^~]+)~~/g, '$1');
 
-  // Remove inline code
   plainText = plainText.replace(/`([^`]+)`/g, '$1');
 
-  // Remove code blocks
   plainText = plainText.replace(/```[\s\S]*?```/g, match => {
-    // Extract just the code content, remove the ``` markers
     const lines = match.split('\n');
     return lines.slice(1, -1).join('\n');
   });
 
-  // Remove links, keep just the text
   plainText = plainText.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
 
-  // Remove blockquotes
   plainText = plainText.replace(/^>\s*/gm, '');
 
-  // Convert list items to simple bullets
   plainText = plainText.replace(/^[-*+]\s+/gm, '• ');
   plainText = plainText.replace(/^\d+\.\s+/gm, '• ');
 
-  // Clean up extra whitespace
   plainText = plainText.replace(/\n{3,}/g, '\n\n');
   plainText = plainText.trim();
 
@@ -653,11 +626,8 @@ export function cleanDuplicateCommentText(commentText: string): string {
     return commentText;
   }
 
-  // ClickUp often appends the original markdown at the end after the processed text
-  // Look for patterns where the same content appears twice
-
-  // First, try to find if there's a clear markdown pattern at the end
-  // ClickUp typically appends content that starts with markdown headers or formatting
+  // ClickUp often appends the original markdown after the processed text,
+  // typically starting with markdown headers or formatting.
   const markdownPatterns = [
     /🎉 \*\*.*?\*\*/, // Emoji + bold pattern
     /🔧 \*\*.*?\*\*/, // Emoji + bold pattern
@@ -671,19 +641,17 @@ export function cleanDuplicateCommentText(commentText: string): string {
     // Prevent ReDoS by limiting input length
     const maxLength = 10000;
     if (commentText.length > maxLength) {
-      continue; // Skip processing for overly long text
+      continue;
     }
 
     try {
       const matches = commentText.match(new RegExp(pattern.source, 'g'));
       if (matches && matches.length >= 2) {
-        // Found duplicate pattern, try to find the split point
         const firstMatch = commentText.indexOf(matches[0]);
         const lastMatch = commentText.lastIndexOf(matches[matches.length - 1]);
 
         if (firstMatch !== lastMatch) {
-          // There are multiple occurrences, likely a duplication
-          // Keep everything up to the last occurrence of the first match
+          // Keep everything before the second occurrence of the first match.
           const splitPoint = commentText.indexOf(matches[0], firstMatch + 1);
           if (splitPoint > 0) {
             return commentText.substring(0, splitPoint).trim();
@@ -691,23 +659,20 @@ export function cleanDuplicateCommentText(commentText: string): string {
         }
       }
     } catch {
-      // Skip pattern if regex fails
       continue;
     }
   }
 
-  // Alternative approach: look for the pattern where content is repeated
-  // Split by common separators and look for duplicates
+  // Fallback: find a split point in the middle third after which the opening
+  // lines repeat.
   const lines = commentText.split('\n');
   const totalLines = lines.length;
 
   if (totalLines > 6) {
-    // Look for a point where content starts repeating
     for (let i = Math.floor(totalLines / 3); i < Math.floor((totalLines * 2) / 3); i++) {
       const beforeSplit = lines.slice(0, i).join('\n');
       const afterSplit = lines.slice(i).join('\n');
 
-      // Check if the after split contains similar content to before split
       if (
         afterSplit.length > beforeSplit.length * 0.5 &&
         beforeSplit.length > 50 &&
@@ -719,14 +684,13 @@ export function cleanDuplicateCommentText(commentText: string): string {
     }
   }
 
-  // Last resort: check for exact duplicates by splitting in half
+  // Last resort: compare the opening lines of each half.
   const length = commentText.length;
   if (length > 100) {
     const midPoint = Math.floor(length / 2);
     const firstHalf = commentText.substring(0, midPoint);
     const secondHalf = commentText.substring(midPoint);
 
-    // Check if second half starts with similar content to first half
     const firstLines = firstHalf.split('\n').slice(0, 3);
     const secondLines = secondHalf.split('\n').slice(0, 3);
 
@@ -757,12 +721,10 @@ export function cleanClickUpCommentResponse(comment: any): any {
 
   const cleaned = { ...comment };
 
-  // Clean up comment_text field if it exists
   if (cleaned.comment_text && typeof cleaned.comment_text === 'string') {
     cleaned.comment_text = cleanDuplicateCommentText(cleaned.comment_text);
   }
 
-  // Clean up comment_markdown field if it exists
   if (cleaned.comment_markdown && typeof cleaned.comment_markdown === 'string') {
     cleaned.comment_markdown = cleanDuplicateCommentText(cleaned.comment_markdown);
   }
@@ -792,19 +754,15 @@ export function ensureCodeBlockSeparation(blocks: ClickUpCommentBlock[]): ClickU
     const currentBlock = blocks[i];
     const previousBlock = i > 0 ? blocks[i - 1] : null;
 
-    // Check if current block is a code block.
-    // Inline `code` used to count here, which broke list items: in
-    // "- `x` in a list" the separator was injected into the bullet's own text
-    // block, splitting the line. And a bare '\n' marker carrying the code-block
-    // attribute IS the terminator of a code block, so it needs no separator of
-    // its own — that added a blank line inside every fenced block.
+    // Inline `code` does not count: the separator would be injected into a list
+    // item's own text block, splitting the line. A bare '\n' carrying the
+    // code-block attribute IS a code block's terminator, so separating it would
+    // add a blank line inside the fence.
     const isCodeBlock = Boolean(
       currentBlock.attributes && currentBlock.attributes['code-block'] && currentBlock.text !== '\n'
     );
 
-    // If this is a code block and there's a previous block
     if (isCodeBlock && previousBlock) {
-      // Check if the previous block ends with a newline
       const previousText = previousBlock.text || '';
       const endsWithNewline = previousText.endsWith('\n');
 
@@ -817,7 +775,6 @@ export function ensureCodeBlockSeparation(blocks: ClickUpCommentBlock[]): ClickU
               attributes: previousBlock.attributes || {},
             };
 
-        // Replace the previous block in our processed array
         if (processedBlocks.length > 0) {
           processedBlocks[processedBlocks.length - 1] = updatedPreviousBlock;
         }
@@ -849,7 +806,6 @@ export function prepareCommentForClickUp(content: string): {
     };
   }
 
-  // Check if content contains actual markdown formatting patterns (not just individual characters)
   const hasMarkdown =
     // Kept in step with the line handlers in parseMarkdownToClickUpComment:
     // anything that function treats as a block must be detected here, or the
@@ -868,7 +824,6 @@ export function prepareCommentForClickUp(content: string): {
       comment: ensureCodeBlockSeparation(formatted.comment),
     };
   }
-  // Simple plain text
   return {
     comment: [{ text: content, attributes: {} }],
   };

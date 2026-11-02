@@ -1,6 +1,5 @@
 /**
- * Regression tests for the defect in HANDOFF-comment-api-and-silent-param-drop.md:
- * a misspelled parameter was silently discarded and the write went through
+ * Regression tests for a defect where a misspelled parameter was silently discarded and the write went through
  * anyway, returning a success response for a half-populated object.
  *
  * These drive a real McpServer over InMemoryTransport with a real Client, so

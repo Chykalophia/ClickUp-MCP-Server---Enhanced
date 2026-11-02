@@ -38,7 +38,7 @@ describe('Integration Tests', () => {
   describe('Server Configuration', () => {
     it('should create server with correct configuration', () => {
       expect(server).toBeDefined();
-      // Basic server validation - we can't test much without actual connections
+      // Without a connection, only construction can be checked.
     });
 
     it('should handle multiple tool registrations', () => {
@@ -55,12 +55,10 @@ describe('Integration Tests', () => {
       const originalToken = process.env.CLICKUP_API_TOKEN;
       delete process.env.CLICKUP_API_TOKEN;
 
-      // Tools should still register even without token
       expect(() => {
         setupSpaceTools(server);
       }).not.toThrow();
 
-      // Restore token
       if (originalToken) {
         process.env.CLICKUP_API_TOKEN = originalToken;
       }
@@ -74,7 +72,6 @@ describe('Integration Tests', () => {
         setupSpaceTools(server);
       }).not.toThrow();
 
-      // Restore original token
       if (originalToken) {
         process.env.CLICKUP_API_TOKEN = originalToken;
       } else {
@@ -86,7 +83,6 @@ describe('Integration Tests', () => {
   describe('Basic Functionality', () => {
     it('should handle server lifecycle', () => {
       expect(() => {
-        // Basic server operations that don't require network calls
         setupSpaceTools(server);
         setupChecklistTools(server);
       }).not.toThrow();

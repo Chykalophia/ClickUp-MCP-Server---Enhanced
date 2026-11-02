@@ -118,7 +118,7 @@ describe('Time Tracking', () => {
       const tools = (server as any)._registeredTools;
       const createTool = tools?.['clickup_create_time_entry'];
       if (!createTool?.callback) {
-        // If we can't access internals, skip gracefully
+        // Skips silently if the SDK internals are not reachable.
         return;
       }
 

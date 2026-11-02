@@ -55,15 +55,12 @@ interface ToolResponse {
 
 // 3. Core analysis logic
 async function performAnalysis(params: ExampleAnalysisInput): Promise<AnalysisResult> {
-  // Simulate API call to ClickUp
   const workspaceData = await fetchWorkspaceData(params.workspaceId);
   
-  // Perform analysis based on type
   const metrics = calculateMetrics(workspaceData, params.timeframe);
   const score = calculateOverallScore(metrics);
   const grade = scoreToGrade(score);
   
-  // Generate recommendations if requested
   const recommendations = params.includeRecommendations 
     ? generateRecommendations(metrics, params.analysisType)
     : [];
@@ -100,7 +97,6 @@ function calculateMetrics(data: any, timeframe: string): AnalysisResult['metrics
 }
 
 function calculateOverallScore(metrics: AnalysisResult['metrics']): number {
-  // Weighted scoring algorithm
   const weights = {
     completionRate: 0.4,
     averageVelocity: 0.3,
@@ -188,13 +184,10 @@ function formatAnalysisResult(result: AnalysisResult): string {
 // 6. Main tool function
 export async function exampleAnalysisTool(params: ExampleAnalysisInput): Promise<ToolResponse> {
   try {
-    // Validate input parameters
     const validatedParams = exampleAnalysisSchema.parse(params);
     
-    // Perform analysis
     const result = await performAnalysis(validatedParams);
     
-    // Format and return response
     return {
       content: [{
         type: 'text',
@@ -203,7 +196,6 @@ export async function exampleAnalysisTool(params: ExampleAnalysisInput): Promise
     };
     
   } catch (error) {
-    // Handle errors gracefully
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     
     return {

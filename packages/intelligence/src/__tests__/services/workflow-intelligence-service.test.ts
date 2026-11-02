@@ -1,9 +1,6 @@
 /**
  * Workflow Intelligence Service Unit Tests
  * 
- * Phase 2.1: Comprehensive unit testing for workflow intelligence functionality
- * Target Coverage: >95%
- * 
  * @version 4.1.0
  * @package @chykalophia/clickup-intelligence-mcp-server
  */

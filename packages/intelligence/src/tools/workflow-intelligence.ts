@@ -52,7 +52,6 @@ export class WorkflowIntelligence {
   }
 }
 
-// Tool definitions for MCP integration
 export const workflowPatternAnalysisTool = {
   name: 'clickup_analyze_workflow_patterns',
   description: '🔄 **WORKFLOW PATTERN ANALYZER** - Identify recurring workflow patterns, bottlenecks, and optimization opportunities. Analyzes team workflows to discover inefficiencies and automation potential.',
@@ -71,14 +70,12 @@ export const integrationOptimizationTool = {
   inputSchema: IntegrationOptimizationInputSchema,
 };
 
-// Export tool configurations for main server
 export const workflowIntelligenceTools = [
   workflowPatternAnalysisTool,
   automationRecommendationTool,
   integrationOptimizationTool,
 ];
 
-// Factory function
 export function createWorkflowIntelligence(): WorkflowIntelligence {
   return new WorkflowIntelligence();
 }

@@ -3,7 +3,6 @@ import { z } from 'zod';
 import { RealTimeProcessingEngine } from '../services/real-time-processing-engine.js';
 import { ProcessingRule } from '../services/event-stream-processor.js';
 
-// Global engine instance
 let engineInstance: RealTimeProcessingEngine | null = null;
 
 export const startRealTimeEngineSchema = z.object({
@@ -57,7 +56,6 @@ export async function startRealTimeEngine(params: z.infer<typeof startRealTimeEn
 
     await engineInstance.start();
 
-    // Set up event listeners for monitoring
     engineInstance.on('event_received', (event) => {
       console.error(`[Real-Time Engine] Event received: ${event.type} for task ${event.taskId}`);
     });
@@ -107,7 +105,7 @@ export async function processWebhookEvent(params: z.infer<typeof processWebhookS
       };
     }
 
-    // TODO: Add signature validation if required
+    // TODO: validateSignature is accepted but ignored; implement HMAC validation.
     if (params.validateSignature && params.signature && params.secret) {
       // Implement HMAC validation here
     }
@@ -149,7 +147,6 @@ export async function addProcessingRule(params: z.infer<typeof addProcessingRule
       };
     }
 
-    // Create the rule with safer function parsing
     // eslint-disable-next-line no-new-func
     const conditionFn = new Function('_event', `return ${params.condition}`) as any;
     // eslint-disable-next-line no-new-func

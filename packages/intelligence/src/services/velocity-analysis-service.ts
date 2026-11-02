@@ -11,7 +11,6 @@
 
 import { z } from 'zod';
 
-// Input/Output Schemas
 export const VelocityAnalysisInputSchema = z.object({
   teamId: z.string().describe('ClickUp team ID for analysis'),
   lookbackPeriod: z.number().min(1).max(52).default(12).describe('Number of weeks to analyze (1-52)'),
@@ -97,25 +96,18 @@ export class VelocityAnalysisService {
     const startTime = Date.now();
 
     try {
-      // Validate input
       const validatedInput = VelocityAnalysisInputSchema.parse(input);
 
-      // Fetch historical sprint data
       const historicalData = await this.fetchHistoricalSprintData(validatedInput);
 
-      // Calculate velocity trends
       const trends = await this.calculateVelocityTrends(historicalData);
 
-      // Analyze current velocity metrics
       const currentVelocity = this.analyzeCurrentVelocity(trends);
 
-      // Generate velocity prediction
       const prediction = await this.generateVelocityPrediction(trends, validatedInput);
 
-      // Generate recommendations
       const recommendations = this.generateRecommendations(currentVelocity, prediction);
 
-      // Calculate metadata
       const metadata = this.calculateAnalysisMetadata(trends, startTime);
 
       const result: VelocityAnalysisResult = {
@@ -136,16 +128,9 @@ export class VelocityAnalysisService {
   }
 
   /**
-   * Fetches historical sprint data from ClickUp API
+   * Returns mock historical sprint data; not yet wired to the ClickUp API.
    */
   private async fetchHistoricalSprintData(input: VelocityAnalysisInput): Promise<any[]> {
-    // This would integrate with the ClickUp API to fetch:
-    // - Sprint data (start/end dates, completed tasks)
-    // - Task completion data with story points
-    // - Team composition changes
-    // - Time tracking data
-
-    // For now, return mock data structure
     const mockData = [];
     const { lookbackPeriod } = input;
     const now = new Date();
@@ -200,11 +185,9 @@ export class VelocityAnalysisService {
     const sortedVelocities = [...velocities].sort((a, b) => a - b);
     const median = sortedVelocities[Math.floor(sortedVelocities.length / 2)];
 
-    // Calculate standard deviation
     const variance = velocities.reduce((sum, v) => sum + Math.pow(v - average, 2), 0) / velocities.length;
     const standardDeviation = Math.sqrt(variance);
 
-    // Determine trend direction
     const recentTrends = trends.slice(-Math.min(4, trends.length));
     const firstHalf = recentTrends.slice(0, Math.ceil(recentTrends.length / 2));
     const secondHalf = recentTrends.slice(Math.ceil(recentTrends.length / 2));
@@ -231,27 +214,22 @@ export class VelocityAnalysisService {
    * Generates velocity prediction for next sprint
    */
   private async generateVelocityPrediction(trends: VelocityTrend[], input: VelocityAnalysisInput): Promise<VelocityPrediction> {
-    const recentTrends = trends.slice(-6); // Last 6 sprints
+    const recentTrends = trends.slice(-6);
     const baseVelocity = recentTrends.reduce((sum, t) => sum + t.storyPoints, 0) / recentTrends.length;
 
-    // Apply seasonal adjustment
     const currentQuarter = this.getCurrentQuarter();
     const seasonalAdjustment = input.seasonalAdjustment ? this.SEASONAL_FACTORS[currentQuarter] : 1.0;
 
-    // Apply team composition adjustment
     const teamCompositionImpact = input.adjustForTeamChanges ? this.calculateTeamCompositionImpact(trends) : 1.0;
 
-    // Calculate predicted velocity
     const predictedVelocity = Math.round(baseVelocity * seasonalAdjustment * teamCompositionImpact);
 
-    // Calculate confidence interval
     const standardDeviation = this.calculateVelocityStandardDeviation(recentTrends);
     const confidenceInterval = {
       lower: Math.max(0, Math.round(predictedVelocity - 1.28 * standardDeviation)), // 80% confidence
       upper: Math.round(predictedVelocity + 1.28 * standardDeviation),
     };
 
-    // Identify factors affecting velocity
     const factors = [
       {
         factor: 'Historical Performance',
@@ -285,7 +263,6 @@ export class VelocityAnalysisService {
   private generateRecommendations(currentVelocity: any, prediction: VelocityPrediction) {
     const recommendations = [];
 
-    // High variability recommendation
     if (currentVelocity.standardDeviation > currentVelocity.average * 0.3) {
       recommendations.push({
         type: 'process' as const,
@@ -297,7 +274,6 @@ export class VelocityAnalysisService {
       });
     }
 
-    // Declining trend recommendation
     if (currentVelocity.trend === 'decreasing') {
       recommendations.push({
         type: 'team' as const,
@@ -309,7 +285,6 @@ export class VelocityAnalysisService {
       });
     }
 
-    // Low confidence recommendation
     if (prediction.confidenceInterval.upper - prediction.confidenceInterval.lower > currentVelocity.average) {
       recommendations.push({
         type: 'planning' as const,
@@ -320,7 +295,6 @@ export class VelocityAnalysisService {
       });
     }
 
-    // Capacity optimization recommendation
     recommendations.push({
       type: 'capacity' as const,
       priority: 'medium' as const,
@@ -351,20 +325,12 @@ export class VelocityAnalysisService {
     };
   }
 
-  /**
-   * Helper methods
-   */
   private calculateDataConfidence(sprint: any): number {
-    // Factors affecting confidence:
-    // - Sprint completion (complete sprints = higher confidence)
-    // - Data recency (recent data = higher confidence)
-    // - Team stability (stable team = higher confidence)
-
-    let confidence = 0.8; // Base confidence
+    let confidence = 0.8;
 
     if (sprint.isComplete) confidence += 0.1;
     if (sprint.teamSize >= 5) confidence += 0.05; // Larger teams = more stable data
-    if (sprint.storyPoints > 0) confidence += 0.05; // Has story point data
+    if (sprint.storyPoints > 0) confidence += 0.05;
 
     return Math.min(1.0, confidence);
   }

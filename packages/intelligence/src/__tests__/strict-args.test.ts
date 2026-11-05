@@ -53,6 +53,23 @@ describe('findUnknownKeys edge cases', () => {
   });
 });
 
+describe('unions stay open', () => {
+  const choice = z.object({
+    pick: z.union([z.object({ kind: z.literal('a'), a: z.string() }), z.object({ kind: z.literal('b') })]),
+  });
+
+  it('does not flag keys inside union branches', () => {
+    expect(findUnknownKeys(choice, { pick: { kind: 'a', a: 'x', extra: 1 } })).toEqual([]);
+  });
+
+  it('does not close union branches in the JSON Schema', () => {
+    const json = z.toJSONSchema(choice, { io: 'input' }) as any;
+    closeJsonSchemaObjects(json);
+    expect(json.additionalProperties).toBe(false);
+    for (const branch of json.properties.pick.anyOf) expect(branch.additionalProperties).toBeUndefined();
+  });
+});
+
 describe('closeJsonSchemaObjects', () => {
   it('closes objects under a property named like a union keyword', () => {
     const json = z.toJSONSchema(z.object({ anyOf: z.object({ x: z.string() }) }), { io: 'input' }) as any;

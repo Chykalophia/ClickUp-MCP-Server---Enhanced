@@ -24,8 +24,8 @@ These ship together with the 7.0.0 core changes described below.
   misspelled key such as `task.descripton` is an error instead of being silently
   dropped. Passthrough objects and union branches stay open (#72).
 - The core server now exits on SIGTERM. Before, a SIGTERM listener in the rate
-  limiter replaced Node's default exit, so every MCP client shutdown left an
-  orphaned server process (#62).
+  limiter replaced Node's default exit, so a client that stopped the server
+  with SIGTERM left an orphaned process behind (#62).
 - On HTTP 429 the core client now waits until ClickUp's documented
   `X-RateLimit-Reset` instead of a fixed one second when no `Retry-After`
   header is sent.

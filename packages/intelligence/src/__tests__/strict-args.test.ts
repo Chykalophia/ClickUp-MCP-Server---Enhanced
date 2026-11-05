@@ -52,6 +52,11 @@ describe('findUnknownKeys edge cases', () => {
     expect(findUnknownKeys(both, { a: 'x', b: 'y', extra: { v: 1, w: 2 } })).toEqual(['extra.w']);
   });
 
+  it('reports keys neither side declares when one side of an intersection is strict', () => {
+    const both = z.intersection(z.object({ a: z.string() }).strict(), z.object({ b: z.string() }));
+    expect(findUnknownKeys(both, { a: 'x', b: 'y', c: 1 })).toEqual(['c']);
+  });
+
   it('reports undeclared keys in .strict() objects at any depth', () => {
     const schema = z.object({ inner: z.object({ a: z.string() }).strict() }).strict();
     expect(findUnknownKeys(schema, { inner: { a: 'x', b: 1 }, top: 2 })).toEqual(['inner.b', 'top']);

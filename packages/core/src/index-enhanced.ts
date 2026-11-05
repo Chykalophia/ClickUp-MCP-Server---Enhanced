@@ -29,8 +29,8 @@ class ClickUpServer {
     this.toolsets = created.resolved;
     this.counts = created.counts;
 
-    // Close the MCP server before exiting on SIGINT or SIGTERM (what MCP clients
-    // send). Issue #62 was a SIGTERM listener in RateLimiter that swallowed it.
+    // Close the MCP server before exiting on SIGINT or SIGTERM.
+    // RateLimiter leaves signal handling to this handler (#62).
     let shuttingDown = false;
     const shutdown = async () => {
       if (shuttingDown) return;
@@ -44,8 +44,8 @@ class ClickUpServer {
       }
       process.exit(code);
     };
-    process.once('SIGINT', shutdown);
-    process.once('SIGTERM', shutdown);
+    process.on('SIGINT', shutdown);
+    process.on('SIGTERM', shutdown);
 
     this.setupResources();
   }

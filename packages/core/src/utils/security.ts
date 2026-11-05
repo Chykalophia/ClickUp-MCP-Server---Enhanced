@@ -30,13 +30,9 @@ class RateLimiter {
         },
         5 * 60 * 1000
       );
-
-      // Cleanup interval on process exit to prevent Jest hanging
-      if (typeof process !== 'undefined') {
-        process.on('exit', () => this.destroy());
-        process.on('SIGINT', () => this.destroy());
-        process.on('SIGTERM', () => this.destroy());
-      }
+      // unref() so the timer never keeps the process alive. No signal
+      // listeners here: adding one replaces Node's default exit on SIGTERM.
+      this.cleanupInterval.unref?.();
     }
   }
 

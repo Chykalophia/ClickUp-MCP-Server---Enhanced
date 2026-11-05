@@ -185,8 +185,9 @@ export function validateResponse<T>(schema: z.ZodSchema<T>, data: unknown, conte
     return result.data;
   }
   const issues = result.error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join('; ');
+  const rawKeys = data !== null && typeof data === 'object' ? Object.keys(data).join(', ') : typeof data;
   throw new Error(
     `Unexpected API response shape for ${context}: ${issues}. ` +
-      `This may indicate a ClickUp API change. Raw keys: [${Object.keys(data as Record<string, unknown>).join(', ')}]`
+      `This may indicate a ClickUp API change. Raw keys: [${rawKeys}]`
   );
 }

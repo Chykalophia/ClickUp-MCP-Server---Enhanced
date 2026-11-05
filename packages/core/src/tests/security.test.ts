@@ -9,6 +9,9 @@ import {
   generateSecureToken,
   validateEnvironment,
   rateLimiter,
+  safeJsonParse,
+  secureLog,
+  hashSensitiveData,
 } from '../utils/security.js';
 
 describe('Security Utilities', () => {
@@ -170,6 +173,24 @@ describe('Security Utilities', () => {
       expect(result.error).toBe('Private and localhost URLs are not allowed');
     });
 
+    it.each([
+      'http://127.0.0.2/',
+      'http://0.0.0.0/',
+      'http://169.254.169.254/latest/meta-data/',
+      'http://100.64.0.1/',
+      'http://100.127.255.255/',
+      'http://[::1]/',
+      'http://[fd12:3456::1]/',
+      'http://[fe80::1]/',
+    ])('should reject loopback, link-local, CGNAT and IPv6 private address %s', url => {
+      expect(validateUrl(url).isValid).toBe(false);
+    });
+
+    it('should accept public addresses next to the blocked ranges', () => {
+      expect(validateUrl('http://100.63.255.255/').isValid).toBe(true);
+      expect(validateUrl('http://100.128.0.1/').isValid).toBe(true);
+    });
+
     it('should reject invalid URL format', () => {
       const result = validateUrl('not-a-url');
       expect(result.isValid).toBe(false);
@@ -263,6 +284,38 @@ describe('Security Utilities', () => {
       expect(rateLimiter.isAllowed('key2', config)).toBe(true);
       expect(rateLimiter.isAllowed('key1', config)).toBe(false);
       expect(rateLimiter.isAllowed('key2', config)).toBe(false);
+    });
+  });
+
+  describe('safeJsonParse', () => {
+    it('drops prototype-pollution keys at every depth', () => {
+      const parsed = safeJsonParse('{"a":{"__proto__":{"polluted":true},"b":1},"__proto__":{"x":1}}');
+      expect(Object.prototype.hasOwnProperty.call(parsed, '__proto__')).toBe(false);
+      expect(Object.prototype.hasOwnProperty.call(parsed.a, '__proto__')).toBe(false);
+      expect(parsed.a.b).toBe(1);
+      expect(({} as any).polluted).toBeUndefined();
+    });
+  });
+
+  describe('secureLog', () => {
+    it('never writes to stdout, which carries the MCP protocol stream', () => {
+      const out = jest.spyOn(console, 'log').mockImplementation(() => {});
+      const info = jest.spyOn(console, 'info').mockImplementation(() => {});
+      const err = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      secureLog('info', 'hello');
+      secureLog('warn', 'careful');
+      expect(out).not.toHaveBeenCalled();
+      expect(info).not.toHaveBeenCalled();
+      expect(err).toHaveBeenCalledTimes(1);
+      expect(warn).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('hashSensitiveData', () => {
+    it('returns the generated salt so the hash can be verified later', () => {
+      const first = hashSensitiveData('secret');
+      expect(hashSensitiveData('secret', first.salt).hash).toBe(first.hash);
     });
   });
 });

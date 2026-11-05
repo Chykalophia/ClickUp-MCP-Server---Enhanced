@@ -33,7 +33,8 @@ export function computeRateLimitWaitMs(
   if (Number.isFinite(reset) && reset > 0) {
     // Seconds since epoch; tolerate a millisecond value as well.
     const resetMs = reset > 1e12 ? reset : reset * 1000;
-    return Math.max(resetMs - now, 1000);
+    // The window is one minute, so a longer wait means the clocks disagree; cap it.
+    return Math.min(Math.max(resetMs - now, 1000), 60_000);
   }
   return fallbackMs;
 }

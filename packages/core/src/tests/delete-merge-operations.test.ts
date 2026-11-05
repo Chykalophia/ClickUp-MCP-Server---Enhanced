@@ -54,7 +54,7 @@ describe('Delete and Merge Task Operations Validation', () => {
     });
 
     describe('Security Validation', () => {
-      it('should handle potentially malicious task IDs', () => {
+      it('treats hostile-looking task IDs as ordinary non-empty strings', () => {
         const maliciousInputs = [
           '<script>alert("xss")</script>',
           '../../etc/passwd',

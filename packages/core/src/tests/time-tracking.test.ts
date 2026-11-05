@@ -117,12 +117,10 @@ describe('Time Tracking', () => {
       // Access the registered tool handler via the server internals
       const tools = (server as any)._registeredTools;
       const createTool = tools?.['clickup_create_time_entry'];
-      if (!createTool?.callback) {
-        // Skips silently if the SDK internals are not reachable.
-        return;
-      }
+      // Fail rather than pass vacuously if the SDK internals move.
+      expect(createTool?.handler).toBeDefined();
 
-      await createTool.callback({
+      await createTool.handler({
         team_id: '123',
         description: 'Test',
         start: 1774983600000,
@@ -148,9 +146,9 @@ describe('Time Tracking', () => {
     it('create handler should pass duration when provided', async () => {
       const tools = (server as any)._registeredTools;
       const createTool = tools?.['clickup_create_time_entry'];
-      if (!createTool?.callback) return;
+      expect(createTool?.handler).toBeDefined();
 
-      await createTool.callback({
+      await createTool.handler({
         team_id: '123',
         description: 'Test',
         start: 1774983600000,
@@ -169,9 +167,9 @@ describe('Time Tracking', () => {
     it('create handler should pass stop when provided', async () => {
       const tools = (server as any)._registeredTools;
       const createTool = tools?.['clickup_create_time_entry'];
-      if (!createTool?.callback) return;
+      expect(createTool?.handler).toBeDefined();
 
-      await createTool.callback({
+      await createTool.handler({
         team_id: '123',
         description: 'Test',
         start: 1774983600000,
@@ -190,9 +188,9 @@ describe('Time Tracking', () => {
     it('create handler should reject when both duration and stop are provided', async () => {
       const tools = (server as any)._registeredTools;
       const createTool = tools?.['clickup_create_time_entry'];
-      if (!createTool?.callback) return;
+      expect(createTool?.handler).toBeDefined();
 
-      const result = await createTool.callback({
+      const result = await createTool.handler({
         team_id: '123',
         description: 'Test',
         start: 1774983600000,
@@ -209,9 +207,9 @@ describe('Time Tracking', () => {
     it('update handler should reject when both duration and stop are provided', async () => {
       const tools = (server as any)._registeredTools;
       const updateTool = tools?.['clickup_update_time_entry'];
-      if (!updateTool?.callback) return;
+      expect(updateTool?.handler).toBeDefined();
 
-      const result = await updateTool.callback({
+      const result = await updateTool.handler({
         team_id: '123',
         timer_id: 'entry-456',
         duration: 3600000,
@@ -226,9 +224,9 @@ describe('Time Tracking', () => {
     it('update handler should map task_id to tid in API payload', async () => {
       const tools = (server as any)._registeredTools;
       const updateTool = tools?.['clickup_update_time_entry'];
-      if (!updateTool?.callback) return;
+      expect(updateTool?.handler).toBeDefined();
 
-      await updateTool.callback({
+      await updateTool.handler({
         team_id: '123',
         timer_id: 'entry-456',
         task_id: 'task-abc',

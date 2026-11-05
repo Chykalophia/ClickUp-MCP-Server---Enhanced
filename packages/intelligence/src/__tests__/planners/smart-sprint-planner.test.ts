@@ -16,7 +16,8 @@ describe('SmartSprintPlanner.calculateOptimalAllocations', () => {
 
   it("does not change the caller's team_members", async () => {
     const members = [{ user_id: 1, available_hours: 40, skills: [] }];
-    await allocate([task('a'), task('b')], members);
+    const allocations = await allocate([task('a'), task('b')], members);
+    expect(allocations).toHaveLength(2);
     expect(members[0].available_hours).toBe(40);
   });
 });

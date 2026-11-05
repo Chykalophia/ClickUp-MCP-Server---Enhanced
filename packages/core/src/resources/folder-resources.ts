@@ -45,6 +45,10 @@ export function setupFolderResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const folder_id = params.folder_id as string;
+        // The ID is interpolated into the API path, so anything but an ID is refused.
+        if (!/^[A-Za-z0-9_-]+$/.test(folder_id)) {
+          throw new Error('Invalid folder ID');
+        }
         const folder = await foldersClient.getFolder(folder_id);
 
         return {

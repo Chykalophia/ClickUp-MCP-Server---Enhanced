@@ -383,7 +383,11 @@ export class SmartSprintPlanner {
     allocatedHours: number
   ): string[] {
     const insights = [];
-    
+
+    if (totalCapacity <= 0) {
+      return ['No team capacity available - add team members with available hours'];
+    }
+
     const utilization = (allocatedHours / totalCapacity) * 100;
     
     if (utilization > 95) {

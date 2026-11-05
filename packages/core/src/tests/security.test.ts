@@ -176,6 +176,9 @@ describe('Security Utilities', () => {
     it.each([
       'http://127.0.0.2/',
       'http://0.0.0.0/',
+      'http://0.1.2.3/',
+      'http://[::ffff:127.0.0.1]/',
+      'http://[::ffff:169.254.169.254]/',
       'http://169.254.169.254/latest/meta-data/',
       'http://100.64.0.1/',
       'http://100.127.255.255/',
@@ -189,6 +192,8 @@ describe('Security Utilities', () => {
     it('should accept public addresses next to the blocked ranges', () => {
       expect(validateUrl('http://100.63.255.255/').isValid).toBe(true);
       expect(validateUrl('http://100.128.0.1/').isValid).toBe(true);
+      expect(validateUrl('http://[fc::1]/').isValid).toBe(true);
+      expect(validateUrl('http://[2001:db8::1]/').isValid).toBe(true);
     });
 
     it('should reject invalid URL format', () => {
@@ -289,9 +294,14 @@ describe('Security Utilities', () => {
 
   describe('safeJsonParse', () => {
     it('drops prototype-pollution keys at every depth', () => {
-      const parsed = safeJsonParse('{"a":{"__proto__":{"polluted":true},"b":1},"__proto__":{"x":1}}');
-      expect(Object.prototype.hasOwnProperty.call(parsed, '__proto__')).toBe(false);
-      expect(Object.prototype.hasOwnProperty.call(parsed.a, '__proto__')).toBe(false);
+      const parsed = safeJsonParse(
+        '{"a":{"__proto__":{"polluted":true},"constructor":1,"prototype":2,"b":1},' +
+          '"__proto__":{"x":1},"constructor":{"y":1},"prototype":{"z":1}}'
+      );
+      for (const key of ['__proto__', 'constructor', 'prototype']) {
+        expect(Object.prototype.hasOwnProperty.call(parsed, key)).toBe(false);
+        expect(Object.prototype.hasOwnProperty.call(parsed.a, key)).toBe(false);
+      }
       expect(parsed.a.b).toBe(1);
       expect(({} as any).polluted).toBeUndefined();
     });
@@ -305,9 +315,10 @@ describe('Security Utilities', () => {
       const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
       secureLog('info', 'hello');
       secureLog('warn', 'careful');
+      secureLog('error', 'broken');
       expect(out).not.toHaveBeenCalled();
       expect(info).not.toHaveBeenCalled();
-      expect(err).toHaveBeenCalledTimes(1);
+      expect(err).toHaveBeenCalledTimes(2);
       expect(warn).toHaveBeenCalledTimes(1);
     });
   });

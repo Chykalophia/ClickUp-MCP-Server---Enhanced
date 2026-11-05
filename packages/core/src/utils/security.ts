@@ -367,8 +367,11 @@ export const validateUrl = (url: string): { isValid: boolean; error?: string } =
     if (
       hostname === 'localhost' ||
       /^127\./.test(hostname) ||
-      hostname === '0.0.0.0' ||
+      /^0\./.test(hostname) ||
       hostname === '::1' ||
+      hostname === '::' ||
+      // IPv4-mapped IPv6 (URL normalises ::ffff:127.0.0.1 to ::ffff:7f00:1)
+      hostname.startsWith('::ffff:') ||
       // Link-local, including cloud metadata at 169.254.169.254
       hostname.startsWith('169.254.') ||
       // CGNAT shared address space 100.64.0.0/10
@@ -378,8 +381,8 @@ export const validateUrl = (url: string): { isValid: boolean; error?: string } =
       // Complete 172.16.0.0/12 range (172.16.0.0 - 172.31.255.255)
       /^172\.(1[6-9]|2[0-9]|3[01])\./.test(hostname) ||
       // IPv6 private ranges
-      /^f[cd][0-9a-f]{0,2}:/.test(hostname) ||
-      /^fe[89ab][0-9a-f]?:/.test(hostname)
+      /^f[cd][0-9a-f]{2}:/.test(hostname) ||
+      /^fe[89ab][0-9a-f]:/.test(hostname)
     ) {
       return { isValid: false, error: 'Private and localhost URLs are not allowed' };
     }

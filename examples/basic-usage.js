@@ -10,7 +10,6 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 
 const transport = new StdioClientTransport({
   command: 'node',
-  // Run from the repo root after `npm run build`.
   args: ['./packages/core/build/index-enhanced.js'],
   env: {
     // You can provide your ClickUp API token here or use environment variables

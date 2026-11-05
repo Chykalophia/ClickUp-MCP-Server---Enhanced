@@ -50,6 +50,10 @@ export const addProcessingRuleSchema = z.object({
 
 type RuleCondition = z.infer<typeof addProcessingRuleSchema>['condition'];
 
+// Values from tool arguments or webhook payloads go into single log lines.
+// eslint-disable-next-line no-control-regex
+const stripControlChars = (text: string) => text.replace(/[\u0000-\u001f\u007f]+/g, ' ');
+
 function readPath(source: unknown, path: string): unknown {
   let current: unknown = source;
   for (const key of path.split('.')) {
@@ -244,10 +248,13 @@ export async function addProcessingRule(params: z.infer<typeof addProcessingRule
       eventType: params.eventType,
       condition: event => evaluateRuleCondition(condition, event.data),
       action: async event => {
-        // eslint-disable-next-line no-control-regex
-        const message = action?.message?.replace(/[\u0000-\u001f\u007f]+/g, ' ');
+        const message = action?.message ? stripControlChars(action.message) : '';
         const detail = message ? `: ${message}` : '';
-        console.error(`[Real-Time Engine] Rule ${params.id} fired for task ${event.taskId}${detail}`);
+        console.error(
+          `[Real-Time Engine] Rule ${stripControlChars(params.id)} fired for task ${stripControlChars(
+            String(event.taskId)
+          )}${detail}`
+        );
       },
       priority: params.priority,
     };

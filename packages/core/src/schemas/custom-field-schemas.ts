@@ -84,7 +84,7 @@ export const ManualProgressFieldConfigSchema = z
     end: z.number().optional().default(100),
     current: z.number().optional(),
   })
-  .refine(data => (data.start || 0) < (data.end || 100), {
+  .refine(data => data.start < data.end, {
     message: 'Start value must be less than end value',
     path: ['start'],
   });

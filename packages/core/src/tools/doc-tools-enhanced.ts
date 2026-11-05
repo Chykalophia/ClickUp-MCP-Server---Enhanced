@@ -7,8 +7,6 @@ import {
   flattenDocPages,
   DEFAULT_SEARCH_MAX_PAGES,
 } from '../clickup-client/docs-enhanced.js';
-import {} from '../clickup-client/auth.js';
-import {} from '../schemas/document-schemas.js';
 import { mcpError } from '../utils/error-handling.js';
 import { idSchema } from '../schemas/common.js';
 

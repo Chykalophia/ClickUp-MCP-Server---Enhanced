@@ -18,7 +18,10 @@ export function setupFolderResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const space_id = params.space_id as string;
-        console.error('[FolderResources] Fetching folders for space:', space_id);
+        // The ID is interpolated into the API path, so anything but an ID is refused.
+        if (!/^[A-Za-z0-9_-]+$/.test(space_id)) {
+          throw new Error('Invalid space ID');
+        }
         const foldersResponse = await foldersClient.getFoldersFromSpace(space_id);
 
         return {
@@ -46,13 +49,11 @@ export function setupFolderResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const folder_id = params.folder_id as string;
-        console.error('[FolderResources] Fetching folder:', folder_id);
-
-        // Stub: returns a placeholder without calling the API.
-        const folder = {
-          id: folder_id,
-          message: 'Folder details endpoint not available in ClickUp API',
-        };
+        // The ID is interpolated into the API path, so anything but an ID is refused.
+        if (!/^[A-Za-z0-9_-]+$/.test(folder_id)) {
+          throw new Error('Invalid folder ID');
+        }
+        const folder = await foldersClient.getFolder(folder_id);
 
         return {
           contents: [
@@ -79,7 +80,9 @@ export function setupFolderResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const folder_id = params.folder_id as string;
-        console.error('[FolderResources] Fetching lists for folder:', folder_id);
+        if (!/^[A-Za-z0-9_-]+$/.test(folder_id)) {
+          throw new Error('Invalid folder ID');
+        }
         const lists = await foldersClient.getListsFromFolder(folder_id);
 
         return {

@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { createClickUpClient } from '../clickup-client/index.js';
@@ -53,12 +52,10 @@ export function setupSpaceTools(server: McpServer): void {
     },
     async ({ workspace_id, archived, include_settings }) => {
       try {
-        console.error(`[SpaceTools] Getting spaces for workspace ${workspace_id}...`);
         const spaces = await spacesClient.getSpacesFromWorkspace(
           workspace_id,
           archived !== undefined ? { archived } : undefined
         );
-        console.error(`[SpaceTools] Got ${spaces.length} spaces`);
 
         // Trimmed by default — see include_settings. `statuses` and `features`
         // together dominate the raw response and are rarely what a caller
@@ -88,9 +85,7 @@ export function setupSpaceTools(server: McpServer): void {
     { space_id: idSchema().describe('The ID of the space to get') },
     async ({ space_id }) => {
       try {
-        console.error(`[SpaceTools] Getting space ${space_id}...`);
         const space = await spacesClient.getSpace(space_id);
-        console.error(`[SpaceTools] Got space: ${space.name}`);
 
         return {
           content: [{ type: 'text', text: JSON.stringify(space) }],
@@ -115,13 +110,11 @@ export function setupSpaceTools(server: McpServer): void {
     },
     async ({ workspace_id, name, multiple_assignees, features }) => {
       try {
-        console.error(`[SpaceTools] Creating space "${name}" in workspace ${workspace_id}...`);
         const space = await spacesClient.createSpace(workspace_id, {
           name,
           ...(multiple_assignees !== undefined && { multiple_assignees }),
           ...(features !== undefined && { features }),
         });
-        console.error(`[SpaceTools] Created space: ${space.id}`);
 
         return {
           content: [{ type: 'text', text: JSON.stringify(space) }],
@@ -157,7 +150,6 @@ export function setupSpaceTools(server: McpServer): void {
       features,
     }) => {
       try {
-        console.error(`[SpaceTools] Updating space ${space_id}...`);
         const space = await spacesClient.updateSpace(space_id, {
           ...(name !== undefined && { name }),
           ...(color !== undefined && { color }),
@@ -166,7 +158,6 @@ export function setupSpaceTools(server: McpServer): void {
           ...(multiple_assignees !== undefined && { multiple_assignees }),
           ...(features !== undefined && { features }),
         });
-        console.error(`[SpaceTools] Updated space: ${space.name}`);
 
         return {
           content: [{ type: 'text', text: JSON.stringify(space) }],
@@ -200,7 +191,6 @@ export function setupSpaceTools(server: McpServer): void {
           };
         }
 
-        console.error(`[SpaceTools] Deleting space ${space_id}...`);
         await spacesClient.deleteSpace(space_id);
 
         return {
@@ -225,9 +215,7 @@ export function setupSpaceTools(server: McpServer): void {
     { space_id: idSchema().describe('The ID of the space to get tags from') },
     async ({ space_id }) => {
       try {
-        console.error(`[SpaceTools] Getting tags for space ${space_id}...`);
         const tags = await spacesClient.getSpaceTags(space_id);
-        console.error(`[SpaceTools] Got ${tags.length} tags`);
 
         return {
           content: [{ type: 'text', text: JSON.stringify(tags) }],
@@ -252,7 +240,6 @@ export function setupSpaceTools(server: McpServer): void {
     },
     async ({ space_id, name, tag_fg, tag_bg }) => {
       try {
-        console.error(`[SpaceTools] Creating tag "${name}" in space ${space_id}...`);
         await spacesClient.createSpaceTag(space_id, {
           name,
           ...(tag_fg !== undefined && { tag_fg }),
@@ -280,7 +267,6 @@ export function setupSpaceTools(server: McpServer): void {
     },
     async ({ space_id, tag_name, new_name, tag_fg, tag_bg }) => {
       try {
-        console.error(`[SpaceTools] Editing tag "${tag_name}" in space ${space_id}...`);
         await spacesClient.editSpaceTag(space_id, tag_name, {
           name: new_name ?? tag_name,
           ...(tag_fg !== undefined && { tag_fg }),
@@ -310,7 +296,6 @@ export function setupSpaceTools(server: McpServer): void {
     },
     async ({ space_id, tag_name }) => {
       try {
-        console.error(`[SpaceTools] Deleting tag "${tag_name}" from space ${space_id}...`);
         await spacesClient.deleteSpaceTag(space_id, tag_name);
 
         return {

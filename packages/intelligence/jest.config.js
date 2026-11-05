@@ -1,7 +1,6 @@
 /**
  * Jest Configuration for ClickUp Intelligence MCP Server
  * 
- * @version 4.1.0
  * @package @chykalophia/clickup-intelligence-mcp-server
  */
 
@@ -58,6 +57,9 @@ export default {
   
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    // version.ts reads package.json through import.meta, which the CommonJS test
+    // runtime cannot load; tests get a fixed version instead.
+    '^(\\.{1,2}/)+version(\\.js)?$': '<rootDir>/src/__tests__/version-stub.ts',
     // Map relative `.js` imports to the `.ts` sources: emitted ESM needs the extension,
     // but the files on disk are .ts. Mirrors the core package's jest config.
     '^(\\.{1,2}/.*)\\.js$': '$1'

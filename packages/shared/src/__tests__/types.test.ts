@@ -8,11 +8,8 @@ describe('Shared Types', () => {
         name: 'Test Task',
         status: 'pending',
         priority: 3,
-        assignees: ['user-1'],
-        created_date: new Date().toISOString(),
+        assignees: [{ id: 1, username: 'user-1', email: 'user-1@example.com' }],
         due_date: new Date().toISOString(),
-        time_estimate: 3600000,
-        time_spent: 1800000,
         tags: ['test'],
         custom_fields: [],
       };
@@ -31,7 +28,7 @@ describe('Shared Types', () => {
     it('should define the correct health metrics structure', () => {
       const mockMetrics: ProjectHealthMetrics = {
         overallScore: 85,
-        taskCompletionRate: 0.9,
+        taskCompletionRate: 90,
         overdueTasksCount: 2,
         blockedTasksCount: 1,
         averageTaskAge: 5.5,

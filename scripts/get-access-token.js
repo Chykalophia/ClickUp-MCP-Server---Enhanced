@@ -22,6 +22,9 @@ if (!CLIENT_ID || !CLIENT_SECRET) {
 // Generate a random state for CSRF protection
 const state = randomBytes(16).toString('hex');
 
+const escapeHtml = value =>
+  String(value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
+
 const app = express();
 
 app.get('/', (req, res) => {
@@ -88,7 +91,7 @@ app.get('/auth/callback', async (req, res) => {
           <p>Your ClickUp access token has been generated successfully.</p>
           
           <h2>Your Access Token:</h2>
-          <div class="token-box">${access_token}</div>
+          <div class="token-box">${escapeHtml(access_token)}</div>
           
           <div class="instructions">
             <h3>Next Steps:</h3>
@@ -133,7 +136,7 @@ app.get('/auth/callback', async (req, res) => {
           <h1>Authorization Error</h1>
           <div class="error">
             <p>An error occurred while trying to get your access token:</p>
-            <pre>${error.response?.data ? JSON.stringify(error.response.data, null, 2) : error.message}</pre>
+            <pre>${escapeHtml(error.response?.data ? JSON.stringify(error.response.data, null, 2) : error.message)}</pre>
           </div>
           <p>Please try again or check your client ID and secret.</p>
         </body>

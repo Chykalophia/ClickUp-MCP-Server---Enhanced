@@ -17,7 +17,6 @@ export function setupCommentResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const task_id = params.task_id as string;
-        console.error('[CommentResources] Fetching comments for task:', task_id);
         const comments = await commentsClient.getTaskComments(task_id);
 
         return {
@@ -45,7 +44,6 @@ export function setupCommentResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const view_id = params.view_id as string;
-        console.error('[CommentResources] Fetching comments for chat view:', view_id);
         const comments = await commentsClient.getChatViewComments(view_id);
 
         return {
@@ -73,7 +71,6 @@ export function setupCommentResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const list_id = params.list_id as string;
-        console.error('[CommentResources] Fetching comments for list:', list_id);
         const comments = await commentsClient.getListComments(list_id);
 
         return {
@@ -101,7 +98,6 @@ export function setupCommentResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const comment_id = params.comment_id as string;
-        console.error('[CommentResources] Fetching threaded comments for comment:', comment_id);
         const comments = await commentsClient.getThreadedComments(comment_id);
 
         return {

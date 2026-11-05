@@ -61,6 +61,7 @@ import {
 // Shared utilities
 import { formatMarkdownReport, generateExecutiveDashboard } from './utils/report-formatter.js';
 import { isDirectRun } from './utils/direct-run.js';
+import { closeJsonSchemaObjects, findUnknownKeys } from './utils/strict-args.js';
 
 /**
  * ClickUp Intelligence MCP Server
@@ -251,7 +252,7 @@ class ClickUpIntelligenceServer {
       ];
 
     // Every tool defines its input as a zod object. Advertise it as JSON Schema and
-    // parse incoming arguments through it (strict, so unknown parameters are rejected).
+    // parse incoming arguments through it. Unknown keys are rejected at every depth.
     const zodSchemas = new Map<string, z.ZodType>();
     const SELF_PARSING_TOOLS = new Set([
       'clickup_analyze_team_workload',
@@ -268,6 +269,7 @@ class ClickUpIntelligenceServer {
           unrepresentable: 'any',
         }) as Record<string, unknown>;
         delete jsonSchema.$schema;
+        closeJsonSchemaObjects(jsonSchema);
         return { ...tool, inputSchema: jsonSchema };
       }
       return tool;
@@ -280,6 +282,13 @@ class ClickUpIntelligenceServer {
       let args = request.params.arguments;
       const argSchema = zodSchemas.get(name);
       if (argSchema) {
+        const unknownKeys = findUnknownKeys(argSchema, args ?? {});
+        if (unknownKeys.length > 0) {
+          return {
+            content: [{ type: 'text', text: `Invalid arguments for ${name}: unknown parameter(s) ${unknownKeys.join(', ')}` }],
+            isError: true,
+          };
+        }
         const parsed = argSchema.safeParse(args ?? {});
         if (!parsed.success) {
           return {

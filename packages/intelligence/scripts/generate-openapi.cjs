@@ -345,9 +345,6 @@ function main() {
     console.log('🔧 Generating OpenAPI specification...');
     
     const spec = generateOpenAPISpec();
-    const outputPath = path.join(__dirname, '../docs/openapi/openapi-generated.yaml');
-    
-    // Only the JSON spec is written; the YAML outputPath is unused.
     const jsonPath = path.join(__dirname, '../docs/openapi/openapi-generated.json');
     fs.writeFileSync(jsonPath, JSON.stringify(spec, null, 2), 'utf8');
     

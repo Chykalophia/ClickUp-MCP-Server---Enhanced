@@ -29,10 +29,23 @@ class ClickUpServer {
     this.toolsets = created.resolved;
     this.counts = created.counts;
 
-    process.on('SIGINT', async () => {
-      await this.server.close();
-      process.exit(0);
-    });
+    // Close the MCP server before exiting on SIGINT or SIGTERM.
+    // RateLimiter leaves signal handling to this handler (#62).
+    let shuttingDown = false;
+    const shutdown = async () => {
+      if (shuttingDown) return;
+      shuttingDown = true;
+      let code = 0;
+      try {
+        await this.server.close();
+      } catch (error) {
+        console.error('ClickUp MCP server: error during shutdown:', error);
+        code = 1;
+      }
+      process.exit(code);
+    };
+    process.on('SIGINT', shutdown);
+    process.on('SIGTERM', shutdown);
 
     this.setupResources();
   }

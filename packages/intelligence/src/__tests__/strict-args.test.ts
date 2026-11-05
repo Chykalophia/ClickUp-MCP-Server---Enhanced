@@ -52,6 +52,11 @@ describe('findUnknownKeys edge cases', () => {
     expect(findUnknownKeys(both, { a: 'x', b: 'y', extra: { v: 1, w: 2 } })).toEqual(['extra.w']);
   });
 
+  it('reports undeclared keys in .strict() objects at any depth', () => {
+    const schema = z.object({ inner: z.object({ a: z.string() }).strict() }).strict();
+    expect(findUnknownKeys(schema, { inner: { a: 'x', b: 1 }, top: 2 })).toEqual(['inner.b', 'top']);
+  });
+
   it('checks values of a typed catchall but not of a passthrough object', () => {
     const typed = z.object({ a: z.string() }).catchall(z.object({ v: z.number() }));
     expect(findUnknownKeys(typed, { a: 'x', extra: { v: 1, w: 2 } })).toEqual(['extra.w']);

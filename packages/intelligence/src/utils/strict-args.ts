@@ -43,7 +43,7 @@ export function findUnknownKeys(schema: z.ZodType, input: unknown, path: string[
           else if (isOpenCatchall(left) || isOpenCatchall(right)) continue;
           else {
             // Undeclared on both sides: a typed catchall still accepts it, checking the value.
-            const typed = [left, right].find(side => side.catchall);
+            const typed = [left, right].find(hasTypedCatchall);
             if (typed) found.push(...findUnknownKeys(typed.catchall, value, keyPath));
             else found.push(keyPath.join('.'));
           }
@@ -69,10 +69,11 @@ export function findUnknownKeys(schema: z.ZodType, input: unknown, path: string[
         const declared = ownShapeEntry(def, key);
         if (declared) {
           found.push(...findUnknownKeys(declared, value, [...path, key]));
-        } else if (def.catchall && !isOpenCatchall(def)) {
+        } else if (hasTypedCatchall(def)) {
           // A typed catchall (e.g. .catchall(z.object(...))) still checks its values.
           found.push(...findUnknownKeys(def.catchall, value, [...path, key]));
-        } else if (!def.catchall) {
+        } else if (!isOpenCatchall(def)) {
+          // No catchall (strip) or .strict() (catchall never): the key is undeclared.
           found.push([...path, key].join('.'));
         }
       }
@@ -94,10 +95,16 @@ function ownShapeEntry(def: any, key: string): z.ZodType | undefined {
   return Object.prototype.hasOwnProperty.call(def.shape, key) ? def.shape[key] : undefined;
 }
 
+/** True for a catchall that accepts keys and checks their values, e.g. .catchall(z.object(...)). */
+function hasTypedCatchall(def: any): boolean {
+  const type = def.catchall?._zod?.def?.type;
+  return type !== undefined && type !== 'never' && type !== 'unknown' && type !== 'any';
+}
+
 /** True when undeclared keys are allowed through unchecked (passthrough, unknown, any). */
 function isOpenCatchall(def: any): boolean {
   const type = def.catchall?._zod?.def?.type;
-  return type !== undefined && type !== 'never' && (type === 'unknown' || type === 'any');
+  return type === 'unknown' || type === 'any';
 }
 
 /**

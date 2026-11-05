@@ -29,9 +29,12 @@ class ClickUpServer {
     this.toolsets = created.resolved;
     this.counts = created.counts;
 
-    // MCP clients stop stdio servers with SIGTERM; without this the process
-    // outlives the client (issue #62).
+    // Close the MCP server before exiting on SIGINT or SIGTERM (what MCP clients
+    // send). Issue #62 was a SIGTERM listener in RateLimiter that swallowed it.
+    let shuttingDown = false;
     const shutdown = async () => {
+      if (shuttingDown) return;
+      shuttingDown = true;
       let code = 0;
       try {
         await this.server.close();

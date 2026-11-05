@@ -3,12 +3,10 @@ import { createClickUpClient } from '../clickup-client/index.js';
 import { createListsClient } from '../clickup-client/lists.js';
 import { resourceError } from '../utils/error-handling.js';
 
-// Create clients
 const clickUpClient = createClickUpClient();
 const listsClient = createListsClient(clickUpClient);
 
 export function setupListResources(server: McpServer): void {
-  // Register space lists resource
   server.resource(
     'space-lists',
     new ResourceTemplate('clickup://space/{space_id}/lists', { list: undefined }),
@@ -37,7 +35,6 @@ export function setupListResources(server: McpServer): void {
     }
   );
 
-  // Register list details resource
   server.resource(
     'list-details',
     new ResourceTemplate('clickup://list/{list_id}', { list: undefined }),

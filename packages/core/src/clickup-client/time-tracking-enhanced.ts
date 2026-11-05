@@ -538,10 +538,8 @@ export class EnhancedTimeTrackingClient {
    */
   async getTimeSummary(teamId: string, params: GetTimeEntriesParams = {}): Promise<TimeSummary> {
     try {
-      // Get time entries for the specified parameters
       const timeEntries = await this.getTimeEntries(teamId, params);
 
-      // Calculate summary statistics
       let totalDuration = 0;
       let billableDuration = 0;
       let nonBillableDuration = 0;

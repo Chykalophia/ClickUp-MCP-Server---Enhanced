@@ -11,35 +11,40 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import { z } from 'zod';
 import { VERSION } from './version.js';
 
-// Phase 1.1 - Project Health Analyzer (COMPLETED)
+// Phase 1.1 - Project Health Analyzer
 import { HealthMetricsService } from './services/health-metrics-service.js';
 import { ProjectHealthAnalyzer, ProjectHealthAnalysisParams } from './analyzers/project-health-analyzer.js';
-import { formatProjectHealthReport, formatProjectHealthError } from './tools/project-health-analyzer.js';
+import {
+  formatProjectHealthReport,
+  formatProjectHealthError,
+  projectHealthAnalysisShape,
+} from './tools/project-health-analyzer.js';
 
-// Phase 1.2 - Smart Sprint Planner (COMPLETED)
+// Phase 1.2 - Smart Sprint Planner
 import { SmartSprintPlanner, createSmartSprintPlanner, SmartSprintPlannerInputSchema } from './tools/smart-sprint-planner.js';
 import { VelocityAnalysisService, createVelocityAnalysisService, VelocityAnalysisInputSchema } from './services/velocity-analysis-service.js';
 import { CapacityModelingService, createCapacityModelingService, CapacityModelingInputSchema } from './services/capacity-modeling-service.js';
 import { SprintOptimizationService, createSprintOptimizationService, SprintOptimizationInputSchema } from './services/sprint-optimization-service.js';
 
-// Phase 1.3 - Task Decomposition Engine (NEW)
+// Phase 1.3 - Task Decomposition Engine
 import { TaskDecompositionEngine, taskDecompositionTool, complexityAnalysisTool, decompositionTemplatesTools } from './tools/task-decomposition-engine.js';
 import { TaskAnalysisService } from './services/task-analysis-service.js';
 import { TaskDecompositionFormatter } from './utils/task-decomposition-formatter.js';
 
-// Phase 1.4 - Resource Optimizer (NEW)
+// Phase 1.4 - Resource Optimizer
 import { ResourceOptimizer, workloadAnalysisTool, taskAssignmentTool, burnoutAnalysisTool, capacityForecastTool } from './tools/resource-optimizer.js';
 import { ResourceOptimizationService } from './services/resource-optimization-service-impl.js';
 import { ResourceOptimizationFormatter } from './utils/resource-optimization-formatter.js';
 
-// Phase 1.5 - Workflow Intelligence (NEW)
+// Phase 1.5 - Workflow Intelligence
 import { WorkflowIntelligence } from './tools/workflow-intelligence.js';
 import { WorkflowPatternAnalysisInputSchema, AutomationRecommendationInputSchema, IntegrationOptimizationInputSchema } from './services/workflow-intelligence-service.js';
 import { WorkflowIntelligenceFormatter } from './utils/workflow-intelligence-formatter.js';
 
-// Phase 3.1 - Real-Time Data Processing Engine (NEW)
+// Phase 3.1 - Real-Time Data Processing Engine
 import { 
   startRealTimeEngine, 
   processWebhookEvent, 
@@ -81,7 +86,6 @@ class ClickUpIntelligenceServer {
   private projectHealthAnalyzer?: ProjectHealthAnalyzer;
 
   constructor() {
-    // Initialize MCP server
     this.server = new Server(
       {
         name: 'clickup-intelligence-mcp-server',
@@ -94,7 +98,6 @@ class ClickUpIntelligenceServer {
       }
     );
 
-    // Initialize AI services
     this.smartSprintPlanner = createSmartSprintPlanner();
     this.healthMetricsService = new HealthMetricsService();
     this.velocityAnalysisService = createVelocityAnalysisService();
@@ -113,46 +116,12 @@ class ClickUpIntelligenceServer {
    * Sets up MCP tool handlers for all intelligence tools
    */
   private setupToolHandlers(): void {
-    // List available tools
-    this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
-      tools: [
+    const tools: Array<{ name: string; description: string; inputSchema: unknown }> = [
         // Phase 1.1 - Project Health Analyzer
         {
           name: 'clickup_analyze_project_health',
           description: '🏥 **AI PROJECT HEALTH ANALYZER** - Comprehensive real-time project health analysis with risk assessment, velocity trends, and actionable recommendations. Provides executive dashboard with letter grades (A-F) and specific improvement suggestions.',
-          // Mirrors ProjectHealthAnalysisParams. The previous schema advertised
-          // camelCase names and a quick/standard/comprehensive depth that the
-          // analyzer never accepted — harmless only while this tool returned
-          // mock data, and wrong the moment it was wired to the real one.
-          inputSchema: {
-            type: 'object',
-            properties: {
-              workspace_id: {
-                type: 'string',
-                description: 'ClickUp workspace ID to analyze',
-              },
-              space_id: {
-                type: 'string',
-                description: 'Optional: Specific space ID to analyze (analyzes entire workspace if not provided)',
-              },
-              list_id: {
-                type: 'string',
-                description: 'Optional: Specific list ID to analyze',
-              },
-              include_archived: {
-                type: 'boolean',
-                default: false,
-                description: 'Whether to include archived tasks in analysis',
-              },
-              analysis_depth: {
-                type: 'string',
-                enum: ['basic', 'detailed', 'comprehensive'],
-                default: 'detailed',
-                description: 'Depth of analysis to perform',
-              },
-            },
-            required: ['workspace_id'],
-          },
+          inputSchema: z.object(projectHealthAnalysisShape),
         },
         
         // Phase 1.2 - Smart Sprint Planner
@@ -271,33 +240,49 @@ class ClickUpIntelligenceServer {
         {
           name: 'clickup_get_cached_task',
           description: '💾 **CACHED DATA ACCESS** - Retrieve cached task data from the real-time processing engine for instant access without API calls.',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              taskId: {
-                type: 'string',
-                description: 'ClickUp task ID to retrieve from cache',
-              },
-            },
-            required: ['taskId'],
-          },
+          inputSchema: z.object({ taskId: z.string().min(1).describe('ClickUp task ID to retrieve from cache') }),
         },
         
         {
           name: 'clickup_stop_realtime_engine',
           description: '🛑 **STOP REAL-TIME ENGINE** - Gracefully stop the real-time processing engine and return final metrics.',
-          inputSchema: {
-            type: 'object',
-            properties: {},
-            additionalProperties: false,
-          },
+          inputSchema: z.object({}),
         },
-      ],
-    }));
+      ];
 
-    // Handle tool calls
+    // Every tool defines its input as a zod object. Advertise it as JSON Schema and
+    // parse incoming arguments through it (strict, so unknown parameters are rejected).
+    const zodSchemas = new Map<string, z.ZodType>();
+    const listedTools = tools.map(tool => {
+      if (tool.inputSchema instanceof z.ZodType) {
+        const schema = tool.inputSchema instanceof z.ZodObject ? tool.inputSchema.strict() : tool.inputSchema;
+        zodSchemas.set(tool.name, schema);
+        const jsonSchema = z.toJSONSchema(schema, {
+          io: 'input',
+          unrepresentable: 'any',
+        }) as Record<string, unknown>;
+        delete jsonSchema.$schema;
+        return { ...tool, inputSchema: jsonSchema };
+      }
+      return tool;
+    });
+
+    this.server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: listedTools as any }));
+
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
-      const { name, arguments: args } = request.params;
+      const { name } = request.params;
+      let args = request.params.arguments;
+      const argSchema = zodSchemas.get(name);
+      if (argSchema) {
+        const parsed = argSchema.safeParse(args ?? {});
+        if (!parsed.success) {
+          return {
+            content: [{ type: 'text', text: `Invalid arguments for ${name}: ${z.prettifyError(parsed.error)}` }],
+            isError: true,
+          };
+        }
+        args = parsed.data as typeof args;
+      }
 
       try {
         switch (name) {
@@ -327,10 +312,8 @@ class ClickUpIntelligenceServer {
                 ],
               };
             } catch (error) {
-              // The analyzer's own error report names the likely causes (bad
-              // workspace id, missing scope, token permissions), so it is more
-              // useful here than the generic handler at the bottom of this
-              // switch.
+              // The analyzer's error report names likely causes (bad workspace id, scope,
+              // token permissions), so it beats the generic handler at the end of this switch.
               return {
                 content: [{ type: 'text', text: formatProjectHealthError(error) }],
                 isError: true,
@@ -594,7 +577,6 @@ class ClickUpIntelligenceServer {
   }
 }
 
-// Export main classes and services
 export {
   ClickUpIntelligenceServer,
   SmartSprintPlanner,
@@ -604,7 +586,6 @@ export {
   SprintOptimizationService,
 };
 
-// Export factory functions
 export {
   createSmartSprintPlanner,
   createVelocityAnalysisService,
@@ -612,7 +593,6 @@ export {
   createSprintOptimizationService,
 };
 
-// Export schemas for external use
 export {
   SmartSprintPlannerInputSchema,
   VelocityAnalysisInputSchema,
@@ -620,7 +600,6 @@ export {
   SprintOptimizationInputSchema,
 };
 
-// Main entry point
 if (isDirectRun(import.meta.url)) {
   const server = new ClickUpIntelligenceServer();
   server.start().catch((error) => {

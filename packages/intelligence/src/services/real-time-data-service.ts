@@ -84,7 +84,6 @@ export class RealTimeDataService extends EventEmitter {
 
   private async processBatch(events: RealTimeDataEvent[]): Promise<void> {
     try {
-      // Update cache
       events.forEach(event => {
         this.dataCache.set(event.taskId, {
           ...event.data,
@@ -92,14 +91,12 @@ export class RealTimeDataService extends EventEmitter {
         });
       });
 
-      // Emit batch processed event
       this.emit('batch_processed', {
         count: events.length,
         timestamp: Date.now(),
         latency: this.calculateAverageLatency(events),
       });
 
-      // Process analytics if enabled
       if (this.config.enableAnalytics) {
         this.processAnalytics(events);
       }

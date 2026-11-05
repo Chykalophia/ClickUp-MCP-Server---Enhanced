@@ -1,13 +1,12 @@
 /**
  * Jest Test Setup
  * 
- * Global test configuration and utilities for Phase 2.1 Unit Testing Suite
+ * Global test configuration and utilities.
  * 
  * @version 4.1.0
  * @package @chykalophia/clickup-intelligence-mcp-server
  */
 
-// Global test timeout
 jest.setTimeout(10000);
 
 // Mock console methods to reduce noise in tests
@@ -21,7 +20,6 @@ global.console = {
   error: jest.fn(),
 };
 
-// Custom matchers
 expect.extend({
   toBeWithinRange(received: number, floor: number, ceiling: number) {
     const pass = received >= floor && received <= ceiling;

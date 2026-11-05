@@ -12,7 +12,6 @@ import {
 import { mcpError } from '../utils/error-handling.js';
 import { idSchema } from '../schemas/common.js';
 
-// Create clients
 const clickUpClient = createClickUpClient();
 const tasksClient = createTasksClient(clickUpClient);
 
@@ -37,9 +36,8 @@ export function setupBulkTaskTools(server: McpServer): void {
       try {
         const validatedData = BulkCreateTasksSchema.parse({ list_id, tasks, continue_on_error });
 
-        // Convert tasks to CreateTaskParams format
         const taskParams: CreateTaskParams[] = validatedData.tasks.map(task => {
-          // Handle markdown content preference
+          // markdown_content takes precedence; drop description so only one is sent.
           if (task.markdown_content && task.description) {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
             const { description, ...rest } = task;
@@ -93,9 +91,8 @@ export function setupBulkTaskTools(server: McpServer): void {
       try {
         const validatedData = BulkUpdateTasksSchema.parse({ tasks, continue_on_error });
 
-        // Convert tasks to the format expected by bulkUpdateTasks
         const taskUpdates = validatedData.tasks.map(task => {
-          // Handle markdown content preference
+          // markdown_content takes precedence; drop description so only one is sent.
           if (task.markdown_content && task.description) {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
             const { description, ...rest } = task;
@@ -175,7 +172,7 @@ export function setupBulkTaskTools(server: McpServer): void {
         for (let i = 0; i < task_ids.length; i++) {
           try {
             const taskId = task_ids[i];
-            // Get task name for confirmation
+            // Fetched before deletion so the result can report the task name.
             const taskDetails = await tasksClient.getTask(taskId);
             await tasksClient.deleteTask(taskId);
 
@@ -197,7 +194,6 @@ export function setupBulkTaskTools(server: McpServer): void {
             errorCount++;
 
             if (!continue_on_error) {
-              // Add remaining tasks as failed
               for (let j = i + 1; j < task_ids.length; j++) {
                 results.push({
                   success: false,
@@ -258,7 +254,7 @@ export function setupBulkTaskTools(server: McpServer): void {
           };
         }
 
-        // Get subtask details first for confirmation message
+        // Fetched before deletion so the result can report the subtask name.
         const subtaskDetails = await tasksClient.getTask(task_id);
         await tasksClient.deleteTask(task_id);
 
@@ -313,7 +309,7 @@ export function setupBulkTaskTools(server: McpServer): void {
           };
         }
 
-        // Get task details first for the confirmation message
+        // Fetched before merging so the result can report the task names.
         const primaryTask = await tasksClient.getTask(primary_task_id);
         const secondaryTasks = await Promise.all(
           secondary_task_ids.map(id => tasksClient.getTask(id))

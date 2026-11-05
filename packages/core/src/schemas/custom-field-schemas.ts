@@ -1,10 +1,6 @@
 import { z } from 'zod';
 import { idSchema } from './common.js';
 
-// ========================================
-// CUSTOM FIELD TYPE VALIDATION
-// ========================================
-
 // Real ClickUp custom field type strings as returned by the API.
 // NOTE: The ClickUp public API has NO endpoints to create, update, or delete
 // custom field DEFINITIONS — fields must be created in the ClickUp UI, so
@@ -29,54 +25,43 @@ export const CustomFieldTypeSchema = z.enum([
   'location',
 ]);
 
-// ========================================
-// FIELD CONFIGURATION SCHEMAS
-// ========================================
-
 // Text field configurations ('text' = long text, 'short_text' = single line)
 export const TextFieldConfigSchema = z.object({
   default: z.string().optional(),
   placeholder: z.string().optional(),
 });
 
-// Number field configurations
 export const NumberFieldConfigSchema = z.object({
   default: z.number().optional(),
   precision: z.number().min(0).max(8).optional().default(0),
 });
 
-// Currency field configurations
 export const CurrencyFieldConfigSchema = z.object({
   default: z.number().optional(),
   precision: z.number().min(0).max(8).optional().default(2),
   currency_type: z.string().optional().default('USD'),
 });
 
-// Date field configurations
 export const DateFieldConfigSchema = z.object({
   default: z.number().positive().optional(),
   include_time: z.boolean().optional().default(false),
 });
 
-// Dropdown option schema
 export const DropdownOptionSchema = z.object({
   name: z.string().min(1, 'Option name is required'),
   color: z.string().optional(),
   orderindex: z.number().optional(),
 });
 
-// Dropdown field configurations
 export const DropdownFieldConfigSchema = z.object({
   default: z.number().optional(),
   options: z.array(DropdownOptionSchema).min(1, 'At least one option is required'),
 });
 
-// Labels field configurations
 export const LabelsFieldConfigSchema = z.object({
   options: z.array(DropdownOptionSchema).min(1, 'At least one option is required'),
 });
 
-// Checkbox field configurations
 export const CheckboxFieldConfigSchema = z.object({
   default: z.boolean().optional().default(false),
 });
@@ -93,7 +78,6 @@ export const EmojiFieldConfigSchema = z.object({
   count: z.number().min(1).max(10).default(5),
 });
 
-// Manual progress field configurations
 export const ManualProgressFieldConfigSchema = z
   .object({
     start: z.number().optional().default(0),
@@ -107,7 +91,7 @@ export const ManualProgressFieldConfigSchema = z
 
 // Automatic progress field configurations (computed by ClickUp)
 export const AutomaticProgressFieldConfigSchema = z.object({
-  tracking: z.record(z.any()).optional(),
+  tracking: z.record(z.string(), z.any()).optional(),
   complete_on: z.number().optional(),
 });
 
@@ -119,10 +103,6 @@ export const UsersFieldConfigSchema = z.object({
   include_team_members: z.boolean().optional(),
 });
 
-// ========================================
-// FIELD VALUE VALIDATION SCHEMAS
-// ========================================
-
 // Text value schema (text / short_text)
 export const TextValueSchema = z.string();
 
@@ -132,16 +112,12 @@ export const NumberValueSchema = z.number().finite();
 // Date value schema — Unix timestamp in MILLISECONDS
 export const DateValueSchema = z.number().int().positive();
 
-// Boolean value schema
 export const BooleanValueSchema = z.boolean();
 
-// URL value schema
 export const URLValueSchema = z.string().url('Must be a valid URL');
 
-// Email value schema
 export const EmailValueSchema = z.string().email('Must be a valid email address');
 
-// Phone value schema
 export const PhoneValueSchema = z.string().min(1, 'Phone number cannot be empty');
 
 // Dropdown value schema (option UUID from type_config.options[].id)
@@ -185,10 +161,6 @@ export const ValueOptionsSchema = z.object({
   time: z.boolean().optional(),
 });
 
-// ========================================
-// CONTAINER VALIDATION SCHEMAS
-// ========================================
-
 export const ListIdSchema = idSchema('List ID is required');
 export const FolderIdSchema = idSchema('Folder ID is required');
 export const SpaceIdSchema = idSchema('Space ID is required');
@@ -196,11 +168,6 @@ export const TeamIdSchema = idSchema('Team ID is required');
 export const FieldIdSchema = idSchema('Field ID is required');
 export const TaskIdSchema = idSchema('Task ID is required');
 
-// ========================================
-// TOOL PARAMETER SCHEMAS
-// ========================================
-
-// Get custom fields schemas
 export const GetListCustomFieldsSchema = z.object({
   list_id: ListIdSchema,
 });
@@ -217,7 +184,6 @@ export const GetTeamCustomFieldsSchema = z.object({
   team_id: TeamIdSchema,
 });
 
-// Set custom field value schema
 export const SetCustomFieldValueSchema = z
   .object({
     task_id: TaskIdSchema,
@@ -231,7 +197,6 @@ export const SetCustomFieldValueSchema = z
     message: 'team_id is required when custom_task_ids is true',
   });
 
-// Remove custom field value schema
 export const RemoveCustomFieldValueSchema = z
   .object({
     task_id: TaskIdSchema,
@@ -243,28 +208,18 @@ export const RemoveCustomFieldValueSchema = z
     message: 'team_id is required when custom_task_ids is true',
   });
 
-// ========================================
-// COMBINED TOOL SCHEMAS
-// ========================================
-
 export const CustomFieldToolSchemas = {
-  // Get operations
   getListCustomFields: GetListCustomFieldsSchema,
   getFolderCustomFields: GetFolderCustomFieldsSchema,
   getSpaceCustomFields: GetSpaceCustomFieldsSchema,
   getTeamCustomFields: GetTeamCustomFieldsSchema,
 
-  // Value operations
   setCustomFieldValue: SetCustomFieldValueSchema,
   removeCustomFieldValue: RemoveCustomFieldValueSchema,
 };
 
-// ========================================
-// VALIDATION HELPER FUNCTIONS
-// ========================================
-
 /**
- * Validate a field value based on field type
+ * Return the zod schema for a value of the given custom field type.
  */
 export function validateFieldValueByType(fieldType: string, _value: any): z.ZodSchema {
   switch (fieldType) {
@@ -364,6 +319,6 @@ export function getFieldTypeConfigSchema(fieldType: string): z.ZodSchema {
       return UsersFieldConfigSchema;
 
     default:
-      return z.record(z.any());
+      return z.record(z.string(), z.any());
   }
 }

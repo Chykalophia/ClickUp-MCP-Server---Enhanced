@@ -5,6 +5,7 @@ import { validateResponse, SpacesResponseSchema } from '../schemas/response-sche
 export interface Space {
   id: string;
   name: string;
+  color?: string | null;
   private: boolean;
   statuses: any[];
   multiple_assignees: boolean;
@@ -114,7 +115,6 @@ export class SpacesClient {
     workspaceId: string,
     params?: { archived?: boolean }
   ): Promise<Space[]> {
-    // Use the v2 API endpoint for spaces
     const raw = await this.client.get<unknown>(`/team/${workspaceId}/space`, params);
     const response = validateResponse(SpacesResponseSchema, raw, 'getSpacesFromWorkspace');
     return response.spaces as Space[];

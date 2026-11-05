@@ -11,7 +11,7 @@ import { validateResponse, CommentsResponseSchema } from '../schemas/response-sc
 export interface Comment {
   id: string;
   comment: ClickUpCommentBlock[]; // ClickUp's structured comment format
-  comment_text: string; // Plain text representation
+  comment_text: string;
   comment_markdown?: string; // Markdown version for display
   user: {
     id: number;
@@ -89,7 +89,7 @@ export interface CreateListCommentParams {
 }
 
 export interface UpdateCommentParams {
-  comment_text?: string; // Make optional since we'll be using comment array
+  comment_text?: string; // Converted to the structured comment array before sending
   assignee?: number;
   resolved?: boolean;
 }
@@ -124,12 +124,10 @@ export class CommentsClient {
     const raw = await this.client.get<unknown>(`/task/${taskId}/comment`, params);
     const result = validateResponse(CommentsResponseSchema, raw, 'getTaskComments') as any;
 
-    // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
       result.comments = result.comments.map((comment: any) => {
         const processed = processClickUpResponse(comment);
 
-        // Convert ClickUp comment format to markdown for display
         if (processed.comment && Array.isArray(processed.comment)) {
           try {
             processed.comment_markdown = clickUpCommentToMarkdown({ comment: processed.comment });
@@ -155,7 +153,6 @@ export class CommentsClient {
     if (params.custom_task_ids && params.team_id === undefined) {
       throw new Error('team_id is required when custom_task_ids is true');
     }
-    // Use ONLY structured format - no comment_text to avoid duplication
     const processedParams: any = { ...params };
 
     // custom_task_ids/team_id are query params, not body fields
@@ -173,7 +170,7 @@ export class CommentsClient {
     if (params.comment_text) {
       const commentData = prepareCommentForClickUp(params.comment_text);
 
-      // Send ONLY structured format - remove comment_text completely
+      // Send only the structured comment; also sending comment_text duplicates it
       delete processedParams.comment_text;
       processedParams.comment = commentData.comment;
 
@@ -187,7 +184,6 @@ export class CommentsClient {
       processedParams
     );
 
-    // Process the response
     return processClickUpResponse(result);
   }
 
@@ -204,12 +200,10 @@ export class CommentsClient {
     const raw = await this.client.get<unknown>(`/view/${viewId}/comment`, params);
     const result = validateResponse(CommentsResponseSchema, raw, 'getChatViewComments') as any;
 
-    // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
       result.comments = result.comments.map((comment: any) => {
         const processed = processClickUpResponse(comment);
 
-        // Convert ClickUp comment format to markdown for display
         if (processed.comment && Array.isArray(processed.comment)) {
           try {
             processed.comment_markdown = clickUpCommentToMarkdown({ comment: processed.comment });
@@ -235,13 +229,12 @@ export class CommentsClient {
     viewId: string,
     params: CreateChatViewCommentParams
   ): Promise<Comment> {
-    // Use ONLY structured format - no comment_text to avoid duplication
     const processedParams: any = { ...params };
 
     if (params.comment_text) {
       const commentData = prepareCommentForClickUp(params.comment_text);
 
-      // Send ONLY structured format - remove comment_text completely
+      // Send only the structured comment; also sending comment_text duplicates it
       delete processedParams.comment_text;
       processedParams.comment = commentData.comment;
 
@@ -252,10 +245,8 @@ export class CommentsClient {
 
     const result = await this.client.post(`/view/${viewId}/comment`, processedParams);
 
-    // Process the response
     const processed = processClickUpResponse(result);
 
-    // Convert ClickUp comment format to markdown for display
     if (processed.comment && Array.isArray(processed.comment)) {
       try {
         processed.comment_markdown = clickUpCommentToMarkdown({ comment: processed.comment });
@@ -280,12 +271,10 @@ export class CommentsClient {
     const raw = await this.client.get<unknown>(`/list/${listId}/comment`, params);
     const result = validateResponse(CommentsResponseSchema, raw, 'getListComments') as any;
 
-    // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
       result.comments = result.comments.map((comment: any) => {
         const processed = processClickUpResponse(comment);
 
-        // Convert ClickUp comment format to markdown for display
         if (processed.comment && Array.isArray(processed.comment)) {
           try {
             processed.comment_markdown = clickUpCommentToMarkdown({ comment: processed.comment });
@@ -308,13 +297,12 @@ export class CommentsClient {
    * @returns The created comment with processed content
    */
   async createListComment(listId: string, params: CreateListCommentParams): Promise<Comment> {
-    // Use ONLY structured format - no comment_text to avoid duplication
     const processedParams: any = { ...params };
 
     if (params.comment_text) {
       const commentData = prepareCommentForClickUp(params.comment_text);
 
-      // Send ONLY structured format - remove comment_text completely
+      // Send only the structured comment; also sending comment_text duplicates it
       delete processedParams.comment_text;
       processedParams.comment = commentData.comment;
 
@@ -325,10 +313,8 @@ export class CommentsClient {
 
     const result = await this.client.post(`/list/${listId}/comment`, processedParams);
 
-    // Process the response
     const processed = processClickUpResponse(result);
 
-    // Convert ClickUp comment format to markdown for display
     if (processed.comment && Array.isArray(processed.comment)) {
       try {
         processed.comment_markdown = clickUpCommentToMarkdown({ comment: processed.comment });
@@ -347,13 +333,12 @@ export class CommentsClient {
    * @returns The updated comment with processed content
    */
   async updateComment(commentId: string, params: UpdateCommentParams): Promise<Comment> {
-    // Use ONLY structured format - no comment_text to avoid duplication
     const processedParams: any = { ...params };
 
     if (params.comment_text) {
       const commentData = prepareCommentForClickUp(params.comment_text);
 
-      // Send ONLY structured format - remove comment_text completely
+      // Send only the structured comment; also sending comment_text duplicates it
       delete processedParams.comment_text;
       processedParams.comment = commentData.comment;
 
@@ -364,10 +349,8 @@ export class CommentsClient {
 
     const result = await this.client.put(`/comment/${commentId}`, processedParams);
 
-    // Process the response
     const processed = processClickUpResponse(result);
 
-    // Convert ClickUp comment format to markdown for display
     if (processed.comment && Array.isArray(processed.comment)) {
       try {
         processed.comment_markdown = clickUpCommentToMarkdown({ comment: processed.comment });
@@ -403,12 +386,10 @@ export class CommentsClient {
     const raw = await this.client.get<unknown>(`/comment/${commentId}/reply`, params);
     const result = validateResponse(CommentsResponseSchema, raw, 'getThreadedComments') as any;
 
-    // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
       result.comments = result.comments.map((comment: any) => {
         const processed = processClickUpResponse(comment);
 
-        // Convert ClickUp comment format to markdown for display
         if (processed.comment && Array.isArray(processed.comment)) {
           try {
             processed.comment_markdown = clickUpCommentToMarkdown({ comment: processed.comment });
@@ -434,12 +415,11 @@ export class CommentsClient {
     commentId: string,
     params: CreateThreadedCommentParams
   ): Promise<Comment> {
-    // Process comment text for ClickUp's structured format ONLY
     const processedParams: any = { ...params };
     if (params.comment_text) {
       const commentData = prepareCommentForClickUp(params.comment_text);
 
-      // Use ONLY ClickUp's structured comment format - no comment_text at all
+      // Send only the structured comment; also sending comment_text duplicates it
       delete processedParams.comment_text;
       processedParams.comment = commentData.comment;
 
@@ -450,10 +430,8 @@ export class CommentsClient {
 
     const result = await this.client.post(`/comment/${commentId}/reply`, processedParams);
 
-    // Process the response
     const processed = processClickUpResponse(result);
 
-    // Convert ClickUp comment format to markdown for display
     if (processed.comment && Array.isArray(processed.comment)) {
       try {
         processed.comment_markdown = clickUpCommentToMarkdown({ comment: processed.comment });

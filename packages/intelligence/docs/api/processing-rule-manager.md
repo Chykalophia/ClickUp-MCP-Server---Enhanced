@@ -4,251 +4,88 @@
 
 ## Overview
 
-Add custom event processing rules to the real-time engine. Define JavaScript-based conditions and actions for automated webhook event processing with priority handling.
+Add a rule to the real-time engine that fires when an event of a given type matches a condition. Rules are declarative: the server never evaluates code supplied in the arguments. (Before intelligence 6.0.0, `condition` and `action` were JavaScript strings; that form is now rejected.)
 
 ## Parameters
 
-### Required Parameters
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `id` | string | yes | | Unique identifier for the rule |
+| `eventType` | enum | yes | | `task_update`, `task_created`, `task_deleted`, `comment_added`, `status_changed` |
+| `condition` | object | no | fire on every event | When the rule fires (see below) |
+| `action` | object | no | `{ "type": "log" }` | What happens when it fires (see below) |
+| `priority` | number | no | `1` | Higher numbers run first |
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `id` | string | Unique identifier for the processing rule |
-| `eventType` | enum | Event type to process: `task_update`, `task_created`, `task_deleted`, `comment_added`, `status_changed` |
-| `condition` | string | JavaScript condition function as string |
-| `action` | string | JavaScript action function as string |
+Unknown parameters, including misspelled keys inside `condition` or `action`, are rejected.
 
-### Optional Parameters
+### `condition`
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `priority` | number | `1` | Rule priority (higher numbers = higher priority) |
+| Key | Type | Description |
+|-----|------|-------------|
+| `field` | string | Dot path into the event's data, e.g. `priority.priority` or `status.status` |
+| `operator` | enum | `equals`, `not_equals`, `contains`, `exists` |
+| `value` | string, number or boolean | Required for every operator except `exists` |
 
-## Response Format
+- `equals` / `not_equals` compare with strict equality.
+- `contains` matches a substring of a string field or an element of an array field.
+- `exists` is true when the field is present and not null.
+- Only the data's own properties are followed; inherited ones such as `constructor` are ignored unless the payload itself defines that key.
+
+### `action`
+
+| Key | Type | Description |
+|-----|------|-------------|
+| `type` | `"log"` | Writes one line to the server log (stderr) |
+| `message` | string, max 500 | Optional text appended to the log line; control characters are replaced with spaces |
+
+## Example
 
 ```typescript
+await callTool({
+  name: 'clickup_add_processing_rule',
+  arguments: {
+    id: 'urgent-update',
+    eventType: 'task_update',
+    condition: { field: 'priority.priority', operator: 'equals', value: 'urgent' },
+    action: { type: 'log', message: 'Urgent task changed' },
+    priority: 5,
+  },
+});
+```
+
+When an urgent task changes, the server logs:
+
+```
+[Real-Time Engine] Rule urgent-update fired for task abc123: Urgent task changed
+```
+
+## Response
+
+The JSON below is the string in `content[0].text` of the MCP tool result. Errors come back with `isError: true` and a plain-text message.
+
+```json
 {
-  content: [
-    {
-      type: "text",
-      text: string // Rule creation confirmation
-    }
-  ]
+  "status": "rule_added",
+  "ruleId": "urgent-update",
+  "eventType": "task_update",
+  "priority": 5,
+  "timestamp": "2026-11-05T16:00:00.000Z"
 }
 ```
 
-## Example Usage
+## Event data
 
-### Basic Rule Creation
+Each event carries `type`, `taskId`, `timestamp`, `source` and `data`. `condition.field` is resolved against `data`, which holds the ClickUp task or webhook payload for the event (for example `status.status`, `priority.priority`, `assignees`, `tags`).
 
-```typescript
-const result = await callTool({
-  name: 'clickup_add_processing_rule',
-  arguments: {
-    id: 'high-priority-task-alert',
-    eventType: 'task_created',
-    condition: 'event.priority === "urgent"',
-    action: 'console.log("Urgent task created:", event.task_name)'
-  }
-});
-```
-
-### Advanced Rule with Priority
-
-```typescript
-const result = await callTool({
-  name: 'clickup_add_processing_rule',
-  arguments: {
-    id: 'status-change-notification',
-    eventType: 'status_changed',
-    condition: 'event.new_status === "completed" && event.assignee_count > 1',
-    action: `
-      const notification = {
-        type: 'task_completed',
-        task_id: event.task_id,
-        assignees: event.assignees,
-        completion_time: new Date().toISOString()
-      };
-      this.broadcast('notifications', notification);
-    `,
-    priority: 5
-  }
-});
-```
-
-## Sample Response
-
-```markdown
-# ✅ PROCESSING RULE ADDED
-
-## Rule Details
-- **Rule ID**: status-change-notification
-- **Event Type**: status_changed
-- **Priority**: 5 (High)
-- **Status**: ✅ Active
-
-## Condition
-```javascript
-event.new_status === "completed" && event.assignee_count > 1
-```
-
-## Action
-```javascript
-const notification = {
-  type: 'task_completed',
-  task_id: event.task_id,
-  assignees: event.assignees,
-  completion_time: new Date().toISOString()
-};
-this.broadcast('notifications', notification);
-```
-
-## Rule Configuration
-- **Execution Context**: Real-time processing engine
-- **Available Variables**: `event`, `this` (engine context)
-- **Available Methods**: `this.broadcast()`, `this.cache()`, `this.log()`
-
-## Next Steps
-1. Rule will be applied to incoming webhook events
-2. Monitor rule execution with `clickup_get_realtime_metrics`
-3. Update or remove rule as needed
-```
-
-## Event Types
-
-### task_update
-- **Triggers**: Any task property change
-- **Event Data**: `task_id`, `changes`, `assignees`, `status`, `priority`
-- **Use Cases**: Property change notifications, audit logging
-
-### task_created
-- **Triggers**: New task creation
-- **Event Data**: `task_id`, `task_name`, `assignees`, `priority`, `list_id`
-- **Use Cases**: Welcome notifications, auto-assignment rules
-
-### task_deleted
-- **Triggers**: Task deletion
-- **Event Data**: `task_id`, `task_name`, `deleted_by`, `deletion_time`
-- **Use Cases**: Cleanup actions, deletion logging
-
-### comment_added
-- **Triggers**: New comment on task
-- **Event Data**: `task_id`, `comment_id`, `author`, `comment_text`
-- **Use Cases**: Mention notifications, comment analysis
-
-### status_changed
-- **Triggers**: Task status modification
-- **Event Data**: `task_id`, `old_status`, `new_status`, `changed_by`
-- **Use Cases**: Workflow automation, progress tracking
-
-## Condition Functions
-
-### Available Event Properties
-```javascript
-// Common properties available in all events
-event.workspace_id    // ClickUp workspace ID
-event.user_id        // User who triggered the event
-event.timestamp      // Event timestamp
-event.event_type     // Type of event
-
-// Task-specific properties
-event.task_id        // Task identifier
-event.task_name      // Task title
-event.assignees      // Array of assignee IDs
-event.priority       // Task priority
-event.status         // Current task status
-event.list_id        // Parent list ID
-```
-
-### Condition Examples
-```javascript
-// High priority tasks only
-'event.priority === "urgent" || event.priority === "high"'
-
-// Specific assignee
-'event.assignees.includes("user_12345")'
-
-// Multiple conditions
-'event.status === "completed" && event.assignees.length > 2'
-
-// Time-based conditions
-'new Date(event.timestamp).getHours() >= 9 && new Date(event.timestamp).getHours() <= 17'
-```
-
-## Action Functions
-
-### Available Context Methods
-```javascript
-// Broadcast to WebSocket clients
-this.broadcast(channel, data)
-
-// Cache data for later use
-this.cache(key, value, ttl)
-
-// Log information
-this.log(level, message, data)
-
-// Get cached data
-this.getCached(key)
-```
-
-### Action Examples
-```javascript
-// Simple notification
-'this.broadcast("alerts", {type: "urgent_task", task_id: event.task_id})'
-
-// Cache task data
-'this.cache(`task_${event.task_id}`, event, 3600)'
-
-// Complex processing
-`
-const taskData = {
-  id: event.task_id,
-  status: event.new_status,
-  completed_at: new Date().toISOString()
-};
-this.broadcast('task_updates', taskData);
-this.log('info', 'Task completed', taskData);
-`
-```
-
-## Rule Priority
-
-### Priority Levels
-- **1-3**: Low priority - Background processing
-- **4-6**: Medium priority - Standard business logic
-- **7-9**: High priority - Critical notifications
-- **10+**: Urgent priority - System alerts
-
-### Execution Order
-- Rules are executed in priority order (highest first)
-- Rules with same priority execute in creation order
-- Failed rules don't block lower priority rules
-
-## Error Scenarios
+## Errors
 
 | Error | Cause | Resolution |
 |-------|-------|------------|
-| `Rule ID already exists` | Duplicate rule identifier | Use unique ID or update existing rule |
-| `Invalid condition syntax` | JavaScript syntax error in condition | Fix JavaScript syntax |
-| `Invalid action syntax` | JavaScript syntax error in action | Fix JavaScript syntax |
-| `Engine not running` | Real-time engine not started | Start engine with `clickup_start_realtime_engine` |
-
-## Performance Characteristics
-
-- **Rule Execution**: <10ms per rule
-- **Memory Usage**: ~1KB per rule
-- **Maximum Rules**: 100 rules per engine
-- **Condition Evaluation**: Optimized JavaScript execution
-
-## Security Considerations
-
-- **Sandboxed Execution**: Rules run in isolated context
-- **Limited API Access**: Only engine methods available
-- **No File System Access**: Rules cannot access local files
-- **Memory Limits**: Rules have execution time and memory limits
+| `Invalid arguments for clickup_add_processing_rule` | Wrong shape, unknown key, or missing `value` | Fix the arguments as described above |
+| `Real-time processing engine is not running` | Engine not started | Start it with `clickup_start_realtime_engine` |
 
 ## Related Tools
 
-- [`clickup_start_realtime_engine`](./realtime-engine-start.md) - Start engine to use rules
-- [`clickup_get_realtime_metrics`](./realtime-metrics.md) - Monitor rule execution
-- [`clickup_process_webhook`](./webhook-processor.md) - Generate events for rules
+- [`clickup_start_realtime_engine`](./realtime-engine-start.md) - Start the engine before adding rules
+- [`clickup_get_realtime_metrics`](./realtime-metrics.md) - Monitor processing
+- [`clickup_process_webhook`](./webhook-processor.md) - Feed webhook events to the engine

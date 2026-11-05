@@ -2,11 +2,9 @@
 export default async function globalSetup() {
   console.log('🧪 Setting up global test environment...');
 
-  // Set global test environment variables
   process.env.NODE_ENV = 'test';
   process.env.CLICKUP_API_TOKEN = 'pk_test_token_1234567890abcdef';
 
-  // Create test directories if needed
   const fs = require('fs');
   const path = require('path');
 
@@ -22,7 +20,6 @@ export default async function globalSetup() {
     const resolvedPath = path.resolve(dirPath);
     const basePath = path.resolve(process.cwd());
 
-    // Ensure the resolved path is within the project directory
     if (!resolvedPath.startsWith(basePath)) {
       throw new Error(`Directory path outside project: ${dir}`);
     }

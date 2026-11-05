@@ -5,16 +5,13 @@ import open from 'open';
 import { randomBytes } from 'crypto';
 import dotenv from 'dotenv';
 
-// Load environment variables from .env file
 dotenv.config();
 
-// Configuration
 const CLIENT_ID = process.env.CLICKUP_CLIENT_ID;
 const CLIENT_SECRET = process.env.CLICKUP_CLIENT_SECRET;
 const REDIRECT_URI = 'http://localhost:3000/auth/callback';
 const PORT = 3000;
 
-// Validate configuration
 if (!CLIENT_ID || !CLIENT_SECRET) {
   console.error('Error: CLICKUP_CLIENT_ID and CLICKUP_CLIENT_SECRET environment variables are required.');
   console.error('Please create a .env file with these values or set them in your environment.');
@@ -25,10 +22,8 @@ if (!CLIENT_ID || !CLIENT_SECRET) {
 // Generate a random state for CSRF protection
 const state = randomBytes(16).toString('hex');
 
-// Create Express app
 const app = express();
 
-// Home route
 app.get('/', (req, res) => {
   res.send(`
     <html>
@@ -49,13 +44,11 @@ app.get('/', (req, res) => {
   `);
 });
 
-// Auth route - redirect to ClickUp OAuth page
 app.get('/auth', (req, res) => {
   const authUrl = `https://app.clickup.com/api?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&state=${state}`;
   res.redirect(authUrl);
 });
 
-// Callback route - handle OAuth callback
 app.get('/auth/callback', async (req, res) => {
   const { code, state: returnedState } = req.query;
   
@@ -69,7 +62,6 @@ app.get('/auth/callback', async (req, res) => {
   }
   
   try {
-    // Exchange code for access token
     const response = await axios.post('https://api.clickup.com/api/v2/oauth/token', {
       client_id: CLIENT_ID,
       client_secret: CLIENT_SECRET,
@@ -80,7 +72,6 @@ app.get('/auth/callback', async (req, res) => {
     
     const { access_token } = response.data;
     
-    // Display the access token
     res.send(`
       <html>
         <head>
@@ -151,16 +142,13 @@ app.get('/auth/callback', async (req, res) => {
   }
 });
 
-// Start the server
 const server = app.listen(PORT, () => {
   console.log(`OAuth server running at http://localhost:${PORT}`);
   console.log('Opening browser for authorization...');
   
-  // Open the browser to start the OAuth flow
   open(`http://localhost:${PORT}`);
 });
 
-// Handle server shutdown
 process.on('SIGINT', () => {
   server.close(() => {
     console.log('OAuth server closed.');

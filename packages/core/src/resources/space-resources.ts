@@ -4,12 +4,10 @@ import { createClickUpClient } from '../clickup-client/index.js';
 import { createSpacesClient } from '../clickup-client/spaces.js';
 import { resourceError } from '../utils/error-handling.js';
 
-// Create clients
 const clickUpClient = createClickUpClient();
 const spacesClient = createSpacesClient(clickUpClient);
 
 export function setupSpaceResources(server: McpServer): void {
-  // Register workspace spaces resource
   server.resource(
     'workspace-spaces',
     new ResourceTemplate('clickup://workspace/{workspace_id}/spaces', { list: undefined }),
@@ -38,7 +36,6 @@ export function setupSpaceResources(server: McpServer): void {
     }
   );
 
-  // Register space details resource
   server.resource(
     'space-details',
     new ResourceTemplate('clickup://space/{space_id}', { list: undefined }),

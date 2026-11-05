@@ -7,13 +7,11 @@ import TurndownService from 'turndown';
  * Handles conversion between markdown, HTML, and plain text formats
  */
 
-// Configure marked for ClickUp-compatible HTML output
 marked.setOptions({
   gfm: true, // GitHub Flavored Markdown
   breaks: true, // Convert line breaks to <br>
 });
 
-// Configure Turndown for ClickUp HTML to markdown conversion
 const turndownService = new TurndownService({
   headingStyle: 'atx', // Use # for headers
   codeBlockStyle: 'fenced', // Use ``` for code blocks
@@ -24,7 +22,6 @@ const turndownService = new TurndownService({
   linkReferenceStyle: 'full', // Use full reference links
 });
 
-// Add custom rules for ClickUp-specific elements
 turndownService.addRule('strikethrough', {
   filter: ['del', 's'],
   replacement: content => `~~${content}~~`,
@@ -37,7 +34,7 @@ turndownService.addRule('underline', {
 
 turndownService.addRule('highlight', {
   filter: 'mark',
-  replacement: content => `==${content}==`, // Use highlight syntax
+  replacement: content => `==${content}==`,
 });
 
 /**
@@ -89,7 +86,6 @@ export function markdownToPlainText(markdown: string): string {
   }
 
   try {
-    // First convert to HTML, then strip tags
     const htmlResult = marked.parse(markdown);
     const html = typeof htmlResult === 'string' ? htmlResult : '';
     return html
@@ -121,7 +117,6 @@ export function isMarkdown(content: string): boolean {
     return false;
   }
 
-  // Check for common markdown patterns
   const markdownPatterns = [
     /#{1,6}\s+/, // Headers
     /\*\*.*?\*\*/, // Bold
@@ -168,7 +163,6 @@ export function formatContent(
     return '';
   }
 
-  // Detect current format
   const isCurrentlyHtml = isHtml(content);
   const isCurrentlyMarkdown = !isCurrentlyHtml && isMarkdown(content);
 
@@ -275,10 +269,10 @@ export function looksLikeHtml(content: string): boolean {
  *
  * Always returns `markdown_description`. Markdown renders plain text exactly
  * like the plain `description` field does, so there is nothing to gain from
- * guessing: the old isMarkdown() heuristic missed GFM tables, bare URLs,
- * horizontal rules and more, and those descriptions were then sent to the
- * plain field and rendered literally. HTML input (which ClickUp does not
- * render in either field) is converted to markdown with turndown first.
+ * guessing (a heuristic such as isMarkdown() misses GFM tables, bare URLs,
+ * horizontal rules and more, which then render literally). HTML input (which
+ * ClickUp does not render in either field) is converted to markdown with
+ * turndown first.
  *
  * @param content The description to prepare (markdown, HTML, or plain text)
  * @returns `{ markdown_description }` ready to merge into the request body
@@ -305,7 +299,7 @@ export function prepareContentForClickUp(content: string): {
  * tools), it becomes the canonical `description`, and the duplicate plain-text
  * renderings (`markdown_description`, `text_content`) are dropped. ClickUp's
  * default `description` is a flattened plain-text rendering, so an agent that
- * read it and wrote it back destroyed headings, links and checklists.
+ * read it and wrote it back would destroy headings, links and checklists.
  *
  * @param response ClickUp API response with description/text_content
  * @returns Processed content with a markdown description

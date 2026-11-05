@@ -1,7 +1,6 @@
 /**
- * Regression tests for the second defect in
- * HANDOFF-comment-api-and-silent-param-drop.md: clickup_create_task_comment
- * accepted only a structured block array, so posting an ordinary markdown
+ * Regression tests: clickup_create_task_comment accepted only a structured
+ * block array, so posting an ordinary markdown
  * comment was impossible without hand-building blocks first. Its sibling
  * clickup_create_chat_view_comment already accepted plain text; this pins the
  * two to the same shape.

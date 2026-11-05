@@ -7,12 +7,8 @@ import {
   ProjectHealthAnalysisResult,
 } from '../analyzers/project-health-analyzer.js';
 
-// Parameter shape for the project-health tool. The MCP SDK's tool() generics are
-// typed against its bundled zod v4, while this package uses zod v3; matching a v3
-// ZodRawShape against the v4-typed overload trips TypeScript's instantiation-depth
-// limit (TS2589). We register through a locally-narrowed view of server.tool that
-// accepts a raw shape + a params-typed handler, so the shape and handler params
-// stay fully typed while the cross-version generic inference is bypassed.
+// Inferring the SDK's tool() generics from this shape trips TS2589, so registration goes
+// through a narrowed server.tool view that keeps the handler typed.
 export const projectHealthAnalysisShape = {
   workspace_id: z.string().describe('The ClickUp workspace ID to analyze'),
   space_id: z.string().optional().describe('Optional: Specific space ID to analyze'),
@@ -151,9 +147,8 @@ ${analysis.summary.overallScore >= 80 ?
 /**
  * Renders a failed analysis as the tool's error report.
  *
- * Takes `unknown` because that is what a catch clause actually binds — the
- * previous `error: any` let `error.message` through unchecked on values that
- * need not be Errors at all.
+ * Takes `unknown` because that is what a catch clause binds; non-Error values are
+ * stringified.
  */
 export function formatProjectHealthError(error: unknown): string {
   const err = error instanceof Error ? error : new Error(String(error));

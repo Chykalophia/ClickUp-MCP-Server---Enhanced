@@ -4,12 +4,10 @@ import { createClickUpClient } from '../clickup-client/index.js';
 import { createFoldersClient } from '../clickup-client/folders.js';
 import { resourceError } from '../utils/error-handling.js';
 
-// Create clients
 const clickUpClient = createClickUpClient();
 const foldersClient = createFoldersClient(clickUpClient);
 
 export function setupFolderResources(server: McpServer): void {
-  // Register space folders resource
   server.resource(
     'space-folders',
     new ResourceTemplate('clickup://space/{space_id}/folders', { list: undefined }),
@@ -38,7 +36,6 @@ export function setupFolderResources(server: McpServer): void {
     }
   );
 
-  // Register folder details resource
   server.resource(
     'folder-details',
     new ResourceTemplate('clickup://folder/{folder_id}', { list: undefined }),
@@ -51,11 +48,7 @@ export function setupFolderResources(server: McpServer): void {
         const folder_id = params.folder_id as string;
         console.error('[FolderResources] Fetching folder:', folder_id);
 
-        // Note: The ClickUp API doesn't have a direct endpoint to get folder details
-        // We would need to implement this in the foldersClient if API supports it
-        // For now, return a placeholder response
-
-        // Create a folder object with the ID and a message
+        // Stub: returns a placeholder without calling the API.
         const folder = {
           id: folder_id,
           message: 'Folder details endpoint not available in ClickUp API',
@@ -76,7 +69,6 @@ export function setupFolderResources(server: McpServer): void {
     }
   );
 
-  // Register folder lists resource
   server.resource(
     'folder-lists',
     new ResourceTemplate('clickup://folder/{folder_id}/lists', { list: undefined }),

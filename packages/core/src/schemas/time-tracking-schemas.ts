@@ -2,27 +2,14 @@
 import { z } from 'zod';
 import { idSchema } from './common.js';
 
-// ========================================
-// TIME TRACKING VALIDATION SCHEMAS
-// ========================================
-
-// Team ID validation
 export const TeamIdSchema = idSchema('Team ID is required');
 
-// Timer ID validation
 export const TimerIdSchema = idSchema('Timer ID is required');
 
-// Task ID validation (optional for time entries)
 export const TaskIdSchema = idSchema('Task ID is required');
 
-// User ID validation
 export const UserIdSchema = z.number().positive('User ID must be positive');
 
-// ========================================
-// TIME ENTRY SCHEMAS
-// ========================================
-
-// Time entry tag schema
 export const TimeEntryTagSchema = z.object({
   name: z.string().min(1, 'Tag name is required'),
   tag_fg: z.string().optional(),
@@ -77,25 +64,21 @@ export const UpdateTimeEntrySchema = z
     message: 'Stop time must be after start time',
   });
 
-// Delete time entry schema
 export const DeleteTimeEntrySchema = z.object({
   team_id: TeamIdSchema,
   timer_id: TimerIdSchema,
 });
 
-// Get single time entry schema
 export const GetTimeEntrySchema = z.object({
   team_id: TeamIdSchema,
   timer_id: TimerIdSchema,
 });
 
-// Get time entry history schema
 export const GetTimeEntryHistorySchema = z.object({
   team_id: TeamIdSchema,
   timer_id: TimerIdSchema,
 });
 
-// Get time entries schema
 export const GetTimeEntriesSchema = z.object({
   team_id: TeamIdSchema,
   start_date: z.number().positive().optional(),
@@ -110,10 +93,6 @@ export const GetTimeEntriesSchema = z.object({
   task_id: z.string().optional(),
   custom_task_ids: z.boolean().optional(),
 });
-
-// ========================================
-// TIMER OPERATION SCHEMAS
-// ========================================
 
 // Start timer schema (POST /team/{team_id}/time_entries/start takes no timer_id)
 export const StartTimerSchema = z.object({
@@ -130,33 +109,21 @@ export const StopTimerSchema = z.object({
   team_id: TeamIdSchema,
 });
 
-// ========================================
-// TIME ENTRY TAG SCHEMAS
-// ========================================
-
-// Get all time entry tags schema
 export const GetTimeEntryTagsSchema = z.object({
   team_id: TeamIdSchema,
 });
 
-// Bulk add tags to time entries schema
 export const AddTagsToTimeEntriesSchema = z.object({
   team_id: TeamIdSchema,
   time_entry_ids: z.array(z.string().min(1)).min(1),
   tags: z.array(TimeEntryTagSchema).min(1),
 });
 
-// Get running timers schema
 export const GetRunningTimersSchema = z.object({
   team_id: TeamIdSchema,
   assignee: UserIdSchema.optional(),
 });
 
-// ========================================
-// TIME SUMMARY SCHEMAS
-// ========================================
-
-// Get time summary schema
 export const GetTimeSummarySchema = z.object({
   team_id: TeamIdSchema,
   start_date: z.number().positive().optional(),
@@ -169,27 +136,15 @@ export const GetTimeSummarySchema = z.object({
   billable_only: z.boolean().optional().default(false),
 });
 
-// ========================================
-// HELPER SCHEMAS
-// ========================================
-
-// Duration format schema
 export const DurationFormatSchema = z.enum(['milliseconds', 'seconds', 'minutes', 'hours']);
 
-// Time format validation
 export const TimeFormatSchema = z.object({
   format: DurationFormatSchema.optional().default('milliseconds'),
   include_seconds: z.boolean().optional().default(true),
 });
 
-// Billable time filter schema
 export const BillableFilterSchema = z.enum(['all', 'billable', 'non_billable']);
 
-// ========================================
-// RESPONSE TYPE SCHEMAS
-// ========================================
-
-// Time entry response schema
 export const TimeEntryResponseSchema = z.object({
   id: z.string(),
   task: z
@@ -224,7 +179,6 @@ export const TimeEntryResponseSchema = z.object({
   at: z.string(),
 });
 
-// Running timer response schema
 export const RunningTimerResponseSchema = z.object({
   id: z.string(),
   task: z
@@ -243,10 +197,6 @@ export const RunningTimerResponseSchema = z.object({
   billable: z.boolean(),
   tags: z.array(TimeEntryTagSchema),
 });
-
-// ========================================
-// UTILITY FUNCTIONS
-// ========================================
 
 /**
  * Convert duration from milliseconds to specified format
@@ -300,12 +250,7 @@ export function getCurrentTimestamp(): number {
   return Date.now();
 }
 
-// ========================================
-// COMBINED TOOL SCHEMAS
-// ========================================
-
 export const TimeTrackingToolSchemas = {
-  // Time entry operations
   createTimeEntry: CreateTimeEntrySchema,
   updateTimeEntry: UpdateTimeEntrySchema,
   deleteTimeEntry: DeleteTimeEntrySchema,
@@ -313,19 +258,15 @@ export const TimeTrackingToolSchemas = {
   getTimeEntryHistory: GetTimeEntryHistorySchema,
   getTimeEntries: GetTimeEntriesSchema,
 
-  // Time entry tags
   getTimeEntryTags: GetTimeEntryTagsSchema,
   addTagsToTimeEntries: AddTagsToTimeEntriesSchema,
 
-  // Timer operations
   startTimer: StartTimerSchema,
   stopTimer: StopTimerSchema,
   getRunningTimers: GetRunningTimersSchema,
 
-  // Time analytics
   getTimeSummary: GetTimeSummarySchema,
 
-  // Utility schemas
   timeFormat: TimeFormatSchema,
   billableFilter: BillableFilterSchema,
 };

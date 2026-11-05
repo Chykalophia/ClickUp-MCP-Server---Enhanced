@@ -28,7 +28,7 @@ import {
 } from '../schemas/chat-schemas.js';
 import { idSchema } from '../schemas/common.js';
 
-// Create enhanced chat client (Chat API is v3-only)
+// The Chat API is v3-only.
 const chatClient = new ChatEnhancedClient(getApiToken());
 
 export function setupChatTools(server: McpServer): void {

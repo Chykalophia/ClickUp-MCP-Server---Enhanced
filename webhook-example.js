@@ -43,7 +43,6 @@ const webhookPayload = {
   }
 };
 
-// Process with MCP server
 console.log('Event:', {
   type: 'comment_created',
   comment_id: webhookPayload.version.object_id,

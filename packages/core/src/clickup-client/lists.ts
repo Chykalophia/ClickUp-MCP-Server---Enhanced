@@ -4,7 +4,6 @@ import { validateResponse, ListsResponseSchema } from '../schemas/response-schem
 export interface List {
   id: string;
   name: string;
-  // ...other list properties...
 }
 
 export interface GetListsParams {
@@ -39,7 +38,6 @@ export interface ListMember {
   id: number;
   username?: string;
   email?: string;
-  // ...other member properties...
 }
 
 /**

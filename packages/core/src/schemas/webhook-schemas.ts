@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { idSchema } from './common.js';
 
-// The 27 webhook events supported by the ClickUp API, plus the '*' wildcard
+// Webhook events supported by the ClickUp API, plus the '*' wildcard
 // which subscribes a webhook to all events.
 export const WEBHOOK_EVENTS = [
   'taskCreated',
@@ -45,9 +45,9 @@ export const WebhookHistoryItemSchema = z
     date: z.string(),
     field: z.string(),
     parent_id: z.string(),
-    data: z.record(z.any()),
+    data: z.record(z.string(), z.any()),
     source: z.string().nullable(),
-    user: z.record(z.any()),
+    user: z.record(z.string(), z.any()),
     before: z.any(),
     after: z.any(),
   })
@@ -65,7 +65,6 @@ export const WebhookPayloadSchema = z
   })
   .passthrough();
 
-// Webhook configuration schemas
 export const CreateWebhookSchema = z.object({
   workspace_id: z.string(),
   endpoint: z.string().url(),
@@ -118,7 +117,6 @@ export const ProcessWebhookSchema = z
     message: 'signature and secret are required when validate_signature is true',
   });
 
-// Type exports
 export type WebhookPayload = z.infer<typeof WebhookPayloadSchema>;
 export type WebhookHistoryItem = z.infer<typeof WebhookHistoryItemSchema>;
 export type WebhookEvent = z.infer<typeof WebhookEventSchema>;
@@ -128,7 +126,6 @@ export type WebhookFilter = z.infer<typeof WebhookFilterSchema>;
 export type ValidateWebhookSignatureRequest = z.infer<typeof ValidateWebhookSignatureSchema>;
 export type ProcessWebhookRequest = z.infer<typeof ProcessWebhookSchema>;
 
-// Utility function for webhook processing
 export const extractWebhookObjectInfo = (payload: WebhookPayload) => {
   return {
     webhookId: payload.webhook_id,

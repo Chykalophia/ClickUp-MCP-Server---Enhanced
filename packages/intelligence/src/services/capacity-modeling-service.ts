@@ -11,7 +11,6 @@
 
 import { z } from 'zod';
 
-// Input/Output Schemas
 export const TeamMemberSchema = z.object({
   userId: z.string().describe('ClickUp user ID'),
   name: z.string().describe('Team member name'),
@@ -151,16 +150,13 @@ export class CapacityModelingService {
     const startTime = Date.now();
     
     try {
-      // Validate input
       const validatedInput = CapacityModelingInputSchema.parse(input);
       
-      // Calculate working days in sprint
       const workingDays = this.calculateWorkingDays(
         validatedInput.sprintStartDate,
         validatedInput.sprintEndDate
       );
       
-      // Calculate individual capacities
       const individualCapacities = await this.calculateIndividualCapacities(
         validatedInput.teamMembers,
         validatedInput.constraints,
@@ -168,7 +164,6 @@ export class CapacityModelingService {
         workingDays
       );
       
-      // Calculate team capacity
       const teamCapacity = this.calculateTeamCapacity(
         individualCapacities,
         validatedInput.skillRequirements,
@@ -176,10 +171,8 @@ export class CapacityModelingService {
         validatedInput.bufferPercentage
       );
       
-      // Analyze capacity utilization
       const capacityUtilization = this.analyzeCapacityUtilization(teamCapacity);
       
-      // Generate metadata
       const metadata = this.generateMetadata(validatedInput, startTime);
       
       const result: CapacityModelingResult = {
@@ -213,24 +206,19 @@ export class CapacityModelingService {
     workingDays: number
   ): Promise<IndividualCapacity[]> {
     return teamMembers.map(member => {
-      // Calculate base capacity
       const totalHours = member.availabilityHours * (workingDays / 5); // Assuming 5-day work week
       const experienceMultiplier = this.EXPERIENCE_MULTIPLIERS[member.experienceLevel];
       const baseStoryPointCapacity = totalHours * this.DEFAULT_STORY_POINTS_PER_HOUR * experienceMultiplier;
       
-      // Apply constraints
       const memberConstraints = constraints.filter(c => c.userId === member.userId);
       const constraintHours = memberConstraints.reduce((sum, c) => sum + c.hoursImpact, 0);
       const availableHours = Math.max(0, totalHours - constraintHours);
       
-      // Apply focus factor
       const focusHours = availableHours * member.focusFactor;
       const effectiveStoryPoints = focusHours * this.DEFAULT_STORY_POINTS_PER_HOUR * experienceMultiplier;
       
-      // Analyze skill match
       const skillMatch = this.analyzeSkillMatch(member, skillRequirements);
       
-      // Generate recommendations
       const recommendations = this.generateIndividualRecommendations(
         member,
         memberConstraints,
@@ -272,26 +260,20 @@ export class CapacityModelingService {
     includeBuffer: boolean,
     bufferPercentage: number
   ): TeamCapacity {
-    // Aggregate team totals
     const totalHours = individualCapacities.reduce((sum, ic) => sum + ic.baseCapacity.totalHours, 0);
     const effectiveHours = individualCapacities.reduce((sum, ic) => sum + ic.adjustedCapacity.focusHours, 0);
     const rawStoryPointCapacity = individualCapacities.reduce((sum, ic) => sum + ic.adjustedCapacity.effectiveStoryPoints, 0);
     
-    // Apply buffer if requested
     const storyPointCapacity = includeBuffer ? 
       rawStoryPointCapacity * (1 - bufferPercentage) : 
       rawStoryPointCapacity;
     
-    // Calculate confidence level
     const confidenceLevel = this.calculateCapacityConfidence(individualCapacities);
     
-    // Analyze skill capacity
     const skillCapacity = this.analyzeSkillCapacity(individualCapacities, skillRequirements);
     
-    // Identify risk factors
     const riskFactors = this.identifyRiskFactors(individualCapacities, skillCapacity);
     
-    // Generate team recommendations
     const recommendations = this.generateTeamRecommendations(
       individualCapacities,
       skillCapacity,
@@ -317,8 +299,7 @@ export class CapacityModelingService {
   private analyzeCapacityUtilization(teamCapacity: TeamCapacity) {
     const effectiveCapacity = teamCapacity.totalCapacity.storyPointCapacity;
     
-    // For this analysis, we'll assume a target sprint commitment
-    // In a real implementation, this would come from sprint planning input
+    // Placeholder commitment until real sprint-planning input is wired in.
     const assumedSprintCommitment = effectiveCapacity * 0.8; // Conservative planning
     
     const planned = assumedSprintCommitment / effectiveCapacity;
@@ -340,9 +321,6 @@ export class CapacityModelingService {
     };
   }
 
-  /**
-   * Helper methods
-   */
   private calculateWorkingDays(startDate: string, endDate: string): number {
     const start = new Date(startDate);
     const end = new Date(endDate);
@@ -391,23 +369,19 @@ export class CapacityModelingService {
   ): string[] {
     const recommendations = [];
     
-    // Low focus factor recommendation
     if (member.focusFactor < 0.7) {
       recommendations.push(`Consider investigating factors reducing ${member.name}'s focus factor (${(member.focusFactor * 100).toFixed(0)}%)`);
     }
     
-    // High constraint impact
     const constraintImpact = constraints.reduce((sum, c) => sum + c.hoursImpact, 0);
     if (constraintImpact > availableHours * 0.3) {
       recommendations.push(`High constraint impact (${constraintImpact.toFixed(1)}h) - consider redistributing responsibilities`);
     }
     
-    // Skill development opportunities
     if (skillMatch.crossTrainingOpportunities.length > 0) {
       recommendations.push(`Cross-training opportunities: ${skillMatch.crossTrainingOpportunities.slice(0, 2).join(', ')}`);
     }
     
-    // Capacity optimization
     if (focusHours < member.availabilityHours * 0.6) {
       recommendations.push('Consider capacity optimization - current effective hours are below optimal range');
     }
@@ -418,12 +392,10 @@ export class CapacityModelingService {
   private analyzeSkillCapacity(individualCapacities: IndividualCapacity[], skillRequirements: any[]) {
     const skillMap = new Map<string, { hours: number; members: string[] }>();
     
-    // Initialize skill map
     skillRequirements.forEach(sr => {
       skillMap.set(sr.skill, { hours: 0, members: [] });
     });
     
-    // Calculate available hours per skill
     individualCapacities.forEach(ic => {
       ic.skillMatch.primarySkills.forEach(skill => {
         const skillData = skillMap.get(skill);
@@ -437,7 +409,7 @@ export class CapacityModelingService {
     return Array.from(skillMap.entries()).map(([skill, data]) => ({
       skill,
       availableHours: Math.round(data.hours * 100) / 100,
-      teamMembers: [...new Set(data.members)], // Remove duplicates
+      teamMembers: [...new Set(data.members)],
       utilizationRate: Math.min(1.0, data.hours / (data.members.length * 40)), // Rough utilization estimate
     }));
   }
@@ -445,7 +417,6 @@ export class CapacityModelingService {
   private identifyRiskFactors(individualCapacities: IndividualCapacity[], skillCapacity: any[]) {
     const riskFactors = [];
     
-    // Single point of failure risks
     const criticalSkills = skillCapacity.filter(sc => sc.teamMembers.length === 1);
     if (criticalSkills.length > 0) {
       riskFactors.push({
@@ -456,7 +427,6 @@ export class CapacityModelingService {
       });
     }
     
-    // Low capacity utilization
     const lowCapacityMembers = individualCapacities.filter(ic => 
       ic.adjustedCapacity.focusHours < ic.baseCapacity.totalHours * 0.6
     );
@@ -469,8 +439,7 @@ export class CapacityModelingService {
       });
     }
     
-    // Skill gaps
-    const skillGaps = skillCapacity.filter(sc => sc.availableHours < 10); // Less than 10 hours available
+    const skillGaps = skillCapacity.filter(sc => sc.availableHours < 10);
     if (skillGaps.length > 0) {
       riskFactors.push({
         factor: 'Skill Capacity Gaps',
@@ -490,7 +459,6 @@ export class CapacityModelingService {
   ) {
     const recommendations = [];
     
-    // High-priority recommendations based on risk factors
     if (riskFactors.some(rf => rf.severity === 'high')) {
       recommendations.push({
         type: 'skills' as const,
@@ -501,7 +469,6 @@ export class CapacityModelingService {
       });
     }
     
-    // Capacity optimization recommendations
     const totalEffectiveHours = individualCapacities.reduce((sum, ic) => sum + ic.adjustedCapacity.focusHours, 0);
     const totalAvailableHours = individualCapacities.reduce((sum, ic) => sum + ic.baseCapacity.totalHours, 0);
     const utilizationRate = totalEffectiveHours / totalAvailableHours;
@@ -516,7 +483,6 @@ export class CapacityModelingService {
       });
     }
     
-    // Planning recommendations
     recommendations.push({
       type: 'planning' as const,
       priority: 'medium' as const,
@@ -529,23 +495,16 @@ export class CapacityModelingService {
   }
 
   private calculateCapacityConfidence(individualCapacities: IndividualCapacity[]): number {
-    // Factors affecting confidence:
-    // - Data completeness (all team members have historical data)
-    // - Constraint clarity (well-defined constraints)
-    // - Skill match accuracy (clear skill requirements)
+    let confidence = 0.8;
     
-    let confidence = 0.8; // Base confidence
-    
-    // Adjust based on data quality
     const membersWithHistoricalData = individualCapacities.filter(ic => 
       ic.baseCapacity.storyPointCapacity > 0
     ).length;
     const dataCompleteness = membersWithHistoricalData / individualCapacities.length;
     confidence *= (0.7 + (dataCompleteness * 0.3)); // 70-100% based on data completeness
     
-    // Adjust based on constraint impact variability
     const constraintVariability = this.calculateConstraintVariability(individualCapacities);
-    confidence *= (1 - (constraintVariability * 0.2)); // Reduce confidence for high variability
+    confidence *= (1 - (constraintVariability * 0.2));
     
     return Math.min(1.0, Math.max(0.3, confidence)); // Keep between 30-100%
   }
@@ -573,12 +532,11 @@ export class CapacityModelingService {
       `Buffer time ${input.includeBufferTime ? 'included' : 'excluded'} at ${(input.bufferPercentage * 100).toFixed(0)}%`,
     ];
     
-    // Assess data quality
     const hasHistoricalData = input.teamMembers.some(tm => tm.historicalVelocity !== undefined);
     const hasDetailedSkills = input.teamMembers.every(tm => tm.skills.length > 0);
     const hasConstraints = input.constraints.length > 0;
     
-    let dataQuality = 0.6; // Base quality
+    let dataQuality = 0.6;
     if (hasHistoricalData) dataQuality += 0.2;
     if (hasDetailedSkills) dataQuality += 0.1;
     if (hasConstraints) dataQuality += 0.1;

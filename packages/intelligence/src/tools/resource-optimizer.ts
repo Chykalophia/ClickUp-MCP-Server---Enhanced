@@ -17,7 +17,6 @@ import {
   TrendDirection,
 } from '../services/resource-optimization-service.js';
 
-// Zod schemas for validation
 const SkillSchema = z.object({
   name: z.string(),
   proficiency: z.number().min(1).max(10),
@@ -102,12 +101,12 @@ const TaskAssignmentInputSchema = z.object({
     balanceWorkload: z.number().min(0).max(1).default(0.4).describe('Weight for workload balance (0-1)'),
     maximizeSkillMatch: z.number().min(0).max(1).default(0.4).describe('Weight for skill matching (0-1)'),
     developSkills: z.number().min(0).max(1).default(0.2).describe('Weight for skill development (0-1)'),
-  }).default({}),
+  }).prefault({}),
   constraints: z.object({
     maxUtilization: z.number().min(0).max(2).default(1.0).describe('Maximum utilization rate per member'),
     respectPreferences: z.boolean().default(true).describe('Consider member preferences'),
     allowOverallocation: z.boolean().default(false).describe('Allow temporary overallocation'),
-  }).default({}),
+  }).prefault({}),
 });
 
 const BurnoutAnalysisInputSchema = z.object({
@@ -132,7 +131,7 @@ const CapacityForecastInputSchema = z.object({
   timeframe: z.string().describe('Forecast timeframe (e.g., "3 months", "1 quarter", "6 weeks")'),
   scenarios: z.array(z.object({
     name: z.string(),
-    assumptions: z.record(z.any()),
+    assumptions: z.record(z.string(), z.any()),
   })).default([]).describe('Different scenarios to forecast'),
   includeHiringRecommendations: z.boolean().default(true).describe('Include hiring recommendations'),
 });
@@ -161,11 +160,8 @@ export class ResourceOptimizer {
         validatedInput.teamMembers as TeamMember[]
       );
 
-      // Enhance analysis based on depth setting
       if (validatedInput.analysisDepth === 'comprehensive') {
-        // Add detailed skill utilization analysis
-        // Add predictive burnout modeling
-        // Add cross-team comparison metrics
+        // Not implemented: skill utilization, burnout modeling, cross-team metrics.
       }
 
       return analysis;
@@ -253,7 +249,6 @@ export class ResourceOptimizer {
   }
 }
 
-// Export MCP tools for integration
 export const workloadAnalysisTool = {
   name: 'analyze_team_workload',
   description: '⚖️ **TEAM WORKLOAD ANALYZER** - Comprehensive analysis of team workload distribution, capacity utilization, and resource bottlenecks. Identifies optimization opportunities and provides actionable recommendations for balanced team productivity.',

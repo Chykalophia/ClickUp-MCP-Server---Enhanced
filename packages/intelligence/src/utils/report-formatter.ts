@@ -4,9 +4,10 @@
  * Formats analysis results into professional markdown reports
  * and executive dashboards for AI intelligence tools.
  * 
- * @version 4.0.0
  * @since Phase 1.2 - Smart Sprint Planner
  */
+
+import { VERSION } from '../version.js';
 
 /**
  * Formats analysis results into a professional markdown report
@@ -16,7 +17,7 @@ export function formatMarkdownReport(result: any, title: string): string {
   
   let report = `# ${title}\n\n`;
   report += `**Generated:** ${timestamp}\n`;
-  report += `**Version:** ${result.metadata?.version || '4.0.0'}\n\n`;
+  report += `**Version:** ${result.metadata?.version || VERSION}\n\n`;
   
   // Raw JSON dump; no per-field formatting yet.
   report += '## Analysis Results\n\n';

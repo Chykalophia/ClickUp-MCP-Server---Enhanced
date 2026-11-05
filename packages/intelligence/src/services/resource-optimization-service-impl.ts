@@ -299,6 +299,7 @@ export class ResourceOptimizationService {
   private assessTeamRiskLevel(memberAnalysis: MemberWorkloadAnalysis[], bottlenecks: ResourceBottleneck[]): RiskLevel {
     const criticalMembers = memberAnalysis.filter(m => m.burnoutRisk === BurnoutRiskLevel.CRITICAL);
     const highRiskMembers = memberAnalysis.filter(m => m.burnoutRisk === BurnoutRiskLevel.HIGH);
+    const moderateRiskMembers = memberAnalysis.filter(m => m.burnoutRisk === BurnoutRiskLevel.MODERATE);
     const criticalBottlenecks = bottlenecks.filter(b => b.severity >= 8);
 
     if (criticalMembers.length > 0 || criticalBottlenecks.length > 0) {
@@ -307,7 +308,7 @@ export class ResourceOptimizationService {
     if (highRiskMembers.length > 0 || bottlenecks.length > 2) {
       return RiskLevel.HIGH;
     }
-    if (highRiskMembers.length > 0 || bottlenecks.length > 0) {
+    if (moderateRiskMembers.length > 0 || bottlenecks.length > 0) {
       return RiskLevel.MEDIUM;
     }
     return RiskLevel.LOW;

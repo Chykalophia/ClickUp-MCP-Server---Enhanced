@@ -19,6 +19,10 @@ export function setupChecklistResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const task_id = params.task_id as string;
+        // The ID is interpolated into the API path, so anything but an ID is refused.
+        if (!/^[A-Za-z0-9_-]+$/.test(task_id)) {
+          throw new Error('Invalid task ID');
+        }
 
         const task = await tasksClient.getTask(task_id);
 

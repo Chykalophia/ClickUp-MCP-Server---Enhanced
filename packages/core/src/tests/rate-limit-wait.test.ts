@@ -7,6 +7,10 @@ describe('computeRateLimitWaitMs', () => {
     expect(computeRateLimitWaitMs({ 'x-ratelimit-reset': String(now / 1000 + 42) }, now)).toBe(42_000);
   });
 
+  it('caps an X-RateLimit-Reset wait at one minute when clocks disagree', () => {
+    expect(computeRateLimitWaitMs({ 'x-ratelimit-reset': String(now / 1000 + 600) }, now)).toBe(60_000);
+  });
+
   it('prefers Retry-After seconds', () => {
     expect(computeRateLimitWaitMs({ 'retry-after': '5', 'x-ratelimit-reset': String(now / 1000 + 42) }, now)).toBe(5_000);
   });

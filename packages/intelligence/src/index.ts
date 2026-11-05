@@ -253,6 +253,12 @@ class ClickUpIntelligenceServer {
     // Every tool defines its input as a zod object. Advertise it as JSON Schema and
     // parse incoming arguments through it (strict, so unknown parameters are rejected).
     const zodSchemas = new Map<string, z.ZodType>();
+    const SELF_PARSING_TOOLS = new Set([
+      'clickup_analyze_team_workload',
+      'clickup_optimize_task_assignment',
+      'clickup_analyze_burnout_risk',
+      'clickup_forecast_team_capacity',
+    ]);
     const listedTools = tools.map(tool => {
       if (tool.inputSchema instanceof z.ZodType) {
         const schema = tool.inputSchema instanceof z.ZodObject ? tool.inputSchema.strict() : tool.inputSchema;
@@ -281,7 +287,11 @@ class ClickUpIntelligenceServer {
             isError: true,
           };
         }
-        args = parsed.data as typeof args;
+        // These handlers parse their own input with schemas that turn date strings
+        // into Date objects, so they need the raw arguments (parsing twice would fail).
+        if (!SELF_PARSING_TOOLS.has(name)) {
+          args = parsed.data as typeof args;
+        }
       }
 
       try {

@@ -86,6 +86,24 @@ describe('Error Handling', () => {
       expect(error.retryAfter).toBe(60);
     });
 
+    it('uses X-RateLimit-Reset for 429 when Retry-After is absent', () => {
+      const resetAt = Math.floor(Date.now() / 1000) + 30;
+      const error = handleClickUpApiError({
+        response: { status: 429, headers: { 'x-ratelimit-reset': String(resetAt) }, data: {} },
+      });
+      expect(error.retryAfter).toBeGreaterThanOrEqual(29);
+      expect(error.retryAfter).toBeLessThanOrEqual(31);
+    });
+
+    it('falls back to 60 seconds for 429 without usable rate-limit headers', () => {
+      const error = handleClickUpApiError({ response: { status: 429, headers: {}, data: {} } });
+      expect(error.retryAfter).toBe(60);
+      const malformed = handleClickUpApiError({
+        response: { status: 429, headers: { 'retry-after': 'soon', 'x-ratelimit-reset': 'later' }, data: {} },
+      });
+      expect(malformed.retryAfter).toBe(60);
+    });
+
     it('should handle network timeout error', () => {
       const mockError = {
         code: 'ETIMEDOUT',

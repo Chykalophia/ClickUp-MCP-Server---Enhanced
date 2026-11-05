@@ -8,7 +8,6 @@ const config = {
   // Force exit to prevent hanging
   forceExit: true,
   detectOpenHandles: true,
-  testTimeout: 10000,
   
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',

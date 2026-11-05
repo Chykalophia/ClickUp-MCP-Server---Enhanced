@@ -18,7 +18,6 @@ export function setupTaskResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const task_id = params.task_id as string;
-        console.error('[TaskResources] Fetching task:', task_id);
         const task = await tasksClient.getTask(task_id);
 
         return {

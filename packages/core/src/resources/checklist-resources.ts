@@ -22,8 +22,9 @@ export function setupChecklistResources(server: McpServer): void {
 
         const task = await tasksClient.getTask(task_id);
 
-        // Stub: checklists are not fetched yet, so this always returns an empty array.
-        const checklists: Checklist[] = [];
+        // Get Task already embeds the task's checklists; ClickUp has no read endpoint for a
+        // single checklist, so this is the only way to read them.
+        const checklists: Checklist[] = (task as { checklists?: Checklist[] }).checklists ?? [];
 
         return {
           contents: [
@@ -48,35 +49,4 @@ export function setupChecklistResources(server: McpServer): void {
     }
   );
 
-  server.resource(
-    'checklist-items',
-    new ResourceTemplate('clickup://checklist/{checklist_id}/items', { list: undefined }),
-    {
-      description:
-        'Get all items in a specific ClickUp checklist, including their names, assignees, and completion status.',
-    },
-    async (uri, params) => {
-      try {
-        const checklist_id = params.checklist_id as string;
-
-        // Stub: items are not fetched yet, so this always returns an empty array.
-        const checklistItems = {
-          checklist_id,
-          items: [],
-        };
-
-        return {
-          contents: [
-            {
-              uri: uri.toString(),
-              mimeType: 'application/json',
-              text: JSON.stringify(checklistItems),
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        resourceError('fetching checklist items', error);
-      }
-    }
-  );
 }

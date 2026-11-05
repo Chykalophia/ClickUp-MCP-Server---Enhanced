@@ -10,6 +10,7 @@
  */
 
 import { z } from 'zod';
+import { VERSION } from '../version.js';
 import { VelocityAnalysisService } from '../services/velocity-analysis-service.js';
 import { CapacityModelingService } from '../services/capacity-modeling-service.js';
 import { SprintOptimizationService } from '../services/sprint-optimization-service.js';
@@ -247,7 +248,7 @@ export class SmartSprintPlanner {
           analysisTimestamp: new Date().toISOString(),
           processingTimeMs: processingTime,
           dataQuality: Math.min(velocityAnalysis.metadata.dataQuality, capacityAnalysis.metadata.dataQuality),
-          version: '4.0.0',
+          version: VERSION,
         },
       };
 

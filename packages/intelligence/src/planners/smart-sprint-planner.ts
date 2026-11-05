@@ -31,7 +31,7 @@ export class SmartSprintPlanner {
         velocity: teamVelocity,
         capacity: sprintCapacity,
         focus: params.priority_focus || 'balanced',
-        includeDependencies: params.include_dependencies || true,
+        includeDependencies: params.include_dependencies ?? true,
       });
 
       const riskAssessment = this.assessSprintRisks(suggestedTasks, sprintCapacity, teamVelocity);
@@ -322,14 +322,19 @@ export class SmartSprintPlanner {
     confidence: string;
   }>> {
     const allocations = [];
-    
+    // Work on copies so allocating hours does not mutate the caller's team_members.
+    const pool = teamMembers.map(member => ({ ...member }));
+    if (pool.length === 0) {
+      return [];
+    }
+
     for (const task of tasks) {
       const estimatedHours = this.estimateTaskHours(task);
       
-      let bestMember = teamMembers[0];
+      let bestMember = pool[0];
       let bestScore = 0;
       
-      for (const member of teamMembers) {
+      for (const member of pool) {
         if (member.available_hours >= estimatedHours) {
           const skillMatch = this.calculateSkillMatch(task, member.skills || []);
           const availabilityScore = (member.available_hours / estimatedHours) * 10;
@@ -378,7 +383,11 @@ export class SmartSprintPlanner {
     allocatedHours: number
   ): string[] {
     const insights = [];
-    
+
+    if (totalCapacity <= 0) {
+      return ['No team capacity available - add team members with available hours'];
+    }
+
     const utilization = (allocatedHours / totalCapacity) * 100;
     
     if (utilization > 95) {

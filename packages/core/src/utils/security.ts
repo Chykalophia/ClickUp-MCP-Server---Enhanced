@@ -358,19 +358,27 @@ export const validateUrl = (url: string): { isValid: boolean; error?: string } =
     }
 
     // Block localhost and private IPs for security (complete RFC 1918 ranges)
-    const hostname = parsedUrl.hostname.toLowerCase();
+    // URL keeps IPv6 literals bracketed ([::1]); strip them so the checks below match.
+    const hostname = parsedUrl.hostname.toLowerCase().replace(/^\[|\]$/g, '');
     if (
       hostname === 'localhost' ||
-      hostname === '127.0.0.1' ||
+      /^127\./.test(hostname) ||
+      /^0\./.test(hostname) ||
       hostname === '::1' ||
+      hostname === '::' ||
+      // IPv4-mapped IPv6 (URL normalises ::ffff:127.0.0.1 to ::ffff:7f00:1)
+      hostname.startsWith('::ffff:') ||
+      // Link-local, including cloud metadata at 169.254.169.254
+      hostname.startsWith('169.254.') ||
+      // CGNAT shared address space 100.64.0.0/10
+      /^100\.(6[4-9]|[7-9][0-9]|1[01][0-9]|12[0-7])\./.test(hostname) ||
       hostname.startsWith('192.168.') ||
       hostname.startsWith('10.') ||
       // Complete 172.16.0.0/12 range (172.16.0.0 - 172.31.255.255)
       /^172\.(1[6-9]|2[0-9]|3[01])\./.test(hostname) ||
       // IPv6 private ranges
-      hostname.startsWith('fc00:') ||
-      hostname.startsWith('fd00:') ||
-      hostname.startsWith('fe80:')
+      /^f[cd][0-9a-f]{2}:/.test(hostname) ||
+      /^fe[89ab][0-9a-f]:/.test(hostname)
     ) {
       return { isValid: false, error: 'Private and localhost URLs are not allowed' };
     }
@@ -389,11 +397,12 @@ export const generateSecureToken = (length: number = 32): string => {
 };
 
 /**
- * Hash sensitive data
+ * Hash sensitive data with PBKDF2. A random salt is generated when none is given; it is
+ * returned alongside the hash because the hash cannot be verified without it.
  */
-export const hashSensitiveData = (data: string, salt?: string): string => {
+export const hashSensitiveData = (data: string, salt?: string): { hash: string; salt: string } => {
   const actualSalt = salt || crypto.randomBytes(16).toString('hex');
-  return crypto.pbkdf2Sync(data, actualSalt, 10000, 64, 'sha512').toString('hex');
+  return { hash: crypto.pbkdf2Sync(data, actualSalt, 10000, 64, 'sha512').toString('hex'), salt: actualSalt };
 };
 
 /**
@@ -457,8 +466,9 @@ export const secureLog = (level: 'info' | 'warn' | 'error', message: string, dat
     data: data ? sanitizeInput(data) : undefined,
   };
 
-  // Use structured logging to prevent injection
-  console[level](`[${level.toUpperCase()}] ${timestamp}:`, logEntry);
+  // stdout carries the MCP JSON-RPC stream, so every level goes to stderr.
+  const sink = level === 'warn' ? console.warn : console.error;
+  sink(`[${level.toUpperCase()}] ${timestamp}:`, logEntry);
 };
 
 /**
@@ -477,8 +487,7 @@ export const logSecurityEvent = (
     details: sanitizeInput(details),
   };
 
-  // Use secure logging to prevent log injection
-  secureLog('error', `[SECURITY ${level.toUpperCase()}] ${event}`, logEntry);
+  secureLog(level, `[SECURITY ${level.toUpperCase()}] ${event}`, logEntry);
 };
 
 /**
@@ -601,16 +610,10 @@ export const safeJsonParse = (jsonString: string, maxLength = 100000): any => {
   }
 
   try {
-    const parsed = JSON.parse(jsonString);
-
-    // Prevent prototype pollution
-    if (parsed && typeof parsed === 'object') {
-      delete parsed.__proto__;
-      delete parsed.constructor;
-      delete parsed.prototype;
-    }
-
-    return parsed;
+    // The reviver drops prototype-pollution keys at every depth, not just the top level.
+    return JSON.parse(jsonString, (key, value) =>
+      key === '__proto__' || key === 'constructor' || key === 'prototype' ? undefined : value
+    );
   } catch {
     throw new Error('Invalid JSON format');
   }

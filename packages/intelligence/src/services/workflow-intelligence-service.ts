@@ -5,11 +5,11 @@
  * Provides AI-powered workflow pattern analysis, automation recommendations,
  * and integration optimization for ClickUp project management workflows.
  * 
- * @version 4.1.0
  * @package @chykalophia/clickup-intelligence-mcp-server
  */
 
 import { z } from 'zod';
+import { VERSION } from '../version.js';
 
 export const WorkflowPatternAnalysisInputSchema = z.object({
   workspaceId: z.string().describe('ClickUp workspace ID to analyze'),
@@ -93,7 +93,7 @@ export interface WorkflowAnalysisResult {
  * and provides integration optimization recommendations.
  */
 export class WorkflowIntelligenceService {
-  private version = '4.1.0';
+  private version = VERSION;
 
   /**
    * Analyze workflow patterns in a workspace

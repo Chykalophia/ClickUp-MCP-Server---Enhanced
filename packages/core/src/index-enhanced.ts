@@ -29,10 +29,17 @@ class ClickUpServer {
     this.toolsets = created.resolved;
     this.counts = created.counts;
 
-    process.on('SIGINT', async () => {
-      await this.server.close();
-      process.exit(0);
-    });
+    // MCP clients stop stdio servers with SIGTERM; without this the process
+    // outlives the client (issue #62).
+    const shutdown = async () => {
+      try {
+        await this.server.close();
+      } finally {
+        process.exit(0);
+      }
+    };
+    process.once('SIGINT', shutdown);
+    process.once('SIGTERM', shutdown);
 
     this.setupResources();
   }

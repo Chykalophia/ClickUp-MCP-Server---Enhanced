@@ -1,0 +1,50 @@
+import { z } from 'zod';
+import { closeJsonSchemaObjects, findUnknownKeys } from '../utils/strict-args';
+import { taskDecompositionTool } from '../tools/task-decomposition-engine';
+
+describe('findUnknownKeys', () => {
+  const schema = z.object({
+    task: z.object({ name: z.string(), description: z.string().optional() }),
+    items: z.array(z.object({ id: z.string() })).optional(),
+    options: z.object({ depth: z.number() }).prefault({ depth: 1 }),
+    meta: z.record(z.string(), z.object({ v: z.number() })).optional(),
+    loose: z.object({ a: z.string() }).passthrough().optional(),
+  });
+
+  it('accepts input that only uses declared keys', () => {
+    expect(findUnknownKeys(schema, { task: { name: 'x', description: 'y' }, items: [{ id: '1' }] })).toEqual([]);
+  });
+
+  it('reports a misspelled nested key with its path', () => {
+    expect(findUnknownKeys(schema, { task: { name: 'x', descripton: 'y' } })).toEqual(['task.descripton']);
+  });
+
+  it('walks arrays, defaults and record values', () => {
+    expect(
+      findUnknownKeys(schema, {
+        task: { name: 'x' },
+        items: [{ id: '1' }, { id: '2', extra: true }],
+        options: { depth: 2, deep: 3 },
+        meta: { k: { v: 1, w: 2 } },
+      })
+    ).toEqual(['items.1.extra', 'options.deep', 'meta.k.w']);
+  });
+
+  it('reports top-level unknown keys and leaves passthrough objects open', () => {
+    expect(findUnknownKeys(schema, { task: { name: 'x' }, loose: { a: 'a', b: 'b' }, bogus: 1 })).toEqual(['bogus']);
+  });
+
+  it('catches a misspelled key in a real tool schema', () => {
+    const args = { task: { id: 't1', name: 'Build it', descripton: 'typo' } };
+    expect(findUnknownKeys(taskDecompositionTool.inputSchema as z.ZodType, args)).toContain('task.descripton');
+  });
+});
+
+describe('closeJsonSchemaObjects', () => {
+  it('closes nested object schemas', () => {
+    const json = z.toJSONSchema(z.object({ task: z.object({ name: z.string() }) }), { io: 'input' }) as any;
+    closeJsonSchemaObjects(json);
+    expect(json.additionalProperties).toBe(false);
+    expect(json.properties.task.additionalProperties).toBe(false);
+  });
+});

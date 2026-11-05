@@ -26,3 +26,21 @@ describe('SmartSprintPlanner.calculateOptimalAllocations', () => {
     await expect(allocate([task('a')], members)).resolves.toEqual([]);
   });
 });
+
+describe('SmartSprintPlanner.optimizeCapacity', () => {
+  beforeAll(() => {
+    process.env.CLICKUP_API_TOKEN = process.env.CLICKUP_API_TOKEN || 'test-token';
+  });
+
+  it('lists the tasks nobody had room for', async () => {
+    const planner = new SmartSprintPlanner() as any;
+    planner.fetchTasksByIds = async () => [task('a')];
+    const result = await planner.optimizeCapacity({
+      workspace_id: 'w',
+      sprint_tasks: ['a'],
+      team_members: [{ user_id: 1, available_hours: 0, skills: [] }],
+    });
+    expect(result.unallocatedTaskIds).toEqual(['a']);
+    expect(result.insights[0]).toContain('could not be allocated');
+  });
+});

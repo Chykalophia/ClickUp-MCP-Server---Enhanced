@@ -40,7 +40,13 @@ export function findUnknownKeys(schema: z.ZodType, input: unknown, path: string[
           const keyPath = [...path, key];
           if (l && r) found.push(...findUnknownKeys(z.intersection(l, r), value, keyPath));
           else if (l || r) found.push(...findUnknownKeys((l ?? r) as z.ZodType, value, keyPath));
-          else if (!isOpenCatchall(left) && !isOpenCatchall(right)) found.push(keyPath.join('.'));
+          else if (isOpenCatchall(left) || isOpenCatchall(right)) continue;
+          else {
+            // Undeclared on both sides: a typed catchall still accepts it, checking the value.
+            const typed = [left, right].find(side => side.catchall);
+            if (typed) found.push(...findUnknownKeys(typed.catchall, value, keyPath));
+            else found.push(keyPath.join('.'));
+          }
         }
         return found;
       }

@@ -46,6 +46,12 @@ describe('findUnknownKeys edge cases', () => {
     expect(findUnknownKeys(both, { name: 'n', config: { enabeld: true } })).toEqual(['config.enabeld']);
   });
 
+  it('lets a typed catchall on one side of an intersection accept extra keys', () => {
+    const both = z.intersection(z.object({ a: z.string() }).catchall(z.object({ v: z.number() })), z.object({ b: z.string() }));
+    expect(findUnknownKeys(both, { a: 'x', b: 'y', extra: { v: 1 } })).toEqual([]);
+    expect(findUnknownKeys(both, { a: 'x', b: 'y', extra: { v: 1, w: 2 } })).toEqual(['extra.w']);
+  });
+
   it('checks values of a typed catchall but not of a passthrough object', () => {
     const typed = z.object({ a: z.string() }).catchall(z.object({ v: z.number() }));
     expect(findUnknownKeys(typed, { a: 'x', extra: { v: 1, w: 2 } })).toEqual(['extra.w']);

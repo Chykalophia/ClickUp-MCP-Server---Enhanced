@@ -18,6 +18,10 @@ export function setupFolderResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const space_id = params.space_id as string;
+        // The ID is interpolated into the API path, so anything but an ID is refused.
+        if (!/^[A-Za-z0-9_-]+$/.test(space_id)) {
+          throw new Error('Invalid space ID');
+        }
         const foldersResponse = await foldersClient.getFoldersFromSpace(space_id);
 
         return {
@@ -76,6 +80,9 @@ export function setupFolderResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const folder_id = params.folder_id as string;
+        if (!/^[A-Za-z0-9_-]+$/.test(folder_id)) {
+          throw new Error('Invalid folder ID');
+        }
         const lists = await foldersClient.getListsFromFolder(folder_id);
 
         return {

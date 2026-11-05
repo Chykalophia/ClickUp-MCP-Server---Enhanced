@@ -11,6 +11,7 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import { z } from 'zod';
 import { VERSION } from './version.js';
 
 // Phase 1.1 - Project Health Analyzer
@@ -111,8 +112,7 @@ class ClickUpIntelligenceServer {
    * Sets up MCP tool handlers for all intelligence tools
    */
   private setupToolHandlers(): void {
-    this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
-      tools: [
+    const tools: Array<{ name: string; description: string; inputSchema: unknown }> = [
         // Phase 1.1 - Project Health Analyzer
         {
           name: 'clickup_analyze_project_health',
@@ -286,11 +286,40 @@ class ClickUpIntelligenceServer {
             additionalProperties: false,
           },
         },
-      ],
-    }));
+      ];
+
+    // Some tools define their input as a zod schema. Advertise those as JSON Schema
+    // and parse incoming arguments through them so defaults and validation apply.
+    const zodSchemas = new Map<string, z.ZodType>();
+    const listedTools = tools.map(tool => {
+      if (tool.inputSchema instanceof z.ZodType) {
+        zodSchemas.set(tool.name, tool.inputSchema);
+        const jsonSchema = z.toJSONSchema(tool.inputSchema, {
+          io: 'input',
+          unrepresentable: 'any',
+        }) as Record<string, unknown>;
+        delete jsonSchema.$schema;
+        return { ...tool, inputSchema: jsonSchema };
+      }
+      return tool;
+    });
+
+    this.server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: listedTools as any }));
 
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
-      const { name, arguments: args } = request.params;
+      const { name } = request.params;
+      let args = request.params.arguments;
+      const argSchema = zodSchemas.get(name);
+      if (argSchema) {
+        const parsed = argSchema.safeParse(args ?? {});
+        if (!parsed.success) {
+          return {
+            content: [{ type: 'text', text: `Invalid arguments for ${name}: ${z.prettifyError(parsed.error)}` }],
+            isError: true,
+          };
+        }
+        args = parsed.data as typeof args;
+      }
 
       try {
         switch (name) {

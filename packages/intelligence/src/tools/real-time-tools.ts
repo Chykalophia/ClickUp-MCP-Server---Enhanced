@@ -25,10 +25,57 @@ export const processWebhookSchema = z.object({
 export const addProcessingRuleSchema = z.object({
   id: z.string(),
   eventType: z.enum(['task_update', 'task_created', 'task_deleted', 'comment_added', 'status_changed']),
-  condition: z.string().describe('JavaScript condition function as string'),
-  action: z.string().describe('JavaScript action function as string'),
+  condition: z
+    .object({
+      field: z.string().min(1).describe('Dot path into the event data, e.g. "priority.priority" or "status.status"'),
+      operator: z.enum(['equals', 'not_equals', 'contains', 'exists']),
+      value: z.union([z.string(), z.number(), z.boolean()]).optional()
+        .describe('Value to compare with; not used by "exists"'),
+    })
+    .optional()
+    .describe('When to fire. Omit to fire on every event of this type.'),
+  action: z
+    .object({
+      type: z.literal('log').describe('Write a line to the server log (stderr)'),
+      message: z.string().max(500).optional(),
+    })
+    .default({ type: 'log' })
+    .describe('What to do when the rule fires. Rules are declarative; code is never executed.'),
   priority: z.number().default(1),
 });
+
+type RuleCondition = z.infer<typeof addProcessingRuleSchema>['condition'];
+
+function readPath(source: unknown, path: string): unknown {
+  let current: unknown = source;
+  for (const key of path.split('.')) {
+    if (current === null || typeof current !== 'object' || !Object.prototype.hasOwnProperty.call(current, key)) {
+      return undefined;
+    }
+    current = (current as Record<string, unknown>)[key];
+  }
+  return current;
+}
+
+export function evaluateRuleCondition(condition: RuleCondition, data: unknown): boolean {
+  if (!condition) {
+    return true;
+  }
+  const actual = readPath(data, condition.field);
+  switch (condition.operator) {
+    case 'exists':
+      return actual !== undefined && actual !== null;
+    case 'equals':
+      return actual === condition.value;
+    case 'not_equals':
+      return actual !== condition.value;
+    case 'contains':
+      if (typeof actual === 'string') {
+        return condition.value !== undefined && actual.includes(String(condition.value));
+      }
+      return Array.isArray(actual) && actual.includes(condition.value);
+  }
+}
 
 export const getRealTimeMetricsSchema = z.object({
   detailed: z.boolean().optional().default(false),
@@ -187,16 +234,15 @@ export async function addProcessingRule(params: z.infer<typeof addProcessingRule
       };
     }
 
-    // eslint-disable-next-line no-new-func
-    const conditionFn = new Function('_event', `return ${params.condition}`) as any;
-    // eslint-disable-next-line no-new-func
-    const actionFn = new Function('_event', params.action) as any;
-
+    const { condition, action } = params;
     const rule: ProcessingRule = {
       id: params.id,
       eventType: params.eventType,
-      condition: conditionFn,
-      action: actionFn,
+      condition: event => evaluateRuleCondition(condition, event.data),
+      action: async event => {
+        const detail = action?.message ? `: ${action.message}` : '';
+        console.error(`[Real-Time Engine] Rule ${params.id} fired for task ${event.taskId}${detail}`);
+      },
       priority: params.priority,
     };
 

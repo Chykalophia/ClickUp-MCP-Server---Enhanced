@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { z } from 'zod';
-import { secureLog } from './security.js';
+import { secureLog, validateEnvironment } from './security.js';
+import { computeRateLimitWaitMs } from '../clickup-client/index.js';
 
 /**
  * Error handling utilities for the ClickUp MCP Server
@@ -213,7 +214,11 @@ export const handleClickUpApiError = (
         errorType = ErrorType.RATE_LIMIT;
         severity = ErrorSeverity.MEDIUM;
         retryable = true;
-        retryAfter = parseInt(error.response.headers['retry-after'], 10) || 60;
+        {
+          const headers = error.response.headers ?? {};
+          const hasHint = headers['retry-after'] || headers['x-ratelimit-reset'];
+          retryAfter = hasHint ? Math.ceil(computeRateLimitWaitMs(headers) / 1000) : 60;
+        }
         break;
       case 500:
       case 502:
@@ -549,7 +554,7 @@ export const performHealthCheck = async (): Promise<{
 
   const startTime = Date.now();
   try {
-    const envValidation = require('../utils/security').validateEnvironment();
+    const envValidation = validateEnvironment();
     checks.environment = {
       status: envValidation.isValid ? 'pass' : 'fail',
       message: envValidation.isValid

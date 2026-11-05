@@ -299,10 +299,10 @@ describe('Security Utilities', () => {
 
   describe('secureLog', () => {
     it('never writes to stdout, which carries the MCP protocol stream', () => {
-      const out = jest.spyOn(console, 'log').mockImplementation(() => {});
-      const info = jest.spyOn(console, 'info').mockImplementation(() => {});
-      const err = jest.spyOn(console, 'error').mockImplementation(() => {});
-      const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      const out = jest.spyOn(console, 'log').mockImplementation(() => undefined);
+      const info = jest.spyOn(console, 'info').mockImplementation(() => undefined);
+      const err = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+      const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
       secureLog('info', 'hello');
       secureLog('warn', 'careful');
       expect(out).not.toHaveBeenCalled();

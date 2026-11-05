@@ -240,7 +240,9 @@ export async function addProcessingRule(params: z.infer<typeof addProcessingRule
       eventType: params.eventType,
       condition: event => evaluateRuleCondition(condition, event.data),
       action: async event => {
-        const detail = action?.message ? `: ${action.message}` : '';
+        // eslint-disable-next-line no-control-regex
+        const message = action?.message?.replace(/[\u0000-\u001f\u007f]+/g, ' ');
+        const detail = message ? `: ${message}` : '';
         console.error(`[Real-Time Engine] Rule ${params.id} fired for task ${event.taskId}${detail}`);
       },
       priority: params.priority,

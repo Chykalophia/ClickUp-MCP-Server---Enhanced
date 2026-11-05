@@ -77,6 +77,7 @@ export class SmartSprintPlanner {
     totalCapacity: number;
     allocatedHours: number;
     remainingCapacity: number;
+    unallocatedTaskIds: string[];
     insights: string[];
   }> {
     try {
@@ -89,12 +90,20 @@ export class SmartSprintPlanner {
       const remainingCapacity = totalCapacity - allocatedHours;
       
       const insights = this.generateCapacityInsights(allocations, totalCapacity, allocatedHours);
+      const allocatedIds = new Set(allocations.map(allocation => allocation.taskId));
+      const unallocatedTaskIds = tasks.map(task => task.id).filter(id => !allocatedIds.has(id));
+      if (unallocatedTaskIds.length > 0) {
+        insights.unshift(
+          `${unallocatedTaskIds.length} task(s) could not be allocated because no team member has enough hours: ${unallocatedTaskIds.join(', ')}`
+        );
+      }
 
       return {
         allocations,
         totalCapacity,
         allocatedHours,
         remainingCapacity,
+        unallocatedTaskIds,
         insights,
       };
     } catch (error: any) {
@@ -331,8 +340,8 @@ export class SmartSprintPlanner {
     for (const task of tasks) {
       const estimatedHours = this.estimateTaskHours(task);
       
-      let bestMember = pool[0];
-      let bestScore = 0;
+      let bestMember: (typeof pool)[number] | undefined;
+      let bestScore = -Infinity;
       
       for (const member of pool) {
         if (member.available_hours >= estimatedHours) {
@@ -347,6 +356,8 @@ export class SmartSprintPlanner {
         }
       }
       
+      // Nobody has room for this task: leave it unallocated rather than overbook someone.
+      if (!bestMember) continue;
       bestMember.available_hours -= estimatedHours;
       
       allocations.push({

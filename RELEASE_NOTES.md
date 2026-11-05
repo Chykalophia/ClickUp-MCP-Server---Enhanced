@@ -26,6 +26,10 @@ These ship together with the 7.0.0 core changes described below.
 - The core server now exits on SIGTERM. Before, a SIGTERM listener in the rate
   limiter replaced Node's default exit, so a client that stopped the server
   with SIGTERM left an orphaned process behind (#62).
+- The folder and checklist resources return real data instead of stubs.
+  **Breaking (core 7.0.0):** the `clickup://checklist/{checklist_id}/items` resource is removed, because
+  ClickUp has no endpoint for reading one checklist; read a task's checklists,
+  items included, from `clickup://task/{task_id}/checklist` instead.
 - On HTTP 429 the core client now waits until ClickUp's documented
   `X-RateLimit-Reset` instead of a fixed one second when no `Retry-After`
   header is sent.

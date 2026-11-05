@@ -31,7 +31,6 @@ export function findUnknownKeys(schema: z.ZodType, input: unknown, path: string[
       const left = objectDef(def.left);
       const right = objectDef(def.right);
       if (left && right) {
-        // Two object sides: check each key against the side(s) that declare it.
         if (typeof input !== 'object' || Array.isArray(input)) return [];
         const found: string[] = [];
         for (const [key, value] of Object.entries(input as Record<string, unknown>)) {
@@ -43,14 +42,13 @@ export function findUnknownKeys(schema: z.ZodType, input: unknown, path: string[
           else if (isOpenCatchall(left) || isOpenCatchall(right)) continue;
           else {
             // Undeclared on both sides: a typed catchall still accepts it, checking the value.
-            const typed = [left, right].find(side => side.catchall);
+            const typed = [left, right].find(hasTypedCatchall);
             if (typed) found.push(...findUnknownKeys(typed.catchall, value, keyPath));
             else found.push(keyPath.join('.'));
           }
         }
         return found;
       }
-      // Otherwise a key is unknown only if neither side declares it.
       const rightUnknown = new Set(findUnknownKeys(def.right, input, path));
       return findUnknownKeys(def.left, input, path).filter(key => rightUnknown.has(key));
     }
@@ -69,10 +67,11 @@ export function findUnknownKeys(schema: z.ZodType, input: unknown, path: string[
         const declared = ownShapeEntry(def, key);
         if (declared) {
           found.push(...findUnknownKeys(declared, value, [...path, key]));
-        } else if (def.catchall && !isOpenCatchall(def)) {
+        } else if (hasTypedCatchall(def)) {
           // A typed catchall (e.g. .catchall(z.object(...))) still checks its values.
           found.push(...findUnknownKeys(def.catchall, value, [...path, key]));
-        } else if (!def.catchall) {
+        } else if (!isOpenCatchall(def)) {
+          // No catchall (strip) or .strict() (catchall never): the key is undeclared.
           found.push([...path, key].join('.'));
         }
       }
@@ -94,10 +93,16 @@ function ownShapeEntry(def: any, key: string): z.ZodType | undefined {
   return Object.prototype.hasOwnProperty.call(def.shape, key) ? def.shape[key] : undefined;
 }
 
+/** True for a catchall that accepts keys and checks their values, e.g. .catchall(z.object(...)). */
+function hasTypedCatchall(def: any): boolean {
+  const type = def.catchall?._zod?.def?.type;
+  return type !== undefined && type !== 'never' && type !== 'unknown' && type !== 'any';
+}
+
 /** True when undeclared keys are allowed through unchecked (passthrough, unknown, any). */
 function isOpenCatchall(def: any): boolean {
   const type = def.catchall?._zod?.def?.type;
-  return type !== undefined && type !== 'never' && (type === 'unknown' || type === 'any');
+  return type === 'unknown' || type === 'any';
 }
 
 /**
@@ -116,9 +121,8 @@ export function closeJsonSchemaObjects(node: unknown): void {
     obj.additionalProperties = false;
   }
   for (const [key, value] of Object.entries(obj)) {
-    // Union branches are left open, matching findUnknownKeys. allOf branches are
-    // left open too, since closing each would make it reject the other's keys.
-    // Only skip the keyword itself, not a property that happens to share its name.
+    // anyOf/oneOf/allOf branches stay open: closing one allOf branch would reject the other's keys.
+    // Skip only the keyword, not a property that shares its name.
     if ((key === 'anyOf' || key === 'oneOf' || key === 'allOf') && Array.isArray(value)) continue;
     closeJsonSchemaObjects(value);
   }

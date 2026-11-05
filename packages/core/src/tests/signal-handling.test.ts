@@ -12,9 +12,12 @@ describe('RateLimiter outside tests', () => {
       await jest.isolateModulesAsync(async () => {
         const { rateLimiter } = await import('../utils/security.js');
         const timer = (rateLimiter as any).cleanupInterval as ReturnType<typeof setInterval>;
-        expect(timer).toBeDefined();
-        expect(timer.hasRef()).toBe(false);
-        rateLimiter.destroy();
+        try {
+          expect(timer).toBeDefined();
+          expect(timer.hasRef()).toBe(false);
+        } finally {
+          rateLimiter.destroy();
+        }
       });
     } finally {
       process.env.NODE_ENV = previousEnv;

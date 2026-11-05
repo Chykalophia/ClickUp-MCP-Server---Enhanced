@@ -40,7 +40,26 @@ describe('findUnknownKeys', () => {
   });
 });
 
+describe('findUnknownKeys edge cases', () => {
+  it('checks nested keys declared on only one side of an object intersection', () => {
+    const both = z.intersection(z.object({ config: z.object({ enabled: z.boolean() }) }), z.object({ name: z.string() }));
+    expect(findUnknownKeys(both, { name: 'n', config: { enabeld: true } })).toEqual(['config.enabeld']);
+  });
+
+  it('checks values of a typed catchall but not of a passthrough object', () => {
+    const typed = z.object({ a: z.string() }).catchall(z.object({ v: z.number() }));
+    expect(findUnknownKeys(typed, { a: 'x', extra: { v: 1, w: 2 } })).toEqual(['extra.w']);
+    expect(findUnknownKeys(z.object({}).passthrough(), { any: { thing: 1 } })).toEqual([]);
+  });
+});
+
 describe('closeJsonSchemaObjects', () => {
+  it('closes objects under a property named like a union keyword', () => {
+    const json = z.toJSONSchema(z.object({ anyOf: z.object({ x: z.string() }) }), { io: 'input' }) as any;
+    closeJsonSchemaObjects(json);
+    expect(json.properties.anyOf.additionalProperties).toBe(false);
+  });
+
   it('closes nested object schemas', () => {
     const json = z.toJSONSchema(z.object({ task: z.object({ name: z.string() }) }), { io: 'input' }) as any;
     closeJsonSchemaObjects(json);

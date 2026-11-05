@@ -20,9 +20,9 @@ These ship together with the 7.0.0 core changes described below.
 - The intelligence server sent raw zod objects as `inputSchema` for 18 tools,
   which clients cannot read, and never parsed arguments, so defaults were not
   applied. Every tool's schema is now published as JSON Schema and arguments are
-  validated strictly, so unknown parameters are rejected at any depth (a
-  misspelled nested key such as `task.descripton` is an error, not silently
-  dropped; #72).
+  validated strictly. Unknown keys are rejected in nested objects too, so a
+  misspelled key such as `task.descripton` is an error instead of being silently
+  dropped. Passthrough objects and union branches stay open (#72).
 - The core server now exits on SIGTERM. Before, a SIGTERM listener in the rate
   limiter replaced Node's default exit, so every MCP client shutdown left an
   orphaned server process (#62).

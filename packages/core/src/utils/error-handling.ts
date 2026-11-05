@@ -1,12 +1,12 @@
 /* eslint-disable no-console */
 import { z } from 'zod';
-import { secureLog } from './security.js';
+import { secureLog, validateEnvironment } from './security.js';
+import { computeRateLimitWaitMs } from '../clickup-client/index.js';
 
 /**
- * Comprehensive error handling utilities for the ClickUp MCP Server
+ * Error handling utilities for the ClickUp MCP Server
  */
 
-// Error types
 /* eslint-disable no-unused-vars */
 export enum ErrorType {
   VALIDATION = 'VALIDATION',
@@ -22,7 +22,6 @@ export enum ErrorType {
   FILE_ERROR = 'FILE_ERROR',
 }
 
-// Error severity levels
 export enum ErrorSeverity {
   LOW = 'LOW',
   MEDIUM = 'MEDIUM',
@@ -31,7 +30,6 @@ export enum ErrorSeverity {
 }
 /* eslint-enable no-unused-vars */
 
-// Structured error interface
 export interface StructuredError {
   type: ErrorType;
   severity: ErrorSeverity;
@@ -71,7 +69,6 @@ export function resourceError(operation: string, error: unknown): never {
   throw new Error(`Error ${operation}: ${message}`);
 }
 
-// Error response for MCP tools
 export interface McpErrorResponse {
   content: Array<{
     type: 'text';
@@ -191,7 +188,6 @@ export const handleClickUpApiError = (
     const status = error.response.status;
     const data = error.response.data;
 
-    // Map HTTP status codes to error types
     let errorType: ErrorType;
     let severity: ErrorSeverity;
     let retryable = false;
@@ -218,7 +214,7 @@ export const handleClickUpApiError = (
         errorType = ErrorType.RATE_LIMIT;
         severity = ErrorSeverity.MEDIUM;
         retryable = true;
-        retryAfter = parseInt(error.response.headers['retry-after'], 10) || 60;
+        retryAfter = Math.ceil(computeRateLimitWaitMs(error.response.headers, Date.now(), 60_000) / 1000);
         break;
       case 500:
       case 502:
@@ -314,7 +310,7 @@ export const handleValidationError = (
     requestId?: string;
   }
 ): StructuredError => {
-  const errors = error.errors.map(err => `${err.path.join('.')}: ${err.message}`);
+  const errors = error.issues.map(err => `${err.path.join('.')}: ${err.message}`);
 
   return createStructuredError(ErrorType.VALIDATION, 'Input validation failed', {
     severity: ErrorSeverity.LOW,
@@ -430,13 +426,12 @@ export class RetryManager {
 
         lastError = structuredError;
 
-        // Don't retry if not retryable or on last attempt
         if (!structuredError.retryable || attempt === this.maxRetries) {
           break;
         }
 
-        // Calculate delay with exponential backoff. Retry-After is a server-mandated
-        // MINIMUM wait (RFC 9110 sec. 10.2.3), so treat it as a floor, never a cap.
+        // Retry-After is a server-mandated MINIMUM wait (RFC 9110 sec. 10.2.3),
+        // so it is a floor on the backoff, never a cap.
         const backoff = Math.min(this.baseDelay * Math.pow(2, attempt), this.maxDelay);
         const delay = structuredError.retryAfter
           ? Math.max(structuredError.retryAfter * 1000, backoff)
@@ -483,9 +478,7 @@ export const logError = (error: StructuredError): void => {
   // Use secure logging to prevent log injection
   secureLog(logLevel, `[${error.type}] ${error.message}`, logData);
 
-  // In production, send to monitoring service
   if (error.severity === ErrorSeverity.CRITICAL) {
-    // Send alert to monitoring system
     secureLog('error', 'CRITICAL ERROR - IMMEDIATE ATTENTION REQUIRED', logData);
   }
 };
@@ -502,13 +495,10 @@ export const wrapMcpTool = <T extends any[], R>(
     const requestId = generateRequestId();
 
     try {
-      // Validate input
       const validatedArgs = schema.parse(args);
 
-      // Execute handler with proper type casting
       const result = await (handler as any)(validatedArgs);
 
-      // Return success response
       return {
         content: [
           {
@@ -528,10 +518,8 @@ export const wrapMcpTool = <T extends any[], R>(
         structuredError = error as StructuredError;
       }
 
-      // Log error
       logError(structuredError);
 
-      // Return error response
       return errorToMcpResponse(structuredError);
     }
   };
@@ -560,10 +548,9 @@ export const performHealthCheck = async (): Promise<{
 }> => {
   const checks: Record<string, any> = {};
 
-  // Check environment variables
   const startTime = Date.now();
   try {
-    const envValidation = require('../utils/security').validateEnvironment();
+    const envValidation = validateEnvironment();
     checks.environment = {
       status: envValidation.isValid ? 'pass' : 'fail',
       message: envValidation.isValid
@@ -579,7 +566,6 @@ export const performHealthCheck = async (): Promise<{
     };
   }
 
-  // Check memory usage
   const memoryUsage = process.memoryUsage();
   const memoryThreshold = 500 * 1024 * 1024; // 500MB
   checks.memory = {
@@ -588,7 +574,6 @@ export const performHealthCheck = async (): Promise<{
     duration: 0,
   };
 
-  // Determine overall status
   const failedChecks = Object.values(checks).filter(check => check.status === 'fail').length;
   const status = failedChecks === 0 ? 'healthy' : failedChecks <= 1 ? 'degraded' : 'unhealthy';
 

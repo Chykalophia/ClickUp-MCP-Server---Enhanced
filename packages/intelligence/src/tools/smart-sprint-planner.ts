@@ -14,7 +14,6 @@ import { VelocityAnalysisService } from '../services/velocity-analysis-service.j
 import { CapacityModelingService } from '../services/capacity-modeling-service.js';
 import { SprintOptimizationService } from '../services/sprint-optimization-service.js';
 
-// Main tool input schema
 export const SmartSprintPlannerInputSchema = z.object({
   teamId: z.string().describe('ClickUp team ID for sprint planning'),
   sprintStartDate: z.string().describe('Sprint start date (ISO format)'),
@@ -79,7 +78,7 @@ export const SmartSprintPlannerInputSchema = z.object({
       includeBufferTime: z.boolean().default(true),
       bufferPercentage: z.number().min(0).max(0.3).default(0.15),
     })
-    .default({}),
+    .prefault({}),
 });
 
 export const SmartSprintPlanResultSchema = z.object({
@@ -194,10 +193,8 @@ export class SmartSprintPlanner {
     const startTime = Date.now();
 
     try {
-      // Validate input
       const validatedInput = SmartSprintPlannerInputSchema.parse(input);
 
-      // Step 1: Analyze historical velocity
       const velocityAnalysis = await this.velocityService.analyzeVelocity({
         teamId: validatedInput.teamId,
         lookbackPeriod: validatedInput.velocityLookback,
@@ -206,7 +203,6 @@ export class SmartSprintPlanner {
         seasonalAdjustment: true,
       });
 
-      // Step 2: Model team capacity
       const teamMembers = validatedInput.teamMembers || (await this.fetchTeamMembers(validatedInput.teamId));
       const capacityAnalysis = await this.capacityService.modelCapacity({
         teamId: validatedInput.teamId,
@@ -219,7 +215,6 @@ export class SmartSprintPlanner {
         bufferPercentage: validatedInput.planningPreferences.bufferPercentage,
       });
 
-      // Step 3: Optimize task selection
       const candidateTasks = validatedInput.candidateTasks || (await this.fetchCandidateTasks(validatedInput.teamId));
       const sprintCapacity = Math.min(
         velocityAnalysis.prediction.predictedVelocity,
@@ -239,10 +234,8 @@ export class SmartSprintPlanner {
         riskTolerance: validatedInput.planningPreferences.riskTolerance,
       });
 
-      // Step 4: Generate comprehensive plan
       const sprintPlan = this.generateSprintPlan(validatedInput, velocityAnalysis, capacityAnalysis, optimizedSprint);
 
-      // Step 5: Create executive summary
       const executiveSummary = this.generateExecutiveSummary(sprintPlan, velocityAnalysis, capacityAnalysis);
 
       const processingTime = Date.now() - startTime;
@@ -344,12 +337,8 @@ export class SmartSprintPlanner {
     };
   }
 
-  /**
-   * Helper methods for data fetching and analysis
-   */
   private async fetchTeamMembers(_teamId: string) {
-    // In a real implementation, this would fetch from ClickUp API
-    // For now, return mock data
+    // Mock data; not fetched from the ClickUp API yet.
     return [
       {
         userId: 'user1',
@@ -373,8 +362,7 @@ export class SmartSprintPlanner {
   }
 
   private async fetchCandidateTasks(_teamId: string) {
-    // In a real implementation, this would fetch from ClickUp API
-    // For now, return mock data
+    // Mock data; not fetched from the ClickUp API yet.
     return [
       {
         taskId: 'task1',
@@ -402,7 +390,6 @@ export class SmartSprintPlanner {
   }
 
   private generateAssignmentSuggestion(task: any, capacityAnalysis: any): string {
-    // Find team members with matching skills
     const matchingMembers = capacityAnalysis.individualCapacities.filter((ic: any) =>
       task.skillRequirements.some((skill: string) => ic.skillMatch.primarySkills.includes(skill))
     );
@@ -420,18 +407,14 @@ export class SmartSprintPlanner {
   private calculateSprintHealthGrade(sprintPlan: any, capacityAnalysis: any): 'A' | 'B' | 'C' | 'D' | 'F' {
     let score = 100;
 
-    // Penalize high utilization
     if (sprintPlan.sprintMetrics.capacityUtilization > 0.9) score -= 20;
     else if (sprintPlan.sprintMetrics.capacityUtilization > 0.85) score -= 10;
 
-    // Penalize high risk
     if (sprintPlan.sprintMetrics.riskScore > 70) score -= 15;
     else if (sprintPlan.sprintMetrics.riskScore > 50) score -= 8;
 
-    // Penalize skill gaps
     score -= sprintPlan.capacityAnalysis.skillCapacityGaps.length * 5;
 
-    // Penalize high-severity risk factors
     const highRiskFactors = capacityAnalysis.teamCapacity.riskFactors.filter((rf: any) => rf.severity === 'high');
     score -= highRiskFactors.length * 10;
 
@@ -445,7 +428,6 @@ export class SmartSprintPlanner {
   private generateKeyInsights(sprintPlan: any, velocityAnalysis: any, _capacityAnalysis: any): string[] {
     const insights = [];
 
-    // Velocity insights
     if (velocityAnalysis.currentVelocity.trend === 'increasing') {
       insights.push(
         `Team velocity is trending upward (+${((
@@ -459,7 +441,6 @@ export class SmartSprintPlanner {
       insights.push('Team velocity is declining - investigate potential blockers');
     }
 
-    // Capacity insights
     if (sprintPlan.sprintMetrics.capacityUtilization > 0.85) {
       insights.push(
         `High capacity utilization (${(sprintPlan.sprintMetrics.capacityUtilization * 100).toFixed(
@@ -468,12 +449,10 @@ export class SmartSprintPlanner {
       );
     }
 
-    // Risk insights
     if (sprintPlan.sprintMetrics.riskScore > 60) {
       insights.push(`Elevated sprint risk score (${sprintPlan.sprintMetrics.riskScore}/100) - review task complexity`);
     }
 
-    // Business value insights
     insights.push(
       `Sprint delivers ${sprintPlan.sprintMetrics.totalBusinessValue} business value points across ${sprintPlan.recommendedTasks.length} tasks`
     );
@@ -484,18 +463,15 @@ export class SmartSprintPlanner {
   private generateCriticalRecommendations(sprintPlan: any, capacityAnalysis: any): string[] {
     const recommendations = [];
 
-    // High-priority recommendations based on risk factors
     const highRiskFactors = capacityAnalysis.teamCapacity.riskFactors.filter((rf: any) => rf.severity === 'high');
     highRiskFactors.forEach((rf: any) => {
       recommendations.push(`CRITICAL: ${rf.factor} - ${rf.mitigation}`);
     });
 
-    // Capacity recommendations
     if (sprintPlan.sprintMetrics.capacityUtilization > 0.9) {
       recommendations.push('Reduce sprint scope - current utilization exceeds safe limits');
     }
 
-    // Skill gap recommendations
     if (sprintPlan.capacityAnalysis.skillCapacityGaps.length > 0) {
       recommendations.push(`Address skill gaps: ${sprintPlan.capacityAnalysis.skillCapacityGaps.join(', ')}`);
     }
@@ -504,20 +480,16 @@ export class SmartSprintPlanner {
   }
 
   private calculateSuccessProbability(sprintPlan: any, velocityAnalysis: any, capacityAnalysis: any): number {
-    let probability = 85; // Base probability
+    let probability = 85;
 
-    // Adjust based on capacity utilization
     if (sprintPlan.sprintMetrics.capacityUtilization > 0.9) probability -= 25;
     else if (sprintPlan.sprintMetrics.capacityUtilization > 0.85) probability -= 15;
     else if (sprintPlan.sprintMetrics.capacityUtilization < 0.7) probability -= 10;
 
-    // Adjust based on risk score
     probability -= sprintPlan.sprintMetrics.riskScore * 0.3;
 
-    // Adjust based on velocity confidence
     probability *= velocityAnalysis.metadata.analysisConfidence;
 
-    // Adjust based on capacity confidence
     probability *= capacityAnalysis.teamCapacity.totalCapacity.confidenceLevel;
 
     return Math.max(10, Math.min(95, Math.round(probability)));

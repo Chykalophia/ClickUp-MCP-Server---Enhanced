@@ -3,12 +3,10 @@ import { createClickUpClient } from '../clickup-client/index.js';
 import { createCommentsClient } from '../clickup-client/comments.js';
 import { resourceError } from '../utils/error-handling.js';
 
-// Create clients
 const clickUpClient = createClickUpClient();
 const commentsClient = createCommentsClient(clickUpClient);
 
 export function setupCommentResources(server: McpServer): void {
-  // Register task comments resource
   server.resource(
     'task-comments',
     new ResourceTemplate('clickup://task/{task_id}/comments', { list: undefined }),
@@ -37,7 +35,6 @@ export function setupCommentResources(server: McpServer): void {
     }
   );
 
-  // Register chat view comments resource
   server.resource(
     'chat-view-comments',
     new ResourceTemplate('clickup://view/{view_id}/comments', { list: undefined }),
@@ -66,7 +63,6 @@ export function setupCommentResources(server: McpServer): void {
     }
   );
 
-  // Register list comments resource
   server.resource(
     'list-comments',
     new ResourceTemplate('clickup://list/{list_id}/comments', { list: undefined }),
@@ -95,7 +91,6 @@ export function setupCommentResources(server: McpServer): void {
     }
   );
 
-  // Register threaded comments resource
   server.resource(
     'threaded-comments',
     new ResourceTemplate('clickup://comment/{comment_id}/reply', { list: undefined }),

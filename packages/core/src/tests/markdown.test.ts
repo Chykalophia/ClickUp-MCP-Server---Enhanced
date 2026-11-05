@@ -175,11 +175,9 @@ describe('Markdown Utilities', () => {
     it('should maintain content integrity through conversions', () => {
       const originalMarkdown = '# Header\n\n**Bold** text with *italic* and `code`';
 
-      // Convert to HTML and back
       const html = markdownToHtml(originalMarkdown);
       const backToMarkdown = htmlToMarkdown(html);
 
-      // Should preserve the essential content structure
       expect(backToMarkdown).toContain('Header');
       expect(backToMarkdown).toContain('Bold');
       expect(backToMarkdown).toContain('italic');

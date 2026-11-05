@@ -6,7 +6,6 @@ import { createAuthClient } from '../clickup-client/auth.js';
 import { mcpError } from '../utils/error-handling.js';
 import { idSchema } from '../schemas/common.js';
 
-// Create clients
 const clickUpClient = createClickUpClient();
 const authClient = createAuthClient(clickUpClient);
 
@@ -49,7 +48,7 @@ export function setupWorkspaceTools(server: McpServer): void {
         // "which workspace am I in?" question does not need.
         const payload = include_members
           ? result.teams
-          : (result.teams ?? []).map((team: Record<string, unknown>) => ({
+          : (result.teams ?? []).map(team => ({
               id: team.id,
               name: team.name,
               color: team.color,
@@ -138,9 +137,6 @@ export function setupWorkspaceTools(server: McpServer): void {
       }
     }
   );
-  // ========================================
-  // MEMBER LOOKUP
-  // ========================================
 
   server.tool(
     'clickup_find_member',
@@ -181,10 +177,6 @@ export function setupWorkspaceTools(server: McpServer): void {
       }
     }
   );
-
-  // ========================================
-  // USER GROUPS
-  // ========================================
 
   server.tool(
     'clickup_create_user_group',
@@ -253,9 +245,7 @@ export function setupWorkspaceTools(server: McpServer): void {
     }
   );
 
-  // ========================================
-  // GUESTS (Enterprise plan only)
-  // ========================================
+  // Guest tools require the ClickUp Enterprise plan.
 
   const guestPermissionShape = {
     can_edit_tags: z.boolean().optional().describe('Allow the guest to edit tags'),

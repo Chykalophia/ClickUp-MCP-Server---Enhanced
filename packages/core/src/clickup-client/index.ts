@@ -1,12 +1,43 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 
-// ClickUp API base URL
 const API_BASE_URL = 'https://api.clickup.com/api/v2';
 
 // Maximum automatic retries after a 429 rate-limit response
 const MAX_RATE_LIMIT_RETRIES = 2;
 // Cap the wait on a single retry so a bad Retry-After header can't hang a request forever
 const MAX_RETRY_AFTER_MS = 60000;
+
+/**
+ * How long to wait before retrying a 429. ClickUp documents X-RateLimit-Reset
+ * (Unix seconds when the per-minute window resets); Retry-After is honoured too
+ * when present. Returns `fallbackMs` when neither header is usable.
+ */
+export function computeRateLimitWaitMs(
+  headers: Record<string, unknown> | undefined,
+  now: number = Date.now(),
+  fallbackMs = 1000
+): number {
+  const retryAfterRaw = headers?.['retry-after'];
+  if (retryAfterRaw !== undefined && retryAfterRaw !== null && retryAfterRaw !== '') {
+    const raw = String(retryAfterRaw);
+    const seconds = Number(raw);
+    if (Number.isFinite(seconds) && seconds > 0) {
+      return seconds * 1000;
+    }
+    const date = Date.parse(raw);
+    if (!Number.isNaN(date)) {
+      return Math.max(date - now, 1000);
+    }
+  }
+  const reset = Number(headers?.['x-ratelimit-reset']);
+  if (Number.isFinite(reset) && reset > 0) {
+    // Seconds since epoch; tolerate a millisecond value as well.
+    const resetMs = reset > 1e12 ? reset : reset * 1000;
+    // The window is one minute, so a longer wait means the clocks disagree; cap it.
+    return Math.min(Math.max(resetMs - now, 1000), 60_000);
+  }
+  return fallbackMs;
+}
 
 /**
  * Build the Authorization header value for a ClickUp token.
@@ -39,7 +70,6 @@ export class ClickUpClient {
       },
     });
 
-    // Add response interceptor for rate-limit retries and error handling
     this.axiosInstance.interceptors.response.use(
       response => response,
       async error => {
@@ -54,17 +84,7 @@ export class ClickUpClient {
             // Retry-After may be delta-seconds or an HTTP-date (RFC 9110); the
             // computed wait is a minimum. Give up instead of retrying early
             // when the server asks for longer than we are willing to wait.
-            const retryAfterRaw = error.response.headers?.['retry-after'];
-            let retryAfterMs = 1000;
-            const retryAfterSeconds = parseInt(retryAfterRaw, 10);
-            if (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0) {
-              retryAfterMs = retryAfterSeconds * 1000;
-            } else if (retryAfterRaw) {
-              const retryAfterDate = Date.parse(retryAfterRaw);
-              if (!Number.isNaN(retryAfterDate)) {
-                retryAfterMs = Math.max(retryAfterDate - Date.now(), 1000);
-              }
-            }
+            const retryAfterMs = computeRateLimitWaitMs(error.response.headers);
             if (retryAfterMs <= MAX_RETRY_AFTER_MS) {
               await new Promise(resolve => setTimeout(resolve, retryAfterMs));
               return this.axiosInstance.request(requestConfig);
@@ -73,7 +93,6 @@ export class ClickUpClient {
         }
 
         if (error.response) {
-          // Format error message with status, ClickUp ECODE, and error text
           const ecode = error.response.data?.ECODE;
           const message = `ClickUp API Error (${error.response.status}${ecode ? ` ${ecode}` : ''}): ${
             error.response.data?.err || error.message
@@ -90,7 +109,6 @@ export class ClickUpClient {
     return this.axiosInstance;
   }
 
-  // Basic API methods that can be used directly
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async get<T = unknown>(endpoint: string, params?: any): Promise<T> {
     const response = await this.axiosInstance.get(endpoint, { params });
@@ -121,7 +139,6 @@ export class ClickUpClient {
   }
 }
 
-// Singleton instance cache
 let _clientInstance: ClickUpClient | null = null;
 
 // Create or return the singleton client instance

@@ -23,10 +23,6 @@ import { isAbsolute, relative, resolve, sep } from 'node:path';
 
 export const UPLOAD_DIR_ENV = 'CLICKUP_UPLOAD_DIR';
 
-// ---------------------------------------------------------------------------
-// file_path
-// ---------------------------------------------------------------------------
-
 /**
  * Resolve a caller-supplied path to a canonical file path inside the
  * configured upload directory, or throw. Relative paths are resolved against
@@ -141,10 +137,6 @@ export async function readUploadFile(
   }
 }
 
-// ---------------------------------------------------------------------------
-// file_data
-// ---------------------------------------------------------------------------
-
 /**
  * Decode base64 file_data, rejecting malformed input (Buffer.from silently
  * skips invalid characters, which would upload different bytes) and anything
@@ -184,10 +176,6 @@ function isInsideDirectory(root: string, target: string): boolean {
   const escapes = rel === '..' || rel.startsWith(`..${sep}`);
   return rel !== '' && !escapes && !isAbsolute(rel);
 }
-
-// ---------------------------------------------------------------------------
-// IP classification
-// ---------------------------------------------------------------------------
 
 type Cidr = [bigint, number];
 
@@ -293,10 +281,6 @@ export function isBlockedAddress(address: string): boolean {
   }
   return true;
 }
-
-// ---------------------------------------------------------------------------
-// file_url
-// ---------------------------------------------------------------------------
 
 export interface GuardedFetchOptions {
   /** Abort once the body exceeds this many bytes. */

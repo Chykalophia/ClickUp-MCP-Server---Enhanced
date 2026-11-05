@@ -14,7 +14,6 @@ import { processCommentBlocks } from '../utils/clickup-comment-formatter.js';
 import { mcpError } from '../utils/error-handling.js';
 import { idSchema } from '../schemas/common.js';
 
-// Create clients
 const clickUpClient = createClickUpClient();
 const commentsClient = new CommentsEnhancedClient(clickUpClient);
 
@@ -95,12 +94,10 @@ const commentBlocksSchema = z
  * Shape comment read results for an LLM client.
  *
  * ClickUp returns every comment body twice (the `comment` block array and the
- * flattened `comment_text`), the client adds a third copy as
- * `comment_markdown`, and this tool used to add a fourth: an ANSI-coloured,
- * box-drawn `styled_preview` that serialised as `\u001b[...m` noise. A 1 KB
- * comment cost 4-6 KB of tokens. The default now returns the identifying
- * fields plus ONE body (`comment_markdown`); the raw block array and
- * `comment_text` are returned only when include_raw is set.
+ * flattened `comment_text`) and the client adds a third copy as
+ * `comment_markdown`. To save tokens, the default returns the identifying
+ * fields plus only `comment_markdown`; the raw block array and `comment_text`
+ * are returned only when include_raw is set.
  */
 export function slimCommentsResponse(
   result: { comments?: unknown[] } | null | undefined,
@@ -174,7 +171,6 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
     );
   }
 
-  // Register get_task_comments tool
   server.tool(
     'clickup_get_task_comments',
     "Get comments for a ClickUp task. Each comment returns id, user (id/username/email), date (Unix ms), resolved, reply_count and the body as markdown (comment_markdown). Set include_raw for ClickUp's raw rich-text blocks. Returns the newest 25 comments; page older ones with start + start_id taken from the oldest comment returned.",
@@ -215,7 +211,6 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
     }
   );
 
-  // Register create_task_comment tool
   server.tool(
     'clickup_create_task_comment',
     'Create a new comment on a ClickUp task. Supports GitHub Flavored Markdown in comment text, including inline @mentions written as @[Name](userId); structured comment blocks are an alternative for callers that already have them. Provide either comment_text or comment. Supports optional assignee and notification settings.',
@@ -274,7 +269,6 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
     }
   );
 
-  // Register get_chat_view_comments tool
   server.tool(
     'clickup_get_chat_view_comments',
     'Get comments for a ClickUp chat view. Each comment returns id, user, date (Unix ms) and the body as markdown (comment_markdown); set include_raw for the raw rich-text blocks. Paginate with start + start_id from the oldest comment returned.',
@@ -305,7 +299,6 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
     }
   );
 
-  // Register create_chat_view_comment tool
   server.tool(
     'clickup_create_chat_view_comment',
     'Create a new comment in a ClickUp chat view. Supports notification settings. Supports GitHub Flavored Markdown in comment text, including inline @mentions written as @[Name](userId); structured comment blocks are an alternative for callers that already have them. Provide either comment_text or comment.',
@@ -345,7 +338,6 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
     }
   );
 
-  // Register get_list_comments tool
   server.tool(
     'clickup_get_list_comments',
     'Get comments for a ClickUp list. Each comment returns id, user, date (Unix ms) and the body as markdown (comment_markdown); set include_raw for the raw rich-text blocks. Paginate with start + start_id from the oldest comment returned.',
@@ -376,7 +368,6 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
     }
   );
 
-  // Register create_list_comment tool
   server.tool(
     'clickup_create_list_comment',
     'Create a new comment on a ClickUp list. Supports optional assignee and notification settings. Supports GitHub Flavored Markdown in comment text, including inline @mentions written as @[Name](userId); structured comment blocks are an alternative for callers that already have them. Provide either comment_text or comment.',
@@ -417,7 +408,6 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
     }
   );
 
-  // Register update_comment tool
   server.tool(
     'clickup_update_comment',
     "Update an existing ClickUp comment's properties including text, assignee, and resolved status. Supports GitHub Flavored Markdown in comment text, including inline @mentions written as @[Name](userId); structured comment blocks are an alternative for callers that already have them. Omit comment_text/comment for resolve-only or assign-only updates that leave the comment body untouched.",
@@ -467,7 +457,6 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
     }
   );
 
-  // Register delete_comment tool
   server.tool(
     'clickup_delete_comment',
     'Delete a comment from ClickUp.',
@@ -486,7 +475,6 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
     }
   );
 
-  // Register get_threaded_comments tool
   server.tool(
     'clickup_get_threaded_comments',
     'Get threaded comments (replies) for a parent comment. Each reply returns id, user, date (Unix ms) and the body as markdown (comment_markdown); set include_raw for the raw rich-text blocks.',
@@ -517,7 +505,6 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
     }
   );
 
-  // Register create_threaded_comment tool
   server.tool(
     'clickup_create_threaded_comment',
     'Create a new threaded comment (reply) to a parent comment. Supports notification settings. Supports GitHub Flavored Markdown in comment text, including inline @mentions written as @[Name](userId); structured comment blocks are an alternative for callers that already have them. Provide either comment_text or comment.',

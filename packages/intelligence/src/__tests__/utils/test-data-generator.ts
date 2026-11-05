@@ -1,7 +1,7 @@
 /**
  * Test Data Generator
  * 
- * Utilities for generating mock data for Phase 2.1 Unit Testing Suite
+ * Utilities for generating mock test data.
  * 
  * @version 4.1.0
  * @package @chykalophia/clickup-intelligence-mcp-server

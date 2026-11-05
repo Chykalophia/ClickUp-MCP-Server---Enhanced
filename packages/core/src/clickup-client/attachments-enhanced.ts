@@ -85,8 +85,6 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
     return response.data;
   }
 
-  // Helper methods
-
   private async resolveFileBytes(request: UploadAttachmentRequest): Promise<Buffer> {
     if (request.file_data) {
       // Validated and size-checked before allocating.

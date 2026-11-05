@@ -12,7 +12,7 @@ export interface Task {
   id: string;
   name: string;
   description?: string;
-  text_content?: string; // Plain text version of description
+  text_content?: string;
   description_markdown?: string; // Markdown version for display
   status?: {
     status: string;
@@ -54,9 +54,9 @@ export interface Task {
     name: string;
   };
   url: string;
-  subtasks?: Task[]; // Add subtasks property
-  parent?: string; // Add parent property
-  top_level_parent?: string; // Add top_level_parent property
+  subtasks?: Task[];
+  parent?: string;
+  top_level_parent?: string;
 }
 
 export interface CreateTaskParams {
@@ -188,7 +188,7 @@ export interface CustomTaskIdParams {
  *   clear the field.
  *
  * `markdown_description` is the field this server has verified live against
- * ClickUp (see 85c3351); ClickUp's reference also documents `markdown_content`
+ * ClickUp; ClickUp's reference also documents `markdown_content`
  * as the request field, which callers can pass and which is translated here.
  */
 function applyDescription(body: Record<string, unknown>): void {
@@ -253,7 +253,6 @@ export class TasksClient {
     const raw = await this.client.get<unknown>(`/list/${listId}/task`, queryParams);
     const result = validateResponse(TasksResponseSchema, raw, 'getTasksFromList');
 
-    // Process each task's content
     if (result.tasks && Array.isArray(result.tasks)) {
       (result as any).tasks = (result.tasks as any[]).map((task: any) =>
         processClickUpResponse(task)
@@ -283,7 +282,6 @@ export class TasksClient {
     const raw = await this.client.get<unknown>(`/team/${teamId}/task`, queryParams);
     const result = validateResponse(TasksResponseSchema, raw, 'getFilteredTeamTasks');
 
-    // Process each task's content
     if (result.tasks && Array.isArray(result.tasks)) {
       (result as any).tasks = (result.tasks as any[]).map((task: any) =>
         processClickUpResponse(task)
@@ -292,8 +290,6 @@ export class TasksClient {
 
     return result as unknown as { tasks: Task[]; last_page?: boolean };
   }
-
-  // Removed pseudo endpoints for getting tasks from spaces and folders
 
   /**
    * Get a specific task by ID

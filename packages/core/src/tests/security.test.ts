@@ -13,7 +13,6 @@ import {
 
 describe('Security Utilities', () => {
   beforeEach(() => {
-    // Reset rate limiter before each test
     rateLimiter.reset();
   });
 
@@ -252,7 +251,6 @@ describe('Security Utilities', () => {
       expect(rateLimiter.isAllowed('test-key', config)).toBe(true);
       expect(rateLimiter.isAllowed('test-key', config)).toBe(false);
 
-      // Wait for window to expire
       await new Promise(resolve => setTimeout(resolve, 150));
 
       expect(rateLimiter.isAllowed('test-key', config)).toBe(true);

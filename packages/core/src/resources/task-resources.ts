@@ -4,12 +4,10 @@ import { createClickUpClient } from '../clickup-client/index.js';
 import { createTasksClient } from '../clickup-client/tasks.js';
 import { resourceError } from '../utils/error-handling.js';
 
-// Create clients
 const clickUpClient = createClickUpClient();
 const tasksClient = createTasksClient(clickUpClient);
 
 export function setupTaskResources(server: McpServer): void {
-  // Register task details resource
   server.resource(
     'task-details',
     new ResourceTemplate('clickup://task/{task_id}', { list: undefined }),

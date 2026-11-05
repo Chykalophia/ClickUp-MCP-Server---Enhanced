@@ -9,9 +9,8 @@ describe('CapacityModelingService', () => {
   });
 
   describe('modelCapacity', () => {
-      // QUARANTINED: pre-existing stale test asserting an outdated service contract
-  // (package never compiled, so this never ran in CI). TODO: rewrite against the
-  // current service return shape, then re-enable.
+  // QUARANTINED: stale test for an outdated service contract (never ran in CI).
+  // TODO: rewrite against the current service return shape, then re-enable.
   it.skip('should model team capacity correctly', async () => {
       const mockUsers = TestDataGenerator.generateMockUsers(3);
       
@@ -50,9 +49,8 @@ describe('CapacityModelingService', () => {
       expect(result.metadata).toBeDefined();
     });
 
-      // QUARANTINED: pre-existing stale test asserting an outdated service contract
-  // (package never compiled, so this never ran in CI). TODO: rewrite against the
-  // current service return shape, then re-enable.
+  // QUARANTINED: stale test for an outdated service contract (never ran in CI).
+  // TODO: rewrite against the current service return shape, then re-enable.
   it.skip('should handle team with constraints', async () => {
       const mockUsers = TestDataGenerator.generateMockUsers(2);
       
@@ -96,9 +94,8 @@ describe('CapacityModelingService', () => {
       expect(result.capacityUtilization.recommendations).toBeInstanceOf(Array);
     });
 
-      // QUARANTINED: pre-existing stale test asserting an outdated service contract
-  // (package never compiled, so this never ran in CI). TODO: rewrite against the
-  // current service return shape, then re-enable.
+  // QUARANTINED: stale test for an outdated service contract (never ran in CI).
+  // TODO: rewrite against the current service return shape, then re-enable.
   it.skip('should handle empty team', async () => {
       const input = {
         teamId: 'empty-team-123',

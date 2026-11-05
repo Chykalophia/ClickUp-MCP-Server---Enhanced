@@ -2,7 +2,7 @@
 import { ClickUpClient } from './index.js';
 import axios from 'axios';
 
-// Updated Doc interface based on v3 API response
+// Doc as returned by the v3 API
 export interface Doc {
   id: string;
   name: string;
@@ -58,13 +58,11 @@ export class DocsClient {
     workspaceId: string,
     params?: GetDocsParams
   ): Promise<{ docs: Doc[]; next_cursor: string }> {
-    // Get the API token directly from the environment variable
     const apiToken = process.env.CLICKUP_API_TOKEN;
 
     try {
       const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs`;
 
-      // Use the exact same headers that worked in the successful request
       const headers = {
         Authorization: apiToken,
         Accept: 'application/json',
@@ -94,19 +92,16 @@ export class DocsClient {
     docId: string,
     contentFormat: string = 'text/md'
   ): Promise<any> {
-    // Get the API token directly from the environment variable
     const apiToken = process.env.CLICKUP_API_TOKEN;
 
     try {
       const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/pages`;
 
-      // Use the exact same parameters that worked in the successful request
       const params = {
         max_page_depth: -1,
         content_format: contentFormat,
       };
 
-      // Use the exact same headers that worked in the successful request
       const headers = {
         Authorization: apiToken,
         Accept: 'application/json',

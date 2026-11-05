@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import { createEnhancedDocsClient } from '../src/clickup-client/docs-enhanced.js';
 import { createClickUpClient } from '../src/clickup-client/index.js';
 
-// Mock the ClickUp client
 jest.mock('../src/clickup-client/index.js');
 jest.mock('axios');
 
@@ -11,17 +10,14 @@ describe('Enhanced Document CRUD Operations', () => {
   let enhancedDocsClient: any;
 
   beforeEach(() => {
-    // Reset mocks
     jest.clearAllMocks();
     
-    // Create mock client
     mockClickUpClient = {
       getAxiosInstance: jest.fn()
     };
     
     (createClickUpClient as jest.Mock).mockReturnValue(mockClickUpClient);
     
-    // Set up environment variable
     process.env.CLICKUP_API_TOKEN = 'test-token';
     
     enhancedDocsClient = createEnhancedDocsClient(mockClickUpClient);
@@ -36,7 +32,6 @@ describe('Enhanced Document CRUD Operations', () => {
         public: false
       };
 
-      // Mock axios response
       const axios = require('axios');
       axios.post.mockResolvedValue({ data: mockDoc });
 

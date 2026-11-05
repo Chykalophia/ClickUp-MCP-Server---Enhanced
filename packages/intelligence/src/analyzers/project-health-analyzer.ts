@@ -67,13 +67,11 @@ export class ProjectHealthAnalyzer {
     try {
       console.error(`[ProjectHealthAnalyzer] Starting analysis for workspace: ${params.workspace_id}`);
       
-      // Fetch project data
       const tasks = await this.fetchTasks(params);
       const teamMembers = await this.fetchTeamMembers(params.workspace_id);
       
       console.error(`[ProjectHealthAnalyzer] Analyzing ${tasks.length} tasks with ${teamMembers.length} team members`);
       
-      // Calculate detailed health metrics
       const metrics = this.healthMetricsService.calculateHealthScore({
         tasks,
         workspaceId: params.workspace_id,
@@ -81,19 +79,14 @@ export class ProjectHealthAnalyzer {
         timeframe: this.getAnalysisTimeframe(params.analysis_depth),
       });
 
-      // Analyze risks
       const risks = this.healthMetricsService.analyzeRisks(metrics);
 
-      // Generate insights
       const insights = this.generateInsights(metrics, risks);
 
-      // Categorize recommendations
       const recommendations = this.categorizeRecommendations(metrics.recommendations, risks);
 
-      // Determine trends
       const trends = this.analyzeTrends(metrics);
 
-      // Create summary
       const summary = this.createSummary(metrics);
 
       console.error(`[ProjectHealthAnalyzer] Analysis complete. Overall score: ${summary.overallScore}`);
@@ -130,20 +123,14 @@ export class ProjectHealthAnalyzer {
     };
   }
 
-  // Private methods
-
   private async fetchTasks(params: ProjectHealthAnalysisParams): Promise<ClickUpTask[]> {
     const headers = {
       'Authorization': this.apiToken,
       'Content-Type': 'application/json',
     };
 
-    // `statuses` is deliberately absent. The ClickUp API requires it to be an
-    // array (statuses[]=open&statuses[]=...), so the scalar `statuses: 'all'`
-    // this used to send made every request fail with
-    // 400 PUBAPITASK_014 "statuses must be an array" — the analyzer could never
-    // return a result. Omitting it returns tasks in every status, which is what
-    // 'all' was trying to express.
+    // `statuses` is omitted on purpose: the API rejects a scalar (400 PUBAPITASK_014
+    // "statuses must be an array"), and omitting it already returns every status.
     const queryParams = new URLSearchParams({
       archived: params.include_archived ? 'true' : 'false',
       page: '0',
@@ -158,10 +145,8 @@ export class ProjectHealthAnalyzer {
     if (params.list_id) {
       endpoint = `${this.baseURL}/list/${params.list_id}/task`;
     } else {
-      // Space scoping goes through the filtered team-tasks endpoint with a
-      // space_ids[] filter. There is no GET /space/{space_id}/task in the
-      // ClickUp v2 API — that path returned 404, so passing space_id used to
-      // break the analyzer outright.
+      // Space scoping uses the team-tasks endpoint with space_ids[]: ClickUp v2 has
+      // no GET /space/{space_id}/task (it returns 404).
       endpoint = `${this.baseURL}/team/${params.workspace_id}/task`;
       if (params.space_id) {
         queryParams.append('space_ids[]', params.space_id);
@@ -216,7 +201,6 @@ export class ProjectHealthAnalyzer {
     const criticalIssues: string[] = [];
     const improvementAreas: string[] = [];
 
-    // Identify strengths
     if (metrics.taskCompletionRate >= 80) {
       keyStrengths.push(`High task completion rate (${metrics.taskCompletionRate}%)`);
     }
@@ -230,7 +214,6 @@ export class ProjectHealthAnalyzer {
       keyStrengths.push(`High quality standards (${Math.round(metrics.qualityIndicators.qualityScore)}% quality score)`);
     }
 
-    // Identify critical issues
     const criticalRisks = risks.filter(r => r.level === 'critical');
     criticalRisks.forEach(risk => {
       criticalIssues.push(risk.description);
@@ -240,7 +223,6 @@ export class ProjectHealthAnalyzer {
       criticalIssues.push(`High number of overdue tasks (${metrics.overdueTasksCount})`);
     }
 
-    // Identify improvement areas
     if (metrics.timelineAdherence.adherenceScore < 70) {
       improvementAreas.push('Timeline adherence needs improvement');
     }
@@ -266,21 +248,17 @@ export class ProjectHealthAnalyzer {
     const shortTerm: string[] = [];
     const longTerm: string[] = [];
 
-    // Categorize based on risk levels
     const criticalRisks = risks.filter(r => r.level === 'critical');
     const highRisks = risks.filter(r => r.level === 'high');
 
-    // Immediate actions for critical risks
     criticalRisks.forEach(risk => {
       immediate.push(risk.recommendation);
     });
 
-    // Short-term actions for high risks
     highRisks.forEach(risk => {
       shortTerm.push(risk.recommendation);
     });
 
-    // Add general recommendations to appropriate categories
     recommendations.forEach(rec => {
       if (rec.includes('immediately') || rec.includes('urgent')) {
         immediate.push(rec);
@@ -291,7 +269,6 @@ export class ProjectHealthAnalyzer {
       }
     });
 
-    // Add default recommendations if categories are empty
     if (immediate.length === 0 && criticalRisks.length === 0) {
       immediate.push('Continue monitoring project health metrics');
     }
@@ -303,7 +280,7 @@ export class ProjectHealthAnalyzer {
     }
 
     return {
-      immediate: [...new Set(immediate)], // Remove duplicates
+      immediate: [...new Set(immediate)],
       shortTerm: [...new Set(shortTerm)],
       longTerm: [...new Set(longTerm)],
     };

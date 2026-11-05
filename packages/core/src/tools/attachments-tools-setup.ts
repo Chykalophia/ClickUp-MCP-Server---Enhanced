@@ -11,14 +11,9 @@ import {
 import { mcpError } from '../utils/error-handling.js';
 import { idSchema } from '../schemas/common.js';
 
-// Create clients
 const attachmentsClient = new AttachmentsEnhancedClient(getApiToken());
 
 export function setupAttachmentsTools(server: McpServer): void {
-  // ========================================
-  // ATTACHMENT OPERATIONS
-  // ========================================
-
   server.tool(
     'clickup_upload_attachment',
     'Upload a file to a ClickUp task as an attachment. Provide the file as base64 data (file_data), a local file path (file_path), or a public http(s) URL to fetch (file_url). Local file access is disabled unless the server operator sets CLICKUP_UPLOAD_DIR, and file_path must then resolve inside that directory. file_url must resolve to a public address (private, loopback, link-local and metadata addresses are refused). ClickUp only accepts the binary upload.',

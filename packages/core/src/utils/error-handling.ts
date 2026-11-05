@@ -309,7 +309,7 @@ export const handleValidationError = (
     requestId?: string;
   }
 ): StructuredError => {
-  const errors = error.errors.map(err => `${err.path.join('.')}: ${err.message}`);
+  const errors = error.issues.map(err => `${err.path.join('.')}: ${err.message}`);
 
   return createStructuredError(ErrorType.VALIDATION, 'Input validation failed', {
     severity: ErrorSeverity.LOW,

@@ -5,6 +5,7 @@ import { validateResponse, SpacesResponseSchema } from '../schemas/response-sche
 export interface Space {
   id: string;
   name: string;
+  color?: string | null;
   private: boolean;
   statuses: any[];
   multiple_assignees: boolean;

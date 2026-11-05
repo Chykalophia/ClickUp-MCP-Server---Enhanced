@@ -65,7 +65,7 @@ export function setupSpaceTools(server: McpServer): void {
         // looking up a space ID is after.
         const payload = include_settings
           ? spaces
-          : spaces.map((space: Record<string, unknown>) => ({
+          : spaces.map((space) => ({
               id: space.id,
               name: space.name,
               color: space.color,

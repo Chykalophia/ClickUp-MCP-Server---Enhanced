@@ -40,7 +40,7 @@ export const SprintOptimizationInputSchema = z.object({
   sprintCapacity: z.number().min(0).describe('Available story point capacity'),
   availableTasks: z.array(TaskSchema),
   constraints: z.array(OptimizationConstraintSchema).default([]),
-  objectives: OptimizationObjectiveSchema.default({}),
+  objectives: OptimizationObjectiveSchema.prefault({}),
   riskTolerance: z.enum(['conservative', 'balanced', 'aggressive']).default('balanced'),
 });
 

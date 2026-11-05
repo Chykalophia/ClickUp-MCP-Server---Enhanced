@@ -227,7 +227,7 @@ export function setupCatalogTools(
     {
       tool: z.string().describe('Exact tool name, e.g. "clickup_create_goal".'),
       arguments: z
-        .record(z.unknown())
+        .record(z.string(), z.unknown())
         .optional()
         .describe('Arguments for that tool, exactly as its input schema defines them.'),
     },

@@ -101,12 +101,12 @@ const TaskAssignmentInputSchema = z.object({
     balanceWorkload: z.number().min(0).max(1).default(0.4).describe('Weight for workload balance (0-1)'),
     maximizeSkillMatch: z.number().min(0).max(1).default(0.4).describe('Weight for skill matching (0-1)'),
     developSkills: z.number().min(0).max(1).default(0.2).describe('Weight for skill development (0-1)'),
-  }).default({}),
+  }).prefault({}),
   constraints: z.object({
     maxUtilization: z.number().min(0).max(2).default(1.0).describe('Maximum utilization rate per member'),
     respectPreferences: z.boolean().default(true).describe('Consider member preferences'),
     allowOverallocation: z.boolean().default(false).describe('Allow temporary overallocation'),
-  }).default({}),
+  }).prefault({}),
 });
 
 const BurnoutAnalysisInputSchema = z.object({
@@ -131,7 +131,7 @@ const CapacityForecastInputSchema = z.object({
   timeframe: z.string().describe('Forecast timeframe (e.g., "3 months", "1 quarter", "6 weeks")'),
   scenarios: z.array(z.object({
     name: z.string(),
-    assumptions: z.record(z.any()),
+    assumptions: z.record(z.string(), z.any()),
   })).default([]).describe('Different scenarios to forecast'),
   includeHiringRecommendations: z.boolean().default(true).describe('Include hiring recommendations'),
 });

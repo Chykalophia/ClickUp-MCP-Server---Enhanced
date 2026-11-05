@@ -48,7 +48,7 @@ export function setupWorkspaceTools(server: McpServer): void {
         // "which workspace am I in?" question does not need.
         const payload = include_members
           ? result.teams
-          : (result.teams ?? []).map((team: Record<string, unknown>) => ({
+          : (result.teams ?? []).map(team => ({
               id: team.id,
               name: team.name,
               color: team.color,

@@ -78,7 +78,7 @@ export const SmartSprintPlannerInputSchema = z.object({
       includeBufferTime: z.boolean().default(true),
       bufferPercentage: z.number().min(0).max(0.3).default(0.15),
     })
-    .default({}),
+    .prefault({}),
 });
 
 export const SmartSprintPlanResultSchema = z.object({

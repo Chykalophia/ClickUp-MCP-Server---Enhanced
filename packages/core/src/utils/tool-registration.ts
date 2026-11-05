@@ -284,11 +284,11 @@ export function enforceStrictParams(
 
     const validNames = Object.keys(shapeWithAliases);
     const inputSchema = z.strictObject(shapeWithAliases, {
-      errorMap: (issue, ctx) => {
-        if (issue.code === z.ZodIssueCode.unrecognized_keys) {
-          return { message: unknownParamMessage(name, issue.keys, validNames) };
+      error: issue => {
+        if (issue.code === 'unrecognized_keys') {
+          return unknownParamMessage(name, issue.keys, validNames);
         }
-        return { message: ctx.defaultError };
+        return undefined;
       },
     });
 

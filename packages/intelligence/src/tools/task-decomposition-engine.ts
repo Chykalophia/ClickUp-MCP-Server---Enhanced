@@ -18,7 +18,7 @@ const TaskSchema = z.object({
   priority: z.number().min(1).max(4).optional(),
   assignees: z.array(z.string()).optional(),
   tags: z.array(z.string()).optional(),
-  customFields: z.record(z.any()).optional(),
+  customFields: z.record(z.string(), z.any()).optional(),
   timeEstimate: z.number().optional(),
   timeSpent: z.number().optional(),
   dueDate: z.string().optional(),

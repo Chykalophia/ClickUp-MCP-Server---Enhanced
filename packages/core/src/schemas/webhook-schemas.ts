@@ -45,9 +45,9 @@ export const WebhookHistoryItemSchema = z
     date: z.string(),
     field: z.string(),
     parent_id: z.string(),
-    data: z.record(z.any()),
+    data: z.record(z.string(), z.any()),
     source: z.string().nullable(),
-    user: z.record(z.any()),
+    user: z.record(z.string(), z.any()),
     before: z.any(),
     after: z.any(),
   })

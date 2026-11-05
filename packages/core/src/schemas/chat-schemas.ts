@@ -194,9 +194,9 @@ export const ChatChannelSchema = z
     created_at: z.string().optional(),
     updated_at: z.string().optional(),
     is_follower: z.boolean().optional(),
-    counts: z.record(z.any()).optional(),
+    counts: z.record(z.string(), z.any()).optional(),
     latest_comment_at: z.union([z.string(), z.number()]).nullable().optional(),
-    links: z.record(z.any()).optional(),
+    links: z.record(z.string(), z.any()).optional(),
   })
   .passthrough();
 
@@ -221,7 +221,7 @@ export const ChatMessageSchema = z
       })
       .passthrough()
       .optional(),
-    links: z.record(z.any()).optional(),
+    links: z.record(z.string(), z.any()).optional(),
   })
   .passthrough();
 

@@ -5,7 +5,7 @@
  * access (e.g., response.tasks, response.goal) fails fast with a clear
  * validation error rather than silently returning undefined.
  *
- * Inner objects use z.record(z.unknown()) or z.unknown(): only the envelope
+ * Inner objects use z.record(z.string(), z.unknown()) or z.unknown(): only the envelope
  * is validated, not every nested field.
  */
 import { z } from 'zod';
@@ -14,14 +14,14 @@ import { z } from 'zod';
 export const SuccessResponseSchema = z.object({}).passthrough();
 
 /** Wrapper with a single entity */
-const entityResponse = (key: string) => z.object({ [key]: z.record(z.unknown()) }).passthrough();
+const entityResponse = (key: string) => z.object({ [key]: z.record(z.string(), z.unknown()) }).passthrough();
 
 /** Wrapper with an array of entities */
 const listResponse = (key: string) => z.object({ [key]: z.array(z.unknown()) }).passthrough();
 
 export const UserResponseSchema = z
   .object({
-    user: z.record(z.unknown()),
+    user: z.record(z.string(), z.unknown()),
   })
   .passthrough();
 
@@ -32,19 +32,19 @@ export const TeamsResponseSchema = z
   .passthrough();
 
 export const TasksResponseSchema = listResponse('tasks');
-export const TaskResponseSchema = z.record(z.unknown()); // direct object
+export const TaskResponseSchema = z.record(z.string(), z.unknown()); // direct object
 
 export const SpacesResponseSchema = listResponse('spaces');
-export const SpaceResponseSchema = z.record(z.unknown());
+export const SpaceResponseSchema = z.record(z.string(), z.unknown());
 
 export const ListsResponseSchema = listResponse('lists');
-export const ListResponseSchema = z.record(z.unknown());
+export const ListResponseSchema = z.record(z.string(), z.unknown());
 
 export const FoldersResponseSchema = listResponse('folders');
-export const FolderResponseSchema = z.record(z.unknown());
+export const FolderResponseSchema = z.record(z.string(), z.unknown());
 
 export const CommentsResponseSchema = listResponse('comments');
-export const CommentResponseSchema = z.record(z.unknown());
+export const CommentResponseSchema = z.record(z.string(), z.unknown());
 
 export const GoalsResponseSchema = z
   .object({
@@ -54,13 +54,13 @@ export const GoalsResponseSchema = z
 
 export const GoalResponseSchema = z
   .object({
-    goal: z.record(z.unknown()),
+    goal: z.record(z.string(), z.unknown()),
   })
   .passthrough();
 
 export const GoalTargetResponseSchema = z
   .object({
-    key_result: z.record(z.unknown()),
+    key_result: z.record(z.string(), z.unknown()),
   })
   .passthrough();
 
@@ -114,6 +114,7 @@ export const TaskTimeInStatusResponseSchema = z
  * Each task entry uses the same lenient schema.
  */
 export const BulkTasksTimeInStatusResponseSchema = z.record(
+  z.string(),
   z
     .object({
       current_status: CurrentStatusSchema.optional(),
@@ -130,7 +131,7 @@ export const TimeEntriesResponseSchema = z
 
 export const TimeEntryResponseSchema = z
   .object({
-    data: z.union([z.array(z.unknown()).min(1), z.record(z.unknown())]),
+    data: z.union([z.array(z.unknown()).min(1), z.record(z.string(), z.unknown())]),
   })
   .passthrough();
 
@@ -143,7 +144,7 @@ export const CurrentTimeEntryResponseSchema = z
   .object({
     // `data` is required (nullable): a null means "no running timer", whereas a
     // missing `data` indicates a malformed response and should fail validation.
-    data: z.record(z.unknown()).nullable(),
+    data: z.record(z.string(), z.unknown()).nullable(),
   })
   .passthrough();
 
@@ -157,7 +158,7 @@ export const DependenciesResponseSchema = listResponse('dependencies');
 export const DependencyResponseSchema = entityResponse('dependency');
 
 export const CustomFieldsResponseSchema = listResponse('fields');
-export const CustomFieldResponseSchema = z.record(z.unknown());
+export const CustomFieldResponseSchema = z.record(z.string(), z.unknown());
 
 export const DocsResponseSchema = z
   .object({
@@ -165,13 +166,13 @@ export const DocsResponseSchema = z
   })
   .passthrough();
 
-export const DocResponseSchema = z.record(z.unknown());
+export const DocResponseSchema = z.record(z.string(), z.unknown());
 
 export const AttachmentResponseSchema = entityResponse('attachment');
-export const AttachmentsResponseSchema = z.record(z.unknown()); // varies by endpoint
+export const AttachmentsResponseSchema = z.record(z.string(), z.unknown()); // varies by endpoint
 
 export const ChecklistsResponseSchema = listResponse('checklists');
-export const ChecklistResponseSchema = z.record(z.unknown());
+export const ChecklistResponseSchema = z.record(z.string(), z.unknown());
 
 /**
  * Validate an API response against a schema.

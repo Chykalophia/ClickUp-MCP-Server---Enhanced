@@ -91,7 +91,7 @@ export const ManualProgressFieldConfigSchema = z
 
 // Automatic progress field configurations (computed by ClickUp)
 export const AutomaticProgressFieldConfigSchema = z.object({
-  tracking: z.record(z.any()).optional(),
+  tracking: z.record(z.string(), z.any()).optional(),
   complete_on: z.number().optional(),
 });
 
@@ -319,6 +319,6 @@ export function getFieldTypeConfigSchema(fieldType: string): z.ZodSchema {
       return UsersFieldConfigSchema;
 
     default:
-      return z.record(z.any());
+      return z.record(z.string(), z.any());
   }
 }

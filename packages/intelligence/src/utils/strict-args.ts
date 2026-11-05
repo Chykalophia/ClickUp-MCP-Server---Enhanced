@@ -7,7 +7,8 @@ import { z } from 'zod';
  * objects strip unknown keys silently and a misspelled `task.descripton` would
  * pass. This walks the raw input next to the schema and returns the dot paths
  * of undeclared keys. Objects that set a catchall (passthrough) are skipped, and
- * so are unions, because which branch matched is not known here.
+ * so are unions, because which branch matched is not known here. For an
+ * intersection, a key is unknown only when neither side declares it.
  */
 export function findUnknownKeys(schema: z.ZodType, input: unknown, path: string[] = []): string[] {
   if (input === null || input === undefined) return [];
@@ -25,6 +26,11 @@ export function findUnknownKeys(schema: z.ZodType, input: unknown, path: string[
       return findUnknownKeys(def.innerType, input, path);
     case 'pipe':
       return findUnknownKeys(def.in, input, path);
+    case 'intersection': {
+      // A key is unknown only if neither side declares it.
+      const right = new Set(findUnknownKeys(def.right, input, path));
+      return findUnknownKeys(def.left, input, path).filter(key => right.has(key));
+    }
     case 'array':
       if (!Array.isArray(input)) return [];
       return input.flatMap((item, i) => findUnknownKeys(def.element, item, [...path, String(i)]));
@@ -69,8 +75,9 @@ export function closeJsonSchemaObjects(node: unknown): void {
     obj.additionalProperties = false;
   }
   for (const [key, value] of Object.entries(obj)) {
-    // Union branches are left open, matching findUnknownKeys.
-    if (key === 'anyOf' || key === 'oneOf') continue;
+    // Union branches are left open, matching findUnknownKeys. allOf branches are
+    // left open too, since closing each would make it reject the other's keys.
+    if (key === 'anyOf' || key === 'oneOf' || key === 'allOf') continue;
     closeJsonSchemaObjects(value);
   }
 }

@@ -47,4 +47,13 @@ describe('closeJsonSchemaObjects', () => {
     expect(json.additionalProperties).toBe(false);
     expect(json.properties.task.additionalProperties).toBe(false);
   });
+
+  it('closes object intersections, which zod emits as one merged object', () => {
+    const both = z.intersection(z.object({ a: z.string() }), z.object({ b: z.string() }));
+    const json = z.toJSONSchema(z.object({ both }), { io: 'input' }) as any;
+    closeJsonSchemaObjects(json);
+    expect(json.properties.both.additionalProperties).toBe(false);
+    // The runtime check agrees: keys from either side pass, others do not.
+    expect(findUnknownKeys(z.object({ both }), { both: { a: 'x', b: 'y', c: 'z' } })).toEqual(['both.c']);
+  });
 });

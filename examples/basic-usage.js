@@ -10,7 +10,8 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 
 const transport = new StdioClientTransport({
   command: 'node',
-  args: ['./build/index.js'], // Path to the built ClickUp MCP Server
+  // Run from the repo root after `npm run build`.
+  args: ['./packages/core/build/index-enhanced.js'],
   env: {
     // You can provide your ClickUp API token here or use environment variables
     CLICKUP_API_TOKEN: process.env.CLICKUP_API_TOKEN
@@ -35,7 +36,7 @@ async function main() {
     await client.connect(transport);
     console.log('Connected!');
 
-    const tools = await client.listTools();
+    const { tools } = await client.listTools();
     console.log('Available tools:', tools.map(tool => tool.name));
 
     console.log('\nFetching workspaces...');
@@ -75,7 +76,7 @@ async function main() {
           }
         });
         
-        const lists = JSON.parse(listsResult.content[0].text);
+        const { lists } = JSON.parse(listsResult.content[0].text);
         console.log(`Found ${lists.length} lists`);
         
         if (lists.length > 0) {
@@ -91,7 +92,7 @@ async function main() {
             }
           });
           
-          const tasks = JSON.parse(tasksResult.content[0].text);
+          const { tasks } = JSON.parse(tasksResult.content[0].text);
           console.log(`Found ${tasks.length} tasks`);
           
           if (tasks.length > 0) {
@@ -99,7 +100,7 @@ async function main() {
             tasks.forEach(task => {
               console.log(`- ${task.name} (${task.id})`);
               console.log(`  Status: ${task.status.status}`);
-              console.log(`  Due date: ${task.due_date ? new Date(task.due_date).toLocaleDateString() : 'None'}`);
+              console.log(`  Due date: ${task.due_date ? new Date(Number(task.due_date)).toLocaleDateString() : 'None'}`);
               console.log('');
             });
           }

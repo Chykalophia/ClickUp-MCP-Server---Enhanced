@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { homedir } from 'os';
-import { join } from 'path';
+import { join, dirname } from 'path';
 import { createInterface } from 'readline';
 
 const rl = createInterface({
@@ -36,7 +36,7 @@ async function main() {
   }
   
   const configPath = getConfigPath();
-  const configDir = configPath.split('/').slice(0, -1).join('/');
+  const configDir = dirname(configPath);
   
   if (!existsSync(configDir)) {
     mkdirSync(configDir, { recursive: true });

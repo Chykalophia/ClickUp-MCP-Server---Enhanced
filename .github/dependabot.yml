@@ -10,16 +10,12 @@ updates:
     labels:
       - "npm"
       - "dependencies"
-    open-pull-requests-limit: 10
+    # 0 disables routine version-update PRs; Dependabot security updates are
+    # unaffected by this limit, so only security fixes are opened.
+    open-pull-requests-limit: 0
     pull-request-branch-name:
       separator: "-"
-    reviewers:
-      - "peterkrzyzek"
     versioning-strategy: auto
-    # Allow only security updates
-    allow:
-      - dependency-type: "direct"
-        update-type: "security"
 
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -30,5 +26,3 @@ updates:
       - "github-actions"
       - "dependencies"
     open-pull-requests-limit: 5
-    reviewers:
-      - "peterkrzyzek"

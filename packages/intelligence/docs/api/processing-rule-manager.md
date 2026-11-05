@@ -29,7 +29,7 @@ Unknown parameters, including misspelled keys inside `condition` or `action`, ar
 - `equals` / `not_equals` compare with strict equality.
 - `contains` matches a substring of a string field or an element of an array field.
 - `exists` is true when the field is present and not null.
-- Only the data's own properties are followed, so a path such as `constructor` never matches.
+- Only the data's own properties are followed; inherited ones such as `constructor` are ignored unless the payload itself defines that key.
 
 ### `action`
 
@@ -60,6 +60,8 @@ When an urgent task changes, the server logs:
 ```
 
 ## Response
+
+The JSON below is the string in `content[0].text` of the MCP tool result. Errors come back with `isError: true` and a plain-text message.
 
 ```json
 {

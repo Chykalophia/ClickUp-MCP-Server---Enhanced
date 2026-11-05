@@ -27,8 +27,8 @@ These ship together with the 7.0.0 core changes described below.
 
 ### Dependencies
 - zod 3 to 4 across all packages (Dependabot). shared 2.0.0 is a major bump
-  because its exported schemas are now zod 4 schemas. Also plus fast-uri, follow-redirects,
-  @hono/node-server, ip-address and body-parser updates.
+  because its exported schemas are now zod 4 schemas. Other updates: fast-uri,
+  follow-redirects, @hono/node-server, ip-address and body-parser.
 
 ## Version 7.0.0 - Core Tool Loading and Runtime Toolset Catalog
 

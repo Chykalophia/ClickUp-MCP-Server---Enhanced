@@ -20,4 +20,9 @@ describe('SmartSprintPlanner.calculateOptimalAllocations', () => {
     expect(allocations).toHaveLength(2);
     expect(members[0].available_hours).toBe(40);
   });
+
+  it('leaves a task unallocated when nobody has enough hours', async () => {
+    const members = [{ user_id: 1, available_hours: 0, skills: [] }];
+    await expect(allocate([task('a')], members)).resolves.toEqual([]);
+  });
 });

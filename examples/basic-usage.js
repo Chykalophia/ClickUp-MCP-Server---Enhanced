@@ -13,7 +13,9 @@ const transport = new StdioClientTransport({
   args: ['./packages/core/build/index-enhanced.js'],
   env: {
     // You can provide your ClickUp API token here or use environment variables
-    CLICKUP_API_TOKEN: process.env.CLICKUP_API_TOKEN
+    CLICKUP_API_TOKEN: process.env.CLICKUP_API_TOKEN,
+    // The default core toolset leaves some of the tools used below disabled.
+    CLICKUP_TOOL_MODE: 'all'
   }
 });
 

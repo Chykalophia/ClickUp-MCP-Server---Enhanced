@@ -331,8 +331,8 @@ export class SmartSprintPlanner {
     for (const task of tasks) {
       const estimatedHours = this.estimateTaskHours(task);
       
-      let bestMember = pool[0];
-      let bestScore = 0;
+      let bestMember: (typeof pool)[number] | undefined;
+      let bestScore = -Infinity;
       
       for (const member of pool) {
         if (member.available_hours >= estimatedHours) {
@@ -347,6 +347,8 @@ export class SmartSprintPlanner {
         }
       }
       
+      // Nobody has room for this task: leave it unallocated rather than overbook someone.
+      if (!bestMember) continue;
       bestMember.available_hours -= estimatedHours;
       
       allocations.push({

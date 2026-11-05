@@ -31,7 +31,6 @@ export function findUnknownKeys(schema: z.ZodType, input: unknown, path: string[
       const left = objectDef(def.left);
       const right = objectDef(def.right);
       if (left && right) {
-        // Two object sides: check each key against the side(s) that declare it.
         if (typeof input !== 'object' || Array.isArray(input)) return [];
         const found: string[] = [];
         for (const [key, value] of Object.entries(input as Record<string, unknown>)) {
@@ -50,7 +49,6 @@ export function findUnknownKeys(schema: z.ZodType, input: unknown, path: string[
         }
         return found;
       }
-      // Otherwise a key is unknown only if neither side declares it.
       const rightUnknown = new Set(findUnknownKeys(def.right, input, path));
       return findUnknownKeys(def.left, input, path).filter(key => rightUnknown.has(key));
     }
@@ -123,9 +121,8 @@ export function closeJsonSchemaObjects(node: unknown): void {
     obj.additionalProperties = false;
   }
   for (const [key, value] of Object.entries(obj)) {
-    // Union branches are left open, matching findUnknownKeys. allOf branches are
-    // left open too, since closing each would make it reject the other's keys.
-    // Only skip the keyword itself, not a property that happens to share its name.
+    // anyOf/oneOf/allOf branches stay open: closing one allOf branch would reject the other's keys.
+    // Skip only the keyword, not a property that shares its name.
     if ((key === 'anyOf' || key === 'oneOf' || key === 'allOf') && Array.isArray(value)) continue;
     closeJsonSchemaObjects(value);
   }

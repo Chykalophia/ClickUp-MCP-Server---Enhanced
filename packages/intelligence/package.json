@@ -1,6 +1,6 @@
 {
   "name": "@chykalophia/clickup-intelligence-mcp-server",
-  "version": "5.0.1",
+  "version": "6.0.0",
   "description": "Advanced project management intelligence and workflow optimization for ClickUp - AI-powered analytics, smart planning, and automation",
   "main": "build/index.js",
   "bin": {

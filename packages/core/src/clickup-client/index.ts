@@ -8,6 +8,36 @@ const MAX_RATE_LIMIT_RETRIES = 2;
 const MAX_RETRY_AFTER_MS = 60000;
 
 /**
+ * How long to wait before retrying a 429. ClickUp documents X-RateLimit-Reset
+ * (Unix seconds when the per-minute window resets); Retry-After is honoured too
+ * when present. Falls back to one second when neither header is usable.
+ */
+export function computeRateLimitWaitMs(
+  headers: Record<string, unknown> | undefined,
+  now: number = Date.now()
+): number {
+  const retryAfterRaw = headers?.['retry-after'];
+  if (retryAfterRaw !== undefined && retryAfterRaw !== null && retryAfterRaw !== '') {
+    const raw = String(retryAfterRaw);
+    const seconds = Number(raw);
+    if (Number.isFinite(seconds) && seconds > 0) {
+      return seconds * 1000;
+    }
+    const date = Date.parse(raw);
+    if (!Number.isNaN(date)) {
+      return Math.max(date - now, 1000);
+    }
+  }
+  const reset = Number(headers?.['x-ratelimit-reset']);
+  if (Number.isFinite(reset) && reset > 0) {
+    // Seconds since epoch; tolerate a millisecond value as well.
+    const resetMs = reset > 1e12 ? reset : reset * 1000;
+    return Math.max(resetMs - now, 1000);
+  }
+  return 1000;
+}
+
+/**
  * Build the Authorization header value for a ClickUp token.
  * Personal API tokens (pk_...) are sent raw; OAuth access tokens require the Bearer prefix.
  */
@@ -52,17 +82,7 @@ export class ClickUpClient {
             // Retry-After may be delta-seconds or an HTTP-date (RFC 9110); the
             // computed wait is a minimum. Give up instead of retrying early
             // when the server asks for longer than we are willing to wait.
-            const retryAfterRaw = error.response.headers?.['retry-after'];
-            let retryAfterMs = 1000;
-            const retryAfterSeconds = parseInt(retryAfterRaw, 10);
-            if (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0) {
-              retryAfterMs = retryAfterSeconds * 1000;
-            } else if (retryAfterRaw) {
-              const retryAfterDate = Date.parse(retryAfterRaw);
-              if (!Number.isNaN(retryAfterDate)) {
-                retryAfterMs = Math.max(retryAfterDate - Date.now(), 1000);
-              }
-            }
+            const retryAfterMs = computeRateLimitWaitMs(error.response.headers);
             if (retryAfterMs <= MAX_RETRY_AFTER_MS) {
               await new Promise(resolve => setTimeout(resolve, retryAfterMs));
               return this.axiosInstance.request(requestConfig);

@@ -1,5 +1,33 @@
 # Release Notes - ClickUp MCP Server Suite
 
+## November 2026 release: core 7.0.0, intelligence 6.0.0, shared 1.2.0
+
+These ship together with the 7.0.0 core changes described below.
+
+### Security
+- **intelligence 6.0.0 (breaking):** `clickup_add_processing_rule` no longer runs
+  JavaScript passed in its `condition` and `action` arguments (it used
+  `new Function`, so anything that could reach the tool could run code in the
+  server). Rules are now declarative: `condition: { field, operator, value }`
+  with `equals`, `not_equals`, `contains` or `exists` on a dot path into the
+  event data, and `action: { type: "log", message? }`.
+- `clickup_process_webhook` now verifies ClickUp's `X-Signature` (HMAC-SHA256,
+  hex) when `validateSignature` is true and fails closed when the signature or
+  secret is missing (contributed in PR #60).
+- `qs` pinned to 6.17.1 (GHSA-6pq8-jhm2-2vcw). `npm audit --omit=dev` is clean.
+
+### Fixes
+- The intelligence server sent raw zod objects as `inputSchema` for 18 tools,
+  which clients cannot read, and never parsed arguments, so defaults were not
+  applied. Schemas are now published as JSON Schema and arguments are validated.
+- On HTTP 429 the core client now waits until ClickUp's documented
+  `X-RateLimit-Reset` instead of a fixed one second when no `Retry-After`
+  header is sent.
+
+### Dependencies
+- zod 3 to 4 across all packages (Dependabot), plus fast-uri, follow-redirects,
+  @hono/node-server, ip-address and body-parser updates.
+
 ## Version 7.0.0 - Core Tool Loading and Runtime Toolset Catalog
 
 **Affects**: `@chykalophia/clickup-mcp-server` (core)

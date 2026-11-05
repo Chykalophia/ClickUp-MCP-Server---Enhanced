@@ -10,7 +10,6 @@ import {
   ComplexityAnalysis,
 } from '../services/task-analysis-service.js';
 
-// Zod schemas for validation
 const TaskSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -64,57 +63,46 @@ export class TaskDecompositionEngine {
     const startTime = Date.now();
     
     try {
-      // Validate inputs
       const validatedTask = TaskSchema.parse(task);
       const validatedOptions = DecompositionOptionsSchema.parse(options);
 
-      // Convert to internal Task format
       const internalTask: Task = {
         ...validatedTask,
         timeEstimate: validatedTask.timeEstimate ? validatedTask.timeEstimate * 1000 * 60 * 60 : undefined, // Convert hours to milliseconds
       };
 
-      // Analyze task complexity
       const complexityAnalysis = this.taskAnalysisService.analyzeTaskComplexity(internalTask);
 
-      // Check if decomposition is needed
       const shouldDecompose = this.shouldDecomposeTask(internalTask, complexityAnalysis, validatedOptions);
       
       if (!shouldDecompose) {
         return this.createSimpleDecomposition(internalTask, complexityAnalysis, startTime);
       }
 
-      // Perform task decomposition
       const decomposedTasks = this.taskAnalysisService.decomposeTask(
         internalTask, 
         validatedOptions.targetGranularity
       );
 
-      // Limit number of subtasks
       const limitedTasks = decomposedTasks.slice(0, validatedOptions.maxSubtasks);
 
-      // Estimate effort for each subtask
       if (validatedOptions.includeEstimation) {
         limitedTasks.forEach(subtask => {
           subtask.estimatedEffort = this.taskAnalysisService.estimateEffort(subtask);
         });
       }
 
-      // Identify dependencies
       let dependencyMap: Record<string, string[]> = {};
       if (validatedOptions.includeDependencies) {
         dependencyMap = this.taskAnalysisService.identifyDependencies(limitedTasks);
         
-        // Apply dependencies to tasks
         limitedTasks.forEach(task => {
           task.dependencies = dependencyMap[task.title] || [];
         });
       }
 
-      // Create estimation summary
       const estimationSummary = this.createEstimationSummary(limitedTasks, internalTask);
 
-      // Generate recommendations
       const recommendations = this.generateRecommendations(
         internalTask, 
         limitedTasks, 
@@ -122,7 +110,6 @@ export class TaskDecompositionEngine {
         validatedOptions
       );
 
-      // Calculate confidence score
       const confidenceScore = this.calculateConfidenceScore(
         internalTask,
         limitedTasks,
@@ -140,7 +127,6 @@ export class TaskDecompositionEngine {
         processingTime: Date.now() - startTime,
       };
 
-      // Validate decomposition quality
       const validation = this.taskAnalysisService.validateDecomposition(decomposition);
       if (!validation.isValid) {
         decomposition.recommendations.push(
@@ -249,8 +235,6 @@ export class TaskDecompositionEngine {
     };
   }
 
-  // Private helper methods
-
   private shouldDecomposeTask(
     task: Task, 
     complexity: ComplexityAnalysis, 
@@ -259,12 +243,10 @@ export class TaskDecompositionEngine {
     const complexityThreshold = options.complexityThreshold || 6;
     const effortThreshold = options.effortThreshold || 8;
     
-    // Check complexity threshold
     if (complexity.overall >= complexityThreshold) {
       return true;
     }
     
-    // Check effort threshold
     if (task.timeEstimate) {
       const hours = task.timeEstimate / (1000 * 60 * 60);
       if (hours >= effortThreshold) {
@@ -272,7 +254,6 @@ export class TaskDecompositionEngine {
       }
     }
     
-    // Check for uncertainty indicators
     if (complexity.uncertainty >= 7) {
       return true;
     }
@@ -315,7 +296,6 @@ export class TaskDecompositionEngine {
 
     const riskFactors: string[] = [];
     
-    // Identify risk factors
     const highComplexityTasks = tasks.filter(t => t.complexity.overall >= 8);
     if (highComplexityTasks.length > 0) {
       riskFactors.push(`${highComplexityTasks.length} high-complexity subtasks identified`);
@@ -330,7 +310,6 @@ export class TaskDecompositionEngine {
       riskFactors.push('Total effort exceeds 1 week - consider further breakdown');
     }
 
-    // Determine confidence level
     let confidenceLevel: 'low' | 'medium' | 'high' = 'high';
     if (riskFactors.length >= 3) {
       confidenceLevel = 'low';
@@ -338,7 +317,6 @@ export class TaskDecompositionEngine {
       confidenceLevel = 'medium';
     }
 
-    // Compare to original estimate if available
     let comparisonToOriginal: number | undefined;
     if (originalTask.timeEstimate) {
       const originalHours = originalTask.timeEstimate / (1000 * 60 * 60);
@@ -362,7 +340,6 @@ export class TaskDecompositionEngine {
   ): string[] {
     const recommendations: string[] = [];
 
-    // General recommendations
     recommendations.push(`🎯 Task decomposed into ${decomposedTasks.length} manageable subtasks`);
     
     if (complexity.overall >= 8) {
@@ -373,13 +350,11 @@ export class TaskDecompositionEngine {
       recommendations.push('🔍 Start with research/investigation tasks to reduce uncertainty');
     }
 
-    // Effort-based recommendations
     const totalEffort = decomposedTasks.reduce((sum, task) => sum + task.estimatedEffort, 0);
     if (totalEffort > 20) {
       recommendations.push('📅 Consider spreading work across multiple sprints');
     }
 
-    // Task type recommendations
     const taskTypes = decomposedTasks.map(t => t.taskType);
     const hasImplementation = taskTypes.includes(TaskType.IMPLEMENTATION);
     const hasTesting = taskTypes.includes(TaskType.TESTING);
@@ -393,13 +368,11 @@ export class TaskDecompositionEngine {
       recommendations.push('📚 Consider adding documentation tasks for new features');
     }
 
-    // Dependency recommendations
     const tasksWithDependencies = decomposedTasks.filter(t => t.dependencies.length > 0);
     if (tasksWithDependencies.length > 0) {
       recommendations.push(`🔗 ${tasksWithDependencies.length} tasks have dependencies - plan execution order carefully`);
     }
 
-    // Priority recommendations
     const highPriorityTasks = decomposedTasks.filter(t => t.priority <= 2);
     if (highPriorityTasks.length > 0) {
       recommendations.push(`🚨 ${highPriorityTasks.length} high-priority subtasks identified - tackle these first`);
@@ -415,14 +388,12 @@ export class TaskDecompositionEngine {
   ): number {
     let confidence = 1.0;
 
-    // Reduce confidence for high uncertainty
     if (complexity.uncertainty >= 8) {
       confidence -= 0.3;
     } else if (complexity.uncertainty >= 6) {
       confidence -= 0.1;
     }
 
-    // Reduce confidence for very complex tasks
     if (complexity.overall >= 9) {
       confidence -= 0.2;
     }
@@ -433,12 +404,10 @@ export class TaskDecompositionEngine {
       confidence -= 0.1;
     }
 
-    // Reduce confidence for very large decompositions
     if (decomposedTasks.length > 10) {
       confidence -= 0.1;
     }
 
-    // Increase confidence for well-structured decompositions
     const hasBalancedTypes = this.hasBalancedTaskTypes(decomposedTasks);
     if (hasBalancedTypes) {
       confidence += 0.1;
@@ -498,7 +467,6 @@ export class TaskDecompositionEngine {
   }
 }
 
-// Export the tool function for MCP integration
 export const taskDecompositionTool = {
   name: 'decompose_task',
   description: 'Intelligently decompose a complex task into smaller, manageable subtasks with AI-powered analysis, effort estimation, and dependency identification',

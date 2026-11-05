@@ -50,10 +50,6 @@ export class ChatEnhancedClient {
     this.client = new ClickUpClient({ apiToken, baseUrl: CHAT_API_BASE_URL });
   }
 
-  // ========================================
-  // CHANNEL MANAGEMENT
-  // ========================================
-
   /**
    * Retrieve channels in a workspace (cursor-paginated)
    */
@@ -135,10 +131,6 @@ export class ChatEnhancedClient {
     await this.client.delete(`/workspaces/${workspaceId}/chat/channels/${channelId}`);
   }
 
-  // ========================================
-  // CHANNEL MEMBERS & FOLLOWERS
-  // ========================================
-
   /**
    * Get channel followers (cursor-paginated)
    */
@@ -160,10 +152,6 @@ export class ChatEnhancedClient {
       params
     );
   }
-
-  // ========================================
-  // MESSAGE MANAGEMENT
-  // ========================================
 
   /**
    * Get messages from a channel (cursor-paginated)
@@ -205,10 +193,6 @@ export class ChatEnhancedClient {
     await this.client.delete(`/workspaces/${workspaceId}/chat/messages/${messageId}`);
   }
 
-  // ========================================
-  // MESSAGE REPLIES
-  // ========================================
-
   /**
    * Get replies to a message (cursor-paginated)
    */
@@ -230,10 +214,6 @@ export class ChatEnhancedClient {
       replyData
     );
   }
-
-  // ========================================
-  // MESSAGE REACTIONS
-  // ========================================
 
   /**
    * Get reactions for a message (cursor-paginated)
@@ -267,10 +247,6 @@ export class ChatEnhancedClient {
     );
   }
 
-  // ========================================
-  // TAGGED USERS
-  // ========================================
-
   /**
    * Get tagged users for a message (cursor-paginated)
    */
@@ -281,10 +257,6 @@ export class ChatEnhancedClient {
       params
     );
   }
-
-  // ========================================
-  // UTILITY METHODS
-  // ========================================
 
   /**
    * Search channels by name (client-side filter over the paginated

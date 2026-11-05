@@ -1,15 +1,10 @@
 import { createRequire } from 'node:module';
 
-// The MCP handshake advertises this version to every connecting client, so it
-// has to track the real published version. It is read from package.json at
-// runtime rather than repeated as a literal here: the previous hardcoded string
-// sat at '4.1.0' while the package shipped as 5.0.0, which made "is this server
-// up to date?" unanswerable from the protocol.
+// The MCP handshake advertises this version to clients, so it is read from
+// package.json at runtime instead of a literal that can drift from the release.
 //
-// createRequire resolves relative to this module's own URL, and this file sits
-// exactly one directory below the package root in both layouts (src/version.ts
-// for dev, build/version.js for the published package), so '../package.json' is
-// correct either way.
+// createRequire resolves from this module, which sits one level below the package
+// root in both layouts (src/version.ts, build/version.js), so '../package.json' works.
 //
 // Deliberately NOT `import pkg from '../package.json'`: that would pull a file
 // outside `rootDir` into the tsc program and break `tsc --build`.
@@ -23,10 +18,8 @@ function readVersion(): string {
       ? pkg.version
       : '0.0.0-unknown';
   } catch {
-    // Reporting an unknown version is a cosmetic defect; failing to start is
-    // not. This module is imported by the server entry point, so an unreadable,
-    // missing, or malformed package.json would otherwise throw during startup
-    // and the process would never reach the stdio transport.
+    // An unknown version is cosmetic; throwing here (missing or malformed package.json)
+    // would crash startup before the server reaches the stdio transport.
     return '0.0.0-unknown';
   }
 }

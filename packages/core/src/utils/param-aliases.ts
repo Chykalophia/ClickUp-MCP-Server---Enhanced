@@ -1,14 +1,11 @@
 /**
  * Accepted alternative spellings for tool parameters.
  *
- * Why this exists: agents reach this server already knowing ClickUp's public API
- * field names and Anthropic's first-party ClickUp MCP tool schemas. Where this
- * server picked a different name for the same value, the first call an agent
- * makes uses *their* name, not ours. Before parameters became strict that call
- * looked like a success and wrote a half-populated object (see
- * HANDOFF-comment-api-and-silent-param-drop.md); now it would be a loud error.
- * Either way the caller is blocked on a difference that carries no meaning, so
- * we accept both spellings.
+ * Agents reach this server already knowing ClickUp's public API field names
+ * and Anthropic's first-party ClickUp MCP tool schemas. Where this server uses
+ * a different name for the same value, an agent's first call uses the other
+ * name and would fail strict validation on a difference that carries no
+ * meaning, so both spellings are accepted.
  *
  * `enforceStrictParams` in ./tool-registration.ts adds each applicable alias to
  * the tool's published schema as an optional twin of the canonical field and
@@ -19,8 +16,8 @@
  *
  * 1. **Same meaning AND same type.** An alias is a rename, never a conversion.
  *    Where the other server takes a different *type* for the same concept, do
- *    NOT alias it — silently coercing values is the same class of defect this
- *    whole change exists to remove, and a type mismatch already fails loudly
+ *    NOT alias it — silently coercing values is the same class of defect as
+ *    silently dropping parameters, and a type mismatch already fails loudly
  *    with a readable zod error. The divergences deliberately left alone are
  *    listed under "Not aliased" below.
  * 2. **Record where the name came from**, so the next person can tell a
@@ -65,16 +62,16 @@ export type ToolParamAliases = Readonly<Record<string, AliasMap>>;
  * names by hand would only rot as tools are added.
  *
  * `workspace_id` <-> `team_id` is bidirectional because the split is internal
- * as well as external: of this server's own tools, 42 call the ClickUp
- * workspace ID `team_id` (ClickUp's API name) and 39 call it `workspace_id`
- * (the first-party MCP's name), with no tool using both. Rather than rename
- * half the surface and break existing callers, both names now work everywhere.
+ * as well as external: roughly half of this server's own tools call the
+ * ClickUp workspace ID `team_id` (ClickUp's API name) and half `workspace_id`
+ * (the first-party MCP's name), with no tool using both. Accepting both avoids
+ * renaming half the surface and breaking existing callers.
  * The pair is safe to declare in both directions: a tool that really declares
  * one of them is skipped for that direction, so the two rules never collide.
  *
  * `document_id` -> `doc_id` matches the first-party document tools
  * (create/get/list/update_document_page), which all say `document_id`; the
- * seven doc tools here say `doc_id` and none declares `document_id`.
+ * doc tools here say `doc_id` and none declares `document_id`.
  */
 export const UNIVERSAL_ALIASES: AliasMap = {
   workspace_id: 'team_id',

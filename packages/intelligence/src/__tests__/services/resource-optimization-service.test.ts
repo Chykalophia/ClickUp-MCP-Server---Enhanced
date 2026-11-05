@@ -14,7 +14,6 @@ describe('ResourceOptimizationService', () => {
       const mockUsers = TestDataGenerator.generateMockUsers(3);
       const mockTasks = TestDataGenerator.generateMockTasks(5);
 
-      // Convert to expected format
       const teamMembers: TeamMember[] = mockUsers.map(user => ({
         id: user.id,
         name: user.username,

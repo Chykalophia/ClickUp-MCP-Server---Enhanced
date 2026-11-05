@@ -1,7 +1,7 @@
 /**
  * Catalog tools: always enabled, in every mode.
  *
- * In core mode (the default since 7.0.0) most tools are registered but
+ * In core mode (the default) most tools are registered but
  * disabled, so they cost nothing in tools/list. These three tools are how a
  * model reaches them:
  *

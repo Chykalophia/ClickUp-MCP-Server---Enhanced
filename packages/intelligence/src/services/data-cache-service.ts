@@ -57,7 +57,6 @@ export class DataCacheService {
       lastAccessed: Date.now(),
     };
 
-    // Evict if at max size
     if (this.cache.size >= this.config.maxSize) {
       this.evictLRU();
     }
@@ -75,7 +74,6 @@ export class DataCacheService {
       return null;
     }
 
-    // Check if expired
     if (this.isExpired(entry)) {
       this.cache.delete(key);
       this.metrics.misses++;
@@ -83,7 +81,6 @@ export class DataCacheService {
       return null;
     }
 
-    // Update access info
     entry.accessCount++;
     entry.lastAccessed = Date.now();
     

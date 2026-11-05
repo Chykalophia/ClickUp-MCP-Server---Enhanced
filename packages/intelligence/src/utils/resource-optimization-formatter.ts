@@ -76,8 +76,6 @@ export class ResourceOptimizationFormatter {
     return sections.join('\n\n');
   }
 
-  // Private helper methods
-
   private static generateWorkloadHeader(analysis: WorkloadAnalysis): string {
     const riskEmoji = this.getRiskEmoji(analysis.riskLevel);
     const balanceGrade = this.getBalanceGrade(analysis.balanceScore);
@@ -222,7 +220,6 @@ export class ResourceOptimizationFormatter {
     ].join('\n');
   }
 
-  // Assignment plan formatting methods
   private static generateAssignmentHeader(plan: AssignmentPlan): string {
     return [
       '# 🎯 Task Assignment Plan',
@@ -307,7 +304,6 @@ export class ResourceOptimizationFormatter {
     ].join('\n');
   }
 
-  // Utility methods
   private static generateProgressBar(value: number, max: number, filled = '█', empty = '░'): string {
     const percentage = Math.min(Math.max(value / max, 0), 1);
     const filledLength = Math.round(percentage * 20);
@@ -411,7 +407,6 @@ export class ResourceOptimizationFormatter {
     return `Team workload is well-balanced with ${utilizationRate}% utilization rate.`;
   }
 
-  // Additional formatting methods for burnout and capacity reports would go here...
   private static generateBurnoutHeader(risk: BurnoutRisk): string {
     return `# 🚨 Burnout Risk Analysis\n\n**Member ID:** ${risk.memberId}\n**Risk Level:** ${risk.riskLevel.toUpperCase()}\n**Confidence:** ${Math.round(risk.confidence * 100)}%`;
   }

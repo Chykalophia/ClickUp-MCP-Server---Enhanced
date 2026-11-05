@@ -40,7 +40,7 @@ describe('TaskDecompositionEngine', () => {
 
     expect(result).toBeDefined();
     expect(result.complexity).toBeDefined();
-    expect(result.complexity.overall).toBeGreaterThanOrEqual(5); // Should be complex
+    expect(result.complexity.overall).toBeGreaterThanOrEqual(5);
     expect(result.shouldDecompose).toBe(true);
     expect(result.reasoning).toBeDefined();
     expect(result.recommendations.length).toBeGreaterThan(0);
@@ -69,7 +69,7 @@ describe('TaskDecompositionEngine', () => {
     const result = await engine.decomposeTask(task);
 
     expect(result).toBeDefined();
-    expect(result.decomposedTasks.length).toBe(0); // Should not decompose
+    expect(result.decomposedTasks.length).toBe(0);
     expect(result.recommendations).toContain('✅ Task is appropriately sized and does not require decomposition');
   });
 
@@ -97,6 +97,6 @@ describe('TaskDecompositionEngine', () => {
     expect(result).toBeDefined();
     expect(result.decomposedTasks.length).toBeLessThanOrEqual(5); // Respects maxSubtasks
     expect(result.templateUsed).toBe('ui-feature');
-    expect(result.decomposedTasks.every(t => t.estimatedEffort > 0)).toBe(true); // All have estimates
+    expect(result.decomposedTasks.every(t => t.estimatedEffort > 0)).toBe(true);
   });
 });

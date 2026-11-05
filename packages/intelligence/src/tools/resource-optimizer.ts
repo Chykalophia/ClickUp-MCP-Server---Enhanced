@@ -17,7 +17,6 @@ import {
   TrendDirection,
 } from '../services/resource-optimization-service.js';
 
-// Zod schemas for validation
 const SkillSchema = z.object({
   name: z.string(),
   proficiency: z.number().min(1).max(10),
@@ -161,11 +160,8 @@ export class ResourceOptimizer {
         validatedInput.teamMembers as TeamMember[]
       );
 
-      // Enhance analysis based on depth setting
       if (validatedInput.analysisDepth === 'comprehensive') {
-        // Add detailed skill utilization analysis
-        // Add predictive burnout modeling
-        // Add cross-team comparison metrics
+        // Not implemented: skill utilization, burnout modeling, cross-team metrics.
       }
 
       return analysis;
@@ -253,7 +249,6 @@ export class ResourceOptimizer {
   }
 }
 
-// Export MCP tools for integration
 export const workloadAnalysisTool = {
   name: 'analyze_team_workload',
   description: '⚖️ **TEAM WORKLOAD ANALYZER** - Comprehensive analysis of team workload distribution, capacity utilization, and resource bottlenecks. Identifies optimization opportunities and provides actionable recommendations for balanced team productivity.',

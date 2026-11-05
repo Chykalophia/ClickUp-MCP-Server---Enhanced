@@ -1,10 +1,8 @@
 /**
  * Jest configuration for @chykalophia/clickup-mcp-shared.
  *
- * Without this file jest falls back to babel-jest, which cannot parse the
- * TypeScript test files and fails with a @babel/parser error. Mirror the
- * ts-jest ESM setup used by the core and intelligence packages so the shared
- * suite runs under `npm run test --workspaces` in CI.
+ * Mirrors the ts-jest ESM setup of the core and intelligence packages. Without
+ * it jest falls back to babel-jest, which cannot parse the TypeScript tests.
  */
 export default {
   preset: 'ts-jest/presets/default-esm',
@@ -16,13 +14,11 @@ export default {
   detectOpenHandles: true,
   maxWorkers: 1,
 
-  // Test file patterns
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.test.ts',
     '<rootDir>/src/**/*.test.ts'
   ],
 
-  // Transform configuration
   transform: {
     '^.+\\.ts$': ['ts-jest', {
       useESM: true,

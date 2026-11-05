@@ -8,7 +8,6 @@ import { createSpacesClient } from '../clickup-client/spaces.js';
 import { mcpError } from '../utils/error-handling.js';
 import { idSchema } from '../schemas/common.js';
 
-// Create clients
 const clickUpClient = createClickUpClient();
 const listsClient = createListsClient(clickUpClient);
 const foldersClient = createFoldersClient(clickUpClient);
@@ -34,14 +33,9 @@ const pick = (entity: unknown): HierarchyNode => {
 
 export function setupListFolderTools(server: McpServer): void {
   /*
-   * Resolving a name to an ID used to be the single most expensive thing an
-   * agent could do here. With no name-based lookup anywhere in the hierarchy,
-   * finding one list meant clickup_get_workspaces -> clickup_get_spaces -> a
-   * clickup_get_folderless_lists (and clickup_get_folders, and a
-   * clickup_get_lists per folder) for EVERY space, matching names by hand.
-   * Measured on a real workspace: 4 round trips and 60 KB of payload to find a
-   * single list, and that was the lucky path — 12 spaces could have cost 30+.
-   * This does the same fan-out server-side and returns only ids and names.
+   * ClickUp has no name-based lookup, so resolving a list name to an ID otherwise
+   * takes a get_spaces/get_folders/get_lists walk per space. This does that
+   * fan-out server-side and returns only ids and names.
    */
   server.tool(
     'clickup_get_workspace_hierarchy',
@@ -258,9 +252,8 @@ export function setupListFolderTools(server: McpServer): void {
           'Confirmation that you want to permanently delete this folder, all its lists, and all their tasks (must be true)'
         ),
     },
-    // Gated to match clickup_delete_list / _task / _space, which have all
-    // required an explicit confirmation since they were written. This one was
-    // the outlier, despite having the largest blast radius of the four.
+    // Confirmation-gated like clickup_delete_list / _task / _space; this one has
+    // the largest blast radius of the four.
     async ({ folder_id, confirm_deletion }) => {
       try {
         if (!confirm_deletion) {
@@ -557,7 +550,7 @@ export function setupListFolderTools(server: McpServer): void {
           };
         }
 
-        // Get list details first for confirmation message
+        // Fetched before deletion so the result can report the list name.
         const listDetails = await listsClient.getList(list_id);
         await listsClient.deleteList(list_id);
 

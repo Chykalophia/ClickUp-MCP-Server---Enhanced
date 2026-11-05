@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from '@jest/globals';
 
 // Mock the markdown utilities — `marked` is ESM-only and Jest can't transform
-// it under ts-jest's default ESM preset. We don't exercise markdown logic here.
+// it under ts-jest's default ESM preset. Markdown logic is not exercised here.
 jest.mock('../utils/markdown', () => ({
   prepareContentForClickUp: jest.fn((content: string) => ({ description: content })),
   processClickUpResponse: jest.fn((task: any) => task),

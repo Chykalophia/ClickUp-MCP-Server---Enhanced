@@ -49,26 +49,17 @@ module.exports = {
     'no-self-compare': 'error',
     'no-template-curly-in-string': 'error',
     'no-unreachable': 'error',
-    // The base rule is not TypeScript-aware: it reports parameter names
-    // declared in type aliases and interfaces as unused variables, and it
-    // cannot see a binding that is only used in a type position. The
-    // @typescript-eslint version understands both, and still catches genuinely
-    // unused imports and locals.
+    // The base rule is not TypeScript-aware (flags parameter names in type
+    // signatures, misses type-only usages); the @typescript-eslint rule is.
     'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     
     // Style consistency
     //
-    // Prettier owns layout in this repo (`npm run format`, and core's `version`
-    // lifecycle hook runs it on every release). These rules must therefore
-    // agree with .prettierrc or the two tools fight: the previous
-    // `comma-dangle: 'never'` contradicted prettier's `trailingComma: 'es5'`,
-    // which alone accounted for 928 lint errors that `npm run format` would
-    // immediately reintroduce.
-    //
-    // This object form mirrors `trailingComma: 'es5'` exactly — trailing commas
-    // in multiline arrays/objects/imports/exports, never in function
-    // parentheses.
+    // Prettier owns layout (`npm run format`; core's `version` hook runs it on
+    // release), so these rules must agree with .prettierrc. This comma-dangle
+    // form mirrors `trailingComma: 'es5'`: trailing commas in multiline
+    // arrays/objects/imports/exports, never in function parentheses.
     'comma-dangle': ['error', {
       arrays: 'always-multiline',
       objects: 'always-multiline',
@@ -78,9 +69,8 @@ module.exports = {
     }],
     'quotes': ['error', 'single', { avoidEscape: true }],
     'semi': ['error', 'always'],
-    // Indentation is prettier's job. ESLint's `indent` rule cannot be
-    // reconciled with prettier's output (it disagreed on 495 already-formatted
-    // lines, mostly method-chain and ternary continuations).
+    // Indentation is prettier's job: ESLint's `indent` rule disagrees with
+    // prettier on method-chain and ternary continuations.
     'indent': 'off',
     'max-len': ['warn', { code: 120, ignoreUrls: true }],
     

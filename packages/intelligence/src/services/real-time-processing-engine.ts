@@ -103,14 +103,12 @@ export class RealTimeProcessingEngine extends EventEmitter {
     const startTime = Date.now();
     
     try {
-      // Process through data service
       await this.dataService.processWebhookEvent(payload);
       
       const latency = Date.now() - startTime;
       this.recordLatency(latency);
       this.successfulDeliveries++;
       
-      // Check if latency meets SLA
       if (latency > this.config.maxLatency) {
         this.emit('sla_violation', { latency, maxLatency: this.config.maxLatency });
       }
@@ -133,7 +131,6 @@ export class RealTimeProcessingEngine extends EventEmitter {
     this.dataService.on('batch_processed', (batchInfo) => {
       this.emit('batch_processed', batchInfo);
       
-      // Broadcast to WebSocket clients if enabled
       if (this.wsService) {
         this.wsService.broadcast('batch_updates', batchInfo);
       }
@@ -142,7 +139,6 @@ export class RealTimeProcessingEngine extends EventEmitter {
     this.dataService.on('analytics_update', (analytics) => {
       this.emit('analytics_update', analytics);
       
-      // Cache analytics data
       if (this.config.enableCaching) {
         this.cacheService.cacheAnalytics('latest', analytics, 60000);
       }
@@ -150,12 +146,10 @@ export class RealTimeProcessingEngine extends EventEmitter {
 
     // Stream processor events
     this.streamProcessor.on('event_processed', (event: RealTimeDataEvent) => {
-      // Update cache with processed data
       if (this.config.enableCaching) {
         this.cacheService.cacheTask(event.taskId, event.data);
       }
 
-      // Broadcast to WebSocket subscribers
       if (this.wsService) {
         this.wsService.broadcast(`task:${event.taskId}`, {
           type: event.type,
@@ -182,7 +176,6 @@ export class RealTimeProcessingEngine extends EventEmitter {
   }
 
   private setupDefaultRules(): void {
-    // High priority task notification rule
     this.streamProcessor.addRule({
       id: 'high_priority_notification',
       eventType: 'task_created',
@@ -200,7 +193,6 @@ export class RealTimeProcessingEngine extends EventEmitter {
       priority: 10,
     });
 
-    // Task completion tracking rule
     this.streamProcessor.addRule({
       id: 'task_completion_tracking',
       eventType: 'status_changed',
@@ -208,7 +200,6 @@ export class RealTimeProcessingEngine extends EventEmitter {
       action: async (event) => {
         this.emit('task_completed', event);
         
-        // Update analytics cache
         if (this.config.enableCaching) {
           const completionData = {
             taskId: event.taskId,
@@ -221,7 +212,6 @@ export class RealTimeProcessingEngine extends EventEmitter {
       priority: 5,
     });
 
-    // Real-time analytics rule
     this.streamProcessor.addRule({
       id: 'realtime_analytics',
       eventType: 'task_update',
@@ -254,13 +244,11 @@ export class RealTimeProcessingEngine extends EventEmitter {
   private recordLatency(latency: number): void {
     this.latencyMeasurements.push(latency);
     
-    // Keep only last 1000 measurements
     if (this.latencyMeasurements.length > 1000) {
       this.latencyMeasurements.shift();
     }
   }
 
-  // Public API methods
   addProcessingRule(rule: ProcessingRule): void {
     this.streamProcessor.addRule(rule);
   }

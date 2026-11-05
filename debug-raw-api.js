@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * Raw ClickUp API Test Script
- * Tests ClickUp API directly without any MCP processing to isolate duplication issue
+ * Posts a comment straight to the ClickUp API, bypassing MCP, to tell whether
+ * comment-text duplication comes from ClickUp or from MCP processing.
  */
 
 import axios from 'axios';
@@ -49,7 +49,6 @@ async function testRawAPI() {
     console.log('Response Data:', JSON.stringify(response.data, null, 2));
     console.log('================================\n');
 
-    // Now get the comments to see what was actually stored
     console.log('=== FETCHING COMMENTS TO VERIFY ===');
     const getResponse = await axios({
       method: 'get',
@@ -63,7 +62,6 @@ async function testRawAPI() {
     console.log('Comments Response:', JSON.stringify(getResponse.data, null, 2));
     console.log('===================================\n');
 
-    // Check if the latest comment has duplication
     if (getResponse.data.comments && getResponse.data.comments.length > 0) {
       const latestComment = getResponse.data.comments[0];
       console.log('=== LATEST COMMENT ANALYSIS ===');
@@ -71,7 +69,6 @@ async function testRawAPI() {
       console.log('Comment Text:', latestComment.comment_text);
       console.log('Comment Structure:', JSON.stringify(latestComment.comment, null, 2));
       
-      // Check for duplication patterns
       if (latestComment.comment_text && latestComment.comment_text.includes('**RAW API TEST - NO MCP PROCESSING**')) {
         const occurrences = (latestComment.comment_text.match(/\*\*RAW API TEST - NO MCP PROCESSING\*\*/g) || []).length;
         console.log('Duplication Check: Found', occurrences, 'occurrences of test text');

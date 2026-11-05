@@ -64,7 +64,6 @@ export const ViewDivideSchema = z.object({
   collapsed: z.array(z.string()).optional(), // IDs of collapsed divisions
 });
 
-// View sorting schema
 export const ViewSortingSchema = z.object({
   field: z.string(),
   order: z.enum(['asc', 'desc']).default('asc'),
@@ -77,7 +76,6 @@ export const ViewColumnSchema = z.object({
   width: z.number().int().optional(),
 });
 
-// Team sidebar schema
 export const TeamSidebarSchema = z.object({
   assignees: z.array(z.union([z.string(), z.number()])).optional(),
   assigned_comments: z.boolean().optional(),
@@ -98,7 +96,6 @@ export const ViewSettingsSchema = z.object({
   me_checklists: z.boolean().optional(),
 });
 
-// Create view schema
 export const CreateViewSchema = z.object({
   parent_id: z.string(),
   parent_type: ViewParentTypeSchema,
@@ -113,7 +110,6 @@ export const CreateViewSchema = z.object({
   settings: ViewSettingsSchema.optional(),
 });
 
-// Update view schema
 export const UpdateViewSchema = z.object({
   view_id: z.string(),
   name: z.string().optional(),
@@ -134,25 +130,21 @@ export const GetViewsFilterSchema = z.object({
   type: ViewTypeSchema.optional(),
 });
 
-// Set view filters schema
 export const SetViewFiltersSchema = z.object({
   view_id: z.string(),
   filters: z.array(ViewFilterSchema),
 });
 
-// Set view grouping schema
 export const SetViewGroupingSchema = z.object({
   view_id: z.string(),
   grouping: ViewGroupingSchema,
 });
 
-// Set view sorting schema
 export const SetViewSortingSchema = z.object({
   view_id: z.string(),
   sorting: z.array(ViewSortingSchema),
 });
 
-// Update view settings schema
 export const UpdateViewSettingsSchema = z.object({
   view_id: z.string(),
   settings: ViewSettingsSchema,
@@ -166,7 +158,6 @@ export const DuplicateViewSchema = z.object({
   parent_type: ViewParentTypeSchema,
 });
 
-// Type exports
 export type ViewType = z.infer<typeof ViewTypeSchema>;
 export type ViewParentType = z.infer<typeof ViewParentTypeSchema>;
 export type FilterOperator = z.infer<typeof FilterOperatorSchema>;

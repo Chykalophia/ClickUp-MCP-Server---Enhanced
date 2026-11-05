@@ -118,7 +118,6 @@ export interface ResourceRecommendations {
   processImprovements: ProcessImprovement[];
 }
 
-// Supporting types and enums
 /* eslint-disable no-unused-vars */
 export enum SkillCategory {
   TECHNICAL = 'technical',
@@ -210,7 +209,6 @@ export interface WorkloadImpact {
   capacityRemaining: number;
 }
 
-// Additional supporting interfaces
 export interface AlternativeAssignment {
   assigneeId: string;
   assigneeName: string;
@@ -333,7 +331,6 @@ export interface ProcessImprovement {
   implementation: string;
 }
 
-// Enums for supporting types
 /* eslint-disable no-unused-vars */
 export enum WorkingStyle {
   FOCUSED = 'focused',

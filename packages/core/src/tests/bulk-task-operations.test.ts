@@ -323,15 +323,14 @@ describe('Bulk Task Operations Schema Validation', () => {
 
   describe('Type Safety', () => {
     it('should enforce correct types for all fields', () => {
-      // This test ensures TypeScript compilation catches type errors
       const validTask = {
         name: 'Test Task',
-        assignees: [123], // Should be number[]
+        assignees: [123],
         priority: 2, // Should be number 1-4
-        due_date: 1234567890, // Should be number
-        due_date_time: true, // Should be boolean
-        tags: ['tag1', 'tag2'], // Should be string[]
-        custom_fields: [{ id: 'field1', value: 'value1' }], // Should have correct structure
+        due_date: 1234567890,
+        due_date_time: true,
+        tags: ['tag1', 'tag2'],
+        custom_fields: [{ id: 'field1', value: 'value1' }],
       };
 
       expect(() => BulkCreateTaskItemSchema.parse(validTask)).not.toThrow();

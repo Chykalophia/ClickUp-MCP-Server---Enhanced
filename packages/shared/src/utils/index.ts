@@ -1,5 +1,3 @@
-// Common utilities shared across ClickUp MCP packages
-
 export function calculateTaskAge(createdDate: string): number {
   const created = new Date(createdDate);
   const now = new Date();

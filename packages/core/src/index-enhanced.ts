@@ -29,7 +29,6 @@ class ClickUpServer {
     this.toolsets = created.resolved;
     this.counts = created.counts;
 
-    // Handle process termination
     process.on('SIGINT', async () => {
       await this.server.close();
       process.exit(0);
@@ -39,7 +38,6 @@ class ClickUpServer {
   }
 
   private setupResources() {
-    // Set up all resources
     setupTaskResources(this.server);
     setupDocResources(this.server);
     setupChecklistResources(this.server);
@@ -72,6 +70,5 @@ class ClickUpServer {
   }
 }
 
-// Create and run the server
 const server = new ClickUpServer();
 server.run().catch(console.error);

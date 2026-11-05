@@ -29,14 +29,12 @@ function getConfigPath() {
 async function main() {
   console.log('🚀 ClickUp MCP Server Installer\n');
   
-  // API token input
   const apiToken = await question('\nEnter your ClickUp API token: ');
   if (!apiToken.trim()) {
     console.log('❌ API token required');
     process.exit(1);
   }
   
-  // Config setup
   const configPath = getConfigPath();
   const configDir = configPath.split('/').slice(0, -1).join('/');
   
@@ -54,7 +52,6 @@ async function main() {
     }
   }
   
-  // Add ClickUp server
   config.mcpServers.clickup = {
     command: 'npx',
     args: ['-y', SERVER_PACKAGE],
@@ -63,7 +60,6 @@ async function main() {
     }
   };
   
-  // Write config
   writeFileSync(configPath, JSON.stringify(config, null, 2));
   
   console.log('\n✅ Successfully installed ClickUp MCP Server');

@@ -6,7 +6,7 @@
  * ~170 KB / ~43k tokens of context before the first prompt, and clients that
  * bridge a local server to a remote session pay it on every reconnect.
  *
- * Since 7.0.0 the default is `core` mode: a small set of everyday tools plus
+ * The default is `core` mode: a small set of everyday tools plus
  * three always-on catalog tools (clickup_list_toolsets, clickup_enable_toolset,
  * clickup_call_tool) that let the model discover and switch on the rest at
  * runtime. See docs/guides/TOOL_LOADING.md.

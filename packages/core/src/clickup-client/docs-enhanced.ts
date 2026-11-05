@@ -58,7 +58,6 @@ export type ContentEditMode = 'replace' | 'append' | 'prepend';
  */
 export type DocParentType = 4 | 5 | 6 | 7 | 12;
 
-// Parameter interfaces
 export interface CreateDocParams {
   workspace_id: string;
   name: string;
@@ -182,10 +181,6 @@ export class EnhancedDocsClient {
     // Reuse the shared client's axios instance (has timeout, interceptors, auth headers)
     this.http = client.getAxiosInstance();
   }
-
-  // ========================================
-  // READ OPERATIONS
-  // ========================================
 
   /**
    * Get docs from a specific workspace
@@ -322,10 +317,6 @@ export class EnhancedDocsClient {
     }
   }
 
-  // ========================================
-  // DOCUMENT CREATION
-  // ========================================
-
   /**
    * Create a new document.
    *
@@ -395,10 +386,6 @@ export class EnhancedDocsClient {
       throw this.handleError(error, 'Failed to create document');
     }
   }
-
-  // ========================================
-  // PAGE MANAGEMENT OPERATIONS
-  // ========================================
 
   /**
    * Create a new page in a document
@@ -489,10 +476,6 @@ export class EnhancedDocsClient {
       throw this.handleError(error, `Failed to get page ${pageId} from document ${docId}`);
     }
   }
-
-  // ========================================
-  // UTILITY METHODS
-  // ========================================
 
   /**
    * Enhanced error handling with context

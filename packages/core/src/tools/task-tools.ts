@@ -7,13 +7,11 @@ import { createListsClient } from '../clickup-client/lists.js';
 import { mcpError } from '../utils/error-handling.js';
 import { idSchema } from '../schemas/common.js';
 
-// Create clients
 const clickUpClient = createClickUpClient();
 const tasksClient = createTasksClient(clickUpClient);
 const listsClient = createListsClient(clickUpClient);
 
 export function setupTaskTools(server: McpServer): void {
-  // Task tools
   server.tool(
     'clickup_get_tasks',
     'Get tasks from a ClickUp list. Returns task details including name, description, assignees, and status.',
@@ -155,11 +153,8 @@ export function setupTaskTools(server: McpServer): void {
     },
     async ({ list_id, custom_task_ids, team_id, ...taskParams }) => {
       try {
-        // If both description and markdown_content are provided, prefer markdown_content.
-        // console.warn goes to stderr, which is the only channel available here:
-        // this is a stdio MCP server and stdout carries the JSON-RPC stream, so
-        // anything written there corrupts the protocol. Do not "clean this up"
-        // into a logger that writes to stdout.
+        // Prefer markdown_content when both are given. console.warn writes to stderr;
+        // stdout carries the JSON-RPC stream, so never log to stdout here.
         if (taskParams.markdown_content && taskParams.description) {
           console.warn('Both description and markdown_content provided. Using markdown_content.');
           delete taskParams.description;
@@ -233,11 +228,8 @@ export function setupTaskTools(server: McpServer): void {
     },
     async ({ task_id, custom_task_ids, team_id, ...taskParams }) => {
       try {
-        // If both description and markdown_content are provided, prefer markdown_content.
-        // console.warn goes to stderr, which is the only channel available here:
-        // this is a stdio MCP server and stdout carries the JSON-RPC stream, so
-        // anything written there corrupts the protocol. Do not "clean this up"
-        // into a logger that writes to stdout.
+        // Prefer markdown_content when both are given. console.warn writes to stderr;
+        // stdout carries the JSON-RPC stream, so never log to stdout here.
         if (taskParams.markdown_content && taskParams.description) {
           console.warn('Both description and markdown_content provided. Using markdown_content.');
           delete taskParams.description;
@@ -287,7 +279,7 @@ export function setupTaskTools(server: McpServer): void {
           };
         }
 
-        // Get task details first for confirmation message
+        // Fetched before deletion so the result can report the task name.
         const taskDetails = await tasksClient.getTask(task_id, { custom_task_ids, team_id });
         await tasksClient.deleteTask(task_id, { custom_task_ids, team_id });
 

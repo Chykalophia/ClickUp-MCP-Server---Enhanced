@@ -98,27 +98,22 @@ export const SearchDocsParamsSchema = GetDocsParamsSchema.extend({
   query: z.string().optional(),
 });
 
-// Document ID validation
 export const DocIdSchema = idSchema('Document ID is required');
 
-// Page ID validation
 export const PageIdSchema = idSchema('Page ID is required');
 
-// Workspace ID validation
 export const WorkspaceIdSchema = idSchema('Workspace ID is required');
 
 // Combined schemas for tool validation.
 // Note: the public ClickUp API has no doc update/delete, page delete,
 // sharing, or template endpoints, so no schemas exist for those operations.
 export const DocumentToolSchemas = {
-  // Document operations
   createDoc: CreateDocSchema,
   getDoc: z.object({
     workspace_id: WorkspaceIdSchema,
     doc_id: DocIdSchema,
   }),
 
-  // Page operations
   createPage: CreatePageSchema.extend({
     workspace_id: WorkspaceIdSchema,
     doc_id: DocIdSchema,
@@ -140,7 +135,6 @@ export const DocumentToolSchemas = {
     content_format: ContentFormatSchema.optional(),
   }),
 
-  // Read operations
   getDocsFromWorkspace: GetDocsParamsSchema.extend({
     workspace_id: WorkspaceIdSchema,
   }),

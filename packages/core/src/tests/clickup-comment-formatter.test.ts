@@ -437,17 +437,14 @@ Visit [ClickUp](https://clickup.com) for more info.`;
 
       const result = parseMarkdownToClickUpComment(markdown);
 
-      // Should contain header
       expect(result.comment).toContainEqual({ text: 'Status Update', attributes: {} });
       expect(result.comment).toContainEqual({ text: '\n', attributes: { header: 1 } });
 
-      // Should contain formatted text
       expect(result.comment).toContainEqual({
         text: 'Authentication',
         attributes: { bold: true },
       });
 
-      // Should contain code block
       expect(result.comment).toContainEqual({
         text: "const user = { name: 'John' };",
         attributes: {},
@@ -457,7 +454,6 @@ Visit [ClickUp](https://clickup.com) for more info.`;
         attributes: { 'code-block': { 'code-block': 'javascript' } },
       });
 
-      // Should contain link
       expect(result.comment).toContainEqual({
         text: 'ClickUp',
         attributes: { link: 'https://clickup.com' },
@@ -533,13 +529,11 @@ Visit [ClickUp](https://clickup.com) for more info.`;
       const originalMarkdown =
         '**Bold** and *italic* text with `code` and [link](https://example.com)';
 
-      // Convert to ClickUp format
       const clickUpFormat = markdownToClickUpComment(originalMarkdown);
 
-      // Convert back to markdown
       const convertedMarkdown = clickUpCommentToMarkdown(clickUpFormat);
 
-      // Should preserve the essential formatting (may have minor differences in spacing)
+      // Spacing may differ after the round trip, so check pieces, not equality.
       expect(convertedMarkdown).toContain('**Bold**');
       expect(convertedMarkdown).toContain('*italic*');
       expect(convertedMarkdown).toContain('`code`');

@@ -11,7 +11,6 @@
 
 import { z } from 'zod';
 
-// Core optimization schemas
 export const TaskSchema = z.object({
   taskId: z.string(),
   name: z.string(),
@@ -88,16 +87,13 @@ export class SprintOptimizationService {
     try {
       const validatedInput = SprintOptimizationInputSchema.parse(input);
       
-      // Sort tasks by priority and business value
       const sortedTasks = this.prioritizeTasks(validatedInput.availableTasks);
       
-      // Generate feasible task combinations
       const feasibleCombinations = this.generateFeasibleCombinations(
         sortedTasks,
         validatedInput.sprintCapacity
       );
       
-      // Score each combination
       const scoredCombinations = feasibleCombinations.map(combination => ({
         tasks: combination,
         score: this.calculateCombinationScore(combination, validatedInput.objectives),
@@ -106,12 +102,10 @@ export class SprintOptimizationService {
         riskScore: this.calculateRiskScore(combination),
       }));
       
-      // Select optimal combination
       const optimal = scoredCombinations.reduce((best, current) => 
         current.score > best.score ? current : best
       );
       
-      // Generate alternatives
       const alternatives = this.generateAlternatives(scoredCombinations, optimal);
       
       return {
@@ -158,7 +152,7 @@ export class SprintOptimizationService {
   private generateFeasibleCombinations(tasks: Task[], capacity: number): Task[][] {
     const combinations: Task[][] = [];
     
-    // Use dynamic programming approach for knapsack-like optimization
+    // 0/1 knapsack DP over integer story points, maximizing business value.
     const dp: { tasks: Task[]; points: number; value: number }[][] = 
       Array(tasks.length + 1).fill(null).map(() => 
         Array(Math.floor(capacity) + 1).fill(null).map(() => ({ tasks: [], points: 0, value: 0 }))
@@ -187,7 +181,6 @@ export class SprintOptimizationService {
       }
     }
     
-    // Extract top combinations
     const capacityInt = Math.floor(capacity);
     combinations.push(dp[tasks.length][capacityInt].tasks);
     
@@ -210,12 +203,10 @@ export class SprintOptimizationService {
     const totalPoints = tasks.reduce((sum, task) => sum + task.storyPoints, 0);
     const avgRisk = tasks.reduce((sum, task) => sum + this.RISK_WEIGHTS[task.riskLevel], 0) / tasks.length;
     
-    // Normalize scores
     const valueScore = Math.min(100, totalValue);
     const pointsScore = Math.min(100, totalPoints * 2); // Assuming max ~50 points per sprint
     const riskScore = (1 - avgRisk) * 100;
     
-    // Apply objective weights
     const valueWeight = objectives.weights?.business_value || 0.5;
     const pointsWeight = objectives.weights?.story_points || 0.3;
     const riskWeight = objectives.weights?.risk || 0.2;

@@ -137,7 +137,6 @@ export const BulkDependencyOperationSchema = z.object({
     .describe('Array of dependencies to create or delete'),
 });
 
-// Type exports
 export type CreateDependencyRequest = z.infer<typeof CreateDependencySchema>;
 export type DeleteDependencyRequest = z.infer<typeof DeleteDependencySchema>;
 export type GetTaskDependenciesRequest = z.infer<typeof GetTaskDependenciesSchema>;
@@ -146,10 +145,6 @@ export type DeleteTaskLinkRequest = z.infer<typeof DeleteTaskLinkSchema>;
 export type DependencyGraphOptions = z.infer<typeof DependencyGraphOptionsSchema>;
 export type DependencyConflictCheck = z.infer<typeof DependencyConflictCheckSchema>;
 export type BulkDependencyOperation = z.infer<typeof BulkDependencyOperationSchema>;
-
-// ============================================================================
-// API response shapes
-// ============================================================================
 
 // Entry in the `dependencies` array of a Get Task response.
 // `task_id` waits on `depends_on`; `type` is ClickUp's numeric relationship type.
@@ -207,9 +202,7 @@ export interface DependencyConflictResponse {
   }>;
 }
 
-// ============================================================================
-// Utility functions (client-side, no HTTP)
-// ============================================================================
+// Client-side utilities (no HTTP).
 
 // A directed dependency edge: `task_id` waits on `depends_on`
 export interface DependencyEdge {
@@ -241,7 +234,6 @@ export const validateDependencyChain = (
     graph.get(edge.task_id)?.add(edge.depends_on);
   });
 
-  // Detect cycles using DFS
   const cycles: string[][] = [];
   const visited = new Set<string>();
   const recursionStack = new Set<string>();
@@ -256,7 +248,6 @@ export const validateDependencyChain = (
       if (!visited.has(neighbor)) {
         dfs(neighbor, [...path]);
       } else if (recursionStack.has(neighbor)) {
-        // Found a cycle
         const cycleStart = path.indexOf(neighbor);
         if (cycleStart !== -1) {
           cycles.push(path.slice(cycleStart));
@@ -267,7 +258,6 @@ export const validateDependencyChain = (
     recursionStack.delete(node);
   };
 
-  // Check all nodes for cycles
   for (const node of graph.keys()) {
     if (!visited.has(node)) {
       dfs(node, []);

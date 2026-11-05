@@ -30,7 +30,6 @@ export type CustomFieldType =
   | 'short_text'
   | 'location';
 
-// Base custom field interface
 export interface BaseCustomField {
   id: string;
   name: string;
@@ -195,7 +194,6 @@ export interface LocationField extends BaseCustomField {
   type_config: Record<string, any>;
 }
 
-// Union type for all custom fields
 export type CustomField =
   | ShortTextField
   | LongTextField

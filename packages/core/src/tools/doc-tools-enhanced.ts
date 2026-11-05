@@ -7,15 +7,13 @@ import {
   flattenDocPages,
   DEFAULT_SEARCH_MAX_PAGES,
 } from '../clickup-client/docs-enhanced.js';
-import {} from /* createAuthClient */ '../clickup-client/auth.js';
-import {} from /* DocumentToolSchemas */ '../schemas/document-schemas.js';
+import {} from '../clickup-client/auth.js';
+import {} from '../schemas/document-schemas.js';
 import { mcpError } from '../utils/error-handling.js';
 import { idSchema } from '../schemas/common.js';
 
-// Create clients
 const clickUpClient = createClickUpClient();
 const enhancedDocsClient = createEnhancedDocsClient(clickUpClient);
-// const authClient = createAuthClient(clickUpClient);
 
 // The v3 Docs API accepts only text/md and text/plain. 'markdown' stays
 // accepted as a legacy alias (normalizeContentFormat maps it to text/md).
@@ -36,10 +34,6 @@ const parentTypeEnum = z.enum([
 ]);
 
 export function setupEnhancedDocTools(server: McpServer): void {
-  // ========================================
-  // READ OPERATIONS
-  // ========================================
-
   server.tool(
     'clickup_get_doc_content',
     'Get the full content of a ClickUp doc as one document: every page and every nested sub-page, each under a heading whose level follows its depth (# top-level page, ## sub-page, ...; a bare title line with text/plain). For one page only, use clickup_get_doc_page.',
@@ -297,10 +291,6 @@ export function setupEnhancedDocTools(server: McpServer): void {
     }
   );
 
-  // ========================================
-  // DOCUMENT CREATION
-  // ========================================
-
   server.tool(
     'clickup_create_doc',
     'Create a new document in a ClickUp workspace. Placement inside the hierarchy (space, folder, list) is set via the parent fields. If content is supplied, it is added as the first page. Note: the ClickUp public API has no doc update/delete, page delete, sharing, or template endpoints.',
@@ -387,10 +377,6 @@ export function setupEnhancedDocTools(server: McpServer): void {
     }
   );
 
-  // ========================================
-  // DOCUMENT PAGE MANAGEMENT
-  // ========================================
-
   server.tool(
     'clickup_create_doc_page',
     'Create a new page in a ClickUp document. Supports markdown and plain text content, an optional sub_title, and nesting under a parent page.',
@@ -460,7 +446,6 @@ export function setupEnhancedDocTools(server: McpServer): void {
       content_format,
     }) => {
       try {
-        // Validate that at least one field is being updated
         if (name === undefined && sub_title === undefined && content === undefined) {
           return {
             content: [

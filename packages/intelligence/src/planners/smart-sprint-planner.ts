@@ -324,6 +324,9 @@ export class SmartSprintPlanner {
     const allocations = [];
     // Work on copies so allocating hours does not mutate the caller's team_members.
     const pool = teamMembers.map(member => ({ ...member }));
+    if (pool.length === 0) {
+      return [];
+    }
 
     for (const task of tasks) {
       const estimatedHours = this.estimateTaskHours(task);

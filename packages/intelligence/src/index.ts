@@ -17,7 +17,11 @@ import { VERSION } from './version.js';
 // Phase 1.1 - Project Health Analyzer
 import { HealthMetricsService } from './services/health-metrics-service.js';
 import { ProjectHealthAnalyzer, ProjectHealthAnalysisParams } from './analyzers/project-health-analyzer.js';
-import { formatProjectHealthReport, formatProjectHealthError } from './tools/project-health-analyzer.js';
+import {
+  formatProjectHealthReport,
+  formatProjectHealthError,
+  projectHealthAnalysisShape,
+} from './tools/project-health-analyzer.js';
 
 // Phase 1.2 - Smart Sprint Planner
 import { SmartSprintPlanner, createSmartSprintPlanner, SmartSprintPlannerInputSchema } from './tools/smart-sprint-planner.js';
@@ -117,36 +121,7 @@ class ClickUpIntelligenceServer {
         {
           name: 'clickup_analyze_project_health',
           description: '🏥 **AI PROJECT HEALTH ANALYZER** - Comprehensive real-time project health analysis with risk assessment, velocity trends, and actionable recommendations. Provides executive dashboard with letter grades (A-F) and specific improvement suggestions.',
-          // Mirrors ProjectHealthAnalysisParams; keep the two in sync.
-          inputSchema: {
-            type: 'object',
-            properties: {
-              workspace_id: {
-                type: 'string',
-                description: 'ClickUp workspace ID to analyze',
-              },
-              space_id: {
-                type: 'string',
-                description: 'Optional: Specific space ID to analyze (analyzes entire workspace if not provided)',
-              },
-              list_id: {
-                type: 'string',
-                description: 'Optional: Specific list ID to analyze',
-              },
-              include_archived: {
-                type: 'boolean',
-                default: false,
-                description: 'Whether to include archived tasks in analysis',
-              },
-              analysis_depth: {
-                type: 'string',
-                enum: ['basic', 'detailed', 'comprehensive'],
-                default: 'detailed',
-                description: 'Depth of analysis to perform',
-              },
-            },
-            required: ['workspace_id'],
-          },
+          inputSchema: z.object(projectHealthAnalysisShape),
         },
         
         // Phase 1.2 - Smart Sprint Planner
@@ -265,36 +240,24 @@ class ClickUpIntelligenceServer {
         {
           name: 'clickup_get_cached_task',
           description: '💾 **CACHED DATA ACCESS** - Retrieve cached task data from the real-time processing engine for instant access without API calls.',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              taskId: {
-                type: 'string',
-                description: 'ClickUp task ID to retrieve from cache',
-              },
-            },
-            required: ['taskId'],
-          },
+          inputSchema: z.object({ taskId: z.string().min(1).describe('ClickUp task ID to retrieve from cache') }),
         },
         
         {
           name: 'clickup_stop_realtime_engine',
           description: '🛑 **STOP REAL-TIME ENGINE** - Gracefully stop the real-time processing engine and return final metrics.',
-          inputSchema: {
-            type: 'object',
-            properties: {},
-            additionalProperties: false,
-          },
+          inputSchema: z.object({}),
         },
       ];
 
-    // Some tools define their input as a zod schema. Advertise those as JSON Schema
-    // and parse incoming arguments through them so defaults and validation apply.
+    // Every tool defines its input as a zod object. Advertise it as JSON Schema and
+    // parse incoming arguments through it (strict, so unknown parameters are rejected).
     const zodSchemas = new Map<string, z.ZodType>();
     const listedTools = tools.map(tool => {
       if (tool.inputSchema instanceof z.ZodType) {
-        zodSchemas.set(tool.name, tool.inputSchema);
-        const jsonSchema = z.toJSONSchema(tool.inputSchema, {
+        const schema = tool.inputSchema instanceof z.ZodObject ? tool.inputSchema.strict() : tool.inputSchema;
+        zodSchemas.set(tool.name, schema);
+        const jsonSchema = z.toJSONSchema(schema, {
           io: 'input',
           unrepresentable: 'any',
         }) as Record<string, unknown>;

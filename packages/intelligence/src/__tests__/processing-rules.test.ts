@@ -1,14 +1,26 @@
 import { addProcessingRuleSchema, evaluateRuleCondition } from '../tools/real-time-tools';
 
 describe('clickup_add_processing_rule input', () => {
-  it('rejects JavaScript strings for condition and action', () => {
+  const base = { id: 'r1', eventType: 'task_update' as const };
+  const validCondition = { field: 'priority.priority', operator: 'equals', value: 'urgent' };
+
+  it('rejects a JavaScript string as the condition', () => {
+    expect(addProcessingRuleSchema.safeParse({ ...base, condition: 'process.exit(1)' }).success).toBe(false);
+  });
+
+  it('rejects a JavaScript string as the action', () => {
     const result = addProcessingRuleSchema.safeParse({
-      id: 'r1',
-      eventType: 'task_update',
-      condition: 'process.exit(1)',
+      ...base,
+      condition: validCondition,
       action: "require('child_process').execSync('id')",
     });
     expect(result.success).toBe(false);
+  });
+
+  it('rejects unknown keys and a missing comparison value', () => {
+    expect(addProcessingRuleSchema.safeParse({ ...base, condition: { ...validCondition, oprator: 'x' } }).success).toBe(false);
+    expect(addProcessingRuleSchema.safeParse({ ...base, condition: { field: 'name', operator: 'equals' } }).success).toBe(false);
+    expect(addProcessingRuleSchema.safeParse({ ...base, condition: { field: 'name', operator: 'exists' } }).success).toBe(true);
   });
 
   it('defaults the action to a log line', () => {

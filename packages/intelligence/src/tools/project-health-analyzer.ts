@@ -7,8 +7,8 @@ import {
   ProjectHealthAnalysisResult,
 } from '../analyzers/project-health-analyzer.js';
 
-// The SDK's tool() generics use its bundled zod v4; matching this package's zod v3 shape
-// trips TS2589, so registration goes through a narrowed server.tool view that stays typed.
+// Inferring the SDK's tool() generics from this shape trips TS2589, so registration goes
+// through a narrowed server.tool view that keeps the handler typed.
 export const projectHealthAnalysisShape = {
   workspace_id: z.string().describe('The ClickUp workspace ID to analyze'),
   space_id: z.string().optional().describe('Optional: Specific space ID to analyze'),

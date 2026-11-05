@@ -65,7 +65,7 @@ describe('Delete and Merge Task Operations Validation', () => {
         maliciousInputs.forEach(input => {
           expect(typeof input).toBe('string');
           expect(input.length).toBeGreaterThan(0);
-          // Sanitization lives in the client layer and is not exercised here.
+          // Only checks that these representative values are non-empty strings.
         });
       });
 

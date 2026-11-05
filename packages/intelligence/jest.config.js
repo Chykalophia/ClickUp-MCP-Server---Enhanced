@@ -37,7 +37,7 @@ export default {
     '!src/**/index.ts'
   ],
   
-  // Start at 50% and raise over time.
+  // Thresholds are deliberately low for now; raise them as coverage grows.
   coverageThreshold: {
     global: {
       branches: 20,
@@ -50,8 +50,8 @@ export default {
   transform: {
     '^.+\\.ts$': ['ts-jest', {
       useESM: true,
-      // Transpile-only: the SDK's zod v4 generics vs this package's zod v3 exceed TS's
-      // instantiation-depth limit (as in the core jest config); `tsc --build` type-checks.
+      // Transpile-only: the SDK's zod generics exceed TypeScript's instantiation-depth
+      // limit (as in the core jest config); `tsc --build` type-checks.
       diagnostics: false
     }]
   },

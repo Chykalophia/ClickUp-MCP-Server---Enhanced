@@ -346,9 +346,9 @@ export function enforceStrictParams(
 //   2. applies MCP annotations (title, readOnly/destructive/idempotent/
 //      openWorld hints) from utils/tool-annotations.ts without overwriting any
 //      the call site passed;
-//   3. wraps destructive handlers so that, when the connected client supports
-//      form elicitation, the user confirms before anything is deleted. Clients
-//      without elicitation are not prompted.
+//   3. wraps destructive handlers so that, when the connected client advertises
+//      `elicitation.form` (or the older empty `elicitation: {}`), the user
+//      confirms before anything is deleted. Other clients are not prompted.
 // ---------------------------------------------------------------------------
 
 export interface StrictParamsOptions {

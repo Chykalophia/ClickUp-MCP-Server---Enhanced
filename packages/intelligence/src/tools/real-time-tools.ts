@@ -26,16 +26,20 @@ export const addProcessingRuleSchema = z.object({
   id: z.string(),
   eventType: z.enum(['task_update', 'task_created', 'task_deleted', 'comment_added', 'status_changed']),
   condition: z
-    .object({
+    .strictObject({
       field: z.string().min(1).describe('Dot path into the event data, e.g. "priority.priority" or "status.status"'),
       operator: z.enum(['equals', 'not_equals', 'contains', 'exists']),
       value: z.union([z.string(), z.number(), z.boolean()]).optional()
         .describe('Value to compare with; not used by "exists"'),
     })
+    .refine(c => c.operator === 'exists' || c.value !== undefined, {
+      message: 'value is required unless operator is "exists"',
+      path: ['value'],
+    })
     .optional()
     .describe('When to fire. Omit to fire on every event of this type.'),
   action: z
-    .object({
+    .strictObject({
       type: z.literal('log').describe('Write a line to the server log (stderr)'),
       message: z.string().max(500).optional(),
     })

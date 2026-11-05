@@ -18,7 +18,6 @@ export function setupFolderResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const space_id = params.space_id as string;
-        console.error('[FolderResources] Fetching folders for space:', space_id);
         const foldersResponse = await foldersClient.getFoldersFromSpace(space_id);
 
         return {
@@ -46,13 +45,7 @@ export function setupFolderResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const folder_id = params.folder_id as string;
-        console.error('[FolderResources] Fetching folder:', folder_id);
-
-        // Stub: returns a placeholder without calling the API.
-        const folder = {
-          id: folder_id,
-          message: 'Folder details endpoint not available in ClickUp API',
-        };
+        const folder = await foldersClient.getFolder(folder_id);
 
         return {
           contents: [
@@ -79,7 +72,6 @@ export function setupFolderResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const folder_id = params.folder_id as string;
-        console.error('[FolderResources] Fetching lists for folder:', folder_id);
         const lists = await foldersClient.getListsFromFolder(folder_id);
 
         return {

@@ -1,4 +1,4 @@
-/* eslint-disable no-console, max-len */
+/* eslint-disable max-len */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { createClickUpClient } from '../clickup-client/index.js';
@@ -153,7 +153,7 @@ export function setupCommentTools(server: McpServer, options: CommentToolsOption
   if (options.includeDebugTools) {
     server.tool(
       'clickup_create_task_comment_raw_test',
-      'RAW API TEST: Create a comment bypassing ALL MCP processing to isolate duplication issue. Returns raw ClickUp API response.',
+      'Debug: create a task comment with no markdown conversion or response processing, and return the raw ClickUp API response.',
       {
         task_id: idSchema().describe('The ID of the task to comment on'),
         comment_text: z.string().describe('The text content of the comment'),

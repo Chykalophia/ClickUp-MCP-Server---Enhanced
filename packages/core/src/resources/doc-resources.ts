@@ -19,7 +19,6 @@ export function setupDocResources(server: McpServer): void {
         const workspace_id = params.workspace_id as string;
         const doc_id = params.doc_id as string;
 
-        console.error('[DocResources] Getting doc:', doc_id, 'from workspace:', workspace_id);
 
         const pages = await docsClient.getDocPages(workspace_id, doc_id);
 

@@ -17,7 +17,6 @@ export function setupListResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const space_id = params.space_id as string;
-        console.error('[ListResources] Fetching lists for space:', space_id);
         const result = await listsClient.getListsFromSpace(space_id);
 
         return {
@@ -45,7 +44,6 @@ export function setupListResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const list_id = params.list_id as string;
-        console.error('[ListResources] Fetching list:', list_id);
         const list = await listsClient.getList(list_id);
 
         return {

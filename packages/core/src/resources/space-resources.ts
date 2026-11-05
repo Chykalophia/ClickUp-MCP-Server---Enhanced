@@ -18,7 +18,6 @@ export function setupSpaceResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const workspace_id = params.workspace_id as string;
-        console.error('[SpaceResources] Fetching spaces for workspace:', workspace_id);
         const spaces = await spacesClient.getSpacesFromWorkspace(workspace_id);
 
         return {
@@ -46,7 +45,6 @@ export function setupSpaceResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const space_id = params.space_id as string;
-        console.error('[SpaceResources] Fetching space:', space_id);
         const space = await spacesClient.getSpace(space_id);
 
         return {

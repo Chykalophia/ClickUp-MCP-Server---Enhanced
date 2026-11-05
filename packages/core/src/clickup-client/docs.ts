@@ -1,6 +1,5 @@
 /* eslint-disable no-console, max-len */
 import { ClickUpClient } from './index.js';
-import axios from 'axios';
 
 // Doc as returned by the v3 API
 export interface Doc {
@@ -58,20 +57,9 @@ export class DocsClient {
     workspaceId: string,
     params?: GetDocsParams
   ): Promise<{ docs: Doc[]; next_cursor: string }> {
-    const apiToken = process.env.CLICKUP_API_TOKEN;
-
     try {
       const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs`;
-
-      const headers = {
-        Authorization: apiToken,
-        Accept: 'application/json',
-      };
-
-      const response = await axios.get(url, {
-        headers,
-        params,
-      });
+      const response = await this.client.getAxiosInstance().get(url, { params });
 
       return response.data;
     } catch (error) {
@@ -92,25 +80,13 @@ export class DocsClient {
     docId: string,
     contentFormat: string = 'text/md'
   ): Promise<any> {
-    const apiToken = process.env.CLICKUP_API_TOKEN;
-
     try {
       const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/pages`;
-
       const params = {
         max_page_depth: -1,
         content_format: contentFormat,
       };
-
-      const headers = {
-        Authorization: apiToken,
-        Accept: 'application/json',
-      };
-
-      const response = await axios.get(url, {
-        headers,
-        params,
-      });
+      const response = await this.client.getAxiosInstance().get(url, { params });
 
       return response.data;
     } catch (error) {

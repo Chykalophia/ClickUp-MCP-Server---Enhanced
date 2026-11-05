@@ -95,9 +95,13 @@ describe('Error Handling', () => {
       expect(error.retryAfter).toBeLessThanOrEqual(31);
     });
 
-    it('falls back to 60 seconds for 429 without rate-limit headers', () => {
+    it('falls back to 60 seconds for 429 without usable rate-limit headers', () => {
       const error = handleClickUpApiError({ response: { status: 429, headers: {}, data: {} } });
       expect(error.retryAfter).toBe(60);
+      const malformed = handleClickUpApiError({
+        response: { status: 429, headers: { 'retry-after': 'soon', 'x-ratelimit-reset': 'later' }, data: {} },
+      });
+      expect(malformed.retryAfter).toBe(60);
     });
 
     it('should handle network timeout error', () => {

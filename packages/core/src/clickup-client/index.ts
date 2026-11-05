@@ -10,11 +10,12 @@ const MAX_RETRY_AFTER_MS = 60000;
 /**
  * How long to wait before retrying a 429. ClickUp documents X-RateLimit-Reset
  * (Unix seconds when the per-minute window resets); Retry-After is honoured too
- * when present. Falls back to one second when neither header is usable.
+ * when present. Returns `fallbackMs` when neither header is usable.
  */
 export function computeRateLimitWaitMs(
   headers: Record<string, unknown> | undefined,
-  now: number = Date.now()
+  now: number = Date.now(),
+  fallbackMs = 1000
 ): number {
   const retryAfterRaw = headers?.['retry-after'];
   if (retryAfterRaw !== undefined && retryAfterRaw !== null && retryAfterRaw !== '') {
@@ -34,7 +35,7 @@ export function computeRateLimitWaitMs(
     const resetMs = reset > 1e12 ? reset : reset * 1000;
     return Math.max(resetMs - now, 1000);
   }
-  return 1000;
+  return fallbackMs;
 }
 
 /**

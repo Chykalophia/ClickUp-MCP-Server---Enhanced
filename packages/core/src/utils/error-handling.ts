@@ -214,11 +214,7 @@ export const handleClickUpApiError = (
         errorType = ErrorType.RATE_LIMIT;
         severity = ErrorSeverity.MEDIUM;
         retryable = true;
-        {
-          const headers = error.response.headers ?? {};
-          const hasHint = headers['retry-after'] || headers['x-ratelimit-reset'];
-          retryAfter = hasHint ? Math.ceil(computeRateLimitWaitMs(headers) / 1000) : 60;
-        }
+        retryAfter = Math.ceil(computeRateLimitWaitMs(error.response.headers, Date.now(), 60_000) / 1000);
         break;
       case 500:
       case 502:

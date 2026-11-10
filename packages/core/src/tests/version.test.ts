@@ -27,7 +27,10 @@ const readSource = (relative: string): string => readFileSync(join(PACKAGE_ROOT,
 // able to turn this guard red while version reporting is still correct.
 const Q = '[\'"]';
 
-const ENTRY_POINTS = ['src/index-enhanced.ts', 'src/index-efficiency-simple.ts'];
+// The stdio (index-enhanced.ts) and hosted (remote/app.ts) entries both build
+// their McpServer in server-factory.ts, so that is where VERSION must be used;
+// the test below pins that both entries really go through the factory.
+const ENTRY_POINTS = ['src/server-factory.ts', 'src/index-efficiency-simple.ts'];
 
 describe('server version reporting', () => {
   it.each(ENTRY_POINTS)('%s advertises VERSION, not a literal', entry => {
@@ -39,6 +42,22 @@ describe('server version reporting', () => {
 
     // ...and must not carry a hardcoded semver literal in its place.
     expect(source).not.toMatch(new RegExp(`version:\\s*${Q}\\d+\\.\\d+\\.\\d+${Q}`));
+  });
+
+  // Every entry that serves the tool surface — stdio, hosted Node, hosted
+  // Vercel — must build it through server-factory.ts, so the VERSION check
+  // above covers them all.
+  it.each(['src/index-enhanced.ts', 'src/index-http.ts', 'api/index.js'])(
+    '%s builds its server through server-factory.ts',
+    entry => {
+      const source = readSource(entry);
+      expect(source).toMatch(/createClickUpMcpServer\(\)/);
+      expect(source).not.toMatch(/new McpServer\(/);
+    }
+  );
+
+  it('src/remote/app.ts never constructs its own McpServer (it is handed the factory)', () => {
+    expect(readSource('src/remote/app.ts')).not.toMatch(/new McpServer\(/);
   });
 
   it('version.ts sources the version from package.json', () => {

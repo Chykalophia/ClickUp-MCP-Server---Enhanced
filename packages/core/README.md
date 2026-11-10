@@ -99,6 +99,14 @@ clickup_create_task_comment({
 - **Claude Desktop (Windows)**: `%APPDATA%\Claude\claude_desktop_config.json`
 - **Cline VSCode**: `~/.vscode/extensions/saoudrizwan.claude-dev/globalStorage/saoudrizwan.claude-dev/settings/cline_mcp_settings.json`
 
+## 🌐 Hosted Server (claude.ai web, mobile, scheduled tasks)
+
+The stdio server needs a client that can start a local process. For claude.ai on the
+web or mobile, run the **hosted** server: the same tools over Streamable HTTP, behind
+"Sign in with ClickUp", private to the ClickUp accounts you allowlist. You host your
+own; there is no public instance. Setup, env vars and security model:
+[docs/HOSTED_SERVER.md](https://github.com/Chykalophia/ClickUp-MCP-Server---Enhanced/blob/main/packages/core/docs/HOSTED_SERVER.md).
+
 ## 🔑 Get ClickUp API Token
 
 1. Log in to ClickUp

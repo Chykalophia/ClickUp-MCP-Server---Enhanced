@@ -5,11 +5,12 @@
     "declaration": false,
     "sourceMap": false
   },
-  "//": "Strict type-check over the client/schema/util layers only. The MCP tool files under src/tools/** are excluded because the SDK's tool() generics (typed against zod v4) vs this package's zod v3 trigger a TypeScript instantiation-depth blow-up that OOMs a full check. Those files are transpiled (not type-checked) at build time; their behaviour is covered by the jest suite.",
+  "//": "Strict type-check over the client/schema/util layers only. The MCP tool files under src/tools/** are excluded because the SDK's tool() generics (typed against zod v4) vs this package's zod v3 trigger a TypeScript instantiation-depth blow-up that OOMs a full check. Those files are transpiled (not type-checked) at build time; their behaviour is covered by the jest suite. src/remote/** (the hosted OAuth server) is included: it reaches the tool modules only through a factory the entry points inject, so checking it does not pull in src/tools/**.",
   "include": [
     "src/clickup-client/**/*",
     "src/schemas/**/*",
-    "src/utils/**/*"
+    "src/utils/**/*",
+    "src/remote/**/*"
   ],
   "exclude": [
     "node_modules",

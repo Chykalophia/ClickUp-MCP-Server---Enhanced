@@ -1,4 +1,10 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import {
+  getRequestClickUpToken,
+  isRemoteMode,
+  MissingRequestCredentialsError,
+  REMOTE_PLACEHOLDER_TOKEN,
+} from './request-context.js';
 
 // ClickUp API base URL
 const API_BASE_URL = 'https://api.clickup.com/api/v2';
@@ -37,6 +43,20 @@ export class ClickUpClient {
         'content-type': 'application/json',
         Authorization: formatAuthorizationHeader(config.apiToken),
       },
+    });
+
+    // Per-request credentials: the hosted server binds each caller's own token
+    // (request-context.ts). It wins over the constructor token, and in hosted
+    // mode a request with no bound token is refused rather than sent with the
+    // placeholder. Runs on every attempt, including 429 retries.
+    this.axiosInstance.interceptors.request.use(requestConfig => {
+      const requestToken = getRequestClickUpToken();
+      if (requestToken) {
+        requestConfig.headers.set('Authorization', formatAuthorizationHeader(requestToken));
+      } else if (isRemoteMode()) {
+        throw new MissingRequestCredentialsError();
+      }
+      return requestConfig;
     });
 
     // Add response interceptor for rate-limit retries and error handling
@@ -130,21 +150,39 @@ export const createClickUpClient = (): ClickUpClient => {
     return _clientInstance;
   }
 
-  const apiToken = process.env.CLICKUP_API_TOKEN;
-
-  if (!apiToken) {
-    throw new Error('CLICKUP_API_TOKEN environment variable is required');
-  }
-
-  _clientInstance = new ClickUpClient({ apiToken });
+  _clientInstance = new ClickUpClient({ apiToken: getApiToken() });
   return _clientInstance;
 };
 
-// Get the API token with proper validation (use instead of process.env.CLICKUP_API_TOKEN!)
+/**
+ * The token to construct a client with (use instead of process.env.CLICKUP_API_TOKEN!).
+ *
+ * In hosted mode this is a placeholder that is never sent: the request
+ * interceptor replaces it with the caller's token or refuses the call, so the
+ * process-wide CLICKUP_API_TOKEN cannot leak to another user.
+ */
 export const getApiToken = (): string => {
+  if (isRemoteMode()) {
+    return REMOTE_PLACEHOLDER_TOKEN;
+  }
   const apiToken = process.env.CLICKUP_API_TOKEN;
   if (!apiToken) {
     throw new Error('CLICKUP_API_TOKEN environment variable is required');
   }
   return apiToken;
+};
+
+/**
+ * The token for a ClickUp call made outside ClickUpClient (raw axios/fetch):
+ * the current request's token, else, in stdio mode only, CLICKUP_API_TOKEN.
+ */
+export const resolveClickUpToken = (): string => {
+  const requestToken = getRequestClickUpToken();
+  if (requestToken) {
+    return requestToken;
+  }
+  if (isRemoteMode()) {
+    throw new MissingRequestCredentialsError();
+  }
+  return getApiToken();
 };

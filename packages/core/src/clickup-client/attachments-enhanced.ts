@@ -2,6 +2,7 @@ import { readFile, stat } from 'fs/promises';
 import { realpathSync } from 'fs';
 import { resolve, sep } from 'path';
 import { ClickUpClient } from './index.js';
+import { isRemoteMode } from './request-context.js';
 import type {
   UploadAttachmentRequest,
   GetAttachmentsRequest,
@@ -17,6 +18,8 @@ const V3_API_BASE_URL = 'https://api.clickup.com/api/v3';
 
 // ClickUp's documented attachment limit is 1 GB; cap below it to bound memory use.
 const MAX_UPLOAD_SIZE_BYTES = 512 * 1024 * 1024;
+/** A stalled file_url server must not hold the tool call open forever. */
+const FILE_URL_TIMEOUT_MS = 60_000;
 
 // Maps our entity types to the v3 endpoint's path segment values
 const ENTITY_TYPE_PATH_SEGMENTS: Record<AttachmentEntityType, string> = {
@@ -107,8 +110,21 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
       return readFile(resolvedPath);
     }
     if (request.file_url) {
+      // Hosted mode: fetching an arbitrary URL from the server is a server-side
+      // request forgery primitive. The hostname-string guard below misses
+      // IPv4-mapped IPv6, redirects and DNS that resolves to private ranges, and
+      // the fetched bytes land in ClickUp where the caller can read them back —
+      // cloud metadata credentials, the host runtime API, internal services.
+      if (isRemoteMode()) {
+        throw new Error(
+          'file_url uploads are disabled on the hosted server (the server would fetch the URL ' +
+            'from its own network). Send the file as file_data (base64) instead.'
+        );
+      }
       this.assertAllowedUploadUrl(request.file_url);
-      const response = await fetch(request.file_url);
+      const response = await fetch(request.file_url, {
+        signal: AbortSignal.timeout(FILE_URL_TIMEOUT_MS),
+      });
       if (!response.ok) {
         throw new Error(
           `Failed to fetch file from URL (${response.status} ${response.statusText})`
@@ -155,6 +171,15 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
    * process is allowed — the MCP caller already runs with these privileges.
    */
   private resolveAllowedFilePath(filePath: string): string {
+    // Hosted mode: the path would be read from the server, not the caller's
+    // machine, and the server's own files (e.g. /proc/self/environ, which holds
+    // its OAuth and token-sealing secrets) must never be uploadable.
+    if (isRemoteMode()) {
+      throw new Error(
+        'file_path uploads are disabled on the hosted server: the path would be read from the ' +
+          'server, not your machine. Send the file as file_data (base64) instead.'
+      );
+    }
     if (filePath.includes('\0')) {
       throw new Error('Invalid file path');
     }

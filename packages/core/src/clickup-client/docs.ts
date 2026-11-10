@@ -1,5 +1,5 @@
 /* eslint-disable no-console, max-len */
-import { ClickUpClient } from './index.js';
+import { ClickUpClient, formatAuthorizationHeader, resolveClickUpToken } from './index.js';
 import axios from 'axios';
 
 // Updated Doc interface based on v3 API response
@@ -58,15 +58,15 @@ export class DocsClient {
     workspaceId: string,
     params?: GetDocsParams
   ): Promise<{ docs: Doc[]; next_cursor: string }> {
-    // Get the API token directly from the environment variable
-    const apiToken = process.env.CLICKUP_API_TOKEN;
+    // Raw axios call: resolve the caller's token (hosted) or CLICKUP_API_TOKEN (stdio)
+    const apiToken = resolveClickUpToken();
 
     try {
       const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs`;
 
       // Use the exact same headers that worked in the successful request
       const headers = {
-        Authorization: apiToken,
+        Authorization: formatAuthorizationHeader(apiToken),
         Accept: 'application/json',
       };
 
@@ -94,8 +94,8 @@ export class DocsClient {
     docId: string,
     contentFormat: string = 'text/md'
   ): Promise<any> {
-    // Get the API token directly from the environment variable
-    const apiToken = process.env.CLICKUP_API_TOKEN;
+    // Raw axios call: resolve the caller's token (hosted) or CLICKUP_API_TOKEN (stdio)
+    const apiToken = resolveClickUpToken();
 
     try {
       const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/pages`;
@@ -108,7 +108,7 @@ export class DocsClient {
 
       // Use the exact same headers that worked in the successful request
       const headers = {
-        Authorization: apiToken,
+        Authorization: formatAuthorizationHeader(apiToken),
         Accept: 'application/json',
       };
 

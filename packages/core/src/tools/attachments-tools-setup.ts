@@ -2,6 +2,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { getApiToken } from '../clickup-client/index.js';
+import { isRemoteMode } from '../clickup-client/request-context.js';
 import { AttachmentsEnhancedClient } from '../clickup-client/attachments-enhanced.js';
 import {
   UploadAttachmentSchema,
@@ -21,7 +22,9 @@ export function setupAttachmentsTools(server: McpServer): void {
 
   server.tool(
     'clickup_upload_attachment',
-    'Upload a file to a ClickUp task as an attachment. Provide the file as base64 data (file_data), a local file path (file_path), or a URL to fetch (file_url). Files stored in the cloud must be fetched first; ClickUp only accepts the binary upload.',
+    isRemoteMode()
+      ? 'Upload a file to a ClickUp task as an attachment. Provide the file as base64 data (file_data); this hosted server does not read local paths (file_path) or fetch URLs (file_url). Files stored in the cloud must be fetched first; ClickUp only accepts the binary upload.'
+      : 'Upload a file to a ClickUp task as an attachment. Provide the file as base64 data (file_data), a local file path (file_path), or a URL to fetch (file_url). Files stored in the cloud must be fetched first; ClickUp only accepts the binary upload.',
     {
       task_id: idSchema().describe('The ID of the task to attach the file to'),
       filename: z.string().min(1).describe('The name of the file, including its extension'),

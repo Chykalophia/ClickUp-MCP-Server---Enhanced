@@ -471,7 +471,7 @@ If you prefer to build from source:
 
 ## Reducing the Tool Surface (`CLICKUP_TOOLSETS`)
 
-The server registers **156 tools** by default. Every tool's JSON Schema is sent
+The server registers **157 tools** by default. Every tool's JSON Schema is sent
 to the client on connect — about 156KB — and re-sent on every reconnect. That
 occupies context before your first prompt, and clients that bridge a local
 server to a remote session pay the cost again on each connection rotation.
@@ -494,7 +494,7 @@ list to register only what you use:
 }
 ```
 
-That example serves **60 tools instead of 156 — a 58% smaller payload.**
+That example serves **60 tools instead of 157 — a 58% smaller payload.** It applies to every entry point: stdio, the efficiency version and the hosted server.
 
 | Toolset | Tools | Covers |
 |---|---:|---|

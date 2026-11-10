@@ -16,7 +16,7 @@
     "start": "node build/index-enhanced.js",
     "start:enhanced": "node build/index-enhanced.js",
     "start:http": "node build/index-http.js",
-    "start:efficiency": "node build/index-enhanced-efficiency.js",
+    "start:efficiency": "node build/index-efficiency-simple.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",

@@ -1,38 +1,12 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
-
-// Import existing tool setups
-import { enforceStrictParams } from './utils/tool-registration.js';
-import { setupTaskTools } from './tools/task-tools.js';
-import { setupDocTools } from './tools/doc-tools.js';
-import { setupSpaceTools } from './tools/space-tools.js';
-import { setupChecklistTools } from './tools/checklist-tools.js';
-import { setupCommentTools } from './tools/comment-tools.js';
-import { setupWebhookTools } from './tools/webhook-tools-setup.js';
-import { setupViewsTools } from './tools/views-tools-setup.js';
-import { setupDependenciesTools } from './tools/dependencies-tools-setup.js';
-import { setupAttachmentsTools } from './tools/attachments-tools-setup.js';
-import { setupCustomFieldTools } from './tools/custom-field-tools.js';
-import { setupTimeTrackingTools } from './tools/time-tracking-tools.js';
-import { setupGoalsTools } from './tools/goals-tools.js';
-import { setupChatTools } from './tools/chat-tools.js';
-
-// Import existing resources
-import { setupTaskResources } from './resources/task-resources.js';
-import { setupDocResources } from './resources/doc-resources.js';
-import { setupChecklistResources } from './resources/checklist-resources.js';
-import { setupCommentResources } from './resources/comment-resources.js';
-import { setupSpaceResources } from './resources/space-resources.js';
-import { setupFolderResources } from './resources/folder-resources.js';
-import { setupListResources } from './resources/list-resources.js';
-
-// Import efficiency utilities
 import { createClickUpClient } from './clickup-client/index.js';
-import { VERSION } from './version.js';
 import { seg } from './clickup-client/path.js';
+import { createClickUpMcpServer } from './server-factory.js';
+import { describeToolsets, type ResolvedToolsets } from './tools/toolsets.js';
 
 /**
  * Enhanced ClickUp MCP Server with Basic Efficiency Tools
@@ -42,39 +16,31 @@ import { seg } from './clickup-client/path.js';
  */
 class EfficiencyEnhancedClickUpServer {
   private server: McpServer;
+  private toolsets: ResolvedToolsets;
   private client: any;
 
   constructor() {
-    // enforceStrictParams patches server.tool, so it has to run before any
-    // toolset registers. Unknown parameters become an error instead of being
-    // silently dropped — see utils/tool-registration.ts.
-    this.server = enforceStrictParams(
-      new McpServer({
-        name: 'clickup-mcp-server-efficiency',
-        version: VERSION,
-      })
-    );
-
     this.client = createClickUpClient();
+    // The shared factory: same toolsets (and CLICKUP_TOOLSETS), strict params
+    // and resources as the main entry, plus the three efficiency tools.
+    ({ server: this.server, toolsets: this.toolsets } = createClickUpMcpServer({
+      name: 'clickup-mcp-server-efficiency',
+      extraRegistrars: [server => this.setupEfficiencyTools(server)],
+    }));
 
     // Handle process termination
     process.on('SIGINT', async () => {
       await this.server.close();
       process.exit(0);
     });
-
-    // Set up enhanced systems
-    this.setupEfficiencyTools();
-    this.setupExistingTools();
-    this.setupResources();
   }
 
   /**
    * Set up efficiency enhancement tools
    */
-  private setupEfficiencyTools() {
+  private setupEfficiencyTools(server: McpServer) {
     // Smart Chat Channel Finder
-    this.server.tool(
+    server.tool(
       'find_chat_channels',
       '🚀 EFFICIENT: Find chat channels across workspaces without hierarchical navigation. More efficient than get_workspaces → get_spaces → get_views.',
       {
@@ -177,7 +143,7 @@ This tool is **3x more efficient** than using:
     );
 
     // Workflow Efficiency Analyzer
-    this.server.tool(
+    server.tool(
       'analyze_workflow_efficiency',
       '📊 ANALYZER: Analyze your planned workflow and get efficiency suggestions. Helps you choose the most efficient tool sequence.',
       {
@@ -218,7 +184,7 @@ This tool is **3x more efficient** than using:
     );
 
     // Quick Workspace Overview
-    this.server.tool(
+    server.tool(
       'get_workspace_overview',
       '📊 OVERVIEW: Get a comprehensive workspace overview in a single call. More efficient than multiple navigation calls.',
       {
@@ -448,38 +414,17 @@ ${
 - **Better error handling**`;
   }
 
-  private setupExistingTools() {
-    // Set up all existing tools
-    setupTaskTools(this.server);
-    setupDocTools(this.server);
-    setupSpaceTools(this.server);
-    setupChecklistTools(this.server);
-    setupCommentTools(this.server);
-    setupWebhookTools(this.server);
-    setupViewsTools(this.server);
-    setupDependenciesTools(this.server);
-    setupAttachmentsTools(this.server);
-    setupCustomFieldTools(this.server);
-    setupTimeTrackingTools(this.server);
-    setupGoalsTools(this.server);
-    setupChatTools(this.server);
-  }
-
-  private setupResources() {
-    // Set up all resources
-    setupTaskResources(this.server);
-    setupDocResources(this.server);
-    setupChecklistResources(this.server);
-    setupCommentResources(this.server);
-    setupSpaceResources(this.server);
-    setupFolderResources(this.server);
-    setupListResources(this.server);
-  }
-
   async run() {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    console.error('ClickUp MCP Server with Efficiency Enhancements running on stdio');
+    if (this.toolsets.unknown.length > 0) {
+      console.error(
+        `ClickUp MCP server: ignoring unknown CLICKUP_TOOLSETS entries: ${this.toolsets.unknown.join(', ')}`
+      );
+    }
+    console.error(
+      `ClickUp MCP Server with Efficiency Enhancements running on stdio with ${describeToolsets(this.toolsets)}`
+    );
     console.error(
       '🚀 New efficiency tools: find_chat_channels, analyze_workflow_efficiency, get_workspace_overview'
     );

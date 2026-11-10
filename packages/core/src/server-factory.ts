@@ -1,7 +1,8 @@
 /**
  * Builds the ClickUp MCP server: every enabled toolset plus the resources.
- * Shared by the stdio entry (index-enhanced.ts) and the hosted HTTP entry
- * (remote/app.ts), so both serve exactly the same tool surface.
+ * Shared by every entry point (index-enhanced.ts, the efficiency entry, and
+ * the hosted HTTP entries), so they all serve the same tool surface and all
+ * honour CLICKUP_TOOLSETS.
  */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { setupTaskTools } from './tools/task-tools.js';
@@ -41,7 +42,14 @@ export interface ClickUpMcpServer {
   toolsets: ResolvedToolsets;
 }
 
-export function createClickUpMcpServer(): ClickUpMcpServer {
+export interface ClickUpMcpServerOptions {
+  /** serverInfo.name; defaults to "clickup-mcp-server". */
+  name?: string;
+  /** Extra tools registered after the toolsets (still under strict params). */
+  extraRegistrars?: Array<(server: McpServer) => void>;
+}
+
+export function createClickUpMcpServer(options: ClickUpMcpServerOptions = {}): ClickUpMcpServer {
   const toolsets = resolveToolsets();
 
   // enforceStrictParams patches server.tool, so it has to run before any
@@ -49,7 +57,7 @@ export function createClickUpMcpServer(): ClickUpMcpServer {
   // silently dropped — see utils/tool-registration.ts.
   const server = enforceStrictParams(
     new McpServer({
-      name: 'clickup-mcp-server',
+      name: options.name ?? 'clickup-mcp-server',
       version: VERSION,
     })
   );
@@ -79,6 +87,10 @@ export function createClickUpMcpServer(): ClickUpMcpServer {
     if (toolsets.enabled.has(name)) {
       register(server);
     }
+  }
+
+  for (const register of options.extraRegistrars ?? []) {
+    register(server);
   }
 
   setupTaskResources(server);

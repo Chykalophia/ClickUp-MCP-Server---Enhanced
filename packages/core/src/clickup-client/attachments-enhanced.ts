@@ -1,8 +1,9 @@
-import { readFile, stat } from 'fs/promises';
-import { realpathSync } from 'fs';
+import { open } from 'fs/promises';
+import { constants as fsConstants, realpathSync } from 'fs';
 import { resolve, sep } from 'path';
 import { ClickUpClient } from './index.js';
 import { isRemoteMode } from './request-context.js';
+import { fetchPublicUrl } from './safe-fetch.js';
 import type {
   UploadAttachmentRequest,
   GetAttachmentsRequest,
@@ -39,19 +40,15 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
    * 'attachment' form field. Returns the created attachment object.
    */
   async uploadAttachment(request: UploadAttachmentRequest): Promise<AttachmentResponse> {
-    const fileBytes = await this.resolveFileBytes(request);
-
     const form = new FormData();
-    // Wrap the Buffer in a Uint8Array view over the same memory (no copy) so it
-    // is a valid BlobPart under the DOM types without duplicating the payload.
-    // A Node Buffer is always backed by a real ArrayBuffer (never a
-    // SharedArrayBuffer), so the cast is sound and satisfies the DOM BlobPart type.
-    const bytesView = new Uint8Array(
-      fileBytes.buffer as ArrayBuffer,
-      fileBytes.byteOffset,
-      fileBytes.byteLength
-    );
-    form.append('attachment', new Blob([bytesView]), request.filename);
+    // new Blob() copies its parts once; handing it the chunks as read (rather
+    // than a concatenated Buffer) keeps that the only copy. The chunks are
+    // dropped right after, so peak memory is about twice the file, not three times.
+    // Node Buffers are never backed by a SharedArrayBuffer, so the cast is sound.
+    const parts = (await this.resolveFileParts(request)) as NonNullable<
+      ConstructorParameters<typeof Blob>[0]
+    >;
+    form.append('attachment', new Blob(parts), request.filename);
     form.append('filename', request.filename);
 
     const params: Record<string, string> = {};
@@ -93,22 +90,17 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
 
   // Helper methods
 
-  private async resolveFileBytes(request: UploadAttachmentRequest): Promise<Buffer> {
+  private async resolveFileParts(request: UploadAttachmentRequest): Promise<Uint8Array[]> {
     if (request.file_data) {
       // Estimate the decoded size before allocating (4 base64 chars -> 3 bytes)
       this.assertWithinSizeLimit(Math.floor(request.file_data.length * 0.75));
-      const bytes = Buffer.from(request.file_data, 'base64');
+      const bytes = decodeBase64Strict(request.file_data);
       this.assertWithinSizeLimit(bytes.length);
-      return bytes;
+      return [bytes];
     }
     if (request.file_path) {
-      const resolvedPath = this.resolveAllowedFilePath(request.file_path);
-      const stats = await stat(resolvedPath);
-      if (!stats.isFile()) {
-        throw new Error(`Not a regular file: ${request.file_path}`);
-      }
-      this.assertWithinSizeLimit(stats.size);
-      return readFile(resolvedPath);
+      const { path: resolvedPath, noFollow } = this.resolveAllowedFilePath(request.file_path);
+      return this.readFileBounded(resolvedPath, noFollow, request.file_path);
     }
     if (request.file_url) {
       // Hosted mode: fetching an arbitrary URL from the server is a server-side
@@ -122,37 +114,12 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
             'from its own network). Send the file as file_data (base64) instead.'
         );
       }
-      this.assertAllowedUploadUrl(request.file_url);
-      const response = await fetch(request.file_url, {
-        signal: AbortSignal.timeout(FILE_URL_TIMEOUT_MS),
+      // Private, loopback and metadata addresses are refused on every hop,
+      // checked on the address actually connected to (safe-fetch.ts).
+      return fetchPublicUrl(request.file_url, {
+        timeoutMs: FILE_URL_TIMEOUT_MS,
+        maxBytes: MAX_UPLOAD_SIZE_BYTES,
       });
-      if (!response.ok) {
-        throw new Error(
-          `Failed to fetch file from URL (${response.status} ${response.statusText})`
-        );
-      }
-      const contentLength = Number(response.headers.get('content-length'));
-      if (Number.isFinite(contentLength) && contentLength > 0) {
-        this.assertWithinSizeLimit(contentLength);
-      }
-      // Stream with a running byte limit: Content-Length is advisory and may
-      // be absent or wrong, so never buffer the whole response unchecked.
-      const chunks: Buffer[] = [];
-      let received = 0;
-      if (response.body) {
-        const reader = response.body.getReader();
-        for (;;) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          received += value.byteLength;
-          if (received > MAX_UPLOAD_SIZE_BYTES) {
-            await reader.cancel();
-            this.assertWithinSizeLimit(received);
-          }
-          chunks.push(Buffer.from(value));
-        }
-      }
-      return Buffer.concat(chunks);
     }
     throw new Error('One of file_data, file_path, or file_url must be provided');
   }
@@ -167,11 +134,44 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
   }
 
   /**
+   * One open, then a bounded read from that same handle: a separate stat()
+   * then readFile() lets a file grow past the cap in between, and procfs-style
+   * files report size 0 while producing data.
+   */
+  private async readFileBounded(
+    path: string,
+    noFollow: boolean,
+    displayPath: string
+  ): Promise<Uint8Array[]> {
+    const handle = await open(path, fsConstants.O_RDONLY | (noFollow ? fsConstants.O_NOFOLLOW : 0));
+    try {
+      const stats = await handle.stat();
+      if (!stats.isFile()) {
+        throw new Error(`Not a regular file: ${displayPath}`);
+      }
+      this.assertWithinSizeLimit(stats.size);
+      const chunks: Uint8Array[] = [];
+      let received = 0;
+      for (;;) {
+        const chunk = Buffer.allocUnsafe(1024 * 1024);
+        const { bytesRead } = await handle.read(chunk, 0, chunk.length, null);
+        if (bytesRead === 0) break;
+        received += bytesRead;
+        this.assertWithinSizeLimit(received);
+        chunks.push(chunk.subarray(0, bytesRead));
+      }
+      return chunks;
+    } finally {
+      await handle.close();
+    }
+  }
+
+  /**
    * When CLICKUP_UPLOAD_DIR is set, restrict file_path uploads to that
    * directory (rejecting traversal). Without it, any path readable by this
    * process is allowed — the MCP caller already runs with these privileges.
    */
-  private resolveAllowedFilePath(filePath: string): string {
+  private resolveAllowedFilePath(filePath: string): { path: string; noFollow: boolean } {
     // Hosted mode: the path would be read from the server, not the caller's
     // machine, and the server's own files (e.g. /proc/self/environ, which holds
     // its OAuth and token-sealing secrets) must never be uploadable.
@@ -193,32 +193,32 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
       if (canonicalTarget !== canonicalRoot && !canonicalTarget.startsWith(canonicalRoot + sep)) {
         throw new Error('file_path is outside the configured CLICKUP_UPLOAD_DIR upload root');
       }
-      return canonicalTarget;
+      // Canonical, so a symlink swapped in after the check is refused at open().
+      return { path: canonicalTarget, noFollow: true };
     }
-    return resolved;
+    return { path: resolved, noFollow: false };
   }
+}
 
-  /** Basic SSRF guard: only http(s) URLs to public hosts may be fetched. */
-  private assertAllowedUploadUrl(fileUrl: string): void {
-    let parsed: URL;
-    try {
-      parsed = new URL(fileUrl);
-    } catch {
-      throw new Error('Invalid file_url');
-    }
-    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-      throw new Error('file_url must use http or https');
-    }
-    const host = parsed.hostname.toLowerCase();
-    const isPrivateIpv4 =
-      /^127\./.test(host) ||
-      /^10\./.test(host) ||
-      /^192\.168\./.test(host) ||
-      /^172\.(1[6-9]|2\d|3[01])\./.test(host) ||
-      /^169\.254\./.test(host) ||
-      host === '0.0.0.0';
-    if (host === 'localhost' || host === '::1' || host === '[::1]' || isPrivateIpv4) {
-      throw new Error('file_url must not point to a private or loopback address');
-    }
+/**
+ * Decode file_data strictly. Buffer.from(x, 'base64') silently skips
+ * anything outside the alphabet, so a data: URL or plain text "uploaded" as a
+ * corrupted file and was reported as a success. A data:<mime>;base64, prefix
+ * is accepted on purpose; base64url and line breaks are accepted too.
+ */
+export function decodeBase64Strict(input: string): Buffer {
+  const withoutPrefix = input.replace(/^data:[^,]*;base64,/i, '');
+  const compact = withoutPrefix.replace(/\s+/g, '');
+  const standard = compact.replace(/-/g, '+').replace(/_/g, '/');
+  const padded = /=+$/.test(standard);
+  if (
+    !/^[A-Za-z0-9+/]*={0,2}$/.test(standard) ||
+    (padded ? standard.length % 4 !== 0 : standard.length % 4 === 1)
+  ) {
+    throw new Error(
+      'file_data is not valid base64. Send the raw file bytes base64-encoded ' +
+        '(a data:<type>;base64, prefix is fine).'
+    );
   }
+  return Buffer.from(standard, 'base64');
 }

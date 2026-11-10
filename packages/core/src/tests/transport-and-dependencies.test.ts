@@ -101,9 +101,13 @@ describe('checkDependencyConflicts fails closed', () => {
     expect(result.conflicts.some(conflict => conflict.type === 'circular')).toBe(true);
   });
 
-  it('fails outright when the root task cannot be read', async () => {
+  it('fails outright, with ClickUp’s own error, when the root task cannot be read', async () => {
     const client = clientWith({ A: { status: 401, data: { err: 'Token invalid' } } });
-    await expect(client.checkDependencyConflicts({ task_id: 'A' } as never)).rejects.toThrow();
+    // Not an empty "incomplete" graph: there is no graph without its root.
+    await expect(client.getDependencyGraph({ task_id: 'A' })).rejects.toThrow(/401|Token invalid/);
+    await expect(client.checkDependencyConflicts({ task_id: 'A' } as never)).rejects.toThrow(
+      /401|Token invalid/
+    );
   });
 
   it('marks a graph cut off by the depth limit as incomplete', async () => {

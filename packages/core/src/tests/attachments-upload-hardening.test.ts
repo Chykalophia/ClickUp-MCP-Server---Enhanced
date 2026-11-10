@@ -38,6 +38,12 @@ beforeAll(async () => {
         .end();
     } else if (url.pathname === '/to-file') {
       res.writeHead(302, { location: '/file' }).end();
+    } else if (url.pathname === '/to-file-scheme') {
+      res.writeHead(302, { location: 'file:///etc/passwd' }).end();
+    } else if (url.pathname === '/to-credentials') {
+      res
+        .writeHead(302, { location: `${origin}/file`.replace('http://', 'http://user:pw@') })
+        .end();
     } else if (url.pathname === '/loop') {
       res.writeHead(302, { location: '/loop' }).end();
     } else if (url.pathname === '/big-declared') {
@@ -133,6 +139,15 @@ describe('fetchPublicUrl', () => {
     expect(hits.every(hit => !hit.startsWith('/file'))).toBe(true);
   });
 
+  it('applies the scheme and credential rules to redirect targets too', async () => {
+    for (const path of ['/to-file-scheme', '/to-credentials']) {
+      await expect(fetchPublicUrl(`${origin}${path}`, opts)).rejects.toBeInstanceOf(
+        BlockedUrlError
+      );
+    }
+    expect(hits.filter(hit => hit === '/file')).toEqual([]);
+  });
+
   it('follows an allowed redirect', async () => {
     expect(text(await fetchPublicUrl(`${origin}/to-file`, opts))).toBe('file-bytes');
   });
@@ -219,7 +234,14 @@ describe('uploadAttachment', () => {
   it('refuses file_data that is not base64 instead of uploading garbage', async () => {
     const client = new AttachmentsEnhancedClient('pk_test');
     const uploaded = capture(client);
-    for (const file_data of ['hello world, not base64!', 'data:text/plain,hello', 'aGVs=bG8=']) {
+    for (const file_data of [
+      'hello world, not base64!',
+      'data:text/plain,hello',
+      'aGVs=bG8=',
+      'ab!d',
+      '****',
+      'not base64!!',
+    ]) {
       await expect(
         client.uploadAttachment({ task_id: 't1', filename: 'h.txt', file_data } as never)
       ).rejects.toThrow(/not valid base64/);

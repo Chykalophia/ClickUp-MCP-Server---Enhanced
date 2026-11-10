@@ -822,3 +822,46 @@ describe('hosted server: sign-in routes are rate limited', () => {
     }
   });
 });
+
+/**
+ * The two limits docs/HOSTED_SERVER.md ("Known limits of the stateless
+ * design") admits to, pinned so they cannot widen unnoticed. When a replay
+ * store lands, flip the first expectation of each test.
+ */
+describe('hosted server: documented stateless limits', () => {
+  async function codeFor(clickUpCode: string) {
+    const login = await startLogin();
+    const cb = await callback(clickUpCode, login.cookie, login.nonce);
+    return { login, code: new URL(cb.headers.get('location')!).searchParams.get('code')! };
+  }
+
+  it('LIMIT: a code can be redeemed twice by its own client and verifier, and by nobody else', async () => {
+    const { login, code } = await codeFor('code-peter');
+    const redeem = (clientId: string, verifier: string) =>
+      token({
+        grant_type: 'authorization_code',
+        code,
+        code_verifier: verifier,
+        client_id: clientId,
+        redirect_uri: CLAUDE_CALLBACK,
+      });
+    expect((await redeem(login.clientId, login.verifier)).status).toBe(200);
+    expect((await redeem(login.clientId, login.verifier)).status).toBe(200); // the limit
+    // The limit stops there: another client, or the wrong verifier, gets nothing.
+    const other = await registeredClientId('another client');
+    expect((await redeem(other, login.verifier)).status).toBe(400);
+    expect((await redeem(login.clientId, pkce().verifier)).status).toBe(400);
+  });
+
+  it('LIMIT: a refresh token keeps working after it has been used once', async () => {
+    const peter = await signIn('code-peter');
+    const refresh = () =>
+      token({
+        grant_type: 'refresh_token',
+        refresh_token: peter.refresh_token,
+        client_id: peter.clientId,
+      });
+    expect((await refresh()).status).toBe(200);
+    expect((await refresh()).status).toBe(200); // the limit: no reuse detection
+  });
+});

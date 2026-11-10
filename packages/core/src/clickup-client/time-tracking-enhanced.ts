@@ -7,6 +7,7 @@ import {
   TimeEntryResponseSchema,
   CurrentTimeEntryResponseSchema,
 } from '../schemas/response-schemas.js';
+import { seg } from './path.js';
 
 // ========================================
 // TIME TRACKING TYPE DEFINITIONS
@@ -218,7 +219,7 @@ export class EnhancedTimeTrackingClient {
         queryParams.append('team_id', teamId);
       }
 
-      const endpoint = `/team/${teamId}/time_entries?${queryParams.toString()}`;
+      const endpoint = `/team/${seg(teamId)}/time_entries?${queryParams.toString()}`;
       const response = await this.getAxiosInstance().get(endpoint);
 
       const validated = validateResponse(
@@ -238,7 +239,7 @@ export class EnhancedTimeTrackingClient {
    */
   async getTimeEntry(teamId: string, timerId: string): Promise<TimeEntry> {
     try {
-      const endpoint = `/team/${teamId}/time_entries/${timerId}`;
+      const endpoint = `/team/${seg(teamId)}/time_entries/${seg(timerId)}`;
       const response = await this.getAxiosInstance().get(endpoint);
 
       const validated = validateResponse(TimeEntryResponseSchema, response.data, 'getTimeEntry');
@@ -255,7 +256,7 @@ export class EnhancedTimeTrackingClient {
    */
   async getTimeEntryHistory(teamId: string, timerId: string): Promise<unknown[]> {
     try {
-      const endpoint = `/team/${teamId}/time_entries/${timerId}/history`;
+      const endpoint = `/team/${seg(teamId)}/time_entries/${seg(timerId)}/history`;
       const response = await this.getAxiosInstance().get(endpoint);
 
       const validated = validateResponse(
@@ -288,7 +289,7 @@ export class EnhancedTimeTrackingClient {
         body.duration = body.stop - body.start;
       }
 
-      const endpoint = `/team/${teamId}/time_entries${this.buildCustomTaskIdsQuery(teamId, custom_task_ids)}`;
+      const endpoint = `/team/${seg(teamId)}/time_entries${this.buildCustomTaskIdsQuery(teamId, custom_task_ids)}`;
       const response = await this.getAxiosInstance().post(endpoint, body);
 
       const validated = validateResponse(TimeEntryResponseSchema, response.data, 'createTimeEntry');
@@ -346,7 +347,7 @@ export class EnhancedTimeTrackingClient {
         body.tag_action = 'add';
       }
 
-      const endpoint = `/team/${teamId}/time_entries/${timerId}${this.buildCustomTaskIdsQuery(teamId, custom_task_ids)}`;
+      const endpoint = `/team/${seg(teamId)}/time_entries/${seg(timerId)}${this.buildCustomTaskIdsQuery(teamId, custom_task_ids)}`;
       const response = await this.getAxiosInstance().put(endpoint, body);
 
       const validated = validateResponse(TimeEntryResponseSchema, response.data, 'updateTimeEntry');
@@ -363,7 +364,7 @@ export class EnhancedTimeTrackingClient {
    */
   async deleteTimeEntry(teamId: string, timerId: string): Promise<void> {
     try {
-      const endpoint = `/team/${teamId}/time_entries/${timerId}`;
+      const endpoint = `/team/${seg(teamId)}/time_entries/${seg(timerId)}`;
       await this.getAxiosInstance().delete(endpoint);
     } catch (error) {
       console.error('Error deleting time entry:', error instanceof Error ? error.message : error);
@@ -385,7 +386,7 @@ export class EnhancedTimeTrackingClient {
       const queryParams = new URLSearchParams();
       if (assignee) queryParams.append('assignee', assignee.toString());
 
-      const endpoint = `/team/${teamId}/time_entries/current?${queryParams.toString()}`;
+      const endpoint = `/team/${seg(teamId)}/time_entries/current?${queryParams.toString()}`;
       const response = await this.getAxiosInstance().get(endpoint);
 
       const validated = validateResponse(
@@ -407,7 +408,7 @@ export class EnhancedTimeTrackingClient {
   async startTimer(teamId: string, params: StartTimerParams = {}): Promise<TimeEntry> {
     try {
       const { custom_task_ids, ...body } = params;
-      const endpoint = `/team/${teamId}/time_entries/start${this.buildCustomTaskIdsQuery(teamId, custom_task_ids)}`;
+      const endpoint = `/team/${seg(teamId)}/time_entries/start${this.buildCustomTaskIdsQuery(teamId, custom_task_ids)}`;
 
       const response = await this.getAxiosInstance().post(endpoint, body);
 
@@ -426,7 +427,7 @@ export class EnhancedTimeTrackingClient {
    */
   async stopTimer(teamId: string): Promise<TimeEntry> {
     try {
-      const endpoint = `/team/${teamId}/time_entries/stop`;
+      const endpoint = `/team/${seg(teamId)}/time_entries/stop`;
 
       const response = await this.getAxiosInstance().post(endpoint);
 
@@ -448,7 +449,7 @@ export class EnhancedTimeTrackingClient {
    */
   async getTimeEntryTags(teamId: string): Promise<TimeEntryTag[]> {
     try {
-      const endpoint = `/team/${teamId}/time_entries/tags`;
+      const endpoint = `/team/${seg(teamId)}/time_entries/tags`;
       const response = await this.getAxiosInstance().get(endpoint);
 
       const validated = validateResponse(
@@ -475,7 +476,7 @@ export class EnhancedTimeTrackingClient {
     tags: TimeEntryTag[]
   ): Promise<void> {
     try {
-      const endpoint = `/team/${teamId}/time_entries/tags`;
+      const endpoint = `/team/${seg(teamId)}/time_entries/tags`;
       await this.getAxiosInstance().post(endpoint, { time_entry_ids: timeEntryIds, tags });
     } catch (error) {
       console.error(

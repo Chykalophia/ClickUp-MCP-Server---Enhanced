@@ -1,6 +1,7 @@
 /* eslint-disable no-console, max-len */
 import { ClickUpClient, formatAuthorizationHeader, resolveClickUpToken } from './index.js';
 import axios from 'axios';
+import { seg } from './path.js';
 
 // Updated Doc interface based on v3 API response
 export interface Doc {
@@ -62,7 +63,7 @@ export class DocsClient {
     const apiToken = resolveClickUpToken();
 
     try {
-      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs`;
+      const url = `https://api.clickup.com/api/v3/workspaces/${seg(workspaceId)}/docs`;
 
       // Use the exact same headers that worked in the successful request
       const headers = {
@@ -98,7 +99,7 @@ export class DocsClient {
     const apiToken = resolveClickUpToken();
 
     try {
-      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/pages`;
+      const url = `https://api.clickup.com/api/v3/workspaces/${seg(workspaceId)}/docs/${seg(docId)}/pages`;
 
       // Use the exact same parameters that worked in the successful request
       const params = {
@@ -199,7 +200,7 @@ export class DocsClient {
     }
 
     const response = await axiosInstance.post(
-      `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs`,
+      `https://api.clickup.com/api/v3/workspaces/${seg(workspaceId)}/docs`,
       requestBody
     );
     const doc: Doc = response.data;
@@ -209,7 +210,7 @@ export class DocsClient {
     if (content && doc?.id) {
       try {
         await axiosInstance.post(
-          `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${doc.id}/pages`,
+          `https://api.clickup.com/api/v3/workspaces/${seg(workspaceId)}/docs/${seg(doc.id)}/pages`,
           { name: title, content, content_format: 'text/md' }
         );
       } catch (pageError) {

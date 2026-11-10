@@ -17,6 +17,7 @@ import {
   type DependencyGraphResponse,
   type DependencyConflictResponse,
 } from '../schemas/dependencies-schemas.js';
+import { seg } from './path.js';
 
 // Minimal slice of a Get Task response used for relationship reads
 interface TaskWithRelationships {
@@ -64,7 +65,7 @@ export class DependenciesEnhancedClient extends ClickUpClient {
     const payload = depends_on ? { depends_on } : { dependency_of };
 
     await this.post(
-      `/task/${task_id}/dependency${this.buildCustomIdQuery({ custom_task_ids, team_id })}`,
+      `/task/${seg(task_id)}/dependency${this.buildCustomIdQuery({ custom_task_ids, team_id })}`,
       payload
     );
     return { success: true };
@@ -77,7 +78,7 @@ export class DependenciesEnhancedClient extends ClickUpClient {
   async deleteDependency(request: DeleteDependencyRequest): Promise<{ success: boolean }> {
     const { task_id, depends_on, dependency_of, custom_task_ids, team_id } = request;
 
-    await this.delete(`/task/${task_id}/dependency`, {
+    await this.delete(`/task/${seg(task_id)}/dependency`, {
       params: { depends_on, dependency_of, custom_task_ids, team_id },
     });
     return { success: true };
@@ -90,7 +91,7 @@ export class DependenciesEnhancedClient extends ClickUpClient {
    */
   async getTaskDependencies(request: GetTaskDependenciesRequest): Promise<TaskRelationships> {
     const { task_id, custom_task_ids, team_id } = request;
-    const task = await this.get<TaskWithRelationships>(`/task/${task_id}`, {
+    const task = await this.get<TaskWithRelationships>(`/task/${seg(task_id)}`, {
       custom_task_ids,
       team_id,
     });
@@ -109,7 +110,7 @@ export class DependenciesEnhancedClient extends ClickUpClient {
   async addTaskLink(request: AddTaskLinkRequest): Promise<Record<string, unknown>> {
     const { task_id, links_to, custom_task_ids, team_id } = request;
     const response = await this.post<{ task?: Record<string, unknown> }>(
-      `/task/${task_id}/link/${links_to}${this.buildCustomIdQuery({ custom_task_ids, team_id })}`
+      `/task/${seg(task_id)}/link/${seg(links_to)}${this.buildCustomIdQuery({ custom_task_ids, team_id })}`
     );
     return response.task ?? response;
   }
@@ -121,7 +122,7 @@ export class DependenciesEnhancedClient extends ClickUpClient {
   async deleteTaskLink(request: DeleteTaskLinkRequest): Promise<Record<string, unknown>> {
     const { task_id, links_to, custom_task_ids, team_id } = request;
     const response = await this.delete<{ task?: Record<string, unknown> }>(
-      `/task/${task_id}/link/${links_to}`,
+      `/task/${seg(task_id)}/link/${seg(links_to)}`,
       { params: { custom_task_ids, team_id } }
     );
     return response.task ?? response;
@@ -148,7 +149,7 @@ export class DependenciesEnhancedClient extends ClickUpClient {
 
         let task: TaskWithRelationships;
         try {
-          task = await this.get<TaskWithRelationships>(`/task/${taskId}`);
+          task = await this.get<TaskWithRelationships>(`/task/${seg(taskId)}`);
         } catch {
           // Skip tasks that are deleted or inaccessible
           continue;

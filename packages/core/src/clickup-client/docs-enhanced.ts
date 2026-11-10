@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { ClickUpClient } from './index.js';
 import axios, { AxiosInstance } from 'axios';
+import { seg } from './path.js';
 
 // Enhanced interfaces based on the public v3 Docs API
 export interface Doc {
@@ -153,7 +154,7 @@ export class EnhancedDocsClient {
    */
   async getDocsFromWorkspace(workspaceId: string, params?: GetDocsParams): Promise<DocsResponse> {
     try {
-      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs`;
+      const url = `https://api.clickup.com/api/v3/workspaces/${seg(workspaceId)}/docs`;
       const response = await this.http.get(url, { params });
       return response.data;
     } catch (error) {
@@ -174,7 +175,7 @@ export class EnhancedDocsClient {
     contentFormat: string = 'text/md'
   ): Promise<Page[]> {
     try {
-      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/pages`;
+      const url = `https://api.clickup.com/api/v3/workspaces/${seg(workspaceId)}/docs/${seg(docId)}/pages`;
       const params = {
         max_page_depth: -1,
         content_format: normalizeContentFormat(contentFormat),
@@ -199,7 +200,7 @@ export class EnhancedDocsClient {
     maxPageDepth: number = -1
   ): Promise<PageListingEntry[]> {
     try {
-      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/page_listing`;
+      const url = `https://api.clickup.com/api/v3/workspaces/${seg(workspaceId)}/docs/${seg(docId)}/page_listing`;
       const response = await this.http.get(url, { params: { max_page_depth: maxPageDepth } });
       return response.data;
     } catch (error) {
@@ -246,7 +247,7 @@ export class EnhancedDocsClient {
    */
   async getDoc(workspaceId: string, docId: string): Promise<Doc> {
     try {
-      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}`;
+      const url = `https://api.clickup.com/api/v3/workspaces/${seg(workspaceId)}/docs/${seg(docId)}`;
 
       const response = await this.http.get(url);
 
@@ -273,7 +274,7 @@ export class EnhancedDocsClient {
    */
   async createDoc(params: CreateDocParams): Promise<Doc> {
     try {
-      const url = `https://api.clickup.com/api/v3/workspaces/${params.workspace_id}/docs`;
+      const url = `https://api.clickup.com/api/v3/workspaces/${seg(params.workspace_id)}/docs`;
 
       const placements = [params.parent, params.space_id, params.folder_id].filter(
         value => value !== undefined
@@ -342,7 +343,7 @@ export class EnhancedDocsClient {
    */
   async createPage(workspaceId: string, docId: string, params: CreatePageParams): Promise<Page> {
     try {
-      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/pages`;
+      const url = `https://api.clickup.com/api/v3/workspaces/${seg(workspaceId)}/docs/${seg(docId)}/pages`;
 
       const requestBody: Record<string, unknown> = {
         name: params.name,
@@ -380,7 +381,7 @@ export class EnhancedDocsClient {
     params: UpdatePageParams
   ): Promise<Page> {
     try {
-      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/pages/${pageId}`;
+      const url = `https://api.clickup.com/api/v3/workspaces/${seg(workspaceId)}/docs/${seg(docId)}/pages/${seg(pageId)}`;
 
       const requestBody: Record<string, unknown> = {};
       if (params.name !== undefined) requestBody.name = params.name;
@@ -413,7 +414,7 @@ export class EnhancedDocsClient {
     contentFormat?: ContentFormat
   ): Promise<Page> {
     try {
-      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/pages/${pageId}`;
+      const url = `https://api.clickup.com/api/v3/workspaces/${seg(workspaceId)}/docs/${seg(docId)}/pages/${seg(pageId)}`;
       const params = contentFormat ? { content_format: normalizeContentFormat(contentFormat) } : {};
 
       const response = await this.http.get(url, { params });

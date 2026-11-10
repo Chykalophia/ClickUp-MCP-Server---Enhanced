@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { ClickUpClient } from './index.js';
 import axios, { AxiosInstance } from 'axios';
+import { seg } from './path.js';
 
 // ========================================
 // CUSTOM FIELD TYPE DEFINITIONS
@@ -392,7 +393,7 @@ export class EnhancedCustomFieldsClient {
    */
   async getListCustomFields(listId: string): Promise<CustomField[]> {
     try {
-      const url = `https://api.clickup.com/api/v2/list/${listId}/field`;
+      const url = `https://api.clickup.com/api/v2/list/${seg(listId)}/field`;
       const response = await this.http.get(url);
       return response.data.fields || [];
     } catch (error) {
@@ -410,7 +411,7 @@ export class EnhancedCustomFieldsClient {
    */
   async getFolderCustomFields(folderId: string): Promise<CustomField[]> {
     try {
-      const url = `https://api.clickup.com/api/v2/folder/${folderId}/field`;
+      const url = `https://api.clickup.com/api/v2/folder/${seg(folderId)}/field`;
       const response = await this.http.get(url);
       return response.data.fields || [];
     } catch (error) {
@@ -428,7 +429,7 @@ export class EnhancedCustomFieldsClient {
    */
   async getSpaceCustomFields(spaceId: string): Promise<CustomField[]> {
     try {
-      const url = `https://api.clickup.com/api/v2/space/${spaceId}/field`;
+      const url = `https://api.clickup.com/api/v2/space/${seg(spaceId)}/field`;
       const response = await this.http.get(url);
       return response.data.fields || [];
     } catch (error) {
@@ -445,7 +446,7 @@ export class EnhancedCustomFieldsClient {
    */
   async getTeamCustomFields(teamId: string): Promise<CustomField[]> {
     try {
-      const url = `https://api.clickup.com/api/v2/team/${teamId}/field`;
+      const url = `https://api.clickup.com/api/v2/team/${seg(teamId)}/field`;
       const response = await this.http.get(url);
       return response.data.fields || [];
     } catch (error) {
@@ -492,7 +493,7 @@ export class EnhancedCustomFieldsClient {
     options?: SetFieldValueOptions
   ): Promise<void> {
     try {
-      const url = `https://api.clickup.com/api/v2/task/${taskId}/field/${fieldId}`;
+      const url = `https://api.clickup.com/api/v2/task/${seg(taskId)}/field/${seg(fieldId)}`;
       const body: Record<string, any> = { value };
       if (options?.valueOptions) {
         body.value_options = options.valueOptions;
@@ -521,7 +522,7 @@ export class EnhancedCustomFieldsClient {
     options?: TaskAddressingOptions
   ): Promise<void> {
     try {
-      const url = `https://api.clickup.com/api/v2/task/${taskId}/field/${fieldId}`;
+      const url = `https://api.clickup.com/api/v2/task/${seg(taskId)}/field/${seg(fieldId)}`;
       await this.http.delete(url, {
         params: this.buildTaskAddressingParams(options),
       });
@@ -547,7 +548,7 @@ export class EnhancedCustomFieldsClient {
   ): Promise<any> {
     try {
       // Get task details which includes custom field values
-      const taskUrl = `https://api.clickup.com/api/v2/task/${taskId}`;
+      const taskUrl = `https://api.clickup.com/api/v2/task/${seg(taskId)}`;
       const response = await this.http.get(taskUrl, {
         params: this.buildTaskAddressingParams(options),
       });
@@ -583,7 +584,7 @@ export class EnhancedCustomFieldsClient {
    */
   async getTaskCustomFieldValues(taskId: string, options?: TaskAddressingOptions): Promise<any[]> {
     try {
-      const taskUrl = `https://api.clickup.com/api/v2/task/${taskId}`;
+      const taskUrl = `https://api.clickup.com/api/v2/task/${seg(taskId)}`;
       const response = await this.http.get(taskUrl, {
         params: this.buildTaskAddressingParams(options),
       });

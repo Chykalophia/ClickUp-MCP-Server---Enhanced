@@ -1,5 +1,6 @@
 import { ClickUpClient } from './index.js';
 import { validateResponse, SpacesResponseSchema } from '../schemas/response-schemas.js';
+import { seg } from './path.js';
 
 // Space interface based on ClickUp API response
 export interface Space {
@@ -115,7 +116,7 @@ export class SpacesClient {
     params?: { archived?: boolean }
   ): Promise<Space[]> {
     // Use the v2 API endpoint for spaces
-    const raw = await this.client.get<unknown>(`/team/${workspaceId}/space`, params);
+    const raw = await this.client.get<unknown>(`/team/${seg(workspaceId)}/space`, params);
     const response = validateResponse(SpacesResponseSchema, raw, 'getSpacesFromWorkspace');
     return response.spaces as Space[];
   }
@@ -126,7 +127,7 @@ export class SpacesClient {
    * @returns The space details
    */
   async getSpace(spaceId: string): Promise<Space> {
-    const response = await this.client.get<Space>(`/space/${spaceId}`);
+    const response = await this.client.get<Space>(`/space/${seg(spaceId)}`);
     return response;
   }
 
@@ -137,7 +138,7 @@ export class SpacesClient {
    * @returns The created space
    */
   async createSpace(workspaceId: string, params: CreateSpaceParams): Promise<Space> {
-    return this.client.post<Space>(`/team/${workspaceId}/space`, params);
+    return this.client.post<Space>(`/team/${seg(workspaceId)}/space`, params);
   }
 
   /**
@@ -147,7 +148,7 @@ export class SpacesClient {
    * @returns The updated space
    */
   async updateSpace(spaceId: string, params: UpdateSpaceParams): Promise<Space> {
-    return this.client.put<Space>(`/space/${spaceId}`, params);
+    return this.client.put<Space>(`/space/${seg(spaceId)}`, params);
   }
 
   /**
@@ -156,7 +157,7 @@ export class SpacesClient {
    * @returns Empty response on success
    */
   async deleteSpace(spaceId: string): Promise<Record<string, never>> {
-    return this.client.delete<Record<string, never>>(`/space/${spaceId}`);
+    return this.client.delete<Record<string, never>>(`/space/${seg(spaceId)}`);
   }
 
   /**
@@ -165,7 +166,7 @@ export class SpacesClient {
    * @returns A list of space tags
    */
   async getSpaceTags(spaceId: string): Promise<SpaceTag[]> {
-    const response = await this.client.get<{ tags: SpaceTag[] }>(`/space/${spaceId}/tag`);
+    const response = await this.client.get<{ tags: SpaceTag[] }>(`/space/${seg(spaceId)}/tag`);
     return response.tags;
   }
 
@@ -176,7 +177,7 @@ export class SpacesClient {
    * @returns Empty response on success
    */
   async createSpaceTag(spaceId: string, tag: SpaceTagParams): Promise<Record<string, never>> {
-    return this.client.post<Record<string, never>>(`/space/${spaceId}/tag`, { tag });
+    return this.client.post<Record<string, never>>(`/space/${seg(spaceId)}/tag`, { tag });
   }
 
   /**
@@ -192,7 +193,7 @@ export class SpacesClient {
     tag: SpaceTagParams
   ): Promise<Record<string, never>> {
     return this.client.put<Record<string, never>>(
-      `/space/${spaceId}/tag/${encodeURIComponent(tagName)}`,
+      `/space/${seg(spaceId)}/tag/${encodeURIComponent(tagName)}`,
       { tag }
     );
   }
@@ -205,7 +206,7 @@ export class SpacesClient {
    */
   async deleteSpaceTag(spaceId: string, tagName: string): Promise<Record<string, never>> {
     return this.client.delete<Record<string, never>>(
-      `/space/${spaceId}/tag/${encodeURIComponent(tagName)}`
+      `/space/${seg(spaceId)}/tag/${encodeURIComponent(tagName)}`
     );
   }
 }

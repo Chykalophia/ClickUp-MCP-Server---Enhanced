@@ -32,6 +32,7 @@ import { setupListResources } from './resources/list-resources.js';
 // Import efficiency utilities
 import { createClickUpClient } from './clickup-client/index.js';
 import { VERSION } from './version.js';
+import { seg } from './clickup-client/path.js';
 
 /**
  * Enhanced ClickUp MCP Server with Basic Efficiency Tools
@@ -91,11 +92,11 @@ class EfficiencyEnhancedClickUpServer {
 
           for (const workspace of workspaces.teams || workspaces) {
             try {
-              const spaces = await this.client.get(`/team/${workspace.id}/space`);
+              const spaces = await this.client.get(`/team/${seg(workspace.id)}/space`);
 
               for (const space of spaces.spaces || []) {
                 try {
-                  const views = await this.client.get(`/space/${space.id}/view`);
+                  const views = await this.client.get(`/space/${seg(space.id)}/view`);
                   const chatViews = (views.views || []).filter(
                     (view: any) => view.type === 'conversation' || view.type === 'chat'
                   );
@@ -233,7 +234,7 @@ This tool is **3x more efficient** than using:
             this.client
               .get('/team')
               .then((teams: any) => teams.teams?.find((w: any) => w.id === args.workspace_id)),
-            this.client.get(`/team/${args.workspace_id}/space`),
+            this.client.get(`/team/${seg(args.workspace_id)}/space`),
           ]);
 
           if (!workspaceData) {
@@ -265,7 +266,7 @@ This tool is **3x more efficient** than using:
 
             if (args.include_chat_channels) {
               try {
-                const views = await this.client.get(`/space/${space.id}/view`);
+                const views = await this.client.get(`/space/${seg(space.id)}/view`);
                 const chatViews = (views.views || []).filter(
                   (view: any) => view.type === 'conversation' || view.type === 'chat'
                 );

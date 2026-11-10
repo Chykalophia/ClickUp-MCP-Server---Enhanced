@@ -12,6 +12,7 @@ import {
   type ValidateWebhookSignatureRequest,
   type ProcessWebhookRequest,
 } from '../schemas/webhook-schemas.js';
+import { seg } from './path.js';
 
 // Webhook object as returned by the ClickUp API
 export interface Webhook {
@@ -64,7 +65,7 @@ export class WebhooksEnhancedClient extends ClickUpClient {
     if (request.task_id !== undefined) body.task_id = request.task_id;
 
     const response = await this.post<WebhookResponse>(
-      `/team/${request.workspace_id}/webhook`,
+      `/team/${seg(request.workspace_id)}/webhook`,
       body
     );
     return response;
@@ -76,7 +77,7 @@ export class WebhooksEnhancedClient extends ClickUpClient {
    * status/event_type filters are applied client-side.
    */
   async getWebhooks(filter: WebhookFilter): Promise<WebhookListResponse> {
-    const response = await this.get<unknown>(`/team/${filter.workspace_id}/webhook`);
+    const response = await this.get<unknown>(`/team/${seg(filter.workspace_id)}/webhook`);
     const validated = validateResponse(WebhooksResponseSchema, response, 'getWebhooks');
     let webhooks = (validated as unknown as WebhookListResponse).webhooks;
 
@@ -123,7 +124,10 @@ export class WebhooksEnhancedClient extends ClickUpClient {
       status: request.status ?? (current.health?.status === 'suspended' ? 'inactive' : 'active'),
     };
 
-    const response = await this.put<WebhookResponse>(`/webhook/${request.webhook_id}`, updateData);
+    const response = await this.put<WebhookResponse>(
+      `/webhook/${seg(request.webhook_id)}`,
+      updateData
+    );
     return response;
   }
 
@@ -131,7 +135,7 @@ export class WebhooksEnhancedClient extends ClickUpClient {
    * Delete a webhook
    */
   async deleteWebhook(webhookId: string): Promise<{ success: boolean }> {
-    await this.delete(`/webhook/${webhookId}`);
+    await this.delete(`/webhook/${seg(webhookId)}`);
     return { success: true };
   }
 

@@ -10,6 +10,7 @@ import type {
   AttachmentResponse,
   AttachmentListResponse,
 } from '../schemas/attachments-schemas.js';
+import { seg } from './path.js';
 
 // The list attachments endpoint only exists in the v3 API; the shared client
 // is bound to the v2 base URL, so v3 calls use absolute URLs (axios ignores
@@ -58,7 +59,7 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
     if (request.team_id) params.team_id = request.team_id;
 
     const response = await this.getAxiosInstance().post<AttachmentResponse>(
-      `/task/${request.task_id}/attachment`,
+      `/task/${seg(request.task_id)}/attachment`,
       form,
       {
         params,
@@ -84,7 +85,7 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
 
     const entitySegment = ENTITY_TYPE_PATH_SEGMENTS[request.entity_type];
     const response = await this.getAxiosInstance().get<AttachmentListResponse>(
-      `${V3_API_BASE_URL}/workspaces/${request.workspace_id}/${entitySegment}/${request.entity_id}/attachments`,
+      `${V3_API_BASE_URL}/workspaces/${seg(request.workspace_id)}/${seg(entitySegment)}/${seg(request.entity_id)}/attachments`,
       { params }
     );
     return response.data;

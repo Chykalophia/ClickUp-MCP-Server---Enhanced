@@ -5,6 +5,7 @@ import {
   MissingRequestCredentialsError,
   REMOTE_PLACEHOLDER_TOKEN,
 } from './request-context.js';
+import { assertSafeEndpoint } from './path.js';
 
 // ClickUp API base URL
 const API_BASE_URL = 'https://api.clickup.com/api/v2';
@@ -50,6 +51,9 @@ export class ClickUpClient {
     // mode a request with no bound token is refused rather than sent with the
     // placeholder. Runs on every attempt, including 429 retries.
     this.axiosInstance.interceptors.request.use(requestConfig => {
+      // Backstop for seg() (path.ts): a request whose path would be rewritten
+      // by URL normalization, or that leaves ClickUp, is never sent.
+      assertSafeEndpoint(requestConfig.url, requestConfig.baseURL);
       const requestToken = getRequestClickUpToken();
       if (requestToken) {
         requestConfig.headers.set('Authorization', formatAuthorizationHeader(requestToken));

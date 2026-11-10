@@ -7,6 +7,7 @@ import {
   GoalResponseSchema,
   GoalTargetResponseSchema,
 } from '../schemas/response-schemas.js';
+import { seg } from './path.js';
 
 // ========================================
 // GOALS TYPE DEFINITIONS
@@ -137,7 +138,7 @@ export class EnhancedGoalsClient {
       const queryParams = new URLSearchParams();
       if (includeCompleted) queryParams.append('include_completed', 'true');
 
-      const endpoint = `/team/${teamId}/goal?${queryParams.toString()}`;
+      const endpoint = `/team/${seg(teamId)}/goal?${queryParams.toString()}`;
       const response = await this.getAxiosInstance().get(endpoint);
 
       const validated = validateResponse(GoalsResponseSchema, response.data, 'getGoals');
@@ -164,7 +165,7 @@ export class EnhancedGoalsClient {
    */
   async createGoal(teamId: string, params: CreateGoalParams): Promise<Goal> {
     try {
-      const endpoint = `/team/${teamId}/goal`;
+      const endpoint = `/team/${seg(teamId)}/goal`;
       const response = await this.getAxiosInstance().post(endpoint, params);
 
       const validated = validateResponse(GoalResponseSchema, response.data, 'createGoal');
@@ -180,7 +181,7 @@ export class EnhancedGoalsClient {
    */
   async updateGoal(goalId: string, params: UpdateGoalParams): Promise<Goal> {
     try {
-      const endpoint = `/goal/${goalId}`;
+      const endpoint = `/goal/${seg(goalId)}`;
       const response = await this.getAxiosInstance().put(endpoint, params);
 
       const validated = validateResponse(GoalResponseSchema, response.data, 'updateGoal');
@@ -196,7 +197,7 @@ export class EnhancedGoalsClient {
    */
   async deleteGoal(goalId: string): Promise<void> {
     try {
-      const endpoint = `/goal/${goalId}`;
+      const endpoint = `/goal/${seg(goalId)}`;
       await this.getAxiosInstance().delete(endpoint);
     } catch (error) {
       console.error('Error deleting goal:', error instanceof Error ? error.message : error);
@@ -209,7 +210,7 @@ export class EnhancedGoalsClient {
    */
   async getGoal(goalId: string): Promise<Goal> {
     try {
-      const endpoint = `/goal/${goalId}`;
+      const endpoint = `/goal/${seg(goalId)}`;
       const response = await this.getAxiosInstance().get(endpoint);
 
       const validated = validateResponse(GoalResponseSchema, response.data, 'getGoal');
@@ -229,7 +230,7 @@ export class EnhancedGoalsClient {
    */
   async createGoalTarget(goalId: string, params: CreateGoalTargetParams): Promise<GoalTarget> {
     try {
-      const endpoint = `/goal/${goalId}/key_result`;
+      const endpoint = `/goal/${seg(goalId)}/key_result`;
       const response = await this.getAxiosInstance().post(endpoint, params);
 
       const validated = validateResponse(
@@ -249,7 +250,7 @@ export class EnhancedGoalsClient {
    */
   async updateGoalTarget(targetId: string, params: UpdateGoalTargetParams): Promise<GoalTarget> {
     try {
-      const endpoint = `/key_result/${targetId}`;
+      const endpoint = `/key_result/${seg(targetId)}`;
       const response = await this.getAxiosInstance().put(endpoint, params);
 
       const validated = validateResponse(
@@ -269,7 +270,7 @@ export class EnhancedGoalsClient {
    */
   async deleteGoalTarget(targetId: string): Promise<void> {
     try {
-      const endpoint = `/key_result/${targetId}`;
+      const endpoint = `/key_result/${seg(targetId)}`;
       await this.getAxiosInstance().delete(endpoint);
     } catch (error) {
       console.error('Error deleting goal target:', error instanceof Error ? error.message : error);

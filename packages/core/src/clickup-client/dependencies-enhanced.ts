@@ -138,6 +138,7 @@ export class DependenciesEnhancedClient extends ClickUpClient {
     const nodes = new Map<string, DependencyGraphNode>();
     const edges = new Map<string, DependencyGraphEdge>();
     const visited = new Set<string>();
+    const unfetched: Array<{ task_id: string; error: string }> = [];
     let frontier = [options.task_id];
 
     for (let level = 0; level <= depth && frontier.length > 0; level++) {
@@ -150,8 +151,18 @@ export class DependenciesEnhancedClient extends ClickUpClient {
         let task: TaskWithRelationships;
         try {
           task = await this.get<TaskWithRelationships>(`/task/${seg(taskId)}`);
-        } catch {
-          // Skip tasks that are deleted or inaccessible
+        } catch (error: unknown) {
+          // The root must load: there is no graph without it.
+          if (taskId === options.task_id) throw error;
+          // A deleted task simply has no edges left to follow. Anything else
+          // (rate limit, outage, permissions) leaves a hole in the graph that
+          // could hide a cycle, so it is recorded rather than skipped silently.
+          if ((error as { response?: { status?: number } })?.response?.status !== 404) {
+            unfetched.push({
+              task_id: taskId,
+              error: error instanceof Error ? error.message : String(error),
+            });
+          }
           continue;
         }
 
@@ -180,6 +191,7 @@ export class DependenciesEnhancedClient extends ClickUpClient {
 
     const edgeList = Array.from(edges.values());
     const { cycles } = validateDependencyChain(edgeList);
+    const truncated = [...new Set(frontier.filter(taskId => !visited.has(taskId)))];
 
     return {
       root_task_id: options.task_id,
@@ -187,6 +199,9 @@ export class DependenciesEnhancedClient extends ClickUpClient {
       nodes: Array.from(nodes.values()),
       edges: edgeList,
       cycles,
+      complete: unfetched.length === 0 && truncated.length === 0,
+      unfetched_tasks: unfetched,
+      truncated_at_depth: truncated,
     };
   }
 
@@ -224,6 +239,20 @@ export class DependenciesEnhancedClient extends ClickUpClient {
         description: `Circular dependency: ${cycle.join(' -> ')}`,
         affected_tasks: cycle,
       });
+    }
+
+    // A conflict found is real even in a partial graph; "no conflicts" from a
+    // partial graph is not an answer, so it is never reported as one.
+    if (conflicts.length === 0 && !graph.complete) {
+      const reasons = [
+        ...graph.unfetched_tasks.map(task => `${task.task_id} (${task.error})`),
+        ...(graph.truncated_at_depth.length > 0
+          ? [`${graph.truncated_at_depth.length} task(s) beyond depth ${graph.depth}`]
+          : []),
+      ];
+      throw new Error(
+        `Could not check every dependency, so a conflict may be hidden: ${reasons.join('; ')}. Try again.`
+      );
     }
 
     return {

@@ -1,6 +1,5 @@
 /* eslint-disable no-console, max-len */
-import { ClickUpClient, formatAuthorizationHeader, resolveClickUpToken } from './index.js';
-import axios from 'axios';
+import { ClickUpClient } from './index.js';
 import { seg } from './path.js';
 
 // Updated Doc interface based on v3 API response
@@ -59,28 +58,13 @@ export class DocsClient {
     workspaceId: string,
     params?: GetDocsParams
   ): Promise<{ docs: Doc[]; next_cursor: string }> {
-    // Raw axios call: resolve the caller's token (hosted) or CLICKUP_API_TOKEN (stdio)
-    const apiToken = resolveClickUpToken();
-
-    try {
-      const url = `https://api.clickup.com/api/v3/workspaces/${seg(workspaceId)}/docs`;
-
-      // Use the exact same headers that worked in the successful request
-      const headers = {
-        Authorization: formatAuthorizationHeader(apiToken),
-        Accept: 'application/json',
-      };
-
-      const response = await axios.get(url, {
-        headers,
-        params,
-      });
-
-      return response.data;
-    } catch (error) {
-      console.error('Error getting docs:', error instanceof Error ? error.message : error);
-      throw error;
-    }
+    // Through the shared client (an absolute v3 URL overrides its v2 base), so
+    // the credential, timeout, 429 retry and error formatting are the same as
+    // every other ClickUp call.
+    const response = await this.client
+      .getAxiosInstance()
+      .get(`https://api.clickup.com/api/v3/workspaces/${seg(workspaceId)}/docs`, { params });
+    return response.data;
   }
 
   /**
@@ -95,34 +79,13 @@ export class DocsClient {
     docId: string,
     contentFormat: string = 'text/md'
   ): Promise<any> {
-    // Raw axios call: resolve the caller's token (hosted) or CLICKUP_API_TOKEN (stdio)
-    const apiToken = resolveClickUpToken();
-
-    try {
-      const url = `https://api.clickup.com/api/v3/workspaces/${seg(workspaceId)}/docs/${seg(docId)}/pages`;
-
-      // Use the exact same parameters that worked in the successful request
-      const params = {
-        max_page_depth: -1,
-        content_format: contentFormat,
-      };
-
-      // Use the exact same headers that worked in the successful request
-      const headers = {
-        Authorization: formatAuthorizationHeader(apiToken),
-        Accept: 'application/json',
-      };
-
-      const response = await axios.get(url, {
-        headers,
-        params,
-      });
-
-      return response.data;
-    } catch (error) {
-      console.error('Error getting doc pages:', error instanceof Error ? error.message : error);
-      throw error;
-    }
+    const response = await this.client
+      .getAxiosInstance()
+      .get(
+        `https://api.clickup.com/api/v3/workspaces/${seg(workspaceId)}/docs/${seg(docId)}/pages`,
+        { params: { max_page_depth: -1, content_format: contentFormat } }
+      );
+    return response.data;
   }
 
   /**

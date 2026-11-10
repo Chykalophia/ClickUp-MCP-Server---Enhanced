@@ -19,7 +19,6 @@ import {
 } from '../../clickup-client/request-context';
 import { AttachmentsEnhancedClient } from '../../clickup-client/attachments-enhanced';
 import { DocsClient } from '../../clickup-client/docs';
-import axios from 'axios';
 
 const SECRET = 's'.repeat(40);
 
@@ -219,21 +218,35 @@ describe('ClickUp client in hosted mode', () => {
     expect(runWithClickUpToken('oauth-abc', () => resolveClickUpToken())).toBe('oauth-abc');
   });
 
-  it('sends the bound token on the raw-axios docs path (v3 docs API)', async () => {
-    const getSpy = jest
-      .spyOn(axios, 'get')
-      .mockResolvedValue({ data: { docs: [], next_cursor: '' } } as never);
-    const docs = new DocsClient(new ClickUpClient({ apiToken: 'pk_constructor_token' }));
+  it('sends the bound token on the v3 docs reads, through the shared client', async () => {
+    const client = new ClickUpClient({ apiToken: 'pk_constructor_token' });
+    const sent: Array<{ url: string; auth: string }> = [];
+    client.getAxiosInstance().defaults.adapter = async config => {
+      sent.push({ url: String(config.url), auth: String(config.headers?.Authorization) });
+      return {
+        data: { docs: [], next_cursor: '' },
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config,
+      };
+    };
+    const docs = new DocsClient(client);
 
     await runWithClickUpToken('oauth-abc', () => docs.getDocsFromWorkspace('w1'));
-    expect(getSpy).toHaveBeenCalledTimes(1);
-    const headers = (getSpy.mock.calls[0][1] as { headers: Record<string, string> }).headers;
-    expect(headers.Authorization).toBe('Bearer oauth-abc');
+    await runWithClickUpToken('oauth-abc', () => docs.getDocPages('w1', 'd1'));
+    expect(sent).toEqual([
+      { url: 'https://api.clickup.com/api/v3/workspaces/w1/docs', auth: 'Bearer oauth-abc' },
+      {
+        url: 'https://api.clickup.com/api/v3/workspaces/w1/docs/d1/pages',
+        auth: 'Bearer oauth-abc',
+      },
+    ]);
 
     await expect(docs.getDocsFromWorkspace('w1')).rejects.toBeInstanceOf(
       MissingRequestCredentialsError
     );
-    expect(getSpy).toHaveBeenCalledTimes(1);
+    expect(sent).toHaveLength(2);
   });
 
   it('disables server-side file_path uploads', async () => {

@@ -51,7 +51,7 @@ jest.mock('../utils/markdown', () => ({
 }));
 
 import { createClickUpServer } from '../create-server';
-import { MCP_APP_MIME_TYPE, TASK_VIEW_URI, TOOL_VIEWS } from '../ui/tool-views';
+import { AVATAR_ORIGINS, MCP_APP_MIME_TYPE, TASK_VIEW_URI, TOOL_VIEWS } from '../ui/tool-views';
 import { TASK_VIEW_HTML } from '../ui/task-view-html';
 
 async function connect(env: Record<string, string> = {}) {
@@ -102,6 +102,7 @@ describe('MCP Apps tool views', () => {
     expect(contents).toHaveLength(1);
     expect(contents[0].mimeType).toBe(MCP_APP_MIME_TYPE);
     expect(contents[0].text).toBe(TASK_VIEW_HTML);
+    expect((contents[0]._meta as any)?.ui?.csp?.resourceDomains).toEqual(AVATAR_ORIGINS);
   });
 
   it('ships a view whose script parses and loads nothing external', () => {

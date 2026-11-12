@@ -7,6 +7,12 @@ export const MCP_APP_MIME_TYPE = 'text/html;profile=mcp-app';
 /** UI resource that renders task results as a card or a list. */
 export const TASK_VIEW_URI = 'ui://clickup/task-view.html';
 
+/** Origins ClickUp serves profile pictures from. */
+export const AVATAR_ORIGINS = [
+  'https://attachments.clickup.com',
+  'https://attachments-public.clickup.com',
+];
+
 /** Tools whose results the host can render with a view, by view URI. */
 export const TOOL_VIEWS: Readonly<Record<string, string>> = {
   clickup_get_tasks: TASK_VIEW_URI,
@@ -57,7 +63,13 @@ export function registerToolViews(server: McpServer): void {
           uri: uri.href,
           mimeType: MCP_APP_MIME_TYPE,
           text: TASK_VIEW_HTML,
-          _meta: { ui: { prefersBorder: true } },
+          _meta: {
+            ui: {
+              prefersBorder: true,
+              // Lets assignee avatars load; everything else in the view is inline.
+              csp: { resourceDomains: AVATAR_ORIGINS },
+            },
+          },
         },
       ],
     })

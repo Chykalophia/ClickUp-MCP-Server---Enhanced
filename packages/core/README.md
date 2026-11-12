@@ -60,10 +60,23 @@ Add to your MCP client configuration:
 
 In hosts that support [MCP Apps](https://github.com/modelcontextprotocol/ext-apps)
 (Claude, ChatGPT, VS Code and others), task tools show an interactive card
-instead of raw JSON: a single task with its status, assignees, due date and an
-"Open in ClickUp" button, or a list of tasks. The view is served from
-`ui://clickup/task-view.html` and bundles no external scripts, styles or
-images; the only outside content it uses is the font CSS the host supplies.
+instead of raw JSON:
+
+- **Task card:** breadcrumb and task ID, status in its ClickUp color, priority
+  flag, due date with a countdown or "days late", time tracked against the
+  estimate, assignee avatars, a subtask and checklist progress bar, the
+  description rendered from Markdown, and expandable sections for subtasks,
+  checklists, custom fields, relationships, watchers and attachments.
+- **Task list:** an at-a-glance summary (overdue, due today, high priority,
+  done), tasks grouped by status, a filter box, and rows that expand into a
+  preview. "Details" opens the full card in place, with a back button.
+- **Live:** a refresh button re-reads the task from ClickUp, created and updated
+  tasks show what changed, and the card follows the host's theme, locale, time
+  zone and fullscreen mode.
+
+The view is served from `ui://clickup/task-view.html` and bundles no external
+scripts or styles. It loads only assignee avatars from ClickUp's attachment
+hosts and the font CSS the host supplies.
 
 ### Markdown Support
 - **GitHub Flavored Markdown**: Headers, lists, code blocks, tables

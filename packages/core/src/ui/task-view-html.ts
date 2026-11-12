@@ -80,6 +80,8 @@ button.link:hover { border-color: var(--fg-2); }
   var nextId = 1;
   var pending = {};
   var toolName = '';
+  var hostLocale;
+  var hostTimeZone;
 
   function send(message) {
     window.parent.postMessage(Object.assign({ jsonrpc: '2.0' }, message), '*');
@@ -120,6 +122,8 @@ button.link:hover { border-color: var(--fg-2); }
       document.head.appendChild(style);
     }
     if (ctx.toolInfo && ctx.toolInfo.tool && ctx.toolInfo.tool.name) toolName = ctx.toolInfo.tool.name;
+    if (typeof ctx.locale === 'string') hostLocale = ctx.locale;
+    if (typeof ctx.timeZone === 'string') hostTimeZone = ctx.timeZone;
   }
 
   function openLink(url) {
@@ -139,7 +143,14 @@ button.link:hover { border-color: var(--fg-2); }
   function formatDate(ms) {
     var n = Number(ms);
     if (!ms || !isFinite(n)) return '';
-    return new Date(n).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    var options = { month: 'short', day: 'numeric', year: 'numeric' };
+    if (hostTimeZone) options.timeZone = hostTimeZone;
+    try {
+      return new Date(n).toLocaleDateString(hostLocale, options);
+    } catch (e) {
+      // An unknown locale or time zone from the host throws a RangeError.
+      return new Date(n).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    }
   }
   function statusPill(status) {
     var pill = el('span', 'pill');
@@ -235,7 +246,7 @@ button.link:hover { border-color: var(--fg-2); }
       return;
     }
     var list = el('div', 'list');
-    tasks.slice(0, MAX_ROWS).forEach(function (task) {
+    function addRow(task) {
       var item = el('div', 'item');
       var top = el('div', 'row');
       var dot = el('span', 'dot');
@@ -255,12 +266,18 @@ button.link:hover { border-color: var(--fg-2); }
         item.addEventListener('keydown', function (e) { if (e.key === 'Enter') openLink(task.url); });
       }
       list.appendChild(item);
-    });
+    }
+    tasks.slice(0, MAX_ROWS).forEach(addRow);
     root.appendChild(list);
     var hidden = tasks.length - Math.min(tasks.length, MAX_ROWS);
     if (hidden > 0) {
-      var more = el('div', 'muted', '+' + hidden + ' more');
+      var more = el('button', 'link', 'Show ' + hidden + ' more');
+      more.type = 'button';
       more.style.marginTop = '8px';
+      more.addEventListener('click', function () {
+        tasks.slice(MAX_ROWS).forEach(addRow);
+        root.removeChild(more);
+      });
       root.appendChild(more);
     }
   }

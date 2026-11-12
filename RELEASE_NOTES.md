@@ -8,10 +8,14 @@ These ship together with the 7.0.0 core changes described below.
 - **Task cards (MCP Apps).** In hosts that support MCP Apps, such as Claude and
   ChatGPT, `clickup_get_tasks`, `clickup_get_task_details`, `clickup_create_task`,
   `clickup_update_task` and `clickup_get_filtered_team_tasks` now render an
-  interactive card: a task with status, assignees, due date, priority and an
-  "Open in ClickUp" button, or a task list. The card shows what the tool is
-  doing while it runs and follows the host's light or dark theme. Other clients
-  get the same text result as before.
+  interactive card. A task shows its status color, priority, due countdown,
+  time tracked, assignee avatars, subtask and checklist progress, the
+  description rendered from Markdown, and sections for subtasks, checklists,
+  custom fields, relationships and watchers. A list is grouped by status, with
+  an overdue/due-today summary, a filter box, expandable previews and a
+  drill-down into the full task. Cards can refresh from ClickUp, show what a
+  create or update changed, and follow the host's theme, time zone and
+  fullscreen mode. Other clients get the same text result as before.
 
 ### Security
 - **intelligence 6.0.0 (breaking):** `clickup_add_processing_rule` no longer runs

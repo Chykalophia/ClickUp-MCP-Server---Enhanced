@@ -307,7 +307,7 @@ details.section[open] > summary .chev { transform: rotate(90deg); }
 
   function openLink(url) {
     if (typeof url !== 'string' || url.indexOf('https://') !== 0) return;
-    request('ui/open-link', { url: url }).catch(function () { window.open(url, '_blank', 'noopener'); });
+    request('ui/open-link', { url: url }).catch(function () { window.open(url, '_blank', 'noopener,noreferrer'); });
   }
   function taskUrl(task) {
     if (task && typeof task.url === 'string') return task.url;

@@ -82,9 +82,10 @@ button.link:hover { border-color: var(--fg-2); }
   var toolName = '';
   var hostLocale;
   var hostTimeZone;
+  var hostOrigin = '*';
 
   function send(message) {
-    window.parent.postMessage(Object.assign({ jsonrpc: '2.0' }, message), '*');
+    window.parent.postMessage(Object.assign({ jsonrpc: '2.0' }, message), hostOrigin);
   }
   function request(method, params) {
     var id = nextId++;
@@ -339,6 +340,8 @@ button.link:hover { border-color: var(--fg-2); }
     if (event.source !== window.parent) return;
     var msg = event.data;
     if (!msg || msg.jsonrpc !== '2.0') return;
+    // The host's origin is unknown until it first replies; an opaque (sandboxed) origin stays '*'.
+    if (hostOrigin === '*' && event.origin && event.origin !== 'null') hostOrigin = event.origin;
     if (msg.id !== undefined && !msg.method) {
       var waiter = pending[msg.id];
       if (!waiter) return;

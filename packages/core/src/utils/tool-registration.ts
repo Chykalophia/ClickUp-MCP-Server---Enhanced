@@ -33,6 +33,7 @@ import {
   resolveAnnotations,
   type ToolAnnotationsShape,
 } from './tool-annotations.js';
+import { withToolView } from '../ui/tool-views.js';
 
 type RawShape = Record<string, z.ZodTypeAny>;
 type ToolArgs = Record<string, unknown>;
@@ -348,7 +349,8 @@ export function enforceStrictParams(
 //      the call site passed;
 //   3. wraps destructive handlers so that, when the connected client advertises
 //      `elicitation.form` (or the older empty `elicitation: {}`), the user
-//      confirms before anything is deleted. Other clients are not prompted.
+//      confirms before anything is deleted. Other clients are not prompted;
+//   4. links tools that have an MCP Apps view to it (see ui/tool-views.ts).
 // ---------------------------------------------------------------------------
 
 export interface StrictParamsOptions {
@@ -364,6 +366,7 @@ export interface RegisteredToolHandle {
   description?: string;
   inputSchema?: z.ZodTypeAny;
   annotations?: ToolAnnotationsShape;
+  _meta?: Record<string, unknown>;
   handler: (...args: unknown[]) => unknown;
   enabled: boolean;
   enable(): void;
@@ -588,6 +591,7 @@ function createToolRegistry(server: McpServer, options: StrictParamsOptions): To
     },
     record(name, handle) {
       handle.annotations = resolveAnnotations(name, handle.annotations);
+      handle._meta = withToolView(name, handle._meta);
 
       if (confirm && !CONFIRM_EXEMPT_TOOLSETS.has(currentToolset)) {
         const inner = handle.handler;

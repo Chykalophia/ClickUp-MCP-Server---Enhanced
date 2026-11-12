@@ -224,7 +224,7 @@ button.link:hover { border-color: var(--fg-2); }
     root.appendChild(footer);
   }
 
-  function renderList(tasks, total) {
+  function renderList(tasks) {
     clear();
     var head = el('div', 'row head');
     var count = tasks.length === 1 ? '1 task' : tasks.length + ' tasks';
@@ -257,7 +257,7 @@ button.link:hover { border-color: var(--fg-2); }
       list.appendChild(item);
     });
     root.appendChild(list);
-    var hidden = total - Math.min(tasks.length, MAX_ROWS);
+    var hidden = tasks.length - Math.min(tasks.length, MAX_ROWS);
     if (hidden > 0) {
       var more = el('div', 'muted', '+' + hidden + ' more');
       more.style.marginTop = '8px';
@@ -307,8 +307,8 @@ button.link:hover { border-color: var(--fg-2); }
     if (!data) {
       try { data = JSON.parse(text); } catch (e) { data = undefined; }
     }
-    if (Array.isArray(data) && data.every(isTask)) return renderList(data, data.length);
-    if (data && Array.isArray(data.tasks)) return renderList(data.tasks.filter(isTask), data.tasks.length);
+    if (Array.isArray(data) && data.every(isTask)) return renderList(data);
+    if (data && Array.isArray(data.tasks)) return renderList(data.tasks.filter(isTask));
     if (isTask(data)) return renderTask(data);
     renderMessage(text || 'Done.', false);
   }

@@ -101,11 +101,15 @@ button.link:hover { border-color: var(--fg-2); }
 
   function applyHostContext(ctx) {
     if (!ctx) return;
-    if (ctx.theme) document.documentElement.setAttribute('data-theme', ctx.theme);
+    if (ctx.theme === 'light' || ctx.theme === 'dark') document.documentElement.setAttribute('data-theme', ctx.theme);
     var vars = ctx.styles && ctx.styles.variables;
     if (vars) {
       Object.keys(vars).forEach(function (key) {
-        if (typeof vars[key] === 'string') document.documentElement.style.setProperty(key, vars[key]);
+        var value = vars[key];
+        // Theme tokens are colors, sizes and font stacks; nothing here needs to fetch a URL.
+        if (/^--[A-Za-z0-9-]+$/.test(key) && typeof value === 'string' && value.length < 200 && !/url\\(|expression\\(/i.test(value)) {
+          document.documentElement.style.setProperty(key, value);
+        }
       });
     }
     var fonts = ctx.styles && ctx.styles.css && ctx.styles.css.fonts;
@@ -266,8 +270,14 @@ button.link:hover { border-color: var(--fg-2); }
     root.appendChild(el('div', isError ? 'error' : 'muted', text));
   }
 
+  function clip(value) {
+    var text = String(value === undefined || value === null ? '' : value);
+    return text.length > 80 ? text.slice(0, 79) + '…' : text;
+  }
+
   function describeInput(args) {
-    var a = args || {};
+    var a = {};
+    Object.keys(args || {}).forEach(function (key) { a[key] = clip(args[key]); });
     if (toolName === 'clickup_create_task') return 'Creating ' + (a.name ? '“' + a.name + '”' : 'task') + '…';
     if (toolName === 'clickup_update_task') return 'Updating task ' + (a.task_id || '') + '…';
     if (a.task_id) return 'Loading task ' + a.task_id + '…';

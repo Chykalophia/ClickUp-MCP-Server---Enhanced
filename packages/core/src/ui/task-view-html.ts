@@ -261,7 +261,7 @@ details.section[open] > summary .chev { transform: rotate(90deg); }
     bolt: ['M13 3L5 13h6l-1 8 8-10h-6l1-8z']
   };
   function icon(name, color) {
-    var spec = ICONS[name];
+    var spec = ICONS[name] || [''];
     var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('viewBox', '0 0 24 24');
     svg.setAttribute('class', 'icon');
@@ -638,7 +638,10 @@ details.section[open] > summary .chev { transform: rotate(90deg); }
     button.addEventListener('click', function () {
       button.disabled = true;
       button.classList.add('spin');
-      onClick().catch(function (error) {
+      onClick().then(function () {
+        button.disabled = false;
+        button.classList.remove('spin');
+      }, function (error) {
         button.disabled = false;
         button.classList.remove('spin');
         showNotice((error && error.message) || 'Could not refresh.');
@@ -872,7 +875,7 @@ details.section[open] > summary .chev { transform: rotate(90deg); }
 
   function renderList(tasks, options) {
     options = options || {};
-    listState = { tasks: tasks, query: '', expanded: false, open: {}, multiList: false };
+    listState = { tasks: tasks, query: '', expanded: !!options.expanded, open: options.open || {}, multiList: false };
     var lists = {};
     tasks.forEach(function (t) { if (t.list && t.list.id) lists[t.list.id] = 1; });
     listState.multiList = Object.keys(lists).length > 1;
@@ -1060,10 +1063,7 @@ details.section[open] > summary .chev { transform: rotate(90deg); }
     return box;
   }
   function restoreList(saved) {
-    renderList(saved.tasks);
-    listState.open = saved.open;
-    listState.expanded = saved.expanded;
-    drawList();
+    renderList(saved.tasks, { open: saved.open, expanded: saved.expanded });
   }
 
   function renderMessage(text) {

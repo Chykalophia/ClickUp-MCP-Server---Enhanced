@@ -56,6 +56,15 @@ Add to your MCP client configuration:
 - **HMAC Validation**: Secure webhook authentication
 - **File Security**: Path traversal prevention, size limits
 
+### Task Cards (MCP Apps)
+
+In hosts that support [MCP Apps](https://github.com/modelcontextprotocol/ext-apps)
+(Claude, ChatGPT, VS Code and others), task tools show an interactive card
+instead of raw JSON: a single task with its status, assignees, due date and an
+"Open in ClickUp" button, or a list of tasks. The view is served from
+`ui://clickup/task-view.html` and bundles no external scripts, styles or
+images; the only outside content it uses is the font CSS the host supplies.
+
 ### Markdown Support
 - **GitHub Flavored Markdown**: Headers, lists, code blocks, tables
 - **Smart Processing**: Auto-detection and conversion

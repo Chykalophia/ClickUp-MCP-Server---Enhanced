@@ -23,6 +23,7 @@ import { setupChecklistTools } from './tools/checklist-tools.js';
 import { setupCommentTools } from './tools/comment-tools.js';
 import { setupChatTools } from './tools/chat-tools.js';
 import { setupCatalogTools } from './tools/catalog-tools.js';
+import { registerToolViews } from './ui/tool-views.js';
 import {
   enforceStrictParams,
   getToolRegistry,
@@ -138,6 +139,7 @@ export function createClickUpServer(options: CreateServerOptions = {}): CreatedS
     registry.withToolset(toolset, () => register(server));
   }
   registry.withToolset(CATALOG_TOOLSET, () => setupCatalogTools(server, registry, resolved));
+  registerToolViews(server);
 
   // Not connected yet, so flipping `enabled` directly sends no notifications.
   let enabled = 0;

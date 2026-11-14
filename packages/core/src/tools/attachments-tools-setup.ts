@@ -10,13 +10,16 @@ import {
 } from '../schemas/attachments-schemas.js';
 import { mcpError } from '../utils/error-handling.js';
 import { idSchema } from '../schemas/common.js';
+import { isRemoteMode } from '../clickup-client/request-context.js';
 
 const attachmentsClient = new AttachmentsEnhancedClient(getApiToken());
 
 export function setupAttachmentsTools(server: McpServer): void {
   server.tool(
     'clickup_upload_attachment',
-    'Upload a file to a ClickUp task as an attachment. Provide the file as base64 data (file_data), a local file path (file_path), or a public http(s) URL to fetch (file_url). Local file access is disabled unless the server operator sets CLICKUP_UPLOAD_DIR, and file_path must then resolve inside that directory. file_url must resolve to a public address (private, loopback, link-local and metadata addresses are refused). ClickUp only accepts the binary upload.',
+    isRemoteMode()
+      ? 'Upload a file to a ClickUp task as an attachment. Provide the file as base64 data (file_data); this hosted server does not read local paths (file_path) or fetch URLs (file_url). ClickUp only accepts the binary upload.'
+      : 'Upload a file to a ClickUp task as an attachment. Provide the file as base64 data (file_data), a local file path (file_path), or a public http(s) URL to fetch (file_url). Local file access is disabled unless the server operator sets CLICKUP_UPLOAD_DIR, and file_path must then resolve inside that directory. file_url must resolve to a public address (private, loopback, link-local and metadata addresses are refused). ClickUp only accepts the binary upload.',
     {
       task_id: idSchema().describe('The ID of the task to attach the file to'),
       filename: z.string().min(1).describe('The name of the file, including its extension'),

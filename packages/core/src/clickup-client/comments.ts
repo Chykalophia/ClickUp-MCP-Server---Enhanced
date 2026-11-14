@@ -7,6 +7,7 @@ import {
   ClickUpCommentBlock,
 } from '../utils/clickup-comment-formatter.js';
 import { validateResponse, CommentsResponseSchema } from '../schemas/response-schemas.js';
+import { seg } from './path.js';
 
 export interface Comment {
   id: string;
@@ -121,7 +122,7 @@ export class CommentsClient {
     taskId: string,
     params?: GetTaskCommentsParams
   ): Promise<{ comments: Comment[] }> {
-    const raw = await this.client.get<unknown>(`/task/${taskId}/comment`, params);
+    const raw = await this.client.get<unknown>(`/task/${seg(taskId)}/comment`, params);
     const result = validateResponse(CommentsResponseSchema, raw, 'getTaskComments') as any;
 
     if (result.comments && Array.isArray(result.comments)) {
@@ -180,7 +181,7 @@ export class CommentsClient {
     }
 
     const result = await this.client.post(
-      `/task/${taskId}/comment${queryString ? `?${queryString}` : ''}`,
+      `/task/${seg(taskId)}/comment${queryString ? `?${queryString}` : ''}`,
       processedParams
     );
 
@@ -197,7 +198,7 @@ export class CommentsClient {
     viewId: string,
     params?: GetChatViewCommentsParams
   ): Promise<{ comments: Comment[] }> {
-    const raw = await this.client.get<unknown>(`/view/${viewId}/comment`, params);
+    const raw = await this.client.get<unknown>(`/view/${seg(viewId)}/comment`, params);
     const result = validateResponse(CommentsResponseSchema, raw, 'getChatViewComments') as any;
 
     if (result.comments && Array.isArray(result.comments)) {
@@ -243,7 +244,7 @@ export class CommentsClient {
       delete processedParams.description;
     }
 
-    const result = await this.client.post(`/view/${viewId}/comment`, processedParams);
+    const result = await this.client.post(`/view/${seg(viewId)}/comment`, processedParams);
 
     const processed = processClickUpResponse(result);
 
@@ -268,7 +269,7 @@ export class CommentsClient {
     listId: string,
     params?: GetListCommentsParams
   ): Promise<{ comments: Comment[] }> {
-    const raw = await this.client.get<unknown>(`/list/${listId}/comment`, params);
+    const raw = await this.client.get<unknown>(`/list/${seg(listId)}/comment`, params);
     const result = validateResponse(CommentsResponseSchema, raw, 'getListComments') as any;
 
     if (result.comments && Array.isArray(result.comments)) {
@@ -311,7 +312,7 @@ export class CommentsClient {
       delete processedParams.description;
     }
 
-    const result = await this.client.post(`/list/${listId}/comment`, processedParams);
+    const result = await this.client.post(`/list/${seg(listId)}/comment`, processedParams);
 
     const processed = processClickUpResponse(result);
 
@@ -347,7 +348,7 @@ export class CommentsClient {
       delete processedParams.description;
     }
 
-    const result = await this.client.put(`/comment/${commentId}`, processedParams);
+    const result = await this.client.put(`/comment/${seg(commentId)}`, processedParams);
 
     const processed = processClickUpResponse(result);
 
@@ -369,7 +370,7 @@ export class CommentsClient {
    */
   async deleteComment(commentId: string): Promise<{ success: boolean }> {
     // ClickUp returns an empty object on success; synthesize success from the 2xx response
-    await this.client.delete(`/comment/${commentId}`);
+    await this.client.delete(`/comment/${seg(commentId)}`);
     return { success: true };
   }
 
@@ -383,7 +384,7 @@ export class CommentsClient {
     commentId: string,
     params?: GetThreadedCommentsParams
   ): Promise<{ comments: Comment[] }> {
-    const raw = await this.client.get<unknown>(`/comment/${commentId}/reply`, params);
+    const raw = await this.client.get<unknown>(`/comment/${seg(commentId)}/reply`, params);
     const result = validateResponse(CommentsResponseSchema, raw, 'getThreadedComments') as any;
 
     if (result.comments && Array.isArray(result.comments)) {
@@ -428,7 +429,7 @@ export class CommentsClient {
       delete processedParams.description;
     }
 
-    const result = await this.client.post(`/comment/${commentId}/reply`, processedParams);
+    const result = await this.client.post(`/comment/${seg(commentId)}/reply`, processedParams);
 
     const processed = processClickUpResponse(result);
 

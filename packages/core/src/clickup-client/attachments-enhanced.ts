@@ -1,5 +1,6 @@
 import { ClickUpClient } from './index.js';
 import { decodeBase64Upload, fetchUploadUrl, readUploadFile } from '../utils/upload-guards.js';
+import { isRemoteMode } from './request-context.js';
 import type {
   UploadAttachmentRequest,
   GetAttachmentsRequest,
@@ -7,6 +8,7 @@ import type {
   AttachmentResponse,
   AttachmentListResponse,
 } from '../schemas/attachments-schemas.js';
+import { seg } from './path.js';
 
 // The list attachments endpoint only exists in the v3 API; the shared client
 // is bound to the v2 base URL, so v3 calls use absolute URLs (axios ignores
@@ -53,7 +55,7 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
     if (request.team_id) params.team_id = request.team_id;
 
     const response = await this.getAxiosInstance().post<AttachmentResponse>(
-      `/task/${request.task_id}/attachment`,
+      `/task/${seg(request.task_id)}/attachment`,
       form,
       {
         params,
@@ -78,8 +80,10 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
     if (request.next_cursor) params.cursor = request.next_cursor;
 
     const entitySegment = ENTITY_TYPE_PATH_SEGMENTS[request.entity_type];
+    const workspace = seg(request.workspace_id);
+    const entity = `${seg(entitySegment)}/${seg(request.entity_id)}`;
     const response = await this.getAxiosInstance().get<AttachmentListResponse>(
-      `${V3_API_BASE_URL}/workspaces/${request.workspace_id}/${entitySegment}/${request.entity_id}/attachments`,
+      `${V3_API_BASE_URL}/workspaces/${workspace}/${entity}/attachments`,
       { params }
     );
     return response.data;
@@ -91,11 +95,27 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
       return decodeBase64Upload(request.file_data, MAX_UPLOAD_SIZE_BYTES);
     }
     if (request.file_path) {
+      // Hosted mode: the path would be read from the server, whose own files
+      // (e.g. /proc/self/environ, holding its OAuth secrets) must never upload.
+      if (isRemoteMode()) {
+        throw new Error(
+          'file_path uploads are disabled on the hosted server: the path would be read from the ' +
+            'server, not your machine. Send the file as file_data (base64) instead.'
+        );
+      }
       // Denied unless CLICKUP_UPLOAD_DIR is set; the realpath must stay inside
       // it, and the opened descriptor is re-validated before reading.
       return readUploadFile(request.file_path, { maxBytes: MAX_UPLOAD_SIZE_BYTES });
     }
     if (request.file_url) {
+      // Hosted mode: the server would fetch the URL from its own network and
+      // the bytes would land in ClickUp, readable by the caller.
+      if (isRemoteMode()) {
+        throw new Error(
+          'file_url uploads are disabled on the hosted server (the server would fetch the URL ' +
+            'from its own network). Send the file as file_data (base64) instead.'
+        );
+      }
       // SSRF-guarded: public addresses only, redirects re-validated, size capped.
       return fetchUploadUrl(request.file_url, { maxBytes: MAX_UPLOAD_SIZE_BYTES });
     }

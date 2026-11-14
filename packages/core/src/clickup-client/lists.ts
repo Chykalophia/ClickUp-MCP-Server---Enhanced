@@ -1,5 +1,6 @@
 import { ClickUpClient } from './index.js';
 import { validateResponse, ListsResponseSchema } from '../schemas/response-schemas.js';
+import { seg } from './path.js';
 
 export interface List {
   id: string;
@@ -75,7 +76,7 @@ export class ListsClient {
    * @returns A list of lists
    */
   async getListsFromSpace(spaceId: string, params?: GetListsParams): Promise<{ lists: List[] }> {
-    const raw = await this.client.get(`/space/${spaceId}/list`, params);
+    const raw = await this.client.get(`/space/${seg(spaceId)}/list`, params);
     return validateResponse(ListsResponseSchema, raw, 'getListsFromSpace') as { lists: List[] };
   }
 
@@ -86,7 +87,7 @@ export class ListsClient {
    * @returns A list of lists
    */
   async getListsFromFolder(folderId: string, params?: GetListsParams): Promise<{ lists: List[] }> {
-    const raw = await this.client.get(`/folder/${folderId}/list`, params);
+    const raw = await this.client.get(`/folder/${seg(folderId)}/list`, params);
     return validateResponse(ListsResponseSchema, raw, 'getListsFromFolder') as { lists: List[] };
   }
 
@@ -97,7 +98,7 @@ export class ListsClient {
    * @returns The created list
    */
   async createListInFolder(folderId: string, params: CreateListParams): Promise<List> {
-    return this.client.post(`/folder/${folderId}/list`, toListMarkdownBody(params));
+    return this.client.post(`/folder/${seg(folderId)}/list`, toListMarkdownBody(params));
   }
 
   /**
@@ -107,7 +108,7 @@ export class ListsClient {
    * @returns The created list
    */
   async createFolderlessList(spaceId: string, params: CreateListParams): Promise<List> {
-    return this.client.post(`/space/${spaceId}/list`, toListMarkdownBody(params));
+    return this.client.post(`/space/${seg(spaceId)}/list`, toListMarkdownBody(params));
   }
 
   /**
@@ -116,7 +117,7 @@ export class ListsClient {
    * @returns The list details
    */
   async getList(listId: string): Promise<List> {
-    return this.client.get(`/list/${listId}`);
+    return this.client.get(`/list/${seg(listId)}`);
   }
 
   /**
@@ -126,7 +127,7 @@ export class ListsClient {
    * @returns The updated list
    */
   async updateList(listId: string, params: UpdateListParams): Promise<List> {
-    return this.client.put(`/list/${listId}`, toListMarkdownBody(params));
+    return this.client.put(`/list/${seg(listId)}`, toListMarkdownBody(params));
   }
 
   /**
@@ -135,7 +136,7 @@ export class ListsClient {
    * @returns An empty object on success (ClickUp returns {})
    */
   async deleteList(listId: string): Promise<Record<string, never>> {
-    return this.client.delete(`/list/${listId}`);
+    return this.client.delete(`/list/${seg(listId)}`);
   }
 
   /**
@@ -145,7 +146,7 @@ export class ListsClient {
    * @returns An empty object on success (ClickUp returns {})
    */
   async addTaskToList(listId: string, taskId: string): Promise<Record<string, never>> {
-    return this.client.post(`/list/${listId}/task/${taskId}`);
+    return this.client.post(`/list/${seg(listId)}/task/${seg(taskId)}`);
   }
 
   /**
@@ -155,7 +156,7 @@ export class ListsClient {
    * @returns An empty object on success (ClickUp returns {})
    */
   async removeTaskFromList(listId: string, taskId: string): Promise<Record<string, never>> {
-    return this.client.delete(`/list/${listId}/task/${taskId}`);
+    return this.client.delete(`/list/${seg(listId)}/task/${seg(taskId)}`);
   }
 
   /**
@@ -164,7 +165,7 @@ export class ListsClient {
    * @returns The list members
    */
   async getListMembers(listId: string): Promise<{ members: ListMember[] }> {
-    return this.client.get(`/list/${listId}/member`);
+    return this.client.get(`/list/${seg(listId)}/member`);
   }
 
   /**

@@ -2,13 +2,6 @@
 /* eslint-disable no-console */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { setupTaskResources } from './resources/task-resources.js';
-import { setupDocResources } from './resources/doc-resources.js';
-import { setupChecklistResources } from './resources/checklist-resources.js';
-import { setupCommentResources } from './resources/comment-resources.js';
-import { setupSpaceResources } from './resources/space-resources.js';
-import { setupFolderResources } from './resources/folder-resources.js';
-import { setupListResources } from './resources/list-resources.js';
 import { createClickUpServer } from './create-server.js';
 import { VERSION } from './version.js';
 import { describeToolsets, type ResolvedToolsets } from './tools/toolsets.js';
@@ -46,18 +39,6 @@ class ClickUpServer {
     };
     process.on('SIGINT', shutdown);
     process.on('SIGTERM', shutdown);
-
-    this.setupResources();
-  }
-
-  private setupResources() {
-    setupTaskResources(this.server);
-    setupDocResources(this.server);
-    setupChecklistResources(this.server);
-    setupCommentResources(this.server);
-    setupSpaceResources(this.server);
-    setupFolderResources(this.server);
-    setupListResources(this.server);
   }
 
   async run() {

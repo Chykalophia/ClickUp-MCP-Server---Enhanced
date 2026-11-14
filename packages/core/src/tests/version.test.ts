@@ -45,6 +45,20 @@ describe('entry point aliases', () => {
   });
 });
 
+// The hosted entries build per request through create-server.ts and load
+// version.js dynamically (hosted mode must be flagged before any tool module
+// loads), so they are checked for the same hand-through separately.
+const HOSTED_ENTRY_POINTS = ['src/index-http.ts', 'api/index.js'];
+
+describe('hosted entry points', () => {
+  it.each(HOSTED_ENTRY_POINTS)('%s passes VERSION into createClickUpServer', entry => {
+    const source = readSource(entry);
+    expect(source).toMatch(/createClickUpServer\(\{\s*version:\s*VERSION\s*\}\)/);
+    expect(source).toMatch(new RegExp(`import\\(${Q}\\.\\.?/(build/)?version\\.js${Q}\\)`));
+    expect(source).not.toMatch(new RegExp(`version:\\s*${Q}\\d+\\.\\d+\\.\\d+${Q}`));
+  });
+});
+
 describe('server version reporting', () => {
   it.each(ENTRY_POINTS)('%s advertises VERSION, not a literal', entry => {
     const source = readSource(entry);

@@ -5,6 +5,7 @@ import {
   clickUpCommentToMarkdown,
   ClickUpCommentBlock,
 } from '../utils/clickup-comment-formatter.js';
+import { seg } from './path.js';
 
 export interface Comment {
   id: string;
@@ -196,7 +197,10 @@ export class CommentsEnhancedClient {
     taskId: string,
     params?: GetTaskCommentsParams
   ): Promise<{ comments: Comment[] }> {
-    const result = await this.client.get<{ comments: any[] }>(`/task/${taskId}/comment`, params);
+    const result = await this.client.get<{ comments: any[] }>(
+      `/task/${seg(taskId)}/comment`,
+      params
+    );
 
     if (result.comments && Array.isArray(result.comments)) {
       result.comments = result.comments.map((comment: any) => processCommentResponse(comment));
@@ -215,7 +219,7 @@ export class CommentsEnhancedClient {
       comment_text: commentText,
     };
 
-    const result = await this.client.post(`/task/${taskId}/comment`, payload);
+    const result = await this.client.post(`/task/${seg(taskId)}/comment`, payload);
 
     return result;
   }
@@ -240,7 +244,7 @@ export class CommentsEnhancedClient {
 
     // Create responses only contain { id, hist_id, date } - no comment array to post-process
     return this.client.post<CreateCommentResponse>(
-      `/task/${taskId}/comment${buildTaskQueryString(params)}`,
+      `/task/${seg(taskId)}/comment${buildTaskQueryString(params)}`,
       payload
     );
   }
@@ -255,7 +259,10 @@ export class CommentsEnhancedClient {
     viewId: string,
     params?: GetChatViewCommentsParams
   ): Promise<{ comments: Comment[] }> {
-    const result = await this.client.get<{ comments: any[] }>(`/view/${viewId}/comment`, params);
+    const result = await this.client.get<{ comments: any[] }>(
+      `/view/${seg(viewId)}/comment`,
+      params
+    );
 
     if (result.comments && Array.isArray(result.comments)) {
       result.comments = result.comments.map((comment: any) => processCommentResponse(comment));
@@ -280,7 +287,7 @@ export class CommentsEnhancedClient {
     };
 
     // Create responses only contain { id, hist_id, date } - no comment array to post-process
-    return this.client.post<CreateCommentResponse>(`/view/${viewId}/comment`, payload);
+    return this.client.post<CreateCommentResponse>(`/view/${seg(viewId)}/comment`, payload);
   }
 
   /**
@@ -293,7 +300,10 @@ export class CommentsEnhancedClient {
     listId: string,
     params?: GetListCommentsParams
   ): Promise<{ comments: Comment[] }> {
-    const result = await this.client.get<{ comments: any[] }>(`/list/${listId}/comment`, params);
+    const result = await this.client.get<{ comments: any[] }>(
+      `/list/${seg(listId)}/comment`,
+      params
+    );
 
     if (result.comments && Array.isArray(result.comments)) {
       result.comments = result.comments.map((comment: any) => processCommentResponse(comment));
@@ -319,7 +329,7 @@ export class CommentsEnhancedClient {
     };
 
     // Create responses only contain { id, hist_id, date } - no comment array to post-process
-    return this.client.post<CreateCommentResponse>(`/list/${listId}/comment`, payload);
+    return this.client.post<CreateCommentResponse>(`/list/${seg(listId)}/comment`, payload);
   }
 
   /**
@@ -340,7 +350,7 @@ export class CommentsEnhancedClient {
       Object.assign(payload, buildCommentBody(params));
     }
 
-    const result = await this.client.put(`/comment/${commentId}`, payload);
+    const result = await this.client.put(`/comment/${seg(commentId)}`, payload);
     return processCommentResponse(result);
   }
 
@@ -351,7 +361,7 @@ export class CommentsEnhancedClient {
    */
   async deleteComment(commentId: string): Promise<{ success: boolean }> {
     // ClickUp returns an empty object on success; synthesize success from the 2xx response
-    await this.client.delete(`/comment/${commentId}`);
+    await this.client.delete(`/comment/${seg(commentId)}`);
     return { success: true };
   }
 
@@ -366,7 +376,7 @@ export class CommentsEnhancedClient {
     params?: GetThreadedCommentsParams
   ): Promise<{ comments: Comment[] }> {
     const result = await this.client.get<{ comments: any[] }>(
-      `/comment/${commentId}/reply`,
+      `/comment/${seg(commentId)}/reply`,
       params
     );
 
@@ -393,7 +403,7 @@ export class CommentsEnhancedClient {
     };
 
     // Create responses only contain { id, hist_id, date } - no comment array to post-process
-    return this.client.post<CreateCommentResponse>(`/comment/${commentId}/reply`, payload);
+    return this.client.post<CreateCommentResponse>(`/comment/${seg(commentId)}/reply`, payload);
   }
 }
 

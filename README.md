@@ -369,6 +369,14 @@ npm install
 npm run build
 ```
 
+## 🌐 Hosted Server (claude.ai web, mobile, scheduled tasks)
+
+The stdio server needs a client that can start a local process. For claude.ai on the
+web or mobile, run the **hosted** server: the same tools over Streamable HTTP, behind
+"Sign in with ClickUp", private to the ClickUp accounts you allowlist. You host your
+own; there is no public instance. Setup, env vars and security model:
+[docs/HOSTED_SERVER.md](https://github.com/Chykalophia/ClickUp-MCP-Server---Enhanced/blob/main/packages/core/docs/HOSTED_SERVER.md).
+
 ## Get ClickUp API Token
 
 1. Log in to ClickUp account
@@ -490,6 +498,7 @@ advertises form elicitation (`elicitation.form`, or the older empty
 `elicitation: {}`; `CLICKUP_CONFIRM_DESTRUCTIVE=false` turns that off).
 Resources are always registered. `CLICKUP_DEBUG_TOOLS=true` adds the raw-API
 debugging tool `clickup_create_task_comment_raw_test`.
+These settings apply to every entry point, the hosted server included.
 
 Full details: [docs/guides/TOOL_LOADING.md](docs/guides/TOOL_LOADING.md).
 

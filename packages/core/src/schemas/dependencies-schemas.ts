@@ -191,6 +191,16 @@ export interface DependencyGraphResponse {
   nodes: DependencyGraphNode[];
   edges: DependencyGraphEdge[];
   cycles: string[][];
+  /**
+   * False when part of the graph could not be read (a task failed to load for
+   * a reason other than being deleted, or the depth limit cut the traversal
+   * short). Cycles found are real; "no cycles" is only trustworthy when true.
+   */
+  complete: boolean;
+  /** Tasks that could not be read, and why. */
+  unfetched_tasks: Array<{ task_id: string; error: string }>;
+  /** Tasks referenced past the depth limit and not visited. */
+  truncated_at_depth: string[];
 }
 
 export interface DependencyConflictResponse {

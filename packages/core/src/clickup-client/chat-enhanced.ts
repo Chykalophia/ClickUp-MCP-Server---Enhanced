@@ -20,6 +20,7 @@ import type {
   ChatReaction,
   ChatSimpleUser,
 } from '../schemas/chat-schemas.js';
+import { seg } from './path.js';
 
 // The ClickUp Chat API only exists under API v3
 const CHAT_API_BASE_URL = 'https://api.clickup.com/api/v3';
@@ -56,7 +57,7 @@ export class ChatEnhancedClient {
   async getChannels(filter: GetChannelsFilter): Promise<ChatChannelsResponse> {
     const { workspace_id, ...params } = filter;
     return this.client.get<ChatChannelsResponse>(
-      `/workspaces/${workspace_id}/chat/channels`,
+      `/workspaces/${seg(workspace_id)}/chat/channels`,
       params
     );
   }
@@ -67,7 +68,7 @@ export class ChatEnhancedClient {
   async createChannel(request: CreateChannelRequest): Promise<ChatChannel> {
     const { workspace_id, ...channelData } = request;
     const response = await this.client.post<ChatDataResponse<ChatChannel>>(
-      `/workspaces/${workspace_id}/chat/channels`,
+      `/workspaces/${seg(workspace_id)}/chat/channels`,
       channelData
     );
     return response.data;
@@ -80,7 +81,7 @@ export class ChatEnhancedClient {
   async createChannelOnParent(request: CreateChannelOnParentRequest): Promise<ChatChannel> {
     const { workspace_id, parent_id, parent_type, ...channelData } = request;
     const response = await this.client.post<ChatDataResponse<ChatChannel>>(
-      `/workspaces/${workspace_id}/chat/channels/location`,
+      `/workspaces/${seg(workspace_id)}/chat/channels/location`,
       {
         ...channelData,
         location: { id: parent_id, type: parent_type },
@@ -95,7 +96,7 @@ export class ChatEnhancedClient {
   async createDirectMessage(request: CreateDirectMessageRequest): Promise<ChatChannel> {
     const { workspace_id, ...dmData } = request;
     const response = await this.client.post<ChatDataResponse<ChatChannel>>(
-      `/workspaces/${workspace_id}/chat/channels/direct_message`,
+      `/workspaces/${seg(workspace_id)}/chat/channels/direct_message`,
       dmData
     );
     return response.data;
@@ -106,7 +107,7 @@ export class ChatEnhancedClient {
    */
   async getChannel(workspaceId: string, channelId: string): Promise<ChatChannel> {
     const response = await this.client.get<ChatDataResponse<ChatChannel>>(
-      `/workspaces/${workspaceId}/chat/channels/${channelId}`
+      `/workspaces/${seg(workspaceId)}/chat/channels/${seg(channelId)}`
     );
     return response.data;
   }
@@ -117,7 +118,7 @@ export class ChatEnhancedClient {
   async updateChannel(request: UpdateChannelRequest): Promise<ChatChannel> {
     const { workspace_id, channel_id, ...updateData } = request;
     const response = await this.client.patch<ChatDataResponse<ChatChannel>>(
-      `/workspaces/${workspace_id}/chat/channels/${channel_id}`,
+      `/workspaces/${seg(workspace_id)}/chat/channels/${seg(channel_id)}`,
       updateData
     );
     return response.data;
@@ -128,7 +129,7 @@ export class ChatEnhancedClient {
    * 204 No Content)
    */
   async deleteChannel(workspaceId: string, channelId: string): Promise<void> {
-    await this.client.delete(`/workspaces/${workspaceId}/chat/channels/${channelId}`);
+    await this.client.delete(`/workspaces/${seg(workspaceId)}/chat/channels/${seg(channelId)}`);
   }
 
   /**
@@ -137,7 +138,7 @@ export class ChatEnhancedClient {
   async getChannelFollowers(filter: GetChannelUsersFilter): Promise<ChatFollowersResponse> {
     const { workspace_id, channel_id, ...params } = filter;
     return this.client.get<ChatFollowersResponse>(
-      `/workspaces/${workspace_id}/chat/channels/${channel_id}/followers`,
+      `/workspaces/${seg(workspace_id)}/chat/channels/${seg(channel_id)}/followers`,
       params
     );
   }
@@ -148,7 +149,7 @@ export class ChatEnhancedClient {
   async getChannelMembers(filter: GetChannelUsersFilter): Promise<ChatMembersResponse> {
     const { workspace_id, channel_id, ...params } = filter;
     return this.client.get<ChatMembersResponse>(
-      `/workspaces/${workspace_id}/chat/channels/${channel_id}/members`,
+      `/workspaces/${seg(workspace_id)}/chat/channels/${seg(channel_id)}/members`,
       params
     );
   }
@@ -159,7 +160,7 @@ export class ChatEnhancedClient {
   async getChannelMessages(filter: GetMessagesFilter): Promise<ChatMessagesResponse> {
     const { workspace_id, channel_id, ...params } = filter;
     return this.client.get<ChatMessagesResponse>(
-      `/workspaces/${workspace_id}/chat/channels/${channel_id}/messages`,
+      `/workspaces/${seg(workspace_id)}/chat/channels/${seg(channel_id)}/messages`,
       params
     );
   }
@@ -170,7 +171,7 @@ export class ChatEnhancedClient {
   async sendMessage(request: SendMessageRequest): Promise<ChatMessage> {
     const { workspace_id, channel_id, ...messageData } = request;
     return this.client.post<ChatMessage>(
-      `/workspaces/${workspace_id}/chat/channels/${channel_id}/messages`,
+      `/workspaces/${seg(workspace_id)}/chat/channels/${seg(channel_id)}/messages`,
       messageData
     );
   }
@@ -181,7 +182,7 @@ export class ChatEnhancedClient {
   async updateMessage(request: UpdateMessageRequest): Promise<ChatMessage> {
     const { workspace_id, message_id, ...updateData } = request;
     return this.client.patch<ChatMessage>(
-      `/workspaces/${workspace_id}/chat/messages/${message_id}`,
+      `/workspaces/${seg(workspace_id)}/chat/messages/${seg(message_id)}`,
       updateData
     );
   }
@@ -190,7 +191,7 @@ export class ChatEnhancedClient {
    * Delete a message (204 No Content)
    */
   async deleteMessage(workspaceId: string, messageId: string): Promise<void> {
-    await this.client.delete(`/workspaces/${workspaceId}/chat/messages/${messageId}`);
+    await this.client.delete(`/workspaces/${seg(workspaceId)}/chat/messages/${seg(messageId)}`);
   }
 
   /**
@@ -199,7 +200,7 @@ export class ChatEnhancedClient {
   async getMessageReplies(filter: GetRepliesFilter): Promise<ChatRepliesResponse> {
     const { workspace_id, message_id, ...params } = filter;
     return this.client.get<ChatRepliesResponse>(
-      `/workspaces/${workspace_id}/chat/messages/${message_id}/replies`,
+      `/workspaces/${seg(workspace_id)}/chat/messages/${seg(message_id)}/replies`,
       params
     );
   }
@@ -210,7 +211,7 @@ export class ChatEnhancedClient {
   async createReply(request: CreateReplyRequest): Promise<ChatMessage> {
     const { workspace_id, message_id, ...replyData } = request;
     return this.client.post<ChatMessage>(
-      `/workspaces/${workspace_id}/chat/messages/${message_id}/replies`,
+      `/workspaces/${seg(workspace_id)}/chat/messages/${seg(message_id)}/replies`,
       replyData
     );
   }
@@ -221,7 +222,7 @@ export class ChatEnhancedClient {
   async getMessageReactions(filter: GetReactionsFilter): Promise<ChatReactionsResponse> {
     const { workspace_id, message_id, ...params } = filter;
     return this.client.get<ChatReactionsResponse>(
-      `/workspaces/${workspace_id}/chat/messages/${message_id}/reactions`,
+      `/workspaces/${seg(workspace_id)}/chat/messages/${seg(message_id)}/reactions`,
       params
     );
   }
@@ -232,7 +233,7 @@ export class ChatEnhancedClient {
   async createReaction(request: CreateReactionRequest): Promise<ChatReaction> {
     const { workspace_id, message_id, reaction } = request;
     return this.client.post<ChatReaction>(
-      `/workspaces/${workspace_id}/chat/messages/${message_id}/reactions`,
+      `/workspaces/${seg(workspace_id)}/chat/messages/${seg(message_id)}/reactions`,
       { reaction }
     );
   }
@@ -243,7 +244,7 @@ export class ChatEnhancedClient {
   async deleteReaction(request: DeleteReactionRequest): Promise<void> {
     const { workspace_id, message_id, reaction } = request;
     await this.client.delete(
-      `/workspaces/${workspace_id}/chat/messages/${message_id}/reactions/${encodeURIComponent(reaction)}`
+      `/workspaces/${seg(workspace_id)}/chat/messages/${seg(message_id)}/reactions/${encodeURIComponent(reaction)}`
     );
   }
 
@@ -253,7 +254,7 @@ export class ChatEnhancedClient {
   async getTaggedUsers(filter: GetTaggedUsersFilter): Promise<TaggedUsersResponse> {
     const { workspace_id, message_id, ...params } = filter;
     return this.client.get<TaggedUsersResponse>(
-      `/workspaces/${workspace_id}/chat/messages/${message_id}/tagged_users`,
+      `/workspaces/${seg(workspace_id)}/chat/messages/${seg(message_id)}/tagged_users`,
       params
     );
   }
@@ -270,7 +271,7 @@ export class ChatEnhancedClient {
 
     for (let page = 0; page < maxPages; page++) {
       const response = await this.client.get<ChatChannelsResponse>(
-        `/workspaces/${workspaceId}/chat/channels`,
+        `/workspaces/${seg(workspaceId)}/chat/channels`,
         cursor ? { cursor, limit: 100 } : { limit: 100 }
       );
       const channels = response.data ?? [];

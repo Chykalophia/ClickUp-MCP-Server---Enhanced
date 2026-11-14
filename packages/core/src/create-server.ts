@@ -1,8 +1,8 @@
 /**
- * Builds the ClickUp McpServer with every tool registered and the tool-loading
- * mode applied. Kept separate from index-enhanced.ts (which starts a stdio
- * transport on import) so tests can build the same server over an in-memory
- * transport.
+ * Builds the ClickUp McpServer with every tool and resource registered and the
+ * tool-loading mode applied. Every entry point builds through here: stdio
+ * (index-enhanced.ts) and the hosted HTTP entries (index-http.ts, api/index.js).
+ * Kept free of transports so tests can build the same server in memory.
  */
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
@@ -24,6 +24,13 @@ import { setupCommentTools } from './tools/comment-tools.js';
 import { setupChatTools } from './tools/chat-tools.js';
 import { setupCatalogTools } from './tools/catalog-tools.js';
 import { registerToolViews } from './ui/tool-views.js';
+import { setupTaskResources } from './resources/task-resources.js';
+import { setupDocResources } from './resources/doc-resources.js';
+import { setupChecklistResources } from './resources/checklist-resources.js';
+import { setupCommentResources } from './resources/comment-resources.js';
+import { setupSpaceResources } from './resources/space-resources.js';
+import { setupFolderResources } from './resources/folder-resources.js';
+import { setupListResources } from './resources/list-resources.js';
 import {
   enforceStrictParams,
   getToolRegistry,
@@ -140,6 +147,14 @@ export function createClickUpServer(options: CreateServerOptions = {}): CreatedS
   }
   registry.withToolset(CATALOG_TOOLSET, () => setupCatalogTools(server, registry, resolved));
   registerToolViews(server);
+
+  setupTaskResources(server);
+  setupDocResources(server);
+  setupChecklistResources(server);
+  setupCommentResources(server);
+  setupSpaceResources(server);
+  setupFolderResources(server);
+  setupListResources(server);
 
   // Not connected yet, so flipping `enabled` directly sends no notifications.
   let enabled = 0;

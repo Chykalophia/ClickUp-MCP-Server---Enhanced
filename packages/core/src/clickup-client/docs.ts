@@ -2,7 +2,7 @@
 import { ClickUpClient } from './index.js';
 import { seg } from './path.js';
 
-// Updated Doc interface based on v3 API response
+// Doc as returned by the v3 API
 export interface Doc {
   id: string;
   name: string;
@@ -58,13 +58,15 @@ export class DocsClient {
     workspaceId: string,
     params?: GetDocsParams
   ): Promise<{ docs: Doc[]; next_cursor: string }> {
-    // Through the shared client (an absolute v3 URL overrides its v2 base), so
-    // the credential, timeout, 429 retry and error formatting are the same as
-    // every other ClickUp call.
-    const response = await this.client
-      .getAxiosInstance()
-      .get(`https://api.clickup.com/api/v3/workspaces/${seg(workspaceId)}/docs`, { params });
-    return response.data;
+    try {
+      const url = `https://api.clickup.com/api/v3/workspaces/${seg(workspaceId)}/docs`;
+      const response = await this.client.getAxiosInstance().get(url, { params });
+
+      return response.data;
+    } catch (error) {
+      console.error('Error getting docs:', error instanceof Error ? error.message : error);
+      throw error;
+    }
   }
 
   /**
@@ -79,13 +81,19 @@ export class DocsClient {
     docId: string,
     contentFormat: string = 'text/md'
   ): Promise<any> {
-    const response = await this.client
-      .getAxiosInstance()
-      .get(
-        `https://api.clickup.com/api/v3/workspaces/${seg(workspaceId)}/docs/${seg(docId)}/pages`,
-        { params: { max_page_depth: -1, content_format: contentFormat } }
-      );
-    return response.data;
+    try {
+      const url = `https://api.clickup.com/api/v3/workspaces/${seg(workspaceId)}/docs/${seg(docId)}/pages`;
+      const params = {
+        max_page_depth: -1,
+        content_format: contentFormat,
+      };
+      const response = await this.client.getAxiosInstance().get(url, { params });
+
+      return response.data;
+    } catch (error) {
+      console.error('Error getting doc pages:', error instanceof Error ? error.message : error);
+      throw error;
+    }
   }
 
   /**

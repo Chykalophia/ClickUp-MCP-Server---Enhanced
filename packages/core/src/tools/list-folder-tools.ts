@@ -8,7 +8,6 @@ import { createSpacesClient } from '../clickup-client/spaces.js';
 import { mcpError } from '../utils/error-handling.js';
 import { idSchema } from '../schemas/common.js';
 
-// Create clients
 const clickUpClient = createClickUpClient();
 const listsClient = createListsClient(clickUpClient);
 const foldersClient = createFoldersClient(clickUpClient);
@@ -34,14 +33,9 @@ const pick = (entity: unknown): HierarchyNode => {
 
 export function setupListFolderTools(server: McpServer): void {
   /*
-   * Resolving a name to an ID used to be the single most expensive thing an
-   * agent could do here. With no name-based lookup anywhere in the hierarchy,
-   * finding one list meant clickup_get_workspaces -> clickup_get_spaces -> a
-   * clickup_get_folderless_lists (and clickup_get_folders, and a
-   * clickup_get_lists per folder) for EVERY space, matching names by hand.
-   * Measured on a real workspace: 4 round trips and 60 KB of payload to find a
-   * single list, and that was the lucky path — 12 spaces could have cost 30+.
-   * This does the same fan-out server-side and returns only ids and names.
+   * ClickUp has no name-based lookup, so resolving a list name to an ID otherwise
+   * takes a get_spaces/get_folders/get_lists walk per space. This does that
+   * fan-out server-side and returns only ids and names.
    */
   server.tool(
     'clickup_get_workspace_hierarchy',
@@ -258,9 +252,8 @@ export function setupListFolderTools(server: McpServer): void {
           'Confirmation that you want to permanently delete this folder, all its lists, and all their tasks (must be true)'
         ),
     },
-    // Gated to match clickup_delete_list / _task / _space, which have all
-    // required an explicit confirmation since they were written. This one was
-    // the outlier, despite having the largest blast radius of the four.
+    // Confirmation-gated like clickup_delete_list / _task / _space; this one has
+    // the largest blast radius of the four.
     async ({ folder_id, confirm_deletion }) => {
       try {
         if (!confirm_deletion) {
@@ -331,7 +324,12 @@ export function setupListFolderTools(server: McpServer): void {
         .describe('The type of container to create the list in'),
       container_id: idSchema().describe('The ID of the container to create the list in'),
       name: z.string().describe('The name of the list'),
-      content: z.string().optional().describe('The description/content of the list'),
+      content: z
+        .string()
+        .optional()
+        .describe(
+          'The description of the list. Markdown is supported (sent to ClickUp as markdown_content).'
+        ),
       due_date: z
         .number()
         .optional()
@@ -387,7 +385,12 @@ export function setupListFolderTools(server: McpServer): void {
     {
       space_id: idSchema().describe('The ID of the space to create the folderless list in'),
       name: z.string().describe('The name of the folderless list'),
-      content: z.string().optional().describe('The description/content of the list'),
+      content: z
+        .string()
+        .optional()
+        .describe(
+          'The description of the list. Markdown is supported (sent to ClickUp as markdown_content).'
+        ),
       due_date: z
         .number()
         .optional()
@@ -450,7 +453,12 @@ export function setupListFolderTools(server: McpServer): void {
     {
       list_id: idSchema().describe('The ID of the list to update'),
       name: z.string().optional().describe('The new name of the list'),
-      content: z.string().optional().describe('The new description/content of the list'),
+      content: z
+        .string()
+        .optional()
+        .describe(
+          'The new description of the list. Markdown is supported (sent to ClickUp as markdown_content); an empty string clears it.'
+        ),
       due_date: z
         .number()
         .optional()
@@ -542,7 +550,7 @@ export function setupListFolderTools(server: McpServer): void {
           };
         }
 
-        // Get list details first for confirmation message
+        // Fetched before deletion so the result can report the list name.
         const listDetails = await listsClient.getList(list_id);
         await listsClient.deleteList(list_id);
 
@@ -663,6 +671,41 @@ export function setupListFolderTools(server: McpServer): void {
         };
       } catch (error: unknown) {
         return mcpError('getting folder templates', error);
+      }
+    }
+  );
+  server.tool(
+    'clickup_get_list_templates',
+    'List the List templates available in a ClickUp workspace. Use a returned template ID (it starts with "t-") with clickup_create_list_from_template_in_folder or clickup_create_list_from_template_in_space.',
+    {
+      team_id: idSchema().describe('The ID of the workspace (team) to get List templates from'),
+    },
+    async ({ team_id }) => {
+      try {
+        const result = await listsClient.getListTemplates(team_id);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result) }],
+        };
+      } catch (error: unknown) {
+        return mcpError('getting list templates', error);
+      }
+    }
+  );
+
+  server.tool(
+    'clickup_get_shared_hierarchy',
+    'Get the tasks, Lists and Folders that have been shared with the authenticated user but sit outside the spaces they belong to. Use it to find items a guest or limited member can reach that clickup_get_workspace_hierarchy does not show.',
+    {
+      team_id: idSchema().describe('The ID of the workspace (team)'),
+    },
+    async ({ team_id }) => {
+      try {
+        const result = await listsClient.getSharedHierarchy(team_id);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result) }],
+        };
+      } catch (error: unknown) {
+        return mcpError('getting shared hierarchy', error);
       }
     }
   );

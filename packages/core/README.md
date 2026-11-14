@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://www.npmjs.com/package/@chykalophia/clickup-mcp-server"><img src="https://img.shields.io/npm/v/@chykalophia/clickup-mcp-server.svg" alt="Version"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
-  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen" alt="Node.js Version"></a>
+  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D18.14.0-brightgreen" alt="Node.js Version"></a>
 </p>
 
 A comprehensive Model Context Protocol (MCP) server providing AI assistants with complete ClickUp integration. Features **177+ core tools**, **production-grade security**, and **full GitHub Flavored Markdown support**.
@@ -55,6 +55,28 @@ Add to your MCP client configuration:
 - **Rate Limiting**: 1000 API, 100 webhook, 10 upload/min
 - **HMAC Validation**: Secure webhook authentication
 - **File Security**: Path traversal prevention, size limits
+
+### Task Cards (MCP Apps)
+
+In hosts that support [MCP Apps](https://github.com/modelcontextprotocol/ext-apps)
+(Claude, ChatGPT, VS Code and others), task tools show an interactive card
+instead of raw JSON:
+
+- **Task card:** breadcrumb and task ID, status in its ClickUp color, priority
+  flag, due date with a countdown or "days late", time tracked against the
+  estimate, assignee avatars, a subtask and checklist progress bar, the
+  description rendered from Markdown, and expandable sections for subtasks,
+  checklists, custom fields, relationships, watchers and attachments.
+- **Task list:** an at-a-glance summary (overdue, due today, high priority,
+  done), tasks grouped by status, a filter box, and rows that expand into a
+  preview. "Details" opens the full card in place, with a back button.
+- **Live:** a refresh button re-reads the task from ClickUp, created and updated
+  tasks show what changed, and the card follows the host's theme, locale, time
+  zone and fullscreen mode.
+
+The view is served from `ui://clickup/task-view.html` and bundles no external
+scripts or styles. It loads only assignee avatars from ClickUp's attachment
+hosts and the font CSS the host supplies.
 
 ### Markdown Support
 - **GitHub Flavored Markdown**: Headers, lists, code blocks, tables

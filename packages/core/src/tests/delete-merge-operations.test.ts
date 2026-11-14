@@ -54,7 +54,7 @@ describe('Delete and Merge Task Operations Validation', () => {
     });
 
     describe('Security Validation', () => {
-      it('should handle potentially malicious task IDs', () => {
+      it('treats hostile-looking task IDs as ordinary non-empty strings', () => {
         const maliciousInputs = [
           '<script>alert("xss")</script>',
           '../../etc/passwd',
@@ -65,7 +65,7 @@ describe('Delete and Merge Task Operations Validation', () => {
         maliciousInputs.forEach(input => {
           expect(typeof input).toBe('string');
           expect(input.length).toBeGreaterThan(0);
-          // The actual sanitization would happen in the client layer
+          // Only checks that these representative values are non-empty strings.
         });
       });
 

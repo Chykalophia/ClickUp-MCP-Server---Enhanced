@@ -128,29 +128,26 @@ async function stdioHandshake(entry: string, env: Record<string, string | undefi
 const STDIO_ENV = { PATH: process.env.PATH, CLICKUP_API_TOKEN: 'pk_fake_token' };
 
 describe('built entry points boot and serve', () => {
-  it('stdio (build/index-enhanced.js) reports the package version and serves tools', async () => {
-    const { serverInfo, tools } = await stdioHandshake('build/index-enhanced.js', STDIO_ENV);
-    expect(serverInfo).toEqual({ name: 'clickup-mcp-server', version: pkgVersion });
-    expect(tools.length).toBeGreaterThan(100);
+  it('stdio (build/index-enhanced.js) reports the package version and serves core tools by default', async () => {
+    const core = await stdioHandshake('build/index-enhanced.js', STDIO_ENV);
+    const all = await stdioHandshake('build/index-enhanced.js', {
+      ...STDIO_ENV,
+      CLICKUP_TOOL_MODE: 'all',
+    });
+    expect(core.serverInfo).toMatchObject({ name: 'clickup-mcp-server', version: pkgVersion });
+    expect(core.tools).toContain('clickup_call_tool');
+    expect(core.tools).not.toContain('clickup_get_goals');
+    expect(all.tools).toContain('clickup_get_goals');
+    expect(all.tools.length).toBeGreaterThan(100);
   });
 
-  it('efficiency (build/index-efficiency-simple.js) honours CLICKUP_TOOLSETS and adds its tools', async () => {
-    const full = await stdioHandshake('build/index-efficiency-simple.js', STDIO_ENV);
-    const tasksOnly = await stdioHandshake('build/index-efficiency-simple.js', {
-      ...STDIO_ENV,
-      CLICKUP_TOOLSETS: 'tasks',
-    });
-    expect(full.serverInfo).toEqual({ name: 'clickup-mcp-server-efficiency', version: pkgVersion });
-    for (const extra of [
-      'find_chat_channels',
-      'analyze_workflow_efficiency',
-      'get_workspace_overview',
-    ]) {
-      expect(full.tools).toContain(extra);
-      expect(tasksOnly.tools).toContain(extra);
-    }
-    expect(tasksOnly.tools.length).toBeLessThan(full.tools.length);
-    expect(tasksOnly.tools.some(name => name.includes('chat_message'))).toBe(false);
+  it('efficiency (build/index-efficiency-simple.js) is the same server and honours CLICKUP_TOOLSETS', async () => {
+    const env = { ...STDIO_ENV, CLICKUP_TOOLSETS: 'goals' };
+    const stdio = await stdioHandshake('build/index-enhanced.js', env);
+    const efficiency = await stdioHandshake('build/index-efficiency-simple.js', env);
+    expect(efficiency.serverInfo).toEqual(stdio.serverInfo);
+    expect(efficiency.tools.sort()).toEqual(stdio.tools.sort());
+    expect(efficiency.tools).toContain('clickup_get_goals');
   });
 
   it('hosted Node (build/index-http.js) boots, answers health and shows the consent flow', async () => {

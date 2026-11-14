@@ -1,6 +1,117 @@
 # Release Notes - ClickUp MCP Server Suite
 
-## Unreleased - Comment Formatting Maintenance Release
+## November 2026 release: core 7.0.0, intelligence 6.0.0, shared 2.0.0
+
+These ship together with the 7.0.0 core changes described below.
+
+### Features
+- **Task cards (MCP Apps).** In hosts that support MCP Apps, such as Claude and
+  ChatGPT, `clickup_get_tasks`, `clickup_get_task_details`, `clickup_create_task`,
+  `clickup_update_task` and `clickup_get_filtered_team_tasks` now render an
+  interactive card. A task shows its status color, priority, due countdown,
+  time tracked, assignee avatars, subtask and checklist progress, the
+  description rendered from Markdown, and sections for subtasks, checklists,
+  custom fields, relationships and watchers. A list is grouped by status, with
+  an overdue/due-today summary, a filter box, expandable previews and a
+  drill-down into the full task. Cards can refresh from ClickUp, show what a
+  create or update changed, and follow the host's theme, time zone and
+  fullscreen mode. Other clients get the same text result as before.
+
+### Security
+- **intelligence 6.0.0 (breaking):** `clickup_add_processing_rule` no longer runs
+  JavaScript passed in its `condition` and `action` arguments (it used
+  `new Function`, so anything that could reach the tool could run code in the
+  server). Rules are now declarative: `condition: { field, operator, value }`
+  with `equals`, `not_equals`, `contains` or `exists` on a dot path into the
+  event data, and `action: { type: "log", message? }`.
+- `clickup_process_webhook` now verifies ClickUp's `X-Signature` (HMAC-SHA256,
+  hex) when `validateSignature` is true and fails closed when the signature or
+  secret is missing (contributed in PR #60).
+- `qs` pinned to 6.17.1 (GHSA-6pq8-jhm2-2vcw). `npm audit --omit=dev` is clean.
+
+### Fixes
+- The intelligence server sent raw zod objects as `inputSchema` for 18 tools,
+  which clients cannot read, and never parsed arguments, so defaults were not
+  applied. Every tool's schema is now published as JSON Schema and arguments are
+  validated strictly. Unknown keys are rejected in nested objects too, so a
+  misspelled key such as `task.descripton` is an error instead of being silently
+  dropped. Passthrough objects and union branches stay open (#72).
+- The core server now exits on SIGTERM. Before, a SIGTERM listener in the rate
+  limiter replaced Node's default exit, so a client that stopped the server
+  with SIGTERM left an orphaned process behind (#62).
+- The folder and checklist resources return real data instead of stubs.
+  **Breaking (core 7.0.0):** the `clickup://checklist/{checklist_id}/items` resource is removed, because
+  ClickUp has no endpoint for reading one checklist; read a task's checklists,
+  items included, from `clickup://task/{task_id}/checklist` instead.
+- On HTTP 429 the core client now waits until ClickUp's documented
+  `X-RateLimit-Reset` instead of a fixed one second when no `Retry-After`
+  header is sent.
+
+### Dependencies
+- zod 3 to 4 across all packages (Dependabot). shared 2.0.0 is a major bump
+  because its exported schemas are now zod 4 schemas. Other updates: fast-uri,
+  follow-redirects, @hono/node-server, ip-address and body-parser.
+
+## Version 7.0.0 - Core Tool Loading and Runtime Toolset Catalog
+
+**Affects**: `@chykalophia/clickup-mcp-server` (core)
+
+### Breaking change: only core tools are published by default
+
+Until 6.x every tool (157) was published in `tools/list` on connect — about
+173 KB, roughly 43k tokens of context before the first prompt, re-sent on every
+reconnect. 7.0.0 still **registers** every tool but **enables** only a core set
+by default:
+
+- **Core mode (default):** 17 tools, ~29 KB `tools/list` (~83% smaller than 6.x).
+  Core: workspace hierarchy, task search/read/create/update, task comments,
+  custom fields, timers (plus `clickup_find_member` / `clickup_move_task` when
+  present).
+- **Restore the old behaviour with `CLICKUP_TOOL_MODE=all`.** With
+  `CLICKUP_TOOLSETS` also set, `all` mode enables exactly those toolsets, as
+  `CLICKUP_TOOLSETS` did in 6.x.
+- `CLICKUP_TOOLSETS` in core mode adds whole toolsets on top of core and accepts
+  profiles: `pm`, `time`, `chat`, `docs`, `admin`. `CLICKUP_TOOLSETS=all` still
+  enables everything. If no name resolves (in either mode), the server warns on
+  stderr and falls back to core (6.x fell back to all).
+- The declared Node.js floor is now 18.14.0 (`engines`), the minimum Jest 30
+  supports.
+- The `clickup-mcp-server-efficiency` bin (`bin/clickup-mcp-server-efficiency.js`)
+  and the `build/index-efficiency-simple.js` entry point are now aliases of the
+  main server. Its separate tools
+  `clickup_find_chat_channels`, `clickup_get_workspace_overview` and
+  `clickup_analyze_workflow_efficiency` are gone: use
+  `clickup_search_chat_channels`, `clickup_get_workspace_hierarchy` and the
+  catalog tools instead.
+
+### New: catalog tools (always on)
+
+- `clickup_list_toolsets` — toolsets, their tools, enabled state, and a
+  `unique` flag for capabilities most ClickUp MCP servers lack; optional JSON
+  schemas per toolset.
+- `clickup_enable_toolset` — enable/disable toolsets at runtime; the server
+  emits `notifications/tools/list_changed`.
+- `clickup_call_tool` — run any registered tool (enabled or not) with the same
+  strict parameter validation as a direct call.
+
+### Also new
+
+- **Tool annotations** on every tool: `title`, `readOnlyHint`,
+  `destructiveHint`, `idempotentHint`, `openWorldHint`, inferred centrally from
+  tool names with an override table.
+- **Confirmation for destructive tools** via MCP elicitation when the client
+  advertises form elicitation (`elicitation.form`, or the older empty
+  `elicitation: {}`); other clients behave as before.
+  `CLICKUP_CONFIRM_DESTRUCTIVE=false` disables it.
+- **Server `instructions`** in the `initialize` response, and `title` /
+  `websiteUrl` in `serverInfo`.
+- Toolset tool counts are derived from what actually registers, not a
+  hand-maintained table. `TOOLSETS[...].count` and `TOTAL_TOOL_COUNT` were
+  removed from `tools/toolsets.ts`.
+
+See [docs/guides/TOOL_LOADING.md](docs/guides/TOOL_LOADING.md).
+
+## Version 7.0.0 (continued) - Comment Formatting
 
 **Status**: Merged, unreleased
 **Affects**: `@chykalophia/clickup-mcp-server` (core)
@@ -40,7 +151,7 @@ fixed.
 
 - **Markdown comments now use ClickUp's real block types.** ClickUp carries
   block-level formatting on the `"\n"` that terminates a line, and the converter
-  never used it — so every structured comment this server posted was a flat
+  never used it — so every comment this server generated from markdown was a flat
   paragraph wearing a costume:
 
   | Markdown | Was posted as | Now posted as |
@@ -58,7 +169,8 @@ fixed.
 - **`comment_markdown` on read now reconstructs those blocks.** The reverse
   conversion ignored block-level attributes, so headings, lists, quotes and code
   blocks came back as undifferentiated lines. A comment written as markdown now
-  reads back as the same markdown, and tag blocks round-trip to
+  reads back with its formatting intact (headings deeper than `###` clamp to
+  level 3, and ordered lists renumber from 1), and tag blocks round-trip to
   `@[Name](userId)` when the API returns a user ID.
 
 ### 🐛 Bug Fixes

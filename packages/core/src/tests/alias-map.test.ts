@@ -6,7 +6,7 @@
  * someone enabled that toolset.
  */
 
-import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 
 const noop = jest.fn();
 
@@ -39,20 +39,43 @@ jest.mock('../utils/markdown', () => ({
   htmlToMarkdown: jest.fn((s: string) => s),
 }));
 
+import { enforceStrictParams, getToolRegistry, UNGROUPED_TOOLSET } from '../utils/tool-registration.js';
 import { PARAM_ALIASES, UNIVERSAL_ALIASES } from '../utils/param-aliases.js';
-import { TOTAL_TOOL_COUNT } from '../tools/toolsets.js';
-import { createClickUpMcpServer } from '../server-factory';
+import { setupTaskTools } from '../tools/task-tools';
+import { setupWorkspaceTools } from '../tools/workspace-tools';
+import { setupListFolderTools } from '../tools/list-folder-tools';
+import { setupBulkTaskTools } from '../tools/bulk-task-tools';
+import { setupEnhancedDocTools } from '../tools/doc-tools-enhanced';
+import { setupCustomFieldTools } from '../tools/custom-field-tools';
+import { setupTimeTrackingTools } from '../tools/time-tracking-tools';
+import { setupGoalsTools } from '../tools/goals-tools';
+import { setupWebhookTools } from '../tools/webhook-tools-setup';
+import { setupViewsTools } from '../tools/views-tools-setup';
+import { setupDependenciesTools } from '../tools/dependencies-tools-setup';
+import { setupAttachmentsTools } from '../tools/attachments-tools-setup';
+import { setupSpaceTools } from '../tools/space-tools';
+import { setupChecklistTools } from '../tools/checklist-tools';
+import { setupCommentTools } from '../tools/comment-tools';
+import { setupChatTools } from '../tools/chat-tools';
 
-jest.mock('../version', () => ({ VERSION: '0.0.0-test' }));
-
-/**
- * The real composition root every entry point uses, so this test cannot drift
- * from what is actually served. CLICKUP_TOOLSETS unset = every toolset.
- */
-function buildServer(): McpServer {
-  delete process.env.CLICKUP_TOOLSETS;
-  delete process.env.CLICKUP_DEBUG_TOOLS;
-  return createClickUpMcpServer().server;
+/** Mirrors the registrar table in index-enhanced.ts. */
+function registerEverything(server: McpServer): void {
+  setupTaskTools(server);
+  setupWorkspaceTools(server);
+  setupListFolderTools(server);
+  setupBulkTaskTools(server);
+  setupEnhancedDocTools(server);
+  setupCustomFieldTools(server);
+  setupTimeTrackingTools(server);
+  setupGoalsTools(server);
+  setupWebhookTools(server);
+  setupViewsTools(server);
+  setupDependenciesTools(server);
+  setupAttachmentsTools(server);
+  setupSpaceTools(server);
+  setupChecklistTools(server);
+  setupCommentTools(server);
+  setupChatTools(server);
 }
 
 interface RegisteredToolShape {
@@ -68,20 +91,24 @@ describe('alias tables', () => {
   let server: McpServer;
 
   beforeEach(() => {
-    server = buildServer();
+    server = enforceStrictParams(new McpServer({ name: 'test-server', version: '1.0.0' }));
   });
 
   it('registers every toolset without a stale alias entry', () => {
-    expect(() => buildServer()).not.toThrow();
+    expect(() => registerEverything(server)).not.toThrow();
   });
 
-  it('registers the tool count the toolset table advertises', () => {
-    // The comments toolset's count already excludes the debug-only
-    // clickup_create_task_comment_raw_test, which is not registered here.
-    expect(Object.keys(registeredTools(server))).toHaveLength(TOTAL_TOOL_COUNT);
+  it('records every registered tool in the registry', () => {
+    registerEverything(server);
+    // Counts are derived from the registry, never from a hand-kept table.
+    const registry = getToolRegistry(server)!;
+    expect(registry.tools.size).toBe(Object.keys(registeredTools(server)).length);
+    // Nothing here runs inside withToolset, so everything is ungrouped.
+    expect([...registry.byToolset().keys()]).toEqual([UNGROUPED_TOOLSET]);
   });
 
   it('names only real tools in PARAM_ALIASES', () => {
+    registerEverything(server);
     const registered = new Set(Object.keys(registeredTools(server)));
 
     for (const toolName of Object.keys(PARAM_ALIASES)) {
@@ -90,6 +117,7 @@ describe('alias tables', () => {
   });
 
   it('applies each universal alias somewhere, so no rule is dead', () => {
+    registerEverything(server);
     const tools = registeredTools(server);
 
     for (const alias of Object.keys(UNIVERSAL_ALIASES)) {

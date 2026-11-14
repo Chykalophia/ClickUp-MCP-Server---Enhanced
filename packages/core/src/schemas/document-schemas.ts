@@ -1,19 +1,13 @@
 import { z } from 'zod';
 import { idSchema } from './common.js';
 
-// Content format values accepted by tool inputs.
-// 'markdown' and 'html' are aliases normalized to 'text/md'/'text/html'
-// before being sent to the API (which accepts the MIME-style values only).
-export const ContentFormatSchema = z.enum([
-  'markdown',
-  'html',
-  'text/md',
-  'text/plain',
-  'text/html',
-]);
+// Content formats accepted from callers for page content (Create/Edit/Get
+// Page): markdown or plain text. 'markdown' is a legacy alias the client
+// normalises to text/md. There is no HTML format.
+export const ContentFormatSchema = z.enum(['markdown', 'text/md', 'text/plain']);
 
 // API-native content format values
-export const ApiContentFormatSchema = z.enum(['text/md', 'text/plain', 'text/html']);
+export const ApiContentFormatSchema = z.enum(['text/md', 'text/plain']);
 
 // How Edit Page applies new content
 export const ContentEditModeSchema = z.enum(['replace', 'append', 'prepend']);
@@ -104,27 +98,22 @@ export const SearchDocsParamsSchema = GetDocsParamsSchema.extend({
   query: z.string().optional(),
 });
 
-// Document ID validation
 export const DocIdSchema = idSchema('Document ID is required');
 
-// Page ID validation
 export const PageIdSchema = idSchema('Page ID is required');
 
-// Workspace ID validation
 export const WorkspaceIdSchema = idSchema('Workspace ID is required');
 
 // Combined schemas for tool validation.
 // Note: the public ClickUp API has no doc update/delete, page delete,
 // sharing, or template endpoints, so no schemas exist for those operations.
 export const DocumentToolSchemas = {
-  // Document operations
   createDoc: CreateDocSchema,
   getDoc: z.object({
     workspace_id: WorkspaceIdSchema,
     doc_id: DocIdSchema,
   }),
 
-  // Page operations
   createPage: CreatePageSchema.extend({
     workspace_id: WorkspaceIdSchema,
     doc_id: DocIdSchema,
@@ -146,7 +135,6 @@ export const DocumentToolSchemas = {
     content_format: ContentFormatSchema.optional(),
   }),
 
-  // Read operations
   getDocsFromWorkspace: GetDocsParamsSchema.extend({
     workspace_id: WorkspaceIdSchema,
   }),

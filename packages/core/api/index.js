@@ -15,14 +15,16 @@ let appPromise;
 export default async function handler(req, res) {
   appPromise ??= Promise.all([
     import('../build/remote/app.js'),
-    import('../build/server-factory.js'),
-  ]).then(([remote, factory]) => {
-    const app = remote.createRemoteAppFromEnv(() => factory.createClickUpMcpServer().server);
-    // Servers are built per request; report a mistyped CLICKUP_TOOLSETS once per instance.
-    const { unknown } = factory.createClickUpMcpServer().toolsets;
-    if (unknown.length > 0) {
+    import('../build/create-server.js'),
+    import('../build/version.js'),
+  ]).then(([remote, factory, { VERSION }]) => {
+    const build = () => factory.createClickUpServer({ version: VERSION });
+    const app = remote.createRemoteAppFromEnv(() => build().server);
+    // Servers are built per request; report a mistyped tool setting once per instance.
+    const { unknown, unknownMode } = build().resolved;
+    if (unknown.length > 0 || unknownMode) {
       process.stderr.write(
-        `${JSON.stringify({ level: 'warn', message: 'hosted_unknown_toolsets', ignored: unknown })}\n`
+        `${JSON.stringify({ level: 'warn', message: 'hosted_unknown_toolsets', ignored: unknown, unknownMode })}\n`
       );
     }
     return app;

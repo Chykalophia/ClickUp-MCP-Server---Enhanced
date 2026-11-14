@@ -9,7 +9,6 @@ import { seg } from './path.js';
 export interface Folder {
   id: string;
   name: string;
-  // ...other folder properties...
 }
 
 export interface GetFoldersParams {
@@ -19,7 +18,6 @@ export interface GetFoldersParams {
 export interface List {
   id: string;
   name: string;
-  // ...other list properties...
 }
 
 export interface GetListsParams {

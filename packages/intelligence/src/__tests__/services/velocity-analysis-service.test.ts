@@ -77,9 +77,8 @@ describe('VelocityAnalysisService', () => {
       expect(result.prediction.factors).toBeInstanceOf(Array);
     });
 
-      // QUARANTINED: pre-existing stale test asserting an outdated service contract
-  // (package never compiled, so this never ran in CI). TODO: rewrite against the
-  // current service return shape, then re-enable.
+  // QUARANTINED: stale test for an outdated service contract (never ran in CI).
+  // TODO: rewrite against the current service return shape, then re-enable.
   it.skip('should provide actionable recommendations', async () => {
       const input = {
         teamId: 'recommendations-team-123',

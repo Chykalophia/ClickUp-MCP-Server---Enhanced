@@ -59,24 +59,18 @@ export class ResourceOptimizationService {
   async analyzeTeamWorkload(teamId: string, teamMembers: TeamMember[]): Promise<WorkloadAnalysis> {
     const analysisDate = new Date();
 
-    // Calculate team capacity metrics
     const totalCapacity = teamMembers.reduce((sum, member) => sum + member.capacity, 0);
     const utilizedCapacity = teamMembers.reduce((sum, member) => sum + member.currentWorkload, 0);
     const utilizationRate = totalCapacity > 0 ? utilizedCapacity / totalCapacity : 0;
 
-    // Analyze each team member
     const memberAnalysis = await Promise.all(teamMembers.map(member => this.analyzeMemberWorkload(member)));
 
-    // Identify bottlenecks
     const bottlenecks = this.identifyResourceBottlenecks(teamMembers, memberAnalysis);
 
-    // Generate recommendations
     const recommendations = this.generateWorkloadRecommendations(memberAnalysis, bottlenecks);
 
-    // Calculate balance score
     const balanceScore = this.calculateTeamBalanceScore(memberAnalysis);
 
-    // Determine risk level
     const riskLevel = this.assessTeamRiskLevel(memberAnalysis, bottlenecks);
 
     return {
@@ -100,21 +94,16 @@ export class ResourceOptimizationService {
     const planId = `plan_${Date.now()}`;
     const createdDate = new Date();
 
-    // Calculate skill matches for all task-member combinations
     const skillMatches = this.calculateSkillMatches(tasks, teamMembers);
 
-    // Generate optimal assignments using constraint satisfaction
     const assignments = this.generateOptimalAssignments(tasks, teamMembers, skillMatches);
 
-    // Calculate plan metrics
     const balanceScore = this.calculateAssignmentBalance(assignments, teamMembers, tasks);
     const skillMatchScore = this.calculateOverallSkillMatch(assignments);
     const capacityUtilization = this.calculateCapacityUtilization(assignments, teamMembers, tasks);
 
-    // Generate alternative options
     const alternativeOptions = this.generateAlternativeAssignments(tasks, teamMembers, skillMatches);
 
-    // Calculate confidence and impact
     const confidence = this.calculateAssignmentConfidence(assignments, skillMatches);
     const estimatedImpact = this.estimateAssignmentImpact(assignments, teamMembers);
 
@@ -199,8 +188,6 @@ export class ResourceOptimizationService {
     };
   }
 
-  // Private helper methods
-
   private async analyzeMemberWorkload(member: TeamMember): Promise<MemberWorkloadAnalysis> {
     const utilizationRate = member.capacity > 0 ? member.currentWorkload / member.capacity : 0;
 
@@ -239,7 +226,6 @@ export class ResourceOptimizationService {
   ): ResourceBottleneck[] {
     const bottlenecks: ResourceBottleneck[] = [];
 
-    // Identify capacity overload bottlenecks
     const overloadedMembers = memberAnalysis.filter(analysis => analysis.utilizationRate > 1.0);
     if (overloadedMembers.length > 0) {
       bottlenecks.push({
@@ -255,7 +241,6 @@ export class ResourceOptimizationService {
       });
     }
 
-    // Identify skill gap bottlenecks
     const skillGaps = this.identifySkillGaps(teamMembers);
     if (skillGaps.length > 0) {
       bottlenecks.push({
@@ -276,21 +261,18 @@ export class ResourceOptimizationService {
   ): string[] {
     const recommendations: string[] = [];
 
-    // High utilization recommendations
     const highUtilization = memberAnalysis.filter(m => m.utilizationRate > 0.9);
     if (highUtilization.length > 0) {
       recommendations.push(`⚠️ ${highUtilization.length} team members are at high utilization (>90%)`);
       recommendations.push('Consider redistributing workload to prevent burnout');
     }
 
-    // Low utilization recommendations
     const lowUtilization = memberAnalysis.filter(m => m.utilizationRate < 0.6);
     if (lowUtilization.length > 0) {
       recommendations.push(`📈 ${lowUtilization.length} team members have capacity for additional work`);
       recommendations.push('Optimize task distribution to improve team utilization');
     }
 
-    // Bottleneck recommendations
     if (bottlenecks.length > 0) {
       recommendations.push(`🚨 ${bottlenecks.length} resource bottlenecks identified`);
       recommendations.push('Address bottlenecks to improve team productivity');
@@ -317,6 +299,7 @@ export class ResourceOptimizationService {
   private assessTeamRiskLevel(memberAnalysis: MemberWorkloadAnalysis[], bottlenecks: ResourceBottleneck[]): RiskLevel {
     const criticalMembers = memberAnalysis.filter(m => m.burnoutRisk === BurnoutRiskLevel.CRITICAL);
     const highRiskMembers = memberAnalysis.filter(m => m.burnoutRisk === BurnoutRiskLevel.HIGH);
+    const moderateRiskMembers = memberAnalysis.filter(m => m.burnoutRisk === BurnoutRiskLevel.MODERATE);
     const criticalBottlenecks = bottlenecks.filter(b => b.severity >= 8);
 
     if (criticalMembers.length > 0 || criticalBottlenecks.length > 0) {
@@ -325,14 +308,11 @@ export class ResourceOptimizationService {
     if (highRiskMembers.length > 0 || bottlenecks.length > 2) {
       return RiskLevel.HIGH;
     }
-    if (highRiskMembers.length > 0 || bottlenecks.length > 0) {
+    if (moderateRiskMembers.length > 0 || bottlenecks.length > 0) {
       return RiskLevel.MEDIUM;
     }
     return RiskLevel.LOW;
   }
-
-  // Additional helper methods would continue here...
-  // Due to size constraints, I'll implement the remaining methods in subsequent files
 
   private calculateSkillMatches(tasks: Task[], teamMembers: TeamMember[]): Map<string, number> {
     const skillMatches = new Map<string, number>();
@@ -414,7 +394,7 @@ export class ResourceOptimizationService {
         memberWorkloads.set(member.id, memberWorkloads.get(member.id)! + task.estimatedEffort);
         remainingTasks.delete(task.id);
       } else {
-        // No possible assignment found, break the loop
+        // No member can take any remaining task.
         break;
       }
     }
@@ -484,17 +464,17 @@ export class ResourceOptimizationService {
     _teamMembers: TeamMember[],
     _skillMatches: Map<string, number>
   ): any[] {
-    // Implementation for alternative assignment generation
+    // Stub: alternatives are not generated yet.
     return [];
   }
 
   private calculateAssignmentConfidence(_assignments: TaskAssignment[], _skillMatches: Map<string, number>): number {
-    // Implementation for confidence calculation
+    // Stub: fixed confidence until real scoring exists.
     return 0.85;
   }
 
   private estimateAssignmentImpact(_assignments: TaskAssignment[], _teamMembers: TeamMember[]): any {
-    // Implementation for impact estimation
+    // Stub: fixed impact values until real estimation exists.
     return {
       teamBalance: 85,
       skillDevelopment: 78,
@@ -503,12 +483,10 @@ export class ResourceOptimizationService {
     };
   }
 
-  // Placeholder implementations for remaining private methods
   private analyzeBurnoutRiskFactors(member: TeamMember): BurnoutRiskFactor[] {
     const factors: BurnoutRiskFactor[] = [];
     const utilizationRate = member.currentWorkload / member.capacity;
 
-    // High workload
     if (utilizationRate > 0.9) {
       factors.push({
         factor: 'High Workload',
@@ -518,7 +496,6 @@ export class ResourceOptimizationService {
       });
     }
 
-    // Low skill utilization
     const avgSkillUtilization =
       member.skills.reduce((sum, skill) => sum + this.calculateSkillUtilization(skill, member.currentWorkload), 0) /
       member.skills.length;
@@ -531,7 +508,6 @@ export class ResourceOptimizationService {
       });
     }
 
-    // Performance degradation
     if (member.performanceMetrics.qualityScore < 70) {
       factors.push({
         factor: 'Performance Degradation',
@@ -608,7 +584,7 @@ export class ResourceOptimizationService {
     }
   }
   private calculateBurnoutConfidence(factors: BurnoutRiskFactor[], signals: WarningSignal[]): number {
-    let confidence = 0.5; // Base confidence
+    let confidence = 0.5;
 
     if (factors.length > 0) {
       confidence += factors.length * 0.1;
@@ -699,8 +675,7 @@ export class ResourceOptimizationService {
   }
   private predictBottlenecks(members: TeamMember[], period: ForecastPeriod): BottleneckPrediction[] {
     const predictions: BottleneckPrediction[] = [];
-    // This is a simplified implementation. A more advanced implementation would
-    // analyze skill demand and supply, and project future workload.
+    // Simplified: flags current skill gaps only; does not project future demand or workload.
     const skillGaps = this.identifySkillGaps(members);
 
     if (skillGaps.length > 0) {
@@ -762,7 +737,6 @@ export class ResourceOptimizationService {
   private calculateForecastConfidence(capacity: ProjectedCapacity[], members: TeamMember[]): number {
     let confidence = 1.0;
 
-    // Reduce confidence based on forecast length
     const forecastDays =
       (capacity[capacity.length - 1].period.getTime() - capacity[0].period.getTime()) / (1000 * 3600 * 24);
     if (forecastDays > 90) {
@@ -771,7 +745,6 @@ export class ResourceOptimizationService {
       confidence -= 0.1;
     }
 
-    // Reduce confidence based on missing data
     const missingData = members.filter(m => !m.availability || m.skills.length === 0).length;
     confidence -= (missingData / members.length) * 0.2;
 

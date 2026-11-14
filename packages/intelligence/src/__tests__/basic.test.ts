@@ -1,8 +1,6 @@
 /**
  * Basic Test Suite
  * 
- * Phase 2.1: Basic functionality tests to verify test setup
- * 
  * @version 4.1.0
  * @package @chykalophia/clickup-intelligence-mcp-server
  */

@@ -1,5 +1,3 @@
-// Common Zod schemas shared across ClickUp MCP packages
-
 import { z } from 'zod';
 
 export const ClickUpTaskSchema = z.object({

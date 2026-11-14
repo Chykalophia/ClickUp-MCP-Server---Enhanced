@@ -1,9 +1,7 @@
 import { z } from 'zod';
 import { idSchema } from './common.js';
 
-// ========================================
-// SHARED ENUMS (ClickUp Chat API v3)
-// ========================================
+// Request and response schemas for the ClickUp Chat API (v3).
 
 export const ChannelVisibilitySchema = z.enum(['PUBLIC', 'PRIVATE']);
 
@@ -14,10 +12,6 @@ export const ChannelLocationTypeSchema = z.enum(['space', 'folder', 'list']);
 export const ContentFormatSchema = z.enum(['text/md', 'text/plain']);
 
 export const MessageTypeSchema = z.enum(['message', 'post']);
-
-// ========================================
-// CHAT CHANNEL REQUEST SCHEMAS
-// ========================================
 
 export const GetChannelsFilterSchema = z.object({
   workspace_id: z.string().min(1),
@@ -75,10 +69,6 @@ export const GetChannelUsersFilterSchema = z.object({
   cursor: z.string().optional(),
   limit: z.number().min(1).max(100).optional(),
 });
-
-// ========================================
-// CHAT MESSAGE REQUEST SCHEMAS
-// ========================================
 
 export const GetMessagesFilterSchema = z.object({
   workspace_id: z.string().min(1),
@@ -149,10 +139,6 @@ export const CreateReplySchema = z.object({
     .optional(),
 });
 
-// ========================================
-// CHAT REACTION REQUEST SCHEMAS
-// ========================================
-
 export const GetReactionsFilterSchema = z.object({
   workspace_id: z.string().min(1),
   message_id: z.string().min(1),
@@ -172,20 +158,12 @@ export const DeleteReactionSchema = z.object({
   reaction: z.string().min(1),
 });
 
-// ========================================
-// TAGGED USERS REQUEST SCHEMAS
-// ========================================
-
 export const GetTaggedUsersFilterSchema = z.object({
   workspace_id: z.string().min(1),
   message_id: z.string().min(1),
   cursor: z.string().optional(),
   limit: z.number().min(1).max(100).optional(),
 });
-
-// ========================================
-// RESPONSE TYPE SCHEMAS (v3 shapes)
-// ========================================
 
 export const ChatSimpleUserSchema = z
   .object({
@@ -216,9 +194,9 @@ export const ChatChannelSchema = z
     created_at: z.string().optional(),
     updated_at: z.string().optional(),
     is_follower: z.boolean().optional(),
-    counts: z.record(z.any()).optional(),
+    counts: z.record(z.string(), z.any()).optional(),
     latest_comment_at: z.union([z.string(), z.number()]).nullable().optional(),
-    links: z.record(z.any()).optional(),
+    links: z.record(z.string(), z.any()).optional(),
   })
   .passthrough();
 
@@ -243,7 +221,7 @@ export const ChatMessageSchema = z
       })
       .passthrough()
       .optional(),
-    links: z.record(z.any()).optional(),
+    links: z.record(z.string(), z.any()).optional(),
   })
   .passthrough();
 
@@ -254,10 +232,6 @@ export const ChatReactionSchema = z
     user_id: z.string(),
   })
   .passthrough();
-
-// ========================================
-// TYPE EXPORTS
-// ========================================
 
 export type ChannelVisibility = z.infer<typeof ChannelVisibilitySchema>;
 export type ChannelType = z.infer<typeof ChannelTypeSchema>;

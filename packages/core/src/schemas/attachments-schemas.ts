@@ -11,12 +11,15 @@ export const UploadAttachmentSchema = z
     task_id: z.string().min(1).describe('The ID of the task to attach the file to'),
     filename: z.string().min(1).describe('The name of the file, including its extension'),
     file_data: z.string().optional().describe('Base64 encoded file contents for direct upload'),
-    file_path: z.string().optional().describe('Path to a local file to upload'),
+    file_path: z
+      .string()
+      .optional()
+      .describe('Path to a local file inside CLICKUP_UPLOAD_DIR (rejected when it is not set)'),
     file_url: z
       .string()
       .url()
       .optional()
-      .describe('URL to download the file from before uploading'),
+      .describe('Public http(s) URL to download the file from before uploading'),
     custom_task_ids: z.boolean().optional().describe('Set to true if task_id is a custom task ID'),
     team_id: z.string().optional().describe('Workspace ID (required when custom_task_ids is true)'),
   })
@@ -27,8 +30,7 @@ export const UploadAttachmentSchema = z
     message: 'team_id is required when custom_task_ids is true',
   });
 
-// Get attachments schema
-// (GET /api/v3/workspaces/{workspace_id}/{entity_type}/{entity_id}/attachments)
+// GET /api/v3/workspaces/{workspace_id}/{entity_type}/{entity_id}/attachments
 export const GetAttachmentsSchema = z.object({
   workspace_id: z.string().min(1).describe('The ID of the workspace (team)'),
   entity_type: AttachmentEntityTypeSchema.describe('The type of entity the attachments belong to'),
@@ -43,7 +45,6 @@ export const GetAttachmentsSchema = z.object({
     .describe('Cursor from a previous response to fetch the next page'),
 });
 
-// Type exports
 export type AttachmentEntityType = z.infer<typeof AttachmentEntityTypeSchema>;
 export type UploadAttachmentRequest = z.infer<typeof UploadAttachmentSchema>;
 export type GetAttachmentsRequest = z.infer<typeof GetAttachmentsSchema>;

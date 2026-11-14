@@ -9,10 +9,6 @@ import {
 } from '../schemas/response-schemas.js';
 import { seg } from './path.js';
 
-// ========================================
-// GOALS TYPE DEFINITIONS
-// ========================================
-
 export interface GoalMember {
   id: number;
   username: string;
@@ -111,10 +107,6 @@ export interface GoalSummary {
   }>;
 }
 
-// ========================================
-// ENHANCED GOALS CLIENT
-// ========================================
-
 export class EnhancedGoalsClient {
   private client: ClickUpClient;
 
@@ -125,10 +117,6 @@ export class EnhancedGoalsClient {
   private getAxiosInstance() {
     return this.client.getAxiosInstance();
   }
-
-  // ========================================
-  // GOAL MANAGEMENT
-  // ========================================
 
   /**
    * Get goals for a team
@@ -221,10 +209,6 @@ export class EnhancedGoalsClient {
     }
   }
 
-  // ========================================
-  // GOAL TARGET MANAGEMENT
-  // ========================================
-
   /**
    * Create a goal target (key result)
    */
@@ -278,10 +262,6 @@ export class EnhancedGoalsClient {
     }
   }
 
-  // ========================================
-  // GOAL ANALYTICS & REPORTING
-  // ========================================
-
   /**
    * Get goal summary and analytics for a team
    */
@@ -309,7 +289,6 @@ export class EnhancedGoalsClient {
         const progress = goal.percent_completed;
         totalProgress += progress;
 
-        // Categorize goals
         if (progress >= 100) {
           completedGoals++;
         } else if (now > dueDate) {
@@ -318,7 +297,6 @@ export class EnhancedGoalsClient {
           inProgressGoals++;
         }
 
-        // Get goal status
         const status = this.getGoalStatus(progress, goal.due_date);
         goalsByStatus[status] = (goalsByStatus[status] || 0) + 1;
 
@@ -334,7 +312,6 @@ export class EnhancedGoalsClient {
         }
       }
 
-      // Sort upcoming deadlines by days remaining
       upcomingDeadlines.sort((a, b) => a.days_remaining - b.days_remaining);
 
       return {
@@ -351,10 +328,6 @@ export class EnhancedGoalsClient {
       throw this.handleError(error, `Failed to get goal summary for team ${teamId}`);
     }
   }
-
-  // ========================================
-  // UTILITY METHODS
-  // ========================================
 
   /**
    * Calculate progress percentage for a target
@@ -462,10 +435,6 @@ export class EnhancedGoalsClient {
     const dueDateMs = this.normalizeGoalDate(dueDate);
     return dueDateMs > now;
   }
-
-  // ========================================
-  // ERROR HANDLING
-  // ========================================
 
   private handleError(error: any, context: string): Error {
     if (axios.isAxiosError(error)) {

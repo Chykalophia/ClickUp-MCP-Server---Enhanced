@@ -13,7 +13,7 @@ export interface Task {
   id: string;
   name: string;
   description?: string;
-  text_content?: string; // Plain text version of description
+  text_content?: string;
   description_markdown?: string; // Markdown version for display
   status?: {
     status: string;
@@ -55,9 +55,9 @@ export interface Task {
     name: string;
   };
   url: string;
-  subtasks?: Task[]; // Add subtasks property
-  parent?: string; // Add parent property
-  top_level_parent?: string; // Add top_level_parent property
+  subtasks?: Task[];
+  parent?: string;
+  top_level_parent?: string;
 }
 
 export interface CreateTaskParams {
@@ -159,9 +159,51 @@ export interface GetFilteredTeamTasksParams {
   }>;
 }
 
+export interface MoveTaskOptions {
+  /** Add the Custom Fields from the current List to the new List */
+  move_custom_fields?: boolean;
+  /** Custom Field IDs to move; omit to move all of them */
+  custom_fields_to_move?: string[];
+  /** Map statuses of the current List to statuses of the destination List */
+  status_mappings?: Array<{ source_status_id: string; destination_status_id: string }>;
+}
+
+// Move Task only exists in the v3 API. The shared client is bound to the v2
+// base URL; axios ignores baseURL when the request URL is absolute.
+const V3_API_BASE_URL = 'https://api.clickup.com/api/v3';
+
 export interface CustomTaskIdParams {
   custom_task_ids?: boolean;
   team_id?: string;
+}
+
+/**
+ * Route a task description to the API's markdown field, in place.
+ *
+ * - `markdown_content` (tool-level alias) wins over `description`, matching
+ *   ClickUp's own precedence, and is sent as `markdown_description`.
+ * - A non-empty `description` is always sent as `markdown_description`
+ *   (HTML is converted to markdown first). Markdown renders plain text
+ *   identically, so there is no plain-text branch to guess at.
+ * - An empty `description` is passed through untouched so callers can still
+ *   clear the field.
+ *
+ * `markdown_description` is the field this server has verified live against
+ * ClickUp; ClickUp's reference also documents `markdown_content`
+ * as the request field, which callers can pass and which is translated here.
+ */
+function applyDescription(body: Record<string, unknown>): void {
+  if (body.markdown_content !== undefined) {
+    body.markdown_description = body.markdown_content;
+    delete body.markdown_content;
+    delete body.description;
+    return;
+  }
+  if (typeof body.description === 'string' && body.description !== '') {
+    const description = body.description;
+    delete body.description;
+    Object.assign(body, prepareContentForClickUp(description));
+  }
 }
 
 export class TasksClient {
@@ -212,7 +254,6 @@ export class TasksClient {
     const raw = await this.client.get<unknown>(`/list/${seg(listId)}/task`, queryParams);
     const result = validateResponse(TasksResponseSchema, raw, 'getTasksFromList');
 
-    // Process each task's content
     if (result.tasks && Array.isArray(result.tasks)) {
       (result as any).tasks = (result.tasks as any[]).map((task: any) =>
         processClickUpResponse(task)
@@ -242,7 +283,6 @@ export class TasksClient {
     const raw = await this.client.get<unknown>(`/team/${seg(teamId)}/task`, queryParams);
     const result = validateResponse(TasksResponseSchema, raw, 'getFilteredTeamTasks');
 
-    // Process each task's content
     if (result.tasks && Array.isArray(result.tasks)) {
       (result as any).tasks = (result.tasks as any[]).map((task: any) =>
         processClickUpResponse(task)
@@ -251,8 +291,6 @@ export class TasksClient {
 
     return result as unknown as { tasks: Task[]; last_page?: boolean };
   }
-
-  // Removed pseudo endpoints for getting tasks from spaces and folders
 
   /**
    * Get a specific task by ID
@@ -285,31 +323,8 @@ export class TasksClient {
     params: CreateTaskParams,
     query?: CustomTaskIdParams
   ): Promise<Task> {
-    // Process description for markdown support
-    const processedParams = { ...params };
-
-    // Handle description field - check if it contains markdown
-    if (params.description) {
-      const contentData = prepareContentForClickUp(params.description);
-
-      // Remove the original description field
-      delete processedParams.description;
-
-      // Add the appropriate field(s) based on content type
-      if (contentData.markdown_description) {
-        processedParams.markdown_description = contentData.markdown_description;
-      } else if (contentData.description) {
-        processedParams.description = contentData.description;
-      }
-
-      // Note: ClickUp API doesn't accept text_content on create, it generates it
-    }
-
-    // markdown_content is a tool-level alias; the API field is markdown_description
-    if (processedParams.markdown_content !== undefined) {
-      processedParams.markdown_description = processedParams.markdown_content;
-      delete processedParams.markdown_content;
-    }
+    const processedParams: Record<string, unknown> = { ...params };
+    applyDescription(processedParams);
 
     const result = await this.client.post(
       `/list/${seg(listId)}/task${this.buildCustomIdQuery(query)}`,
@@ -329,31 +344,8 @@ export class TasksClient {
     params: UpdateTaskParams,
     query?: CustomTaskIdParams
   ): Promise<Task> {
-    // Process description for markdown support
     const processedParams: Record<string, unknown> = { ...params };
-
-    // Handle description field - check if it contains markdown
-    if (params.description) {
-      const contentData = prepareContentForClickUp(params.description);
-
-      // Remove the original description field
-      delete processedParams.description;
-
-      // Add the appropriate field(s) based on content type
-      if (contentData.markdown_description) {
-        processedParams.markdown_description = contentData.markdown_description;
-      } else if (contentData.description) {
-        processedParams.description = contentData.description;
-      }
-
-      // Note: ClickUp API doesn't accept text_content on update, it generates it
-    }
-
-    // markdown_content is a tool-level alias; the API field is markdown_description
-    if (processedParams.markdown_content !== undefined) {
-      processedParams.markdown_description = processedParams.markdown_content;
-      delete processedParams.markdown_content;
-    }
+    applyDescription(processedParams);
 
     // The Update Task endpoint ignores custom_fields in the body — set them
     // via the Set Custom Field Value endpoint after the PUT instead.
@@ -474,6 +466,58 @@ export class TasksClient {
       params
     );
     return processClickUpResponse(result);
+  }
+
+  /**
+   * Move a task to a new home List (v3 Move Task):
+   * PUT /api/v3/workspaces/{workspace_id}/tasks/{task_id}/home_list/{list_id}.
+   *
+   * Unlike add-task-to-list (which adds a secondary list), this changes the
+   * task's home list. status_mappings is required when the task's current
+   * status does not exist in the destination list.
+   */
+  async moveTask(
+    workspaceId: string,
+    taskId: string,
+    listId: string,
+    options: MoveTaskOptions = {}
+  ): Promise<{ data: { task_id: string; new_list_id: string } }> {
+    const body: Record<string, unknown> = {};
+    if (options.move_custom_fields !== undefined) {
+      body.move_custom_fields = options.move_custom_fields;
+    }
+    if (options.custom_fields_to_move !== undefined) {
+      body.custom_fields_to_move = options.custom_fields_to_move;
+    }
+    if (options.status_mappings !== undefined) {
+      body.status_mappings = options.status_mappings;
+    }
+    return this.client.put(
+      `${V3_API_BASE_URL}/workspaces/${encodeURIComponent(workspaceId)}/tasks/${encodeURIComponent(
+        taskId
+      )}/home_list/${encodeURIComponent(listId)}`,
+      body
+    );
+  }
+
+  /**
+   * List the task templates in a workspace (GET /team/{team_id}/taskTemplate).
+   * `page` is required by the API and starts at 0.
+   */
+  async getTaskTemplates(
+    teamId: string,
+    page: number = 0
+  ): Promise<{ templates: Array<{ id: string; name: string } | string> }> {
+    return this.client.get(`/team/${encodeURIComponent(teamId)}/taskTemplate`, { page });
+  }
+
+  /**
+   * List the custom task types defined in a workspace (GET /team/{team_id}/custom_item).
+   */
+  async getCustomTaskTypes(teamId: string): Promise<{
+    custom_items: Array<{ id: number; name: string; name_plural?: string; description?: string }>;
+  }> {
+    return this.client.get(`/team/${encodeURIComponent(teamId)}/custom_item`);
   }
 
   /**
@@ -642,7 +686,7 @@ export class TasksClient {
             this.createTask(listId, task).then(t => ({ index: i + j, task: t }))
           )
         );
-        for (const result of chunkResults) {
+        for (const [j, result] of chunkResults.entries()) {
           if (result.status === 'fulfilled') {
             results.push({
               success: true,
@@ -653,7 +697,8 @@ export class TasksClient {
           } else {
             const errorMessage =
               result.reason instanceof Error ? result.reason.message : 'Unknown error';
-            const idx = results.length + i;
+            // allSettled preserves order, so j is the position within this chunk.
+            const idx = i + j;
             results.push({ success: false, error: errorMessage, index: idx });
             errorCount++;
           }
@@ -735,7 +780,7 @@ export class TasksClient {
             return this.updateTask(task_id, updateParams).then(t => ({ index: i + j, task: t }));
           })
         );
-        for (const result of chunkResults) {
+        for (const [j, result] of chunkResults.entries()) {
           if (result.status === 'fulfilled') {
             results.push({
               success: true,
@@ -746,7 +791,8 @@ export class TasksClient {
           } else {
             const errorMessage =
               result.reason instanceof Error ? result.reason.message : 'Unknown error';
-            const idx = results.length + i;
+            // allSettled preserves order, so j is the position within this chunk.
+            const idx = i + j;
             results.push({ success: false, error: errorMessage, index: idx });
             errorCount++;
           }

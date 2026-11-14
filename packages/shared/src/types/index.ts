@@ -1,5 +1,3 @@
-// Common types shared across ClickUp MCP packages
-
 export interface ClickUpTask {
   id: string;
   name: string;

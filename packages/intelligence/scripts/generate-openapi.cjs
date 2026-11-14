@@ -297,17 +297,14 @@ rate limiting, and performance optimization.`,
     ]
   };
 
-  // Generate paths for each tool
   INTELLIGENCE_TOOLS.forEach(tool => {
     const pathKey = `/tools/${tool.name}`;
     const schemaName = tool.name.split('_').map(word => 
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join('') + 'Request';
 
-    // Add schema to components
     baseSpec.components.schemas[schemaName] = tool.schema;
 
-    // Add path
     baseSpec.paths[pathKey] = {
       post: {
         tags: [tool.category],
@@ -343,17 +340,11 @@ rate limiting, and performance optimization.`,
   return baseSpec;
 }
 
-/**
- * Main execution
- */
 function main() {
   try {
     console.log('🔧 Generating OpenAPI specification...');
     
     const spec = generateOpenAPISpec();
-    const outputPath = path.join(__dirname, '../docs/openapi/openapi-generated.yaml');
-    
-    // Write JSON file only for now
     const jsonPath = path.join(__dirname, '../docs/openapi/openapi-generated.json');
     fs.writeFileSync(jsonPath, JSON.stringify(spec, null, 2), 'utf8');
     
@@ -367,7 +358,6 @@ function main() {
   }
 }
 
-// Run if called directly
 if (require.main === module) {
   main();
 }

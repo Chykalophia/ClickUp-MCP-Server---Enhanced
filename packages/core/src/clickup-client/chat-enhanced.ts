@@ -51,10 +51,6 @@ export class ChatEnhancedClient {
     this.client = new ClickUpClient({ apiToken, baseUrl: CHAT_API_BASE_URL });
   }
 
-  // ========================================
-  // CHANNEL MANAGEMENT
-  // ========================================
-
   /**
    * Retrieve channels in a workspace (cursor-paginated)
    */
@@ -128,9 +124,13 @@ export class ChatEnhancedClient {
     return response.data;
   }
 
-  // ========================================
-  // CHANNEL MEMBERS & FOLLOWERS
-  // ========================================
+  /**
+   * Delete a channel (DELETE /workspaces/{workspace_id}/chat/channels/{channel_id},
+   * 204 No Content)
+   */
+  async deleteChannel(workspaceId: string, channelId: string): Promise<void> {
+    await this.client.delete(`/workspaces/${seg(workspaceId)}/chat/channels/${seg(channelId)}`);
+  }
 
   /**
    * Get channel followers (cursor-paginated)
@@ -153,10 +153,6 @@ export class ChatEnhancedClient {
       params
     );
   }
-
-  // ========================================
-  // MESSAGE MANAGEMENT
-  // ========================================
 
   /**
    * Get messages from a channel (cursor-paginated)
@@ -198,10 +194,6 @@ export class ChatEnhancedClient {
     await this.client.delete(`/workspaces/${seg(workspaceId)}/chat/messages/${seg(messageId)}`);
   }
 
-  // ========================================
-  // MESSAGE REPLIES
-  // ========================================
-
   /**
    * Get replies to a message (cursor-paginated)
    */
@@ -223,10 +215,6 @@ export class ChatEnhancedClient {
       replyData
     );
   }
-
-  // ========================================
-  // MESSAGE REACTIONS
-  // ========================================
 
   /**
    * Get reactions for a message (cursor-paginated)
@@ -260,10 +248,6 @@ export class ChatEnhancedClient {
     );
   }
 
-  // ========================================
-  // TAGGED USERS
-  // ========================================
-
   /**
    * Get tagged users for a message (cursor-paginated)
    */
@@ -274,10 +258,6 @@ export class ChatEnhancedClient {
       params
     );
   }
-
-  // ========================================
-  // UTILITY METHODS
-  // ========================================
 
   /**
    * Search channels by name (client-side filter over the paginated

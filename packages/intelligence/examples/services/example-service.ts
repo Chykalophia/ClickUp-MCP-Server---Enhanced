@@ -28,18 +28,14 @@ export class ExampleIntelligenceService {
    * Performs comprehensive workspace analysis
    */
   async analyzeWorkspace(input: AnalysisInput): Promise<AnalysisResult> {
-    // 1. Check cache first
     const cacheKey = this.generateCacheKey(input);
     const cached = this.getFromCache(cacheKey);
     if (cached) return cached;
     
-    // 2. Fetch data from ClickUp
     const workspaceData = await this.fetchWorkspaceData(input.workspaceId);
     
-    // 3. Perform analysis
     const result = await this.performAnalysis(workspaceData, input);
     
-    // 4. Cache result
     this.setCache(cacheKey, result, 3600); // 1 hour
     
     return result;

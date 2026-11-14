@@ -41,7 +41,8 @@ module.exports = {
     'no-useless-concat': 'error',
     
     // Error prevention
-    'no-console': ['warn', { allow: ['warn', 'error'] }],
+    // stdout is the MCP stdio JSON-RPC channel: diagnostics must go to stderr.
+    'no-console': ['error', { allow: ['warn', 'error'] }],
     'no-debugger': 'error',
     'no-alert': 'error',
     'no-duplicate-imports': 'error',
@@ -58,11 +59,8 @@ module.exports = {
     
     // Style consistency
     //
-    // Prettier owns layout in this repo (`npm run format`, which this package's
-    // `version` lifecycle hook also runs on every release). These rules must
-    // therefore agree with .prettierrc or the two tools fight: the previous
-    // `comma-dangle: 'never'` contradicted prettier's `trailingComma: 'es5'`,
-    // so `npm run format` reintroduced lint errors the moment it ran.
+    // Prettier owns layout (`npm run format`, also run by the `version` hook),
+    // so these rules must agree with .prettierrc, e.g. its trailingComma: 'es5'.
     //
     // Keep this block in sync with the root .eslintrc.cjs — this file is a
     // near-duplicate of it and sets `root: true`, so the root config does not

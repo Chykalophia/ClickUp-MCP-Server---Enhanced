@@ -1,6 +1,5 @@
 /* eslint-disable no-console, max-len */
 import { ClickUpClient } from './index.js';
-// import { processClickUpResponse } from '../utils/markdown.js';
 import {
   prepareCommentForClickUp,
   clickUpCommentToMarkdown,
@@ -11,7 +10,7 @@ import { seg } from './path.js';
 export interface Comment {
   id: string;
   comment: ClickUpCommentBlock[]; // ClickUp's structured comment format
-  comment_text: string; // Plain text representation
+  comment_text: string;
   comment_markdown?: string; // Markdown version for display
   user: {
     id: number;
@@ -120,22 +119,17 @@ export interface CreateCommentResponse {
 }
 
 /**
- * Process comment response to add markdown representation
- * SIMPLIFIED VERSION to avoid duplication issues
+ * Add a comment_markdown rendering to a comment response. Deliberately skips the
+ * cleanClickUpCommentResponse/processClickUpResponse chain, which duplicated content.
  */
 function processCommentResponse(comment: any): Comment {
-  // Skip the cleanClickUpCommentResponse and processClickUpResponse chain
-  // that was causing duplication - just return the comment as-is with minimal processing
-
   const processed = { ...comment };
 
-  // Only add markdown conversion if we have structured comment data
   if (processed.comment && Array.isArray(processed.comment)) {
     try {
       processed.comment_markdown = clickUpCommentToMarkdown({ comment: processed.comment });
     } catch (error) {
       console.warn('Failed to convert ClickUp comment to markdown:', error);
-      // Fallback to comment_text if available
       processed.comment_markdown = processed.comment_text || '';
     }
   }
@@ -186,28 +180,6 @@ function buildTaskQueryString(params?: {
   return queryString ? `?${queryString}` : '';
 }
 
-/**
- * Prepare comment parameters for ClickUp API using structured comment format
- * This uses ClickUp's structured comment array format for proper markdown rendering
- */
-/*
-function prepareCommentParams(params: any): any {
-  if (params.comment_text) {
-    // Use the structured comment format instead of plain comment_text
-    const structuredComment = prepareCommentForClickUp(params.comment_text);
-    
-    return {
-      notify_all: params.notify_all || false,
-      assignee: params.assignee,
-      resolved: params.resolved,
-      ...structuredComment // This includes the 'comment' array
-    };
-  }
-  
-  return params;
-}
-*/
-
 export class CommentsEnhancedClient {
   private client: ClickUpClient;
 
@@ -230,7 +202,6 @@ export class CommentsEnhancedClient {
       params
     );
 
-    // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
       result.comments = result.comments.map((comment: any) => processCommentResponse(comment));
     }
@@ -239,28 +210,26 @@ export class CommentsEnhancedClient {
   }
 
   /**
-   * Create a new comment on a task
-   * @param taskId The ID of the task to comment on
-   * @param params The comment parameters (supports markdown in comment_text)
-   * @returns The created comment with processed content
-   */
-  /**
-   * RAW API TEST - Bypass all processing and send exactly like ClickUp's official example
+   * Debug helper: post comment_text with no processing, matching ClickUp's
+   * official Node.js example, and return the raw response.
    */
   async createTaskCommentRaw(taskId: string, commentText: string): Promise<any> {
-    // Exact match to ClickUp's official Node.js example
     const payload = {
       notify_all: false,
       comment_text: commentText,
     };
 
-    // Send raw request without any processing
     const result = await this.client.post(`/task/${seg(taskId)}/comment`, payload);
 
-    // Return raw response without any processing
     return result;
   }
 
+  /**
+   * Create a new comment on a task
+   * @param taskId The ID of the task to comment on
+   * @param params The comment parameters (supports markdown in comment_text)
+   * @returns The create response ({ id, hist_id, date }), not the full comment
+   */
   async createTaskComment(
     taskId: string,
     params: CreateTaskCommentParams
@@ -295,7 +264,6 @@ export class CommentsEnhancedClient {
       params
     );
 
-    // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
       result.comments = result.comments.map((comment: any) => processCommentResponse(comment));
     }
@@ -307,7 +275,7 @@ export class CommentsEnhancedClient {
    * Create a new comment on a chat view
    * @param viewId The ID of the chat view to comment on
    * @param params The comment parameters (supports markdown in comment_text)
-   * @returns The created comment with processed content
+   * @returns The create response ({ id, hist_id, date }), not the full comment
    */
   async createChatViewComment(
     viewId: string,
@@ -315,7 +283,7 @@ export class CommentsEnhancedClient {
   ): Promise<CreateCommentResponse> {
     const payload = {
       notify_all: params.notify_all || false,
-      ...buildCommentBody(params), // This adds the 'comment' array, NOT comment_text
+      ...buildCommentBody(params),
     };
 
     // Create responses only contain { id, hist_id, date } - no comment array to post-process
@@ -337,7 +305,6 @@ export class CommentsEnhancedClient {
       params
     );
 
-    // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
       result.comments = result.comments.map((comment: any) => processCommentResponse(comment));
     }
@@ -349,7 +316,7 @@ export class CommentsEnhancedClient {
    * Create a new comment on a list
    * @param listId The ID of the list to comment on
    * @param params The comment parameters (supports markdown in comment_text)
-   * @returns The created comment with processed content
+   * @returns The create response ({ id, hist_id, date }), not the full comment
    */
   async createListComment(
     listId: string,
@@ -358,7 +325,7 @@ export class CommentsEnhancedClient {
     const payload = {
       notify_all: params.notify_all || false,
       assignee: params.assignee,
-      ...buildCommentBody(params), // This adds the 'comment' array, NOT comment_text
+      ...buildCommentBody(params),
     };
 
     // Create responses only contain { id, hist_id, date } - no comment array to post-process
@@ -380,7 +347,7 @@ export class CommentsEnhancedClient {
     // Only send a new comment body when one was provided, so resolve/assign-only
     // updates leave the stored comment untouched
     if ((params.comment && params.comment.length > 0) || params.comment_text) {
-      Object.assign(payload, buildCommentBody(params)); // Adds the 'comment' array, NOT comment_text
+      Object.assign(payload, buildCommentBody(params));
     }
 
     const result = await this.client.put(`/comment/${seg(commentId)}`, payload);
@@ -413,7 +380,6 @@ export class CommentsEnhancedClient {
       params
     );
 
-    // Process each comment's content
     if (result.comments && Array.isArray(result.comments)) {
       result.comments = result.comments.map((comment: any) => processCommentResponse(comment));
     }
@@ -425,7 +391,7 @@ export class CommentsEnhancedClient {
    * Create a new threaded comment on a parent comment
    * @param commentId The ID of the parent comment
    * @param params The comment parameters (supports markdown in comment_text)
-   * @returns The created threaded comment with processed content
+   * @returns The create response ({ id, hist_id, date }), not the full comment
    */
   async createThreadedComment(
     commentId: string,
@@ -433,7 +399,7 @@ export class CommentsEnhancedClient {
   ): Promise<CreateCommentResponse> {
     const payload = {
       notify_all: params.notify_all || false,
-      ...buildCommentBody(params), // This adds the 'comment' array, NOT comment_text
+      ...buildCommentBody(params),
     };
 
     // Create responses only contain { id, hist_id, date } - no comment array to post-process

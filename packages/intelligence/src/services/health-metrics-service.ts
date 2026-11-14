@@ -37,7 +37,6 @@ export interface RiskAssessment {
 }
 
 export interface DetailedHealthMetrics extends ProjectHealthMetrics {
-  // Enhanced metrics beyond the base interface
   velocityTrend: {
     current: number;
     previous: number;
@@ -78,7 +77,6 @@ export class HealthMetricsService {
   calculateHealthScore(input: HealthMetricsInput): DetailedHealthMetrics {
     const { tasks } = input;
     
-    // Calculate individual metric scores
     const completionRate = this.calculateCompletionRate(tasks);
     const velocityMetrics = this.calculateVelocityMetrics(tasks);
     const workloadMetrics = this.calculateWorkloadDistribution(tasks, input.teamMembers);
@@ -86,7 +84,6 @@ export class HealthMetricsService {
     const qualityMetrics = this.calculateQualityIndicators(tasks);
     const timelineMetrics = this.calculateTimelineAdherence(tasks);
     
-    // Calculate weighted overall score
     const overallScore = this.calculateWeightedScore({
       completion: completionRate,
       velocity: velocityMetrics.current,
@@ -96,7 +93,6 @@ export class HealthMetricsService {
       timeline: timelineMetrics.adherenceScore,
     });
 
-    // Generate risk factors and recommendations
     const riskFactors = this.identifyRiskFactors({
       completionRate,
       velocityMetrics,
@@ -131,7 +127,6 @@ export class HealthMetricsService {
   analyzeRisks(metrics: DetailedHealthMetrics): RiskAssessment[] {
     const risks: RiskAssessment[] = [];
 
-    // Timeline risks
     if (metrics.timelineAdherence.adherenceScore < 60) {
       risks.push({
         level: metrics.timelineAdherence.adherenceScore < 40 ? 'critical' : 'high',
@@ -143,7 +138,6 @@ export class HealthMetricsService {
       });
     }
 
-    // Workload risks
     if (!metrics.workloadDistribution.balanced) {
       risks.push({
         level: metrics.workloadDistribution.overloadedMembers.length > 2 ? 'high' : 'medium',
@@ -155,7 +149,6 @@ export class HealthMetricsService {
       });
     }
 
-    // Dependency risks
     if (metrics.dependencyHealth.healthScore < 70) {
       risks.push({
         level: metrics.dependencyHealth.blockedTasks > 5 ? 'high' : 'medium',
@@ -167,7 +160,6 @@ export class HealthMetricsService {
       });
     }
 
-    // Velocity risks
     if (metrics.velocityTrend.trend === 'decreasing' && metrics.velocityTrend.confidence > 70) {
       risks.push({
         level: 'medium',
@@ -179,7 +171,6 @@ export class HealthMetricsService {
       });
     }
 
-    // Quality risks
     if (metrics.qualityIndicators.qualityScore < 60) {
       risks.push({
         level: metrics.qualityIndicators.bugRate > 0.15 ? 'high' : 'medium',
@@ -200,18 +191,15 @@ export class HealthMetricsService {
   generateRecommendations(risks: RiskAssessment[]): string[] {
     const recommendations = new Set<string>();
 
-    // Add risk-specific recommendations
     risks.forEach(risk => {
       recommendations.add(risk.recommendation);
     });
 
-    // Add general best practice recommendations
     if (risks.length === 0) {
       recommendations.add('Maintain current project health with regular monitoring');
       recommendations.add('Consider implementing preventive measures for common risks');
     }
 
-    // Add priority-based recommendations
     const highRisks = risks.filter(r => r.level === 'high' || r.level === 'critical');
     if (highRisks.length > 0) {
       recommendations.add('Address high-priority risks immediately to prevent project impact');
@@ -219,8 +207,6 @@ export class HealthMetricsService {
 
     return Array.from(recommendations);
   }
-
-  // Private helper methods
 
   private calculateCompletionRate(tasks: ClickUpTask[]): number {
     if (tasks.length === 0) return 100;
@@ -231,7 +217,7 @@ export class HealthMetricsService {
   }
 
   private calculateVelocityMetrics(_tasks: ClickUpTask[]): DetailedHealthMetrics['velocityTrend'] {
-    // Simplified velocity calculation - in production, this would analyze historical data
+    // Mock values; historical velocity is not analyzed yet.
     const currentVelocity = Math.round(15 + Math.random() * 10); // Mock: 15-25 tasks/week
     const previousVelocity = Math.round(12 + Math.random() * 12); // Mock: 12-24 tasks/week
     
@@ -260,7 +246,6 @@ export class HealthMetricsService {
       };
     }
 
-    // Calculate task distribution per team member
     const memberWorkload = new Map<string, number>();
     teamMembers.forEach(member => memberWorkload.set(member.username, 0));
 
@@ -300,7 +285,7 @@ export class HealthMetricsService {
   }
 
   private calculateDependencyHealth(tasks: ClickUpTask[]): DetailedHealthMetrics['dependencyHealth'] {
-    // Simplified dependency analysis - in production, this would analyze actual dependencies
+    // Estimated from fixed ratios; real dependencies are not analyzed yet.
     const totalDependencies = Math.floor(tasks.length * 0.3); // Assume 30% of tasks have dependencies
     const blockedTasks = Math.floor(totalDependencies * 0.15); // Assume 15% are blocked
     const circularDependencies = Math.floor(totalDependencies * 0.05); // Assume 5% circular
@@ -316,7 +301,7 @@ export class HealthMetricsService {
   }
 
   private calculateQualityIndicators(_tasks: ClickUpTask[]): DetailedHealthMetrics['qualityIndicators'] {
-    // Simplified quality calculation - in production, this would analyze actual quality metrics
+    // Mock values; real quality metrics are not analyzed yet.
     const bugRate = 0.05 + Math.random() * 0.1; // Mock: 5-15% bug rate
     const reworkFrequency = 0.1 + Math.random() * 0.15; // Mock: 10-25% rework frequency
     
@@ -340,7 +325,7 @@ export class HealthMetricsService {
       };
     }
 
-    // Simplified timeline calculation - in production, this would analyze actual completion dates
+    // Mock values; real completion dates are not analyzed yet.
     const onTimeDelivery = 70 + Math.random() * 25; // Mock: 70-95%
     const averageDelay = Math.random() * 5; // Mock: 0-5 days average delay
     const scheduleVariance = Math.random() * 20; // Mock: 0-20% variance
@@ -397,7 +382,7 @@ export class HealthMetricsService {
     
     const now = new Date();
     const totalAge = tasks.reduce((sum, _task) => {
-      // Mock creation date calculation - in production, use actual date_created
+      // Mock creation date; task date_created is not used yet.
       const createdDate = new Date(now.getTime() - Math.random() * 30 * 24 * 60 * 60 * 1000);
       const ageInDays = Math.floor((now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
       return sum + ageInDays;

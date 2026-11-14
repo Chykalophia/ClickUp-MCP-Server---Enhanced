@@ -1,23 +1,18 @@
 /** @type {import('jest').Config} */
 const config = {
-  // Test environment
   testEnvironment: 'node',
   
-  // TypeScript support
   preset: 'ts-jest/presets/default-esm',
   extensionsToTreatAsEsm: ['.ts'],
   
   // Force exit to prevent hanging
   forceExit: true,
   detectOpenHandles: true,
-  testTimeout: 10000,
   
-  // Module resolution
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
   },
   
-  // Transform configuration
   transform: {
     '^.+\\.tsx?$': ['ts-jest', {
       useESM: true,
@@ -35,13 +30,11 @@ const config = {
     }]
   },
   
-  // Test file patterns
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.{ts,tsx}',
     '<rootDir>/src/**/*.{test,spec}.{ts,tsx}'
   ],
   
-  // Coverage configuration
   collectCoverage: true,
   coverageDirectory: 'coverage',
   coverageReporters: [
@@ -52,7 +45,6 @@ const config = {
     'json'
   ],
   
-  // Coverage thresholds
   coverageThreshold: {
     global: {
       branches: 5,
@@ -62,7 +54,6 @@ const config = {
     }
   },
   
-  // Files to collect coverage from
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
     '!src/**/*.d.ts',
@@ -72,64 +63,49 @@ const config = {
     '!src/**/index.ts'
   ],
   
-  // Setup files
   setupFilesAfterEnv: [
     '<rootDir>/src/tests/setup.ts'
   ],
   
-  // Test timeout
   testTimeout: 30000,
   
-  // Verbose output
   verbose: true,
   
-  // Clear mocks between tests
   clearMocks: true,
   
-  // Restore mocks after each test
   restoreMocks: true,
   
-  // Error handling
   errorOnDeprecated: true,
   
-  // Module directories
   moduleDirectories: [
     'node_modules',
     '<rootDir>/src'
   ],
   
-  // Global setup and teardown
   globalSetup: '<rootDir>/src/tests/global-setup.ts',
   globalTeardown: '<rootDir>/src/tests/global-teardown.ts',
   
-  // Test results processor
   testResultsProcessor: '<rootDir>/src/tests/results-processor.cjs',
   
-  // Watch plugins
   watchPlugins: [
     'jest-watch-typeahead/filename',
     'jest-watch-typeahead/testname'
   ],
   
-  // Ignore patterns
   testPathIgnorePatterns: [
     '/node_modules/',
     '/build/',
     '/dist/'
   ],
   
-  // Transform ignore patterns
   transformIgnorePatterns: [
     'node_modules/(?!(marked|turndown|@modelcontextprotocol)/)'
   ],
   
-  // Max workers for parallel execution
   maxWorkers: '50%',
   
-  // Cache directory
   cacheDirectory: '<rootDir>/.jest-cache',
   
-  // Reporters
   reporters: [
     'default',
     ['jest-junit', {

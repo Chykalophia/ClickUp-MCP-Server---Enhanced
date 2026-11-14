@@ -19,12 +19,16 @@ process.env[REMOTE_MODE_ENV] = '1';
 
 async function main(): Promise<void> {
   const { createRemoteAppFromEnv } = await import('./remote/app.js');
-  const { createClickUpMcpServer } = await import('./server-factory.js');
-  const app = createRemoteAppFromEnv(() => createClickUpMcpServer().server);
-  // Servers are built per request; report a mistyped CLICKUP_TOOLSETS once, at boot.
-  const { toolsets } = createClickUpMcpServer();
-  if (toolsets.unknown.length > 0) {
-    secureLog('warn', 'hosted_unknown_toolsets', { ignored: toolsets.unknown });
+  const { createClickUpServer } = await import('./create-server.js');
+  const { VERSION } = await import('./version.js');
+  const app = createRemoteAppFromEnv(() => createClickUpServer({ version: VERSION }).server);
+  // Servers are built per request; report a mistyped tool setting once, at boot.
+  const { resolved } = createClickUpServer({ version: VERSION });
+  if (resolved.unknown.length > 0 || resolved.unknownMode) {
+    secureLog('warn', 'hosted_unknown_toolsets', {
+      ignored: resolved.unknown,
+      unknownMode: resolved.unknownMode,
+    });
   }
   const port = Number(process.env.PORT ?? 3000);
   const host = process.env.HOST ?? '0.0.0.0';

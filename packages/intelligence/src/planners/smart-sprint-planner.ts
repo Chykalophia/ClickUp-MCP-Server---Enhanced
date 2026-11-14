@@ -22,32 +22,26 @@ export class SmartSprintPlanner {
     include_dependencies?: boolean;
   }): Promise<SprintPlanningData> {
     try {
-      // Fetch available tasks
       const availableTasks = await this.fetchAvailableTasks(params.workspace_id);
       
-      // Calculate team velocity and capacity
       const teamVelocity = await this.calculateTeamVelocity(params.workspace_id);
       const sprintCapacity = params.team_capacity_hours || this.estimateSprintCapacity(params.sprint_duration_days || 14);
       
-      // Apply AI-powered task selection
       const suggestedTasks = await this.selectOptimalTasks(availableTasks, {
         velocity: teamVelocity,
         capacity: sprintCapacity,
         focus: params.priority_focus || 'balanced',
-        includeDependencies: params.include_dependencies || true,
+        includeDependencies: params.include_dependencies ?? true,
       });
 
-      // Generate risk assessment
       const riskAssessment = this.assessSprintRisks(suggestedTasks, sprintCapacity, teamVelocity);
       
-      // Generate AI recommendations
       const recommendations = this.generateSprintRecommendations(suggestedTasks, {
         velocity: teamVelocity,
         capacity: sprintCapacity,
         focus: params.priority_focus || 'balanced',
       });
 
-      // Estimate completion confidence
       const estimatedCompletion = this.estimateCompletionConfidence(suggestedTasks, teamVelocity, sprintCapacity);
 
       return {
@@ -83,13 +77,12 @@ export class SmartSprintPlanner {
     totalCapacity: number;
     allocatedHours: number;
     remainingCapacity: number;
+    unallocatedTaskIds: string[];
     insights: string[];
   }> {
     try {
-      // Fetch task details
       const tasks = await this.fetchTasksByIds(params.sprint_tasks);
       
-      // Calculate optimal allocations using AI algorithms
       const allocations = await this.calculateOptimalAllocations(tasks, params.team_members);
       
       const totalCapacity = params.team_members.reduce((sum, member) => sum + member.available_hours, 0);
@@ -97,12 +90,20 @@ export class SmartSprintPlanner {
       const remainingCapacity = totalCapacity - allocatedHours;
       
       const insights = this.generateCapacityInsights(allocations, totalCapacity, allocatedHours);
+      const allocatedIds = new Set(allocations.map(allocation => allocation.taskId));
+      const unallocatedTaskIds = tasks.map(task => task.id).filter(id => !allocatedIds.has(id));
+      if (unallocatedTaskIds.length > 0) {
+        insights.unshift(
+          `${unallocatedTaskIds.length} task(s) could not be allocated because no team member has enough hours: ${unallocatedTaskIds.join(', ')}`
+        );
+      }
 
       return {
         allocations,
         totalCapacity,
         allocatedHours,
         remainingCapacity,
+        unallocatedTaskIds,
         insights,
       };
     } catch (error: any) {
@@ -145,13 +146,11 @@ export class SmartSprintPlanner {
   }
 
   private async calculateTeamVelocity(_workspaceId: string): Promise<number> {
-    // Simplified velocity calculation
-    // In a real implementation, you would analyze historical sprint data
+    // Mock velocity; historical sprint data is not analyzed yet.
     return Math.round(25 + Math.random() * 15); // Mock velocity: 25-40 story points
   }
 
   private estimateSprintCapacity(durationDays: number): number {
-    // Estimate capacity based on sprint duration
     // Assuming 6 hours per day per team member, 5 team members
     return durationDays * 6 * 5;
   }
@@ -165,16 +164,13 @@ export class SmartSprintPlanner {
       includeDependencies: boolean;
     }
   ): Promise<ClickUpTask[]> {
-    // AI-powered task selection algorithm
     const scoredTasks = availableTasks.map(task => ({
       task,
       score: this.calculateTaskScore(task, criteria),
     }));
 
-    // Sort by score (highest first)
     scoredTasks.sort((a, b) => b.score - a.score);
 
-    // Select tasks that fit within capacity constraints
     const selectedTasks: ClickUpTask[] = [];
     let remainingCapacity = criteria.capacity;
     let remainingVelocity = criteria.velocity;
@@ -201,7 +197,6 @@ export class SmartSprintPlanner {
   private calculateTaskScore(task: ClickUpTask, criteria: any): number {
     let score = 0;
 
-    // Priority scoring
     const priority = task.priority || 3;
     if (criteria.focus === 'high_priority') {
       score += (5 - priority) * 20; // Higher priority = higher score
@@ -216,7 +211,6 @@ export class SmartSprintPlanner {
     const taskAge = this.calculateTaskAge(task);
     score += Math.min(taskAge * 0.5, 20);
 
-    // Dependency scoring
     if (criteria.includeDependencies && this.hasBlockingDependencies(task)) {
       score -= 15; // Penalize tasks with blocking dependencies
     }
@@ -225,7 +219,7 @@ export class SmartSprintPlanner {
   }
 
   private estimateTaskHours(task: ClickUpTask): number {
-    // Simplified estimation based on task complexity
+    // Heuristic: description length as a proxy for effort.
     const description = task.description || '';
     const baseHours = 4;
     
@@ -235,7 +229,6 @@ export class SmartSprintPlanner {
   }
 
   private estimateStoryPoints(task: ClickUpTask): number {
-    // Simplified story point estimation
     const hours = this.estimateTaskHours(task);
     return Math.ceil(hours / 4); // 4 hours = 1 story point
   }
@@ -247,12 +240,12 @@ export class SmartSprintPlanner {
   }
 
   private calculateTaskAge(_task: ClickUpTask): number {
-    // This would use the task creation date in a real implementation
+    // Mock age; task date_created is not used yet.
     return Math.floor(Math.random() * 30); // Mock age: 0-30 days
   }
 
   private hasBlockingDependencies(_task: ClickUpTask): boolean {
-    // This would check actual dependencies in a real implementation
+    // Mock; real task dependencies are not checked yet.
     return Math.random() < 0.2; // 20% chance of having blocking dependencies
   }
 
@@ -338,15 +331,19 @@ export class SmartSprintPlanner {
     confidence: string;
   }>> {
     const allocations = [];
-    
+    // Work on copies so allocating hours does not mutate the caller's team_members.
+    const pool = teamMembers.map(member => ({ ...member }));
+    if (pool.length === 0) {
+      return [];
+    }
+
     for (const task of tasks) {
       const estimatedHours = this.estimateTaskHours(task);
       
-      // Find best team member for this task
-      let bestMember = teamMembers[0];
-      let bestScore = 0;
+      let bestMember: (typeof pool)[number] | undefined;
+      let bestScore = -Infinity;
       
-      for (const member of teamMembers) {
+      for (const member of pool) {
         if (member.available_hours >= estimatedHours) {
           const skillMatch = this.calculateSkillMatch(task, member.skills || []);
           const availabilityScore = (member.available_hours / estimatedHours) * 10;
@@ -359,7 +356,8 @@ export class SmartSprintPlanner {
         }
       }
       
-      // Reduce available hours for selected member
+      // Nobody has room for this task: leave it unallocated rather than overbook someone.
+      if (!bestMember) continue;
       bestMember.available_hours -= estimatedHours;
       
       allocations.push({
@@ -396,7 +394,11 @@ export class SmartSprintPlanner {
     allocatedHours: number
   ): string[] {
     const insights = [];
-    
+
+    if (totalCapacity <= 0) {
+      return ['No team capacity available - add team members with available hours'];
+    }
+
     const utilization = (allocatedHours / totalCapacity) * 100;
     
     if (utilization > 95) {

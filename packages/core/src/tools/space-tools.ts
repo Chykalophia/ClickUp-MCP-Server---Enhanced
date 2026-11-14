@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { createClickUpClient } from '../clickup-client/index.js';
@@ -6,7 +5,6 @@ import { createSpacesClient } from '../clickup-client/spaces.js';
 import { mcpError } from '../utils/error-handling.js';
 import { idSchema } from '../schemas/common.js';
 
-// Create clients
 const clickUpClient = createClickUpClient();
 const spacesClient = createSpacesClient(clickUpClient);
 
@@ -36,7 +34,6 @@ const spaceFeaturesSchema = z
   );
 
 export function setupSpaceTools(server: McpServer): void {
-  // Register get_spaces tool
   server.tool(
     'clickup_get_spaces',
     'Get spaces from a ClickUp workspace. Returns id, name, color, private and archived for each. Set include_settings for the full statuses/features/members configuration. To find a space, folder or list by NAME, use clickup_get_workspace_hierarchy instead.',
@@ -55,19 +52,17 @@ export function setupSpaceTools(server: McpServer): void {
     },
     async ({ workspace_id, archived, include_settings }) => {
       try {
-        console.error(`[SpaceTools] Getting spaces for workspace ${workspace_id}...`);
         const spaces = await spacesClient.getSpacesFromWorkspace(
           workspace_id,
           archived !== undefined ? { archived } : undefined
         );
-        console.error(`[SpaceTools] Got ${spaces.length} spaces`);
 
         // Trimmed by default — see include_settings. `statuses` and `features`
         // together dominate the raw response and are rarely what a caller
         // looking up a space ID is after.
         const payload = include_settings
           ? spaces
-          : spaces.map((space: Record<string, unknown>) => ({
+          : spaces.map((space) => ({
               id: space.id,
               name: space.name,
               color: space.color,
@@ -84,16 +79,13 @@ export function setupSpaceTools(server: McpServer): void {
     }
   );
 
-  // Register get_space tool
   server.tool(
     'clickup_get_space',
     'Get details about a specific ClickUp space. Returns space name, settings, features, and metadata.',
     { space_id: idSchema().describe('The ID of the space to get') },
     async ({ space_id }) => {
       try {
-        console.error(`[SpaceTools] Getting space ${space_id}...`);
         const space = await spacesClient.getSpace(space_id);
-        console.error(`[SpaceTools] Got space: ${space.name}`);
 
         return {
           content: [{ type: 'text', text: JSON.stringify(space) }],
@@ -104,7 +96,6 @@ export function setupSpaceTools(server: McpServer): void {
     }
   );
 
-  // Register create_space tool
   server.tool(
     'clickup_create_space',
     'Create a new space in a ClickUp workspace. Optionally configure multiple assignees and features (due dates, time tracking, tags, time estimates, checklists, custom fields).',
@@ -119,13 +110,11 @@ export function setupSpaceTools(server: McpServer): void {
     },
     async ({ workspace_id, name, multiple_assignees, features }) => {
       try {
-        console.error(`[SpaceTools] Creating space "${name}" in workspace ${workspace_id}...`);
         const space = await spacesClient.createSpace(workspace_id, {
           name,
           ...(multiple_assignees !== undefined && { multiple_assignees }),
           ...(features !== undefined && { features }),
         });
-        console.error(`[SpaceTools] Created space: ${space.id}`);
 
         return {
           content: [{ type: 'text', text: JSON.stringify(space) }],
@@ -136,7 +125,6 @@ export function setupSpaceTools(server: McpServer): void {
     }
   );
 
-  // Register update_space tool
   server.tool(
     'clickup_update_space',
     "Update an existing ClickUp space's name, color, privacy, admin management, multiple assignees setting, or features.",
@@ -162,7 +150,6 @@ export function setupSpaceTools(server: McpServer): void {
       features,
     }) => {
       try {
-        console.error(`[SpaceTools] Updating space ${space_id}...`);
         const space = await spacesClient.updateSpace(space_id, {
           ...(name !== undefined && { name }),
           ...(color !== undefined && { color }),
@@ -171,7 +158,6 @@ export function setupSpaceTools(server: McpServer): void {
           ...(multiple_assignees !== undefined && { multiple_assignees }),
           ...(features !== undefined && { features }),
         });
-        console.error(`[SpaceTools] Updated space: ${space.name}`);
 
         return {
           content: [{ type: 'text', text: JSON.stringify(space) }],
@@ -182,7 +168,6 @@ export function setupSpaceTools(server: McpServer): void {
     }
   );
 
-  // Register delete_space tool
   server.tool(
     'clickup_delete_space',
     '⚠️ DESTRUCTIVE: Delete a space from ClickUp. This action cannot be undone and will permanently remove the space and ALL of its contents, including folders, lists, and tasks.',
@@ -206,7 +191,6 @@ export function setupSpaceTools(server: McpServer): void {
           };
         }
 
-        console.error(`[SpaceTools] Deleting space ${space_id}...`);
         await spacesClient.deleteSpace(space_id);
 
         return {
@@ -225,16 +209,13 @@ export function setupSpaceTools(server: McpServer): void {
     }
   );
 
-  // Register get_space_tags tool
   server.tool(
     'clickup_get_space_tags',
     'Get the task tags defined in a ClickUp space. Returns tag names and foreground/background colors.',
     { space_id: idSchema().describe('The ID of the space to get tags from') },
     async ({ space_id }) => {
       try {
-        console.error(`[SpaceTools] Getting tags for space ${space_id}...`);
         const tags = await spacesClient.getSpaceTags(space_id);
-        console.error(`[SpaceTools] Got ${tags.length} tags`);
 
         return {
           content: [{ type: 'text', text: JSON.stringify(tags) }],
@@ -245,7 +226,6 @@ export function setupSpaceTools(server: McpServer): void {
     }
   );
 
-  // Register create_space_tag tool
   server.tool(
     'clickup_create_space_tag',
     'Create a new task tag in a ClickUp space with an optional foreground and background color.',
@@ -260,7 +240,6 @@ export function setupSpaceTools(server: McpServer): void {
     },
     async ({ space_id, name, tag_fg, tag_bg }) => {
       try {
-        console.error(`[SpaceTools] Creating tag "${name}" in space ${space_id}...`);
         await spacesClient.createSpaceTag(space_id, {
           name,
           ...(tag_fg !== undefined && { tag_fg }),
@@ -276,7 +255,6 @@ export function setupSpaceTools(server: McpServer): void {
     }
   );
 
-  // Register edit_space_tag tool
   server.tool(
     'clickup_edit_space_tag',
     "Edit an existing task tag in a ClickUp space. Update the tag's name and/or colors.",
@@ -289,7 +267,6 @@ export function setupSpaceTools(server: McpServer): void {
     },
     async ({ space_id, tag_name, new_name, tag_fg, tag_bg }) => {
       try {
-        console.error(`[SpaceTools] Editing tag "${tag_name}" in space ${space_id}...`);
         await spacesClient.editSpaceTag(space_id, tag_name, {
           name: new_name ?? tag_name,
           ...(tag_fg !== undefined && { tag_fg }),
@@ -310,7 +287,6 @@ export function setupSpaceTools(server: McpServer): void {
     }
   );
 
-  // Register delete_space_tag tool
   server.tool(
     'clickup_delete_space_tag',
     '⚠️ DESTRUCTIVE: Delete a task tag from a ClickUp space. The tag is removed from the space and from all tasks that use it.',
@@ -320,7 +296,6 @@ export function setupSpaceTools(server: McpServer): void {
     },
     async ({ space_id, tag_name }) => {
       try {
-        console.error(`[SpaceTools] Deleting tag "${tag_name}" from space ${space_id}...`);
         await spacesClient.deleteSpaceTag(space_id, tag_name);
 
         return {

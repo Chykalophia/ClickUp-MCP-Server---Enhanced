@@ -33,8 +33,8 @@ export interface ComplexityAnalysis {
   integration: number; // Integration complexity (1-10)
   uncertainty: number; // Uncertainty level (1-10)
   overall: number; // Overall complexity score (1-10)
-  factors: string[]; // Complexity factors identified
-  reasoning: string; // Explanation of complexity assessment
+  factors: string[];
+  reasoning: string;
 }
 
 export interface TaskDecomposition {
@@ -361,13 +361,10 @@ export class TaskAnalysisService {
     const text = `${task.name} ${task.description || ''}`.toLowerCase();
     const factors: string[] = [];
 
-    // Technical complexity analysis
     const technicalScore = this.calculateDimensionScore(text, this.complexityKeywords.technical, factors, 'Technical');
 
-    // Business complexity analysis
     const businessScore = this.calculateDimensionScore(text, this.complexityKeywords.business, factors, 'Business');
 
-    // Integration complexity analysis
     const integrationScore = this.calculateDimensionScore(
       text,
       this.complexityKeywords.integration,
@@ -375,10 +372,8 @@ export class TaskAnalysisService {
       'Integration'
     );
 
-    // Uncertainty level analysis
     const uncertaintyScore = this.calculateDimensionScore(text, this.complexityKeywords.uncertainty, factors, 'Uncertainty');
 
-    // Additional complexity factors
     if (task.dependencies && task.dependencies.length > 0) {
       factors.push(`Has ${task.dependencies.length} dependencies`);
     }
@@ -392,7 +387,6 @@ export class TaskAnalysisService {
       factors.push('Multiple assignees suggest coordination complexity');
     }
 
-    // Calculate overall complexity (weighted average)
     const overall = Math.round(technicalScore * 0.3 + businessScore * 0.25 + integrationScore * 0.25 + uncertaintyScore * 0.2);
 
     const reasoning = this.generateComplexityReasoning({
@@ -420,14 +414,12 @@ export class TaskAnalysisService {
    * Decompose a task into smaller, manageable subtasks
    */
   decomposeTask(task: Task, targetGranularity = 4): DecomposedTask[] {
-    // Find matching template
     const template = this.findMatchingTemplate(task);
 
     if (template) {
       return this.applyTemplate(task, template, targetGranularity);
     }
 
-    // Fallback to generic decomposition
     return this.genericDecomposition(task, targetGranularity);
   }
 
@@ -437,11 +429,9 @@ export class TaskAnalysisService {
   estimateEffort(task: DecomposedTask): number {
     let baseEffort = task.estimatedEffort;
 
-    // Adjust based on complexity
     const complexityMultiplier = 1 + (task.complexity.overall - 5) * 0.1;
     baseEffort *= complexityMultiplier;
 
-    // Adjust based on task type
     const typeMultipliers: Record<TaskType, number> = {
       [TaskType.RESEARCH]: 1.2,
       [TaskType.DESIGN]: 1.1,
@@ -479,7 +469,6 @@ export class TaskAnalysisService {
     tasks.forEach(task => {
       dependencies[task.title] = [];
 
-      // Apply dependency rules
       dependencyRules.forEach(rule => {
         const dependentTasks = tasks.filter(t => t.taskType === rule.from && t.title !== task.title);
 
@@ -492,7 +481,6 @@ export class TaskAnalysisService {
         }
       });
 
-      // Add explicit dependencies from task
       task.dependencies.forEach(dep => {
         if (!dependencies[task.title].includes(dep)) {
           dependencies[task.title].push(dep);
@@ -530,7 +518,6 @@ export class TaskAnalysisService {
       }
     });
 
-    // Check for missing acceptance criteria
     decomposition.decomposedTasks.forEach((task, index) => {
       if (task.acceptanceCriteria.length === 0) {
         issues.push({
@@ -543,7 +530,6 @@ export class TaskAnalysisService {
       }
     });
 
-    // Check for circular dependencies
     const dependencyMap = this.identifyDependencies(decomposition.decomposedTasks);
     const circularDeps = this.detectCircularDependencies(dependencyMap);
     if (circularDeps.length > 0) {
@@ -554,7 +540,6 @@ export class TaskAnalysisService {
       score -= 25;
     }
 
-    // Check total effort vs original estimate
     const totalEffort = decomposition.estimationSummary.totalEstimatedEffort;
     if (decomposition.originalTask.timeEstimate) {
       const originalHours = decomposition.originalTask.timeEstimate / (1000 * 60 * 60);
@@ -568,7 +553,6 @@ export class TaskAnalysisService {
       }
     }
 
-    // Check for balanced task types
     const taskTypes = decomposition.decomposedTasks.map(t => t.taskType);
     const hasImplementation = taskTypes.includes(TaskType.IMPLEMENTATION);
     const hasTesting = taskTypes.includes(TaskType.TESTING);
@@ -589,10 +573,8 @@ export class TaskAnalysisService {
     };
   }
 
-  // Private helper methods
-
   private calculateDimensionScore(text: string, keywords: string[], factors: string[], dimension: string): number {
-    let score = 1; // Base score
+    let score = 1;
     let matchCount = 0;
 
     keywords.forEach(keyword => {

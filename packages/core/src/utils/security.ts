@@ -6,26 +6,22 @@ import { z } from 'zod';
  * Security utilities for the ClickUp MCP Server
  */
 
-// Rate limiting configuration
 export interface RateLimitConfig {
   windowMs: number;
   maxRequests: number;
 }
 
-// Default rate limits
 export const DEFAULT_RATE_LIMITS: Record<string, RateLimitConfig> = {
   webhook: { windowMs: 60000, maxRequests: 100 }, // 100 requests per minute
   api: { windowMs: 60000, maxRequests: 1000 }, // 1000 requests per minute
   upload: { windowMs: 60000, maxRequests: 10 }, // 10 uploads per minute
 };
 
-// Rate limiter implementation with memory leak prevention
 class RateLimiter {
   private requests: Map<string, number[]> = new Map();
   private cleanupInterval?: ReturnType<typeof setInterval>;
 
   constructor() {
-    // Only create cleanup interval in non-test environments
     if (process.env.NODE_ENV !== 'test') {
       // Cleanup old entries every 5 minutes to prevent memory leaks
       this.cleanupInterval = setInterval(
@@ -34,13 +30,9 @@ class RateLimiter {
         },
         5 * 60 * 1000
       );
-
-      // Cleanup interval on process exit to prevent Jest hanging
-      if (typeof process !== 'undefined') {
-        process.on('exit', () => this.destroy());
-        process.on('SIGINT', () => this.destroy());
-        process.on('SIGTERM', () => this.destroy());
-      }
+      // unref() so the timer never keeps the process alive. No signal
+      // listeners here: adding one replaces Node's default exit on SIGTERM.
+      this.cleanupInterval.unref?.();
     }
   }
 
@@ -69,18 +61,14 @@ class RateLimiter {
     const now = Date.now();
     const windowStart = now - config.windowMs;
 
-    // Get existing requests for this key
     const keyRequests = this.requests.get(key) || [];
 
-    // Filter out old requests
     const recentRequests = keyRequests.filter(time => time > windowStart);
 
-    // Check if under limit
     if (recentRequests.length >= config.maxRequests) {
       return false;
     }
 
-    // Add current request
     recentRequests.push(now);
     this.requests.set(key, recentRequests);
 
@@ -141,7 +129,6 @@ export const validateApiToken = (token: string): { isValid: boolean; error?: str
     return { isValid: false, error: 'API token appears to be too long' };
   }
 
-  // Check for suspicious patterns
   if (token.includes(' ') || token.includes('\n') || token.includes('\t')) {
     return { isValid: false, error: 'API token contains invalid characters' };
   }
@@ -184,7 +171,6 @@ export const htmlEncode = (input: string): string => {
  */
 export const sanitizeInput = (input: any): any => {
   if (typeof input === 'string') {
-    // Remove potentially dangerous characters and patterns
     let sanitized = input
       .replace(/[<>]/g, '') // Remove HTML tags
       .replace(/javascript:/gi, '') // Remove javascript: protocol
@@ -197,7 +183,6 @@ export const sanitizeInput = (input: any): any => {
       .trim()
       .substring(0, 10000); // Limit length to prevent DoS
 
-    // Remove control characters
     sanitized = removeControlCharacters(sanitized);
 
     return sanitized;
@@ -210,7 +195,6 @@ export const sanitizeInput = (input: any): any => {
   if (input && typeof input === 'object') {
     const sanitized: any = {};
     for (const [key, value] of Object.entries(input)) {
-      // Sanitize both keys and values
       const sanitizedKey = typeof key === 'string' ? sanitizeInput(key) : key;
       sanitized[sanitizedKey] = sanitizeInput(value);
     }
@@ -233,7 +217,6 @@ export const validateWebhookSignature = (
       return { isValid: false, error: 'Missing required parameters for signature validation' };
     }
 
-    // Generate expected signature
     const expectedSignature = crypto
       .createHmac('sha256', secret)
       .update(payload, 'utf8')
@@ -242,12 +225,10 @@ export const validateWebhookSignature = (
     // Extract signature from header (remove 'sha256=' prefix if present)
     const receivedSignature = signature.replace(/^sha256=/, '');
 
-    // Validate signature format
     if (!/^[a-f0-9]{64}$/i.test(receivedSignature)) {
       return { isValid: false, error: 'Invalid signature format' };
     }
 
-    // Timing-safe comparison
     const isValid = crypto.timingSafeEqual(
       Buffer.from(expectedSignature, 'hex'),
       Buffer.from(receivedSignature, 'hex')
@@ -272,7 +253,6 @@ export const validateFileUpload = (
 ): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
 
-  // Validate filename
   if (!filename || typeof filename !== 'string') {
     errors.push('Filename is required and must be a string');
   } else {
@@ -281,7 +261,6 @@ export const validateFileUpload = (
       errors.push('Filename contains invalid path characters');
     }
 
-    // Check for dangerous extensions
     const dangerousExtensions = [
       '.exe',
       '.bat',
@@ -307,18 +286,15 @@ export const validateFileUpload = (
       errors.push('File type not allowed for security reasons');
     }
 
-    // Check filename length
     if (filename.length > 255) {
       errors.push('Filename too long (max 255 characters)');
     }
 
-    // Check for null bytes
     if (filename.includes('\0')) {
       errors.push('Filename contains null bytes');
     }
   }
 
-  // Validate mimetype if provided
   if (mimetype) {
     const allowedMimetypes = [
       // Images
@@ -354,7 +330,6 @@ export const validateFileUpload = (
     }
   }
 
-  // Validate file size if provided (max 100MB)
   if (size !== undefined) {
     const maxSize = 100 * 1024 * 1024; // 100MB
     if (size > maxSize) {
@@ -378,25 +353,32 @@ export const validateUrl = (url: string): { isValid: boolean; error?: string } =
   try {
     const parsedUrl = new URL(url);
 
-    // Only allow HTTP and HTTPS
     if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
       return { isValid: false, error: 'Only HTTP and HTTPS URLs are allowed' };
     }
 
     // Block localhost and private IPs for security (complete RFC 1918 ranges)
-    const hostname = parsedUrl.hostname.toLowerCase();
+    // URL keeps IPv6 literals bracketed ([::1]); strip them so the checks below match.
+    const hostname = parsedUrl.hostname.toLowerCase().replace(/^\[|\]$/g, '');
     if (
       hostname === 'localhost' ||
-      hostname === '127.0.0.1' ||
+      /^127\./.test(hostname) ||
+      /^0\./.test(hostname) ||
       hostname === '::1' ||
+      hostname === '::' ||
+      // IPv4-mapped IPv6 (URL normalises ::ffff:127.0.0.1 to ::ffff:7f00:1)
+      hostname.startsWith('::ffff:') ||
+      // Link-local, including cloud metadata at 169.254.169.254
+      hostname.startsWith('169.254.') ||
+      // CGNAT shared address space 100.64.0.0/10
+      /^100\.(6[4-9]|[7-9][0-9]|1[01][0-9]|12[0-7])\./.test(hostname) ||
       hostname.startsWith('192.168.') ||
       hostname.startsWith('10.') ||
       // Complete 172.16.0.0/12 range (172.16.0.0 - 172.31.255.255)
       /^172\.(1[6-9]|2[0-9]|3[01])\./.test(hostname) ||
       // IPv6 private ranges
-      hostname.startsWith('fc00:') ||
-      hostname.startsWith('fd00:') ||
-      hostname.startsWith('fe80:')
+      /^f[cd][0-9a-f]{2}:/.test(hostname) ||
+      /^fe[89ab][0-9a-f]:/.test(hostname)
     ) {
       return { isValid: false, error: 'Private and localhost URLs are not allowed' };
     }
@@ -415,11 +397,12 @@ export const generateSecureToken = (length: number = 32): string => {
 };
 
 /**
- * Hash sensitive data
+ * Hash sensitive data with PBKDF2. A random salt is generated when none is given; it is
+ * returned alongside the hash because the hash cannot be verified without it.
  */
-export const hashSensitiveData = (data: string, salt?: string): string => {
+export const hashSensitiveData = (data: string, salt?: string): { hash: string; salt: string } => {
   const actualSalt = salt || crypto.randomBytes(16).toString('hex');
-  return crypto.pbkdf2Sync(data, actualSalt, 10000, 64, 'sha512').toString('hex');
+  return { hash: crypto.pbkdf2Sync(data, actualSalt, 10000, 64, 'sha512').toString('hex'), salt: actualSalt };
 };
 
 /**
@@ -428,7 +411,6 @@ export const hashSensitiveData = (data: string, salt?: string): string => {
 export const validateEnvironment = (): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
 
-  // Check required environment variables
   const requiredVars = ['CLICKUP_API_TOKEN'];
 
   for (const varName of requiredVars) {
@@ -436,7 +418,6 @@ export const validateEnvironment = (): { isValid: boolean; errors: string[] } =>
     if (!value) {
       errors.push(`Missing required environment variable: ${varName}`);
     } else {
-      // Validate API token format
       if (varName === 'CLICKUP_API_TOKEN') {
         const validation = validateApiToken(value);
         if (!validation.isValid) {
@@ -472,10 +453,9 @@ export const getSecurityHeaders = (): Record<string, string> => {
 export const secureLog = (level: 'info' | 'warn' | 'error', message: string, data?: any): void => {
   // Sanitize message to prevent log injection
   let sanitizedMessage = message
-    .replace(/[\r\n\t]/g, ' ') // Replace newlines/tabs with spaces
-    .substring(0, 1000); // Limit length
+    .replace(/[\r\n\t]/g, ' ')
+    .substring(0, 1000);
 
-  // Remove control characters
   sanitizedMessage = removeControlCharacters(sanitizedMessage);
 
   const timestamp = new Date().toISOString();
@@ -486,8 +466,9 @@ export const secureLog = (level: 'info' | 'warn' | 'error', message: string, dat
     data: data ? sanitizeInput(data) : undefined,
   };
 
-  // Use structured logging to prevent injection
-  console[level](`[${level.toUpperCase()}] ${timestamp}:`, logEntry);
+  // stdout carries the MCP JSON-RPC stream, so every level goes to stderr.
+  const sink = level === 'warn' ? console.warn : console.error;
+  sink(`[${level.toUpperCase()}] ${timestamp}:`, logEntry);
 };
 
 /**
@@ -506,8 +487,7 @@ export const logSecurityEvent = (
     details: sanitizeInput(details),
   };
 
-  // Use secure logging to prevent log injection
-  secureLog('error', `[SECURITY ${level.toUpperCase()}] ${event}`, logEntry);
+  secureLog(level, `[SECURITY ${level.toUpperCase()}] ${event}`, logEntry);
 };
 
 /**
@@ -518,12 +498,10 @@ export const sanitizeObject = (obj: any): any => {
     return obj;
   }
 
-  // Remove dangerous properties
   delete obj.__proto__;
   delete obj.constructor;
   delete obj.prototype;
 
-  // Recursively sanitize nested objects
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
       if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
@@ -552,7 +530,6 @@ export const sanitizeErrorMessage = (error: any): string => {
   const isProduction = process.env.NODE_ENV === 'production';
 
   if (isProduction) {
-    // Generic error messages in production
     if (error?.message?.includes('ENOTFOUND') || error?.message?.includes('ECONNREFUSED')) {
       return 'Network connection failed';
     }
@@ -570,7 +547,6 @@ export const sanitizeErrorMessage = (error: any): string => {
     }
     return 'An error occurred';
   }
-  // Detailed error messages in development
   return error?.message || 'Unknown error';
 };
 
@@ -617,7 +593,6 @@ export const productionSafeLog = (
     const sanitizedData = data ? { type: typeof data, hasData: !!data } : undefined;
     secureLog(level, sanitizedMessage, sanitizedData);
   } else {
-    // Development logging can be more verbose
     secureLog(level, message, data);
   }
 };
@@ -635,16 +610,10 @@ export const safeJsonParse = (jsonString: string, maxLength = 100000): any => {
   }
 
   try {
-    const parsed = JSON.parse(jsonString);
-
-    // Prevent prototype pollution
-    if (parsed && typeof parsed === 'object') {
-      delete parsed.__proto__;
-      delete parsed.constructor;
-      delete parsed.prototype;
-    }
-
-    return parsed;
+    // The reviver drops prototype-pollution keys at every depth, not just the top level.
+    return JSON.parse(jsonString, (key, value) =>
+      key === '__proto__' || key === 'constructor' || key === 'prototype' ? undefined : value
+    );
   } catch {
     throw new Error('Invalid JSON format');
   }
@@ -658,16 +627,14 @@ export const validateMcpParameters = (
   params: any
 ): { isValid: boolean; data?: any; errors?: string[] } => {
   try {
-    // Sanitize input first
     const sanitizedParams = sanitizeInput(params);
 
-    // Validate with schema
     const data = schema.parse(sanitizedParams);
 
     return { isValid: true, data };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const errors = error.errors.map(err => `${err.path.join('.')}: ${err.message}`);
+      const errors = error.issues.map(err => `${err.path.join('.')}: ${err.message}`);
       return { isValid: false, errors };
     }
 

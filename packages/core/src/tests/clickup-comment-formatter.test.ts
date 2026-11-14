@@ -97,7 +97,7 @@ describe('ClickUp Comment Formatter', () => {
         comment: [
           {
             text: 'ClickUp',
-            attributes: { link: { url: 'https://clickup.com' } },
+            attributes: { link: 'https://clickup.com' },
           },
         ],
       });
@@ -155,7 +155,7 @@ describe('ClickUp Comment Formatter', () => {
 
       expect(result.comment).toContainEqual({
         text: 'ClickUp',
-        attributes: { link: { url: 'https://clickup.com' } },
+        attributes: { link: 'https://clickup.com' },
       });
     });
 
@@ -382,8 +382,12 @@ describe('ClickUp Comment Formatter', () => {
     it('should handle code blocks', () => {
       const result = parseMarkdownToClickUpComment('```\nconst x = 1;\nconsole.log(x);\n```');
 
+      // Every code line carries its own code-block terminator; with a single
+      // terminator ClickUp formats only the last line as code.
       expect(result.comment).toEqual([
-        { text: 'const x = 1;\nconsole.log(x);', attributes: {} },
+        { text: 'const x = 1;', attributes: {} },
+        { text: '\n', attributes: { 'code-block': { 'code-block': 'plain' } } },
+        { text: 'console.log(x);', attributes: {} },
         { text: '\n', attributes: { 'code-block': { 'code-block': 'plain' } } },
       ]);
     });
@@ -395,6 +399,15 @@ describe('ClickUp Comment Formatter', () => {
         text: '\n',
         attributes: { 'code-block': { 'code-block': 'javascript' } },
       });
+    });
+
+    it('reads the language after a fence longer than three backticks', () => {
+      const result = parseMarkdownToClickUpComment('````ts\nconst a = "```";\n````');
+
+      expect(result.comment).toEqual([
+        { text: 'const a = "```";', attributes: {} },
+        { text: '\n', attributes: { 'code-block': { 'code-block': 'ts' } } },
+      ]);
     });
 
     it('terminates a block-typed last line so its formatting is not lost', () => {
@@ -424,17 +437,14 @@ Visit [ClickUp](https://clickup.com) for more info.`;
 
       const result = parseMarkdownToClickUpComment(markdown);
 
-      // Should contain header
       expect(result.comment).toContainEqual({ text: 'Status Update', attributes: {} });
       expect(result.comment).toContainEqual({ text: '\n', attributes: { header: 1 } });
 
-      // Should contain formatted text
       expect(result.comment).toContainEqual({
         text: 'Authentication',
         attributes: { bold: true },
       });
 
-      // Should contain code block
       expect(result.comment).toContainEqual({
         text: "const user = { name: 'John' };",
         attributes: {},
@@ -444,10 +454,9 @@ Visit [ClickUp](https://clickup.com) for more info.`;
         attributes: { 'code-block': { 'code-block': 'javascript' } },
       });
 
-      // Should contain link
       expect(result.comment).toContainEqual({
         text: 'ClickUp',
-        attributes: { link: { url: 'https://clickup.com' } },
+        attributes: { link: 'https://clickup.com' },
       });
     });
   });
@@ -520,13 +529,11 @@ Visit [ClickUp](https://clickup.com) for more info.`;
       const originalMarkdown =
         '**Bold** and *italic* text with `code` and [link](https://example.com)';
 
-      // Convert to ClickUp format
       const clickUpFormat = markdownToClickUpComment(originalMarkdown);
 
-      // Convert back to markdown
       const convertedMarkdown = clickUpCommentToMarkdown(clickUpFormat);
 
-      // Should preserve the essential formatting (may have minor differences in spacing)
+      // Spacing may differ after the round trip, so check pieces, not equality.
       expect(convertedMarkdown).toContain('**Bold**');
       expect(convertedMarkdown).toContain('*italic*');
       expect(convertedMarkdown).toContain('`code`');
@@ -610,7 +617,7 @@ Visit [ClickUp](https://clickup.com) for more info.`;
       expect(processed[1]).toMatchObject({ text: 'important', attributes: { bold: true } });
       expect(processed[3]).toMatchObject({
         text: 'here',
-        attributes: { link: { url: 'https://example.com' } },
+        attributes: { link: 'https://example.com' },
       });
     });
 
@@ -654,7 +661,7 @@ Visit [ClickUp](https://clickup.com) for more info.`;
 
       expect(result.comment).toContainEqual({
         text: 'docs',
-        attributes: { link: { url: 'https://example.com' } },
+        attributes: { link: 'https://example.com' },
       });
       expect(result.comment.some(block => block.type === 'tag')).toBe(false);
     });
@@ -722,6 +729,30 @@ Visit [ClickUp](https://clickup.com) for more info.`;
   });
 
   describe('clickUpCommentToMarkdown — block-level attributes', () => {
+    it('formats only the line a terminator ends, not plain lines before it', () => {
+      const markdown = clickUpCommentToMarkdown({
+        comment: [
+          { text: 'intro\nmore intro\nTitle', attributes: {} },
+          { text: '\n', attributes: { header: 2 } },
+          { text: 'plain\nconst x = 1;', attributes: {} },
+          { text: '\n', attributes: { 'code-block': { 'code-block': 'js' } } },
+        ],
+      });
+
+      expect(markdown).toBe('intro\nmore intro\n## Title\nplain\n```js\nconst x = 1;\n```');
+    });
+
+    it('keeps inline styling inside each line when a styled block spans lines', () => {
+      const markdown = clickUpCommentToMarkdown({
+        comment: [
+          { text: 'first\nTitle', attributes: { bold: true } },
+          { text: '\n', attributes: { header: 2 } },
+        ],
+      });
+
+      expect(markdown).toBe('**first**\n## **Title**');
+    });
+
     it('rebuilds headings, lists, quotes and code blocks from the line markers', () => {
       const markdown = clickUpCommentToMarkdown({
         comment: [
@@ -790,7 +821,7 @@ Visit [ClickUp](https://clickup.com) for more info.`;
       const result = markdownToClickUpComment('[link](https://example.com)');
 
       expect(result.comment).toEqual([
-        { text: 'link', attributes: { link: { url: 'https://example.com' } } },
+        { text: 'link', attributes: { link: 'https://example.com' } },
       ]);
     });
 
@@ -798,6 +829,195 @@ Visit [ClickUp](https://clickup.com) for more info.`;
       const result = markdownToClickUpComment('see [docs](https://example.com/a) now');
 
       expect(result.comment.map(block => block.text)).toEqual(['see ', 'docs', ' now']);
+    });
+  });
+});
+
+describe('ClickUp Comment Formatter — documented shapes and lossless round trips', () => {
+  const roundTrip = (markdown: string): string =>
+    clickUpCommentToMarkdown({ comment: prepareCommentForClickUp(markdown).comment });
+
+  describe('link attribute shape', () => {
+    // https://developer.clickup.com/docs/comment-formatting documents
+    // "attributes": {"link": "https://clickup.com/api"} — a plain string.
+    it('writes the documented string form', () => {
+      const result = parseMarkdownToClickUpComment('see [api](https://clickup.com/api)');
+      expect(result.comment).toContainEqual({
+        text: 'api',
+        attributes: { link: 'https://clickup.com/api' },
+      });
+    });
+
+    it('reads both the string form and the legacy {url} form', () => {
+      expect(
+        clickUpCommentToMarkdown({
+          comment: [{ text: 'a', attributes: { link: 'https://a.example' } }],
+        })
+      ).toBe('[a](https://a.example)');
+      expect(
+        clickUpCommentToMarkdown({
+          comment: [{ text: 'b', attributes: { link: { url: 'https://b.example' } } }],
+        })
+      ).toBe('[b](https://b.example)');
+    });
+
+    it('rewrites a caller-supplied {url} link to the string form', () => {
+      const processed = processCommentBlocks([
+        { text: 'x', attributes: { link: { url: 'https://x.example' } } },
+      ]);
+      expect(processed[0].attributes).toEqual({ link: 'https://x.example' });
+    });
+
+    it('createLinkComment uses the string form', () => {
+      expect(createLinkComment('t', 'https://clickup.com').comment[0].attributes).toEqual({
+        link: 'https://clickup.com',
+      });
+    });
+  });
+
+  describe('multi-line fenced code blocks', () => {
+    const markdown = '```ts\nconst a = 1;\n\nconst b = 2;\n```';
+
+    it('marks every line, including blank ones, as code', () => {
+      const terminators = parseMarkdownToClickUpComment(markdown).comment.filter(
+        block => block.text === '\n'
+      );
+      expect(terminators).toHaveLength(3);
+      for (const terminator of terminators) {
+        expect(terminator.attributes).toEqual({ 'code-block': { 'code-block': 'ts' } });
+      }
+    });
+
+    it('reads consecutive code lines back as ONE fence', () => {
+      expect(roundTrip(markdown)).toBe(markdown);
+    });
+  });
+
+  describe('task-list checkboxes', () => {
+    it('maps - [ ] and - [x] to native checklist lines', () => {
+      const result = parseMarkdownToClickUpComment('- [ ] todo\n- [x] done\n* [X] also done');
+      const terminators = result.comment.filter(block => block.text === '\n');
+      expect(terminators.map(block => block.attributes)).toEqual([
+        { list: { list: 'unchecked' } },
+        { list: { list: 'checked' } },
+        { list: { list: 'checked' } },
+      ]);
+      expect(result.comment.map(block => block.text)).not.toContain('[ ] todo');
+      expect(result.comment).toContainEqual({ text: 'todo', attributes: {} });
+    });
+
+    it('round-trips a checklist', () => {
+      expect(roundTrip('- [ ] todo\n- [x] done')).toBe('- [ ] todo\n- [x] done');
+    });
+  });
+
+  describe('nested lists', () => {
+    it('carries indentation as the indent line attribute and reads it back', () => {
+      const markdown = '- parent\n  - child\n    1. grandchild';
+      const blocks = prepareCommentForClickUp(markdown).comment;
+      const terminators = blocks.filter(block => block.text === '\n');
+      expect(terminators.map(block => block.attributes)).toEqual([
+        { list: { list: 'bullet' } },
+        { list: { list: 'bullet' }, indent: 1 },
+        { list: { list: 'ordered' }, indent: 2 },
+      ]);
+      expect(clickUpCommentToMarkdown({ comment: blocks })).toBe(markdown);
+    });
+  });
+
+  describe('inline tokenizer', () => {
+    it('does not italicize inside snake_case identifiers', () => {
+      const result = markdownToClickUpComment('rename my_var_name now');
+      expect(result.comment).toEqual([{ text: 'rename my_var_name now', attributes: {} }]);
+    });
+
+    it('does not italicize underscores inside a bare URL', () => {
+      const result = markdownToClickUpComment('https://example.com/a_b_c');
+      expect(result.comment.every(block => !block.attributes?.italic)).toBe(true);
+    });
+
+    it('still italicizes a standalone _word_', () => {
+      expect(markdownToClickUpComment('an _emphasised_ word').comment).toContainEqual({
+        text: 'emphasised',
+        attributes: { italic: true },
+      });
+    });
+
+    it('does not treat spaced asterisks (arithmetic) as italic', () => {
+      const result = markdownToClickUpComment('2 * 3 * 4');
+      expect(result.comment).toEqual([{ text: '2 * 3 * 4', attributes: {} }]);
+    });
+
+    it('keeps the space between two adjacent formatted words', () => {
+      const result = markdownToClickUpComment('**a** *b*');
+      expect(result.comment.map(block => block.text).join('')).toBe('a b');
+    });
+
+    it('keeps a link inside bold text', () => {
+      const result = markdownToClickUpComment('**see [docs](https://d.example) now**');
+      expect(result.comment).toEqual([
+        { text: 'see ', attributes: { bold: true } },
+        { text: 'docs', attributes: { bold: true, link: 'https://d.example' } },
+        { text: ' now', attributes: { bold: true } },
+      ]);
+    });
+
+    it('keeps inline code inside bold text', () => {
+      const result = markdownToClickUpComment('**run `npm test`**');
+      expect(result.comment).toEqual([
+        { text: 'run ', attributes: { bold: true } },
+        { text: 'npm test', attributes: { bold: true, code: true } },
+      ]);
+    });
+
+    it('handles ***bold italic***', () => {
+      expect(markdownToClickUpComment('***both***').comment).toEqual([
+        { text: 'both', attributes: { bold: true, italic: true } },
+      ]);
+    });
+
+    it('nested formatting survives markdown -> blocks -> markdown -> blocks', () => {
+      const markdown = '**run `npm test` via [ci](https://ci.example)** and ***both***';
+      const first = prepareCommentForClickUp(markdown).comment;
+      const second = prepareCommentForClickUp(clickUpCommentToMarkdown({ comment: first })).comment;
+      const visible = (blocks: ClickUpCommentBlock[]) =>
+        // Edge whitespace may move outside the delimiters on the way back
+        // ("**run **" is not valid emphasis), which is visually identical.
+        blocks
+          .filter(block => block.text?.trim())
+          .map(block => [block.text?.trim(), block.attributes]);
+      expect(visible(second)).toEqual(visible(first));
+    });
+  });
+
+  describe('fast-path markdown detection', () => {
+    it('routes an italic-only comment through the markdown path', () => {
+      expect(prepareCommentForClickUp('this is *really* it').comment).toContainEqual({
+        text: 'really',
+        attributes: { italic: true },
+      });
+    });
+
+    it('leaves snake_case-only text on the plain path', () => {
+      expect(prepareCommentForClickUp('set my_var_name please').comment).toEqual([
+        { text: 'set my_var_name please', attributes: {} },
+      ]);
+    });
+  });
+
+  describe('reader fallbacks', () => {
+    it('spells out an emoticon block that has only a code', () => {
+      expect(
+        clickUpCommentToMarkdown({ comment: [{ type: 'emoticon', emoticon: { code: '1f600' } }] })
+      ).toBe('\u{1F600}');
+    });
+
+    it('falls back to user.username for a tag block without text', () => {
+      expect(
+        clickUpCommentToMarkdown({
+          comment: [{ type: 'tag', user: { id: 7, username: 'Jane' } }],
+        })
+      ).toBe('@[Jane](7)');
     });
   });
 });

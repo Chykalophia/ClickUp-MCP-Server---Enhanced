@@ -16,7 +16,6 @@ import {
 import { mcpError } from '../utils/error-handling.js';
 import { idSchema } from '../schemas/common.js';
 
-// Create clients
 const dependenciesClient = new DependenciesEnhancedClient(getApiToken());
 
 // Shared custom-task-ID query param inputs (accepted by all relationship endpoints)
@@ -32,10 +31,6 @@ const customTaskIdInputs = {
 };
 
 export function setupDependenciesTools(server: McpServer): void {
-  // ========================================
-  // DEPENDENCY MANAGEMENT OPERATIONS
-  // ========================================
-
   server.tool(
     'clickup_create_dependency',
     'Create a dependency between two tasks. Provide exactly one of depends_on (this task is WAITING ON the other task) or dependency_of (this task is BLOCKING the other task).',
@@ -130,10 +125,6 @@ export function setupDependenciesTools(server: McpServer): void {
     }
   );
 
-  // ========================================
-  // TASK LINK OPERATIONS
-  // ========================================
-
   server.tool(
     'clickup_add_task_link',
     'Link two tasks together (a non-blocking "linked" relationship). Returns the updated task.',
@@ -187,10 +178,6 @@ export function setupDependenciesTools(server: McpServer): void {
       }
     }
   );
-
-  // ========================================
-  // CLIENT-SIDE DEPENDENCY ANALYSIS
-  // ========================================
 
   server.tool(
     'clickup_get_dependency_graph',
@@ -277,6 +264,7 @@ export function setupDependenciesTools(server: McpServer): void {
           })
         )
         .min(1)
+        .max(100)
         .describe(
           'Array of dependencies to create or delete (each with exactly one of depends_on or dependency_of)'
         ),

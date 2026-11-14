@@ -291,8 +291,6 @@ export class ViewsEnhancedClient extends ClickUpClient {
     return response.view;
   }
 
-  // Helper methods
-
   private getParentEndpoint(parentType: string, parentId: string): string {
     switch (parentType) {
       case 'team':

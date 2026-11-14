@@ -5,16 +5,13 @@ import open from 'open';
 import { randomBytes } from 'crypto';
 import dotenv from 'dotenv';
 
-// Load environment variables from .env file
 dotenv.config();
 
-// Configuration
 const CLIENT_ID = process.env.CLICKUP_CLIENT_ID;
 const CLIENT_SECRET = process.env.CLICKUP_CLIENT_SECRET;
 const REDIRECT_URI = 'http://localhost:3000/auth/callback';
 const PORT = 3000;
 
-// Validate configuration
 if (!CLIENT_ID || !CLIENT_SECRET) {
   console.error('Error: CLICKUP_CLIENT_ID and CLICKUP_CLIENT_SECRET environment variables are required.');
   console.error('Please create a .env file with these values or set them in your environment.');
@@ -25,10 +22,11 @@ if (!CLIENT_ID || !CLIENT_SECRET) {
 // Generate a random state for CSRF protection
 const state = randomBytes(16).toString('hex');
 
-// Create Express app
+const escapeHtml = value =>
+  String(value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
+
 const app = express();
 
-// Home route
 app.get('/', (req, res) => {
   res.send(`
     <html>
@@ -49,13 +47,11 @@ app.get('/', (req, res) => {
   `);
 });
 
-// Auth route - redirect to ClickUp OAuth page
 app.get('/auth', (req, res) => {
   const authUrl = `https://app.clickup.com/api?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&state=${state}`;
   res.redirect(authUrl);
 });
 
-// Callback route - handle OAuth callback
 app.get('/auth/callback', async (req, res) => {
   const { code, state: returnedState } = req.query;
   
@@ -69,7 +65,6 @@ app.get('/auth/callback', async (req, res) => {
   }
   
   try {
-    // Exchange code for access token
     const response = await axios.post('https://api.clickup.com/api/v2/oauth/token', {
       client_id: CLIENT_ID,
       client_secret: CLIENT_SECRET,
@@ -80,7 +75,6 @@ app.get('/auth/callback', async (req, res) => {
     
     const { access_token } = response.data;
     
-    // Display the access token
     res.send(`
       <html>
         <head>
@@ -97,7 +91,7 @@ app.get('/auth/callback', async (req, res) => {
           <p>Your ClickUp access token has been generated successfully.</p>
           
           <h2>Your Access Token:</h2>
-          <div class="token-box">${access_token}</div>
+          <div class="token-box">${escapeHtml(access_token)}</div>
           
           <div class="instructions">
             <h3>Next Steps:</h3>
@@ -142,7 +136,7 @@ app.get('/auth/callback', async (req, res) => {
           <h1>Authorization Error</h1>
           <div class="error">
             <p>An error occurred while trying to get your access token:</p>
-            <pre>${error.response?.data ? JSON.stringify(error.response.data, null, 2) : error.message}</pre>
+            <pre>${escapeHtml(error.response?.data ? JSON.stringify(error.response.data, null, 2) : error.message)}</pre>
           </div>
           <p>Please try again or check your client ID and secret.</p>
         </body>
@@ -151,16 +145,13 @@ app.get('/auth/callback', async (req, res) => {
   }
 });
 
-// Start the server
 const server = app.listen(PORT, () => {
   console.log(`OAuth server running at http://localhost:${PORT}`);
   console.log('Opening browser for authorization...');
   
-  // Open the browser to start the OAuth flow
   open(`http://localhost:${PORT}`);
 });
 
-// Handle server shutdown
 process.on('SIGINT', () => {
   server.close(() => {
     console.log('OAuth server closed.');

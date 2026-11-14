@@ -4,9 +4,10 @@
  * Formats analysis results into professional markdown reports
  * and executive dashboards for AI intelligence tools.
  * 
- * @version 4.0.0
  * @since Phase 1.2 - Smart Sprint Planner
  */
+
+import { VERSION } from '../version.js';
 
 /**
  * Formats analysis results into a professional markdown report
@@ -16,9 +17,9 @@ export function formatMarkdownReport(result: any, title: string): string {
   
   let report = `# ${title}\n\n`;
   report += `**Generated:** ${timestamp}\n`;
-  report += `**Version:** ${result.metadata?.version || '4.0.0'}\n\n`;
+  report += `**Version:** ${result.metadata?.version || VERSION}\n\n`;
   
-  // Add JSON data for now - can be enhanced with specific formatting later
+  // Raw JSON dump; no per-field formatting yet.
   report += '## Analysis Results\n\n';
   report += '```json\n';
   report += JSON.stringify(result, null, 2);
@@ -37,7 +38,6 @@ export function generateExecutiveDashboard(result: any, title: string): string {
   dashboard += `**Generated:** ${timestamp}\n`;
   dashboard += `**Team:** ${result.sprintPlan?.teamId || 'Unknown'}\n\n`;
   
-  // Executive Summary
   if (result.executiveSummary) {
     dashboard += '## 📊 Executive Summary\n\n';
     dashboard += `**Sprint Health Grade:** ${result.executiveSummary.sprintHealthGrade}\n`;
@@ -61,7 +61,6 @@ export function generateExecutiveDashboard(result: any, title: string): string {
     }
   }
   
-  // Sprint Metrics
   if (result.sprintPlan?.sprintMetrics) {
     const metrics = result.sprintPlan.sprintMetrics;
     dashboard += '## 📈 Sprint Metrics\n\n';
@@ -72,7 +71,6 @@ export function generateExecutiveDashboard(result: any, title: string): string {
     dashboard += `- **Optimization Score:** ${metrics.optimizationScore}/100\n\n`;
   }
   
-  // Recommended Tasks
   if (result.sprintPlan?.recommendedTasks?.length > 0) {
     dashboard += '## 🎯 Recommended Tasks\n\n';
     result.sprintPlan.recommendedTasks.forEach((task: any, index: number) => {
@@ -87,7 +85,6 @@ export function generateExecutiveDashboard(result: any, title: string): string {
     });
   }
   
-  // Add full JSON data for detailed analysis
   dashboard += '## 📋 Detailed Analysis\n\n';
   dashboard += '```json\n';
   dashboard += JSON.stringify(result, null, 2);

@@ -68,6 +68,8 @@ const USERS: Record<string, FakeUser> = {
 let httpServer: Server;
 let base: string;
 let config: import('../../remote/config.js').RemoteConfig;
+/** CLICKUP_TOOL_MODE for servers built from now on; each request builds its own. */
+let toolMode = 'all';
 /** Authorization header of every outbound ClickUp API call, in order. */
 const outbound: string[] = [];
 /** ClickUp tokens the fake ClickUp treats as revoked (the person removed the app). */
@@ -76,7 +78,7 @@ const revokedTokens = new Set<string>();
 beforeAll(async () => {
   const { loadRemoteConfig } = await import('../../remote/config.js');
   const { createRemoteApp } = await import('../../remote/app.js');
-  const { createClickUpMcpServer } = await import('../../server-factory.js');
+  const { createClickUpServer } = await import('../../create-server.js');
   const { createClickUpClient } = await import('../../clickup-client/index.js');
 
   // Capture outbound calls on the shared client the workspace tools use. The
@@ -111,7 +113,7 @@ beforeAll(async () => {
   });
   handler.app = createRemoteApp({
     config,
-    createServer: () => createClickUpMcpServer().server,
+    createServer: () => createClickUpServer({ env: { CLICKUP_TOOL_MODE: toolMode } }).server,
     clickUpOAuth: {
       authorizeUrl: ({ redirectUri, state }) =>
         `https://app.clickup.com/api?client_id=fake-client&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`,
@@ -378,7 +380,7 @@ describe('hosted server: sign-in and tool calls', () => {
     ]);
   });
 
-  it('lists the full tool surface', async () => {
+  it('lists the full tool surface when the deployment sets CLICKUP_TOOL_MODE=all', async () => {
     const { access_token } = await signIn('code-peter');
     const res = await mcp(access_token, 'tools/list');
     const body = (await res.json()) as { result: { tools: Array<{ name: string }> } };
@@ -386,6 +388,67 @@ describe('hosted server: sign-in and tool calls', () => {
     expect(names).toContain('clickup_get_workspaces');
     expect(names).toContain('clickup_create_task_comment');
     expect(names.length).toBeGreaterThan(100);
+  });
+});
+
+describe('hosted server: resources', () => {
+  it('serves the same resource templates as stdio', async () => {
+    const { access_token } = await signIn('code-peter');
+    const res = await mcp(access_token, 'resources/templates/list');
+    const body = (await res.json()) as {
+      result: { resourceTemplates: Array<{ uriTemplate: string }> };
+    };
+    const templates = body.result.resourceTemplates.map(t => t.uriTemplate);
+    expect(templates.some(t => t.startsWith('clickup://task/'))).toBe(true);
+  });
+});
+
+describe('hosted server: core tool mode (the default)', () => {
+  beforeEach(() => {
+    toolMode = '';
+  });
+  afterEach(() => {
+    toolMode = 'all';
+  });
+
+  const listNames = async (accessToken: string) => {
+    const body = (await (await mcp(accessToken, 'tools/list')).json()) as {
+      result: { tools: Array<{ name: string }> };
+    };
+    return body.result.tools.map(t => t.name);
+  };
+
+  const callTool = async (accessToken: string, name: string, args: Record<string, unknown>) => {
+    const body = (await (
+      await mcp(accessToken, 'tools/call', { name, arguments: args })
+    ).json()) as {
+      result: { content: Array<{ text: string }>; isError?: boolean };
+    };
+    return body.result;
+  };
+
+  it('runs a tool outside the core set through clickup_call_tool, as the signed-in person', async () => {
+    const { access_token } = await signIn('code-peter');
+    const names = await listNames(access_token);
+    expect(names).toContain('clickup_call_tool');
+    expect(names).not.toContain('clickup_get_workspaces');
+
+    outbound.length = 0;
+    const result = await callTool(access_token, 'clickup_call_tool', {
+      tool: 'clickup_get_workspaces',
+      arguments: {},
+    });
+    expect(result.isError).toBeFalsy();
+    expect(result.content[0].text).toContain('Bearer oauth-peter');
+    expect(outbound).toEqual(['Bearer oauth-peter']);
+  });
+
+  it('refuses clickup_enable_toolset, which could not outlive the request, and changes nothing', async () => {
+    const { access_token } = await signIn('code-peter');
+    const result = await callTool(access_token, 'clickup_enable_toolset', { toolsets: ['goals'] });
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toMatch(/clickup_call_tool/);
+    expect(await listNames(access_token)).not.toContain('clickup_get_goals');
   });
 });
 
@@ -781,7 +844,7 @@ describe('hosted server: sign-in routes are rate limited', () => {
   it('throttles the ClickUp callback and the consent POST per client', async () => {
     // A separate app instance, so its limiter counts only these requests.
     const { createRemoteApp } = await import('../../remote/app.js');
-    const { createClickUpMcpServer } = await import('../../server-factory.js');
+    const { createClickUpServer } = await import('../../create-server.js');
     let exchanges = 0;
     const handler: { app?: import('express').Express } = {};
     const server = createServer((req, res) => handler.app!(req, res));
@@ -789,7 +852,7 @@ describe('hosted server: sign-in routes are rate limited', () => {
     const own = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
     handler.app = createRemoteApp({
       config: { ...config, publicUrl: new URL(own), mcpUrl: new URL('/mcp', own) },
-      createServer: () => createClickUpMcpServer().server,
+      createServer: () => createClickUpServer().server,
       clickUpOAuth: {
         authorizeUrl: () => 'https://app.clickup.com/api',
         exchangeCode: async () => {

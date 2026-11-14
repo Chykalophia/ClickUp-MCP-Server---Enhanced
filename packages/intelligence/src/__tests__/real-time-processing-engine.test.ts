@@ -17,7 +17,7 @@ describe('RealTimeProcessingEngine', () => {
 
   beforeEach(() => {
     engine = new RealTimeProcessingEngine({
-      enableWebSocket: false, // Disable WebSocket for tests
+      enableWebSocket: false,
       enableCaching: true,
       enableAnalytics: true,
       webhookEndpoint: '/webhook',
@@ -61,9 +61,8 @@ describe('RealTimeProcessingEngine', () => {
       await engine.start();
     });
 
-      // QUARANTINED: pre-existing stale test asserting an outdated service contract
-  // (package never compiled, so this never ran in CI). TODO: rewrite against the
-  // current service return shape, then re-enable.
+  // QUARANTINED: stale test for an outdated service contract (never ran in CI).
+  // TODO: rewrite against the current service return shape, then re-enable.
   it.skip('should process webhook events successfully', async () => {
       const mockPayload = {
         event: 'taskCreated',
@@ -82,14 +81,12 @@ describe('RealTimeProcessingEngine', () => {
       expect(result.latency).toBeLessThan(2000); // Should meet SLA
     });
 
-      // QUARANTINED: pre-existing stale test asserting an outdated service contract
-  // (package never compiled, so this never ran in CI). TODO: rewrite against the
-  // current service return shape, then re-enable.
+  // QUARANTINED: stale test for an outdated service contract (never ran in CI).
+  // TODO: rewrite against the current service return shape, then re-enable.
   it.skip('should emit sla_violation when latency exceeds threshold', async () => {
       const violationSpy = jest.fn();
       engine.on('sla_violation', violationSpy);
 
-      // Create a slow processing scenario by adding a delay
       const slowPayload = {
         event: 'taskCreated',
         task_id: 'slow-task-123',
@@ -99,7 +96,7 @@ describe('RealTimeProcessingEngine', () => {
       // Mock a slow process by adding artificial delay
       const originalProcess = engine.processWebhookEvent;
       engine.processWebhookEvent = async (payload) => {
-        await new Promise(resolve => setTimeout(resolve, 2500)); // 2.5s delay
+        await new Promise(resolve => setTimeout(resolve, 2500));
         return { success: true, latency: 2500 };
       };
 
@@ -113,9 +110,8 @@ describe('RealTimeProcessingEngine', () => {
       );
     });
 
-      // QUARANTINED: pre-existing stale test asserting an outdated service contract
-  // (package never compiled, so this never ran in CI). TODO: rewrite against the
-  // current service return shape, then re-enable.
+  // QUARANTINED: stale test for an outdated service contract (never ran in CI).
+  // TODO: rewrite against the current service return shape, then re-enable.
   it.skip('should handle webhook processing errors gracefully', async () => {
       const invalidPayload = null;
 
@@ -251,9 +247,8 @@ describe('RealTimeProcessingEngine', () => {
       await engine.start();
     });
 
-      // QUARANTINED: pre-existing stale test asserting an outdated service contract
-  // (package never compiled, so this never ran in CI). TODO: rewrite against the
-  // current service return shape, then re-enable.
+  // QUARANTINED: stale test for an outdated service contract (never ran in CI).
+  // TODO: rewrite against the current service return shape, then re-enable.
   it.skip('should emit high_priority_task event for urgent tasks', async () => {
       const highPrioritySpy = jest.fn();
       engine.on('high_priority_task', highPrioritySpy);
@@ -275,9 +270,8 @@ describe('RealTimeProcessingEngine', () => {
       expect(highPrioritySpy).toHaveBeenCalled();
     });
 
-      // QUARANTINED: pre-existing stale test asserting an outdated service contract
-  // (package never compiled, so this never ran in CI). TODO: rewrite against the
-  // current service return shape, then re-enable.
+  // QUARANTINED: stale test for an outdated service contract (never ran in CI).
+  // TODO: rewrite against the current service return shape, then re-enable.
   it.skip('should emit task_completed event for completed tasks', async () => {
       const completedSpy = jest.fn();
       engine.on('task_completed', completedSpy);
@@ -309,7 +303,6 @@ describe('RealTimeProcessingEngine', () => {
       const errorSpy = jest.fn();
       engine.on('processing_error', errorSpy);
 
-      // Add a rule that throws an error
       engine.addProcessingRule({
         id: 'error-rule',
         eventType: 'task_update',
@@ -347,16 +340,14 @@ describe('RealTimeProcessingEngine', () => {
       expect(stoppedSpy).toHaveBeenCalled();
     });
 
-      // QUARANTINED: pre-existing stale test asserting an outdated service contract
-  // (package never compiled, so this never ran in CI). TODO: rewrite against the
-  // current service return shape, then re-enable.
+  // QUARANTINED: stale test for an outdated service contract (never ran in CI).
+  // TODO: rewrite against the current service return shape, then re-enable.
   it.skip('should handle shutdown errors', async () => {
       await engine.start();
       
       const shutdownErrorSpy = jest.fn();
       engine.on('shutdown_error', shutdownErrorSpy);
 
-      // Mock an error during shutdown
       const originalStop = engine.stop;
       engine.stop = async () => {
         throw new Error('Shutdown error');
@@ -448,7 +439,6 @@ describe('DataCacheService', () => {
     
     cacheService.set('expired-key', testData, 50); // 50ms TTL
     
-    // Wait for expiration
     await new Promise(resolve => setTimeout(resolve, 100));
     
     const retrieved = cacheService.get('expired-key');

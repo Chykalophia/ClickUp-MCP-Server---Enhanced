@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://www.npmjs.com/package/@chykalophia/clickup-mcp-shared"><img src="https://img.shields.io/npm/v/@chykalophia/clickup-mcp-shared.svg" alt="Version"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
-  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen" alt="Node.js Version"></a>
+  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D18.14.0-brightgreen" alt="Node.js Version"></a>
 </p>
 
 Shared utilities, types, and schemas for ClickUp MCP Server packages. This package provides common functionality used across the ClickUp MCP ecosystem.

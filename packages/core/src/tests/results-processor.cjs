@@ -1,5 +1,4 @@
 module.exports = function resultsProcessor(results) {
-  // Log test summary
   console.log('\n📊 Test Results Summary:');
   console.log(`Total Tests: ${results.numTotalTests}`);
   console.log(`Passed: ${results.numPassedTests}`);
@@ -8,7 +7,6 @@ module.exports = function resultsProcessor(results) {
   console.log(`Test Suites: ${results.numTotalTestSuites}`);
   console.log(`Time: ${(results.testResults.reduce((acc, result) => acc + (result.perfStats.end - result.perfStats.start), 0) / 1000).toFixed(2)}s`);
   
-  // Coverage summary
   if (results.coverageMap) {
     const coverage = results.coverageMap.getCoverageSummary();
     console.log('\n📈 Coverage Summary:');
@@ -18,7 +16,6 @@ module.exports = function resultsProcessor(results) {
     console.log(`Statements: ${coverage.statements.pct}%`);
   }
   
-  // Failed tests details
   if (results.numFailedTests > 0) {
     console.log('\n❌ Failed Tests:');
     results.testResults.forEach(testResult => {
@@ -36,7 +33,6 @@ module.exports = function resultsProcessor(results) {
     });
   }
   
-  // Performance warnings
   const slowTests = results.testResults.filter(result => 
     (result.perfStats.end - result.perfStats.start) > 5000
   );
@@ -49,7 +45,6 @@ module.exports = function resultsProcessor(results) {
     });
   }
   
-  // Security test results
   const securityTests = results.testResults.filter(result => 
     result.testFilePath.includes('security.test')
   );

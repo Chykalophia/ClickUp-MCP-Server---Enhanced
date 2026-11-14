@@ -5,13 +5,12 @@
  * Provides AI-powered workflow pattern analysis, automation recommendations,
  * and integration optimization for ClickUp project management workflows.
  * 
- * @version 4.1.0
  * @package @chykalophia/clickup-intelligence-mcp-server
  */
 
 import { z } from 'zod';
+import { VERSION } from '../version.js';
 
-// Input schemas
 export const WorkflowPatternAnalysisInputSchema = z.object({
   workspaceId: z.string().describe('ClickUp workspace ID to analyze'),
   timeframe: z.enum(['1week', '2weeks', '1month', '3months']).default('1month').describe('Analysis timeframe'),
@@ -33,7 +32,6 @@ export const IntegrationOptimizationInputSchema = z.object({
   teamSize: z.number().optional().describe('Team size for scaling recommendations'),
 });
 
-// Output interfaces
 export interface WorkflowPattern {
   id: string;
   name: string;
@@ -95,15 +93,15 @@ export interface WorkflowAnalysisResult {
  * and provides integration optimization recommendations.
  */
 export class WorkflowIntelligenceService {
-  private version = '4.1.0';
+  private version = VERSION;
 
   /**
    * Analyze workflow patterns in a workspace
    */
   async analyzeWorkflowPatterns(input: z.infer<typeof WorkflowPatternAnalysisInputSchema>): Promise<WorkflowAnalysisResult> {
-    console.log('[WorkflowIntelligence] Analyzing workflow patterns...');
+    console.error('[WorkflowIntelligence] Analyzing workflow patterns...');
     
-    // Mock implementation for Phase 1.5
+    // Mock data; real workspace patterns are not analyzed yet.
     const patterns: WorkflowPattern[] = [
       {
         id: 'task-creation-flow',
@@ -231,9 +229,9 @@ export class WorkflowIntelligenceService {
    * Generate automation recommendations
    */
   async recommendAutomations(input: z.infer<typeof AutomationRecommendationInputSchema>): Promise<AutomationOpportunity[]> {
-    console.log('[WorkflowIntelligence] Generating automation recommendations...');
+    console.error('[WorkflowIntelligence] Generating automation recommendations...');
     
-    // Mock implementation with realistic automation opportunities
+    // Mock data: a fixed list of automation opportunities.
     const automations: AutomationOpportunity[] = [
       {
         id: 'recurring-task-automation',
@@ -282,7 +280,6 @@ export class WorkflowIntelligenceService {
       },
     ];
 
-    // Filter by complexity threshold
     const complexityOrder = { low: 1, medium: 2, high: 3 };
     const threshold = complexityOrder[input.complexityThreshold];
     
@@ -295,7 +292,7 @@ export class WorkflowIntelligenceService {
    * Optimize integration recommendations
    */
   async optimizeIntegrations(input: z.infer<typeof IntegrationOptimizationInputSchema>): Promise<IntegrationRecommendation[]> {
-    console.log('[WorkflowIntelligence] Optimizing integration recommendations...');
+    console.error('[WorkflowIntelligence] Optimizing integration recommendations...');
     
     const allIntegrations: IntegrationRecommendation[] = [
       {
@@ -340,18 +337,15 @@ export class WorkflowIntelligenceService {
       },
     ];
 
-    // Filter out current integrations
     const currentIntegrations = input.currentIntegrations || [];
     const recommendations = allIntegrations.filter(integration => 
       !currentIntegrations.includes(integration.tool.toLowerCase())
     );
 
-    // Sort by priority
     return recommendations.sort((a, b) => b.priority - a.priority);
   }
 }
 
-// Factory function
 export function createWorkflowIntelligenceService(): WorkflowIntelligenceService {
   return new WorkflowIntelligenceService();
 }

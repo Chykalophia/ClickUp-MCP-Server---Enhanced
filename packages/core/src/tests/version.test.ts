@@ -27,10 +27,37 @@ const readSource = (relative: string): string => readFileSync(join(PACKAGE_ROOT,
 // able to turn this guard red while version reporting is still correct.
 const Q = '[\'"]';
 
-// Every entry builds its McpServer in server-factory.ts, so that is where
-// VERSION must be used; the test below pins that each entry really goes
-// through the factory. tests/built-entries.test.ts checks the built output.
-const ENTRY_POINTS = ['src/server-factory.ts'];
+const ENTRY_POINTS = ['src/index-enhanced.ts'];
+
+// The basic/efficiency bins are aliases of the one canonical server. They must
+// stay thin re-exports so they cannot drift into a second server definition
+// with its own (stale) version or tool set.
+const ALIAS_ENTRY_POINTS = ['src/index.ts', 'src/index-efficiency-simple.ts'];
+
+describe('entry point aliases', () => {
+  it.each(ALIAS_ENTRY_POINTS)('%s only delegates to index-enhanced', entry => {
+    const code = readSource(entry)
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/\/\/.*$/gm, '')
+      .replace(/^#!.*$/m, '')
+      .trim();
+    expect(code).toMatch(new RegExp(`^import ${Q}\\./index-enhanced\\.js${Q};?$`));
+  });
+});
+
+// The hosted entries build per request through create-server.ts and load
+// version.js dynamically (hosted mode must be flagged before any tool module
+// loads), so they are checked for the same hand-through separately.
+const HOSTED_ENTRY_POINTS = ['src/index-http.ts', 'api/index.js'];
+
+describe('hosted entry points', () => {
+  it.each(HOSTED_ENTRY_POINTS)('%s passes VERSION into createClickUpServer', entry => {
+    const source = readSource(entry);
+    expect(source).toMatch(/createClickUpServer\(\{\s*version:\s*VERSION\s*\}\)/);
+    expect(source).toMatch(new RegExp(`import\\(${Q}\\.\\.?/(build/)?version\\.js${Q}\\)`));
+    expect(source).not.toMatch(new RegExp(`version:\\s*${Q}\\d+\\.\\d+\\.\\d+${Q}`));
+  });
+});
 
 describe('server version reporting', () => {
   it.each(ENTRY_POINTS)('%s advertises VERSION, not a literal', entry => {
@@ -42,24 +69,6 @@ describe('server version reporting', () => {
 
     // ...and must not carry a hardcoded semver literal in its place.
     expect(source).not.toMatch(new RegExp(`version:\\s*${Q}\\d+\\.\\d+\\.\\d+${Q}`));
-  });
-
-  // Every entry that serves the tool surface — stdio, hosted Node, hosted
-  // Vercel — must build it through server-factory.ts, so the VERSION check
-  // above covers them all.
-  it.each([
-    'src/index-enhanced.ts',
-    'src/index-efficiency-simple.ts',
-    'src/index-http.ts',
-    'api/index.js',
-  ])('%s builds its server through server-factory.ts', entry => {
-    const source = readSource(entry);
-    expect(source).toMatch(/createClickUpMcpServer\(/);
-    expect(source).not.toMatch(/new McpServer\(/);
-  });
-
-  it('src/remote/app.ts never constructs its own McpServer (it is handed the factory)', () => {
-    expect(readSource('src/remote/app.ts')).not.toMatch(/new McpServer\(/);
   });
 
   it('version.ts sources the version from package.json', () => {

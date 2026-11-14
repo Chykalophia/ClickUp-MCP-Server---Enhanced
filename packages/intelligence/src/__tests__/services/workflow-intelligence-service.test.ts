@@ -1,14 +1,12 @@
 /**
  * Workflow Intelligence Service Unit Tests
  * 
- * Phase 2.1: Comprehensive unit testing for workflow intelligence functionality
- * Target Coverage: >95%
- * 
  * @version 4.1.0
  * @package @chykalophia/clickup-intelligence-mcp-server
  */
 
 import { WorkflowIntelligenceService } from '../../services/workflow-intelligence-service';
+import { VERSION } from '../../version';
 
 describe('WorkflowIntelligenceService', () => {
   let service: WorkflowIntelligenceService;
@@ -39,7 +37,7 @@ describe('WorkflowIntelligenceService', () => {
       expect(result.overallEfficiencyScore).toBeLessThanOrEqual(100);
       expect(result.recommendations).toBeInstanceOf(Array);
       expect(result.metadata).toBeDefined();
-      expect(result.metadata.version).toBe('4.1.0');
+      expect(result.metadata.version).toBe(VERSION);
     });
 
     test('should handle different timeframes correctly', async () => {

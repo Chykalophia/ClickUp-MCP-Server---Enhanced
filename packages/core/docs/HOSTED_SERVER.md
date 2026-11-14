@@ -2,7 +2,7 @@
 
 The stdio server (`npx @chykalophia/clickup-mcp-server`) only runs where a client
 can start a local process. claude.ai on the web and on mobile cannot, so this package
-also ships a **hosted** server: the same 157 tools over Streamable HTTP, behind
+also ships a **hosted** server: the same tools over Streamable HTTP, behind
 "Sign in with ClickUp".
 
 Each deployment is **private to the people you list**. There is no public instance:
@@ -68,6 +68,11 @@ Do not use `CLICKUP_API_TOKEN` here. The hosted server never uses it, even when 
 **Vercel** (this package includes `vercel.json` and `api/index.js`):
 
 1. New project from this repo, **Root Directory** `packages/core`.
+   - Add the environment variable `NPM_CONFIG_IGNORE_SCRIPTS=true` (Production and
+     Preview). The repo root's `prepare` script builds every workspace, and Vercel's
+     function packaging runs a second `npm install` that would trigger it;
+     `vercel.json` already sets the install command to skip it on the first install.
+   - Node.js 22 or 24 (Settings → Build and Deployment).
 2. Add the environment variables from step 2, scoped to **Production only**. Preview
    deployments (every branch, Dependabot's included) must not get the token secret
    or the ClickUp app secret. As a second line of defence, token keys are derived from
@@ -154,6 +159,17 @@ Claude Code: `claude mcp add --transport http clickup https://<your-domain>/mcp`
   that is, the client that started the sign-in), and an old refresh token keeps
   working until it expires (there is no reuse detection). Both would need a small
   store to close.
+
+## Tools
+
+The hosted server honours the same tool settings as stdio
+([TOOL_LOADING.md](../../../docs/guides/TOOL_LOADING.md)): by default only the core
+tools are listed, and `clickup_call_tool` runs any other tool by name. Set
+`CLICKUP_TOOL_MODE=all` to list every tool, or `CLICKUP_TOOLSETS` to add toolsets.
+
+`clickup_enable_toolset` is refused here: each request builds a fresh server from the
+deployment's settings, so a switch would not outlive the call. Change the environment
+variables and redeploy instead.
 
 ## Limits
 

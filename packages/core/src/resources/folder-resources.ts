@@ -1,15 +1,13 @@
-/* eslint-disable no-console, max-len */
+/* eslint-disable max-len */
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { createClickUpClient } from '../clickup-client/index.js';
 import { createFoldersClient } from '../clickup-client/folders.js';
 import { resourceError } from '../utils/error-handling.js';
 
-// Create clients
 const clickUpClient = createClickUpClient();
 const foldersClient = createFoldersClient(clickUpClient);
 
 export function setupFolderResources(server: McpServer): void {
-  // Register space folders resource
   server.resource(
     'space-folders',
     new ResourceTemplate('clickup://space/{space_id}/folders', { list: undefined }),
@@ -20,9 +18,11 @@ export function setupFolderResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const space_id = params.space_id as string;
-        console.log('[FolderResources] Fetching folders for space:', space_id);
+        // The ID is interpolated into the API path, so anything but an ID is refused.
+        if (!/^[A-Za-z0-9_-]+$/.test(space_id)) {
+          throw new Error('Invalid space ID');
+        }
         const foldersResponse = await foldersClient.getFoldersFromSpace(space_id);
-        console.log('[FolderResources] Got folders:', foldersResponse);
 
         return {
           contents: [
@@ -39,7 +39,6 @@ export function setupFolderResources(server: McpServer): void {
     }
   );
 
-  // Register folder details resource
   server.resource(
     'folder-details',
     new ResourceTemplate('clickup://folder/{folder_id}', { list: undefined }),
@@ -50,17 +49,11 @@ export function setupFolderResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const folder_id = params.folder_id as string;
-        console.log('[FolderResources] Fetching folder:', folder_id);
-
-        // Note: The ClickUp API doesn't have a direct endpoint to get folder details
-        // We would need to implement this in the foldersClient if API supports it
-        // For now, return a placeholder response
-
-        // Create a folder object with the ID and a message
-        const folder = {
-          id: folder_id,
-          message: 'Folder details endpoint not available in ClickUp API',
-        };
+        // The ID is interpolated into the API path, so anything but an ID is refused.
+        if (!/^[A-Za-z0-9_-]+$/.test(folder_id)) {
+          throw new Error('Invalid folder ID');
+        }
+        const folder = await foldersClient.getFolder(folder_id);
 
         return {
           contents: [
@@ -77,7 +70,6 @@ export function setupFolderResources(server: McpServer): void {
     }
   );
 
-  // Register folder lists resource
   server.resource(
     'folder-lists',
     new ResourceTemplate('clickup://folder/{folder_id}/lists', { list: undefined }),
@@ -88,9 +80,10 @@ export function setupFolderResources(server: McpServer): void {
     async (uri, params) => {
       try {
         const folder_id = params.folder_id as string;
-        console.log('[FolderResources] Fetching lists for folder:', folder_id);
+        if (!/^[A-Za-z0-9_-]+$/.test(folder_id)) {
+          throw new Error('Invalid folder ID');
+        }
         const lists = await foldersClient.getListsFromFolder(folder_id);
-        console.log('[FolderResources] Got lists:', lists);
 
         return {
           contents: [
@@ -103,95 +96,6 @@ export function setupFolderResources(server: McpServer): void {
         };
       } catch (error: unknown) {
         resourceError('fetching folder lists', error);
-      }
-    }
-  );
-
-  // Add some example static resources for discoverability
-  server.resource(
-    'example-space-folders',
-    'clickup://space/90113637923/folders',
-    {
-      description: 'An example space folders resource demonstrating the folder list format.',
-    },
-    async uri => {
-      try {
-        const space_id = '90113637923';
-        console.log('[FolderResources] Fetching folders for example space:', space_id);
-        const foldersResponse = await foldersClient.getFoldersFromSpace(space_id);
-        console.log('[FolderResources] Got folders:', foldersResponse);
-
-        return {
-          contents: [
-            {
-              uri: uri.toString(),
-              mimeType: 'application/json',
-              text: JSON.stringify(foldersResponse),
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        resourceError('fetching example space folders', error);
-      }
-    }
-  );
-
-  server.resource(
-    'example-folder',
-    'clickup://folder/90115795569',
-    {
-      description: 'An example folder resource demonstrating the folder details format.',
-    },
-    async uri => {
-      try {
-        const folder_id = '90115795569';
-        console.log('[FolderResources] Fetching example folder:', folder_id);
-
-        // Create a folder object with the ID and a message
-        const folder = {
-          id: folder_id,
-          message: 'Folder details endpoint not available in ClickUp API',
-        };
-
-        return {
-          contents: [
-            {
-              uri: uri.toString(),
-              mimeType: 'application/json',
-              text: JSON.stringify(folder),
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        resourceError('fetching example folder', error);
-      }
-    }
-  );
-
-  server.resource(
-    'example-folder-lists',
-    'clickup://folder/90115795569/lists',
-    {
-      description: 'An example folder lists resource demonstrating the list data format.',
-    },
-    async uri => {
-      try {
-        const folder_id = '90115795569';
-        console.log('[FolderResources] Fetching lists for example folder:', folder_id);
-        const lists = await foldersClient.getListsFromFolder(folder_id);
-        console.log('[FolderResources] Got lists:', lists);
-
-        return {
-          contents: [
-            {
-              uri: uri.toString(),
-              mimeType: 'application/json',
-              text: JSON.stringify(lists),
-            },
-          ],
-        };
-      } catch (error: unknown) {
-        resourceError('fetching example folder lists', error);
       }
     }
   );

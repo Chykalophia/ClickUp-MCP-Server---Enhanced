@@ -5,21 +5,20 @@
  * with a simple Node.js script that retrieves workspaces and tasks.
  */
 
-// Import required modules
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 
-// Create a transport to communicate with the ClickUp MCP Server
 const transport = new StdioClientTransport({
   command: 'node',
-  args: ['./build/index.js'], // Path to the built ClickUp MCP Server
+  args: ['./packages/core/build/index-enhanced.js'],
   env: {
     // You can provide your ClickUp API token here or use environment variables
-    CLICKUP_API_TOKEN: process.env.CLICKUP_API_TOKEN
+    CLICKUP_API_TOKEN: process.env.CLICKUP_API_TOKEN,
+    // The default core toolset leaves some of the tools used below disabled.
+    CLICKUP_TOOL_MODE: 'all'
   }
 });
 
-// Create an MCP client
 const client = new Client(
   {
     name: 'clickup-example-client',
@@ -32,18 +31,15 @@ const client = new Client(
   }
 );
 
-// Connect to the ClickUp MCP Server
 async function main() {
   try {
     console.log('Connecting to ClickUp MCP Server...');
     await client.connect(transport);
     console.log('Connected!');
 
-    // List available tools
-    const tools = await client.listTools();
+    const { tools } = await client.listTools();
     console.log('Available tools:', tools.map(tool => tool.name));
 
-    // Get workspaces
     console.log('\nFetching workspaces...');
     const workspacesResult = await client.callTool({
       name: 'clickup_get_workspaces',
@@ -57,7 +53,6 @@ async function main() {
       const workspace = workspaces[0];
       console.log(`Using workspace: ${workspace.name} (${workspace.id})`);
       
-      // Get spaces in the workspace
       console.log('\nFetching spaces...');
       const spacesResult = await client.callTool({
         name: 'clickup_get_spaces',
@@ -73,7 +68,6 @@ async function main() {
         const space = spaces[0];
         console.log(`Using space: ${space.name} (${space.id})`);
         
-        // Get lists in the space
         console.log('\nFetching lists...');
         const listsResult = await client.callTool({
           name: 'clickup_get_lists',
@@ -83,14 +77,13 @@ async function main() {
           }
         });
         
-        const lists = JSON.parse(listsResult.content[0].text);
+        const { lists } = JSON.parse(listsResult.content[0].text);
         console.log(`Found ${lists.length} lists`);
         
         if (lists.length > 0) {
           const list = lists[0];
           console.log(`Using list: ${list.name} (${list.id})`);
           
-          // Get tasks in the list
           console.log('\nFetching tasks...');
           const tasksResult = await client.callTool({
             name: 'clickup_get_tasks',
@@ -100,16 +93,15 @@ async function main() {
             }
           });
           
-          const tasks = JSON.parse(tasksResult.content[0].text);
+          const { tasks } = JSON.parse(tasksResult.content[0].text);
           console.log(`Found ${tasks.length} tasks`);
           
-          // Display task details
           if (tasks.length > 0) {
             console.log('\nTask details:');
             tasks.forEach(task => {
               console.log(`- ${task.name} (${task.id})`);
               console.log(`  Status: ${task.status.status}`);
-              console.log(`  Due date: ${task.due_date ? new Date(task.due_date).toLocaleDateString() : 'None'}`);
+              console.log(`  Due date: ${task.due_date ? new Date(Number(task.due_date)).toLocaleDateString() : 'None'}`);
               console.log('');
             });
           }
@@ -119,7 +111,6 @@ async function main() {
   } catch (error) {
     console.error('Error:', error);
   } finally {
-    // Close the connection
     await client.close();
     console.log('Connection closed');
   }

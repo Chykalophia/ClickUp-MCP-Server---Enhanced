@@ -2,7 +2,6 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { getApiToken } from '../clickup-client/index.js';
-import { isRemoteMode } from '../clickup-client/request-context.js';
 import { AttachmentsEnhancedClient } from '../clickup-client/attachments-enhanced.js';
 import {
   UploadAttachmentSchema,
@@ -11,30 +10,31 @@ import {
 } from '../schemas/attachments-schemas.js';
 import { mcpError } from '../utils/error-handling.js';
 import { idSchema } from '../schemas/common.js';
+import { isRemoteMode } from '../clickup-client/request-context.js';
 
-// Create clients
 const attachmentsClient = new AttachmentsEnhancedClient(getApiToken());
 
 export function setupAttachmentsTools(server: McpServer): void {
-  // ========================================
-  // ATTACHMENT OPERATIONS
-  // ========================================
-
   server.tool(
     'clickup_upload_attachment',
     isRemoteMode()
-      ? 'Upload a file to a ClickUp task as an attachment. Provide the file as base64 data (file_data); this hosted server does not read local paths (file_path) or fetch URLs (file_url). Files stored in the cloud must be fetched first; ClickUp only accepts the binary upload.'
-      : 'Upload a file to a ClickUp task as an attachment. Provide the file as base64 data (file_data), a local file path (file_path), or a URL to fetch (file_url). Files stored in the cloud must be fetched first; ClickUp only accepts the binary upload.',
+      ? 'Upload a file to a ClickUp task as an attachment. Provide the file as base64 data (file_data); this hosted server does not read local paths (file_path) or fetch URLs (file_url). ClickUp only accepts the binary upload.'
+      : 'Upload a file to a ClickUp task as an attachment. Provide the file as base64 data (file_data), a local file path (file_path), or a public http(s) URL to fetch (file_url). Local file access is disabled unless the server operator sets CLICKUP_UPLOAD_DIR, and file_path must then resolve inside that directory. file_url must resolve to a public address (private, loopback, link-local and metadata addresses are refused). ClickUp only accepts the binary upload.',
     {
       task_id: idSchema().describe('The ID of the task to attach the file to'),
       filename: z.string().min(1).describe('The name of the file, including its extension'),
       file_data: z.string().optional().describe('Base64 encoded file contents for direct upload'),
-      file_path: z.string().optional().describe('Path to a local file to upload'),
+      file_path: z
+        .string()
+        .optional()
+        .describe(
+          'Path to a local file to upload, relative to (or inside) CLICKUP_UPLOAD_DIR. Rejected when CLICKUP_UPLOAD_DIR is not set.'
+        ),
       file_url: z
         .string()
         .url()
         .optional()
-        .describe('URL to download the file from before uploading'),
+        .describe('Public http(s) URL to download the file from before uploading'),
       custom_task_ids: z
         .boolean()
         .optional()

@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
 import { ClickUpClient } from './index.js';
+import { seg } from './path.js';
 
 export interface ChecklistItem {
   id: string;
@@ -92,7 +93,9 @@ export class ChecklistsClient {
       search.set('team_id', options.team_id);
     }
     const query = search.toString();
-    const endpoint = query ? `/task/${taskId}/checklist?${query}` : `/task/${taskId}/checklist`;
+    const endpoint = query
+      ? `/task/${seg(taskId)}/checklist?${query}`
+      : `/task/${seg(taskId)}/checklist`;
     const response = await this.client.post<{ checklist: Checklist }>(endpoint, params);
     return response.checklist;
   }
@@ -108,7 +111,7 @@ export class ChecklistsClient {
     checklistId: string,
     params: UpdateChecklistParams
   ): Promise<Record<string, never>> {
-    return this.client.put(`/checklist/${checklistId}`, params);
+    return this.client.put(`/checklist/${seg(checklistId)}`, params);
   }
 
   /**
@@ -117,7 +120,7 @@ export class ChecklistsClient {
    * @returns An empty object — ClickUp returns {} for this endpoint
    */
   async deleteChecklist(checklistId: string): Promise<Record<string, never>> {
-    return this.client.delete(`/checklist/${checklistId}`);
+    return this.client.delete(`/checklist/${seg(checklistId)}`);
   }
 
   /**
@@ -132,7 +135,7 @@ export class ChecklistsClient {
     params: CreateChecklistItemParams
   ): Promise<Checklist> {
     const response = await this.client.post<{ checklist: Checklist }>(
-      `/checklist/${checklistId}/checklist_item`,
+      `/checklist/${seg(checklistId)}/checklist_item`,
       params
     );
     return response.checklist;
@@ -152,7 +155,7 @@ export class ChecklistsClient {
     params: UpdateChecklistItemParams
   ): Promise<Checklist> {
     const response = await this.client.put<{ checklist: Checklist }>(
-      `/checklist/${checklistId}/checklist_item/${checklistItemId}`,
+      `/checklist/${seg(checklistId)}/checklist_item/${seg(checklistItemId)}`,
       params
     );
     return response.checklist;
@@ -168,7 +171,9 @@ export class ChecklistsClient {
     checklistId: string,
     checklistItemId: string
   ): Promise<Record<string, never>> {
-    return this.client.delete(`/checklist/${checklistId}/checklist_item/${checklistItemId}`);
+    return this.client.delete(
+      `/checklist/${seg(checklistId)}/checklist_item/${seg(checklistItemId)}`
+    );
   }
 }
 

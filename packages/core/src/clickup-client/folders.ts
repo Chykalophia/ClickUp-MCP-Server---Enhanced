@@ -4,6 +4,7 @@ import {
   FoldersResponseSchema,
   ListsResponseSchema,
 } from '../schemas/response-schemas.js';
+import { seg } from './path.js';
 
 export interface Folder {
   id: string;
@@ -47,7 +48,7 @@ export class FoldersClient {
     spaceId: string,
     params?: GetFoldersParams
   ): Promise<{ folders: Folder[] }> {
-    const raw = await this.client.get(`/space/${spaceId}/folder`, params);
+    const raw = await this.client.get(`/space/${seg(spaceId)}/folder`, params);
     return validateResponse(FoldersResponseSchema, raw, 'getFoldersFromSpace') as {
       folders: Folder[];
     };
@@ -60,7 +61,7 @@ export class FoldersClient {
    * @returns A list of lists
    */
   async getListsFromFolder(folderId: string, params?: GetListsParams): Promise<{ lists: List[] }> {
-    const raw = await this.client.get(`/folder/${folderId}/list`, params);
+    const raw = await this.client.get(`/folder/${seg(folderId)}/list`, params);
     return validateResponse(ListsResponseSchema, raw, 'getListsFromFolder') as { lists: List[] };
   }
 
@@ -70,7 +71,7 @@ export class FoldersClient {
    * @returns The folder details, including its lists
    */
   async getFolder(folderId: string): Promise<Folder> {
-    return this.client.get(`/folder/${folderId}`);
+    return this.client.get(`/folder/${seg(folderId)}`);
   }
 
   /**
@@ -80,7 +81,7 @@ export class FoldersClient {
    * @returns The created folder
    */
   async createFolder(spaceId: string, params: { name: string }): Promise<Folder> {
-    return this.client.post(`/space/${spaceId}/folder`, params);
+    return this.client.post(`/space/${seg(spaceId)}/folder`, params);
   }
 
   /**
@@ -90,7 +91,7 @@ export class FoldersClient {
    * @returns The updated folder
    */
   async updateFolder(folderId: string, params: { name: string }): Promise<Folder> {
-    return this.client.put(`/folder/${folderId}`, params);
+    return this.client.put(`/folder/${seg(folderId)}`, params);
   }
 
   /**
@@ -99,7 +100,7 @@ export class FoldersClient {
    * @returns Success message
    */
   async deleteFolder(folderId: string): Promise<{ success: boolean }> {
-    return this.client.delete(`/folder/${folderId}`);
+    return this.client.delete(`/folder/${seg(folderId)}`);
   }
 
   /**

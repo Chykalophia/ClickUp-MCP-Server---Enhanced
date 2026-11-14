@@ -16,6 +16,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { toJsonSchemaCompat } from '@modelcontextprotocol/sdk/server/zod-json-schema-compat.js';
 import { z } from 'zod';
 import { closestName, type ToolEntry, type ToolRegistry } from '../utils/tool-registration.js';
+import { isRemoteMode } from '../clickup-client/request-context.js';
 import {
   ALL_TOOLSETS,
   CATALOG_TOOLSET,
@@ -155,6 +156,16 @@ export function setupCatalogTools(
       disable: z.boolean().optional().describe('Disable these toolsets instead of enabling them.'),
     },
     async ({ toolsets, disable }) => {
+      // Hosted mode builds a fresh server per request, so a switch would not
+      // outlive this call. Say so rather than report a change that vanishes.
+      if (isRemoteMode()) {
+        return error(
+          'This hosted server cannot switch toolsets: each request starts from the ' +
+            "deployment's tool setting. Run any tool with clickup_call_tool({ tool, arguments }) " +
+            'instead; clickup_list_toolsets shows the names and schemas. The server owner can ' +
+            'serve every tool directly by setting CLICKUP_TOOL_MODE=all.'
+        );
+      }
       const normalized = toolsets.map(n => n.trim().toLowerCase().replace(/_/g, '-'));
       const { toolsets: expanded, unknown } = normalized.includes('all')
         ? {

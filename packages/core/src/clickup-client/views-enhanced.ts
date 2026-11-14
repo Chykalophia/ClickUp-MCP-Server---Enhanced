@@ -26,6 +26,7 @@ import type {
   ViewSorting,
   ViewColumn,
 } from '../schemas/views-schemas.js';
+import { seg } from './path.js';
 
 export interface ViewResponse {
   id: string;
@@ -151,7 +152,7 @@ export class ViewsEnhancedClient extends ClickUpClient {
    * Get a specific view by ID
    */
   async getView(viewId: string): Promise<ViewResponse> {
-    const response = await this.get<unknown>(`/view/${viewId}`);
+    const response = await this.get<unknown>(`/view/${seg(viewId)}`);
     const validated = validateResponse(ViewResponseSchema, response, 'getView');
     return validated.view as unknown as ViewResponse;
   }
@@ -180,7 +181,7 @@ export class ViewsEnhancedClient extends ClickUpClient {
    * Delete a view
    */
   async deleteView(viewId: string): Promise<{ success: boolean }> {
-    await this.delete(`/view/${viewId}`);
+    await this.delete(`/view/${seg(viewId)}`);
     return { success: true };
   }
 
@@ -234,7 +235,7 @@ export class ViewsEnhancedClient extends ClickUpClient {
     const params = new URLSearchParams();
     params.append('page', page.toString());
 
-    const endpoint = `/view/${viewId}/task?${params.toString()}`;
+    const endpoint = `/view/${seg(viewId)}/task?${params.toString()}`;
 
     const response = await this.get<unknown>(endpoint);
     const validated = validateResponse(TasksResponseSchema, response, 'getViewTasks');
@@ -293,13 +294,13 @@ export class ViewsEnhancedClient extends ClickUpClient {
   private getParentEndpoint(parentType: string, parentId: string): string {
     switch (parentType) {
       case 'team':
-        return `/team/${parentId}`;
+        return `/team/${seg(parentId)}`;
       case 'space':
-        return `/space/${parentId}`;
+        return `/space/${seg(parentId)}`;
       case 'folder':
-        return `/folder/${parentId}`;
+        return `/folder/${seg(parentId)}`;
       case 'list':
-        return `/list/${parentId}`;
+        return `/list/${seg(parentId)}`;
       default:
         throw new Error(`Invalid parent type: ${parentType}`);
     }
@@ -329,7 +330,7 @@ export class ViewsEnhancedClient extends ClickUpClient {
       ...makeOverrides(current),
     };
 
-    const response = await this.put<{ view: ViewResponse }>(`/view/${viewId}`, body);
+    const response = await this.put<{ view: ViewResponse }>(`/view/${seg(viewId)}`, body);
     return response.view;
   }
 

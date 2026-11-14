@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import { ClickUpClient } from './index.js';
+import { seg } from './path.js';
 
 export interface AuthorizedUser {
   id: number;
@@ -59,7 +60,7 @@ export interface GuestItemOptions {
 }
 
 function guestItemPath(itemType: GuestItemType, itemId: string, guestId: string): string {
-  return `/${itemType}/${encodeURIComponent(itemId)}/guest/${encodeURIComponent(guestId)}`;
+  return `/${seg(itemType)}/${encodeURIComponent(itemId)}/guest/${encodeURIComponent(guestId)}`;
 }
 
 /** Query-string suffix ('' or '?...') for the guest item endpoints. */
@@ -173,7 +174,7 @@ export class AuthClient {
     }>;
   }> {
     try {
-      return await this.client.get(`/team/${workspaceId}/space`);
+      return await this.client.get(`/team/${seg(workspaceId)}/space`);
     } catch (error) {
       console.error('Error getting spaces:', error instanceof Error ? error.message : error);
       throw error;
@@ -240,7 +241,7 @@ export class AuthClient {
     }>;
   }> {
     try {
-      return await this.client.get(`/space/${spaceId}/folder`);
+      return await this.client.get(`/space/${seg(spaceId)}/folder`);
     } catch (error) {
       console.error('Error getting folders:', error instanceof Error ? error.message : error);
       throw error;
@@ -294,7 +295,7 @@ export class AuthClient {
     }>;
   }> {
     try {
-      return await this.client.get(`/folder/${folderId}/list`);
+      return await this.client.get(`/folder/${seg(folderId)}/list`);
     } catch (error) {
       console.error('Error getting lists:', error instanceof Error ? error.message : error);
       throw error;
@@ -342,7 +343,7 @@ export class AuthClient {
     }>;
   }> {
     try {
-      return await this.client.get(`/space/${spaceId}/list`);
+      return await this.client.get(`/space/${seg(spaceId)}/list`);
     } catch (error) {
       console.error(
         'Error getting lists from space:',
@@ -371,7 +372,7 @@ export class AuthClient {
     guests?: Array<Record<string, unknown>>;
   }> {
     try {
-      return await this.client.get(`/team/${workspaceId}/seats`);
+      return await this.client.get(`/team/${seg(workspaceId)}/seats`);
     } catch (error) {
       console.error(
         'Error getting workspace seats:',

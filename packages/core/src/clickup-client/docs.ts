@@ -1,5 +1,6 @@
 /* eslint-disable no-console, max-len */
 import { ClickUpClient } from './index.js';
+import { seg } from './path.js';
 
 // Doc as returned by the v3 API
 export interface Doc {
@@ -58,7 +59,7 @@ export class DocsClient {
     params?: GetDocsParams
   ): Promise<{ docs: Doc[]; next_cursor: string }> {
     try {
-      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs`;
+      const url = `https://api.clickup.com/api/v3/workspaces/${seg(workspaceId)}/docs`;
       const response = await this.client.getAxiosInstance().get(url, { params });
 
       return response.data;
@@ -81,7 +82,7 @@ export class DocsClient {
     contentFormat: string = 'text/md'
   ): Promise<any> {
     try {
-      const url = `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${docId}/pages`;
+      const url = `https://api.clickup.com/api/v3/workspaces/${seg(workspaceId)}/docs/${seg(docId)}/pages`;
       const params = {
         max_page_depth: -1,
         content_format: contentFormat,
@@ -170,7 +171,7 @@ export class DocsClient {
     }
 
     const response = await axiosInstance.post(
-      `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs`,
+      `https://api.clickup.com/api/v3/workspaces/${seg(workspaceId)}/docs`,
       requestBody
     );
     const doc: Doc = response.data;
@@ -180,7 +181,7 @@ export class DocsClient {
     if (content && doc?.id) {
       try {
         await axiosInstance.post(
-          `https://api.clickup.com/api/v3/workspaces/${workspaceId}/docs/${doc.id}/pages`,
+          `https://api.clickup.com/api/v3/workspaces/${seg(workspaceId)}/docs/${seg(doc.id)}/pages`,
           { name: title, content, content_format: 'text/md' }
         );
       } catch (pageError) {

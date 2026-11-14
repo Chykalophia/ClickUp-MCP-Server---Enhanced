@@ -7,6 +7,7 @@ import {
   TaskTimeInStatusResponseSchema,
   BulkTasksTimeInStatusResponseSchema,
 } from '../schemas/response-schemas.js';
+import { seg } from './path.js';
 
 export interface Task {
   id: string;
@@ -250,7 +251,7 @@ export class TasksClient {
       queryParams.custom_fields = JSON.stringify(params.custom_fields);
     }
 
-    const raw = await this.client.get<unknown>(`/list/${listId}/task`, queryParams);
+    const raw = await this.client.get<unknown>(`/list/${seg(listId)}/task`, queryParams);
     const result = validateResponse(TasksResponseSchema, raw, 'getTasksFromList');
 
     if (result.tasks && Array.isArray(result.tasks)) {
@@ -279,7 +280,7 @@ export class TasksClient {
       queryParams.custom_fields = JSON.stringify(params.custom_fields);
     }
 
-    const raw = await this.client.get<unknown>(`/team/${teamId}/task`, queryParams);
+    const raw = await this.client.get<unknown>(`/team/${seg(teamId)}/task`, queryParams);
     const result = validateResponse(TasksResponseSchema, raw, 'getFilteredTeamTasks');
 
     if (result.tasks && Array.isArray(result.tasks)) {
@@ -307,7 +308,7 @@ export class TasksClient {
     if (params?.custom_task_ids && !params.team_id) {
       throw new Error('team_id is required when custom_task_ids is true');
     }
-    const result = await this.client.get(`/task/${taskId}`, params);
+    const result = await this.client.get(`/task/${seg(taskId)}`, params);
     return processClickUpResponse(result);
   }
 
@@ -326,7 +327,7 @@ export class TasksClient {
     applyDescription(processedParams);
 
     const result = await this.client.post(
-      `/list/${listId}/task${this.buildCustomIdQuery(query)}`,
+      `/list/${seg(listId)}/task${this.buildCustomIdQuery(query)}`,
       processedParams
     );
     return processClickUpResponse(result);
@@ -372,14 +373,14 @@ export class TasksClient {
     }
 
     const result = await this.client.put(
-      `/task/${taskId}${this.buildCustomIdQuery(query)}`,
+      `/task/${seg(taskId)}${this.buildCustomIdQuery(query)}`,
       processedParams
     );
 
     if (customFields && customFields.length > 0) {
       for (const field of customFields) {
         await this.client.post(
-          `/task/${taskId}/field/${field.id}${this.buildCustomIdQuery(query)}`,
+          `/task/${seg(taskId)}/field/${seg(field.id)}${this.buildCustomIdQuery(query)}`,
           { value: field.value }
         );
       }
@@ -395,7 +396,7 @@ export class TasksClient {
    * @returns Empty object (ClickUp returns no body on delete)
    */
   async deleteTask(taskId: string, query?: CustomTaskIdParams): Promise<Record<string, never>> {
-    return this.client.delete(`/task/${taskId}${this.buildCustomIdQuery(query)}`);
+    return this.client.delete(`/task/${seg(taskId)}${this.buildCustomIdQuery(query)}`);
   }
 
   /**
@@ -407,7 +408,7 @@ export class TasksClient {
    * @returns The merged target task with processed content
    */
   async mergeTasks(targetTaskId: string, sourceTaskIds: string[]): Promise<Task> {
-    const result = await this.client.post(`/task/${targetTaskId}/merge`, {
+    const result = await this.client.post(`/task/${seg(targetTaskId)}/merge`, {
       source_task_ids: sourceTaskIds,
     });
     return processClickUpResponse(result);
@@ -426,7 +427,7 @@ export class TasksClient {
     query?: CustomTaskIdParams
   ): Promise<Record<string, never>> {
     return this.client.post(
-      `/task/${taskId}/tag/${encodeURIComponent(tagName)}${this.buildCustomIdQuery(query)}`,
+      `/task/${seg(taskId)}/tag/${encodeURIComponent(tagName)}${this.buildCustomIdQuery(query)}`,
       {}
     );
   }
@@ -444,7 +445,7 @@ export class TasksClient {
     query?: CustomTaskIdParams
   ): Promise<Record<string, never>> {
     return this.client.delete(
-      `/task/${taskId}/tag/${encodeURIComponent(tagName)}${this.buildCustomIdQuery(query)}`
+      `/task/${seg(taskId)}/tag/${encodeURIComponent(tagName)}${this.buildCustomIdQuery(query)}`
     );
   }
 
@@ -460,7 +461,10 @@ export class TasksClient {
     templateId: string,
     params: { name: string }
   ): Promise<Task> {
-    const result = await this.client.post(`/list/${listId}/taskTemplate/${templateId}`, params);
+    const result = await this.client.post(
+      `/list/${seg(listId)}/taskTemplate/${seg(templateId)}`,
+      params
+    );
     return processClickUpResponse(result);
   }
 
@@ -533,7 +537,7 @@ export class TasksClient {
     current_status?: Record<string, unknown>;
     status_history?: Array<Record<string, unknown>>;
   }> {
-    const raw = await this.client.get<unknown>(`/task/${taskId}/time_in_status`, params);
+    const raw = await this.client.get<unknown>(`/task/${seg(taskId)}/time_in_status`, params);
     return validateResponse(TaskTimeInStatusResponseSchema, raw, 'getTaskTimeInStatus') as {
       current_status?: Record<string, unknown>;
       status_history?: Array<Record<string, unknown>>;

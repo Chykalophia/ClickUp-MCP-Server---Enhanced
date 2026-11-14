@@ -11,8 +11,17 @@ import { z } from 'zod';
  * non-empty string — so `null`, `undefined`, booleans, arrays and objects are
  * rejected at the boundary. The exposed JSON schema stays `type: string`.
  */
+/** Anything but whitespace and URL structure characters, and never "." or "..". */
+const ID_PATTERN = /^(?!\.{1,2}$)[^\s/\\?#%]+$/;
+
 export const idSchema = (message = 'ID is required') =>
   z.preprocess(
     value => (typeof value === 'number' ? String(value) : value),
-    z.string().min(1, message)
+    z
+      .string()
+      .min(1, message)
+      // No real ClickUp ID has these; they would change the endpoint path an ID
+      // is placed in (see clickup-client/path.ts), so refuse them up front with
+      // a clear message rather than relying only on encoding further down.
+      .regex(ID_PATTERN, 'Not a ClickUp ID: IDs never contain spaces, /, \\, ?, # or %')
   );

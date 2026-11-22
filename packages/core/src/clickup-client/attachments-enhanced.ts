@@ -9,6 +9,7 @@ import type {
   AttachmentListResponse,
 } from '../schemas/attachments-schemas.js';
 import { seg } from './path.js';
+import { MULTIPART_HEADERS } from './multipart.js';
 
 // The list attachments endpoint only exists in the v3 API; the shared client
 // is bound to the v2 base URL, so v3 calls use absolute URLs (axios ignores
@@ -59,11 +60,7 @@ export class AttachmentsEnhancedClient extends ClickUpClient {
       form,
       {
         params,
-        // Clear the instance-level 'application/json' default so axios
-        // serializes the FormData and sets the multipart/form-data
-        // content type with the correct boundary. Axios treats `false`
-        // as an explicit opt-out; `undefined` can leave the default.
-        headers: { 'Content-Type': false },
+        headers: MULTIPART_HEADERS,
       }
     );
     return response.data;

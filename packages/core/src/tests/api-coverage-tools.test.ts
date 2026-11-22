@@ -366,7 +366,9 @@ describe('custom-fields setup', () => {
     const file = (form as FormData).get('attachment') as Blob;
     expect(await file.text()).toBe('hello');
     expect((form as FormData).get('filename')).toBe('a.txt');
-    expect(config).toEqual({ headers: { 'Content-Type': false } });
+    // The wire-level check (real header + boundary) is in multipart-wire.test.ts; this mock only
+    // sees the request config.
+    expect(config).toEqual({ headers: { 'Content-Type': 'multipart/form-data' } });
     expect(JSON.parse(outcome.text)).toEqual({ id: 'att-1', title: 'a.txt' });
   });
 

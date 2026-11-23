@@ -3,6 +3,7 @@ import { ClickUpClient } from './index.js';
 import axios, { AxiosInstance } from 'axios';
 import { decodeBase64Upload } from '../utils/upload-guards.js';
 import { seg } from './path.js';
+import { MULTIPART_HEADERS } from './multipart.js';
 
 // ========================================
 // CUSTOM FIELD TYPE DEFINITIONS
@@ -804,9 +805,7 @@ export class EnhancedCustomFieldsClient {
       const url = `https://api.clickup.com/api/v3/workspaces/${encodeURIComponent(
         params.workspace_id
       )}/custom_fields/${encodeURIComponent(params.custom_field_id)}/attachments`;
-      // Clear the instance-level JSON content type so axios sets the
-      // multipart boundary itself.
-      const response = await this.http.post(url, form, { headers: { 'Content-Type': false } });
+      const response = await this.http.post(url, form, { headers: MULTIPART_HEADERS });
       return response.data;
     } catch (error) {
       console.error(

@@ -1,5 +1,35 @@
 # Release Notes - ClickUp MCP Server Suite
 
+## core 7.1.0 (November 2026)
+
+intelligence 6.0.0 and shared 2.0.0 are unchanged.
+
+### Fixes
+- **Uploads work again.** `clickup_upload_attachment` and
+  `clickup_create_entity_attachment` failed every time with
+  `400 ATTCH_045 Request is not 'multipart/form-data'`. They sent no
+  Content-Type at all; they now send `multipart/form-data` with the boundary
+  the body uses (#89).
+- The dependency conflict check fails closed when part of the graph can't be
+  read, instead of reporting "no conflicts" (#88).
+
+### Security (all modes)
+- Caller-supplied IDs can no longer rewrite ClickUp endpoint paths (`../`, `?`,
+  `#`). Every path segment is encoded, IDs are validated at the tool boundary,
+  and the client refuses any request that would leave
+  `api.clickup.com/api/v2|v3` (#88).
+- Uploads are hardened: `file_url` is SSRF-guarded at the DNS lookup with a
+  check on every redirect, `file_data` decodes strictly, and `file_path` reads
+  are bounded (#88).
+
+### Features
+- **Hosted mode** (`clickup-mcp-server-http`). The same tools over Streamable
+  HTTP behind "Sign in with ClickUp", for clients that can't start a local
+  process, such as claude.ai on the web and mobile. Each person's calls run with
+  their own ClickUp token, access is allowlisted, and the server refuses to
+  start without an allowlist. Setup and security model:
+  `packages/core/docs/HOSTED_SERVER.md` (#88).
+
 ## November 2026 release: core 7.0.0, intelligence 6.0.0, shared 2.0.0
 
 These ship together with the 7.0.0 core changes described below.

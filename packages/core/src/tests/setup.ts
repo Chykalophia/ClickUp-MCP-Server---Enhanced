@@ -1,4 +1,11 @@
 import { jest } from '@jest/globals';
+import { webcrypto } from 'node:crypto';
+
+// Node 18 has no global Web Crypto, so pkce-challenge falls back to a dynamic
+// import, which Jest's VM rejects without --experimental-vm-modules. Plain Node 18 is fine.
+if (!globalThis.crypto) {
+  Object.defineProperty(globalThis, 'crypto', { value: webcrypto, configurable: true });
+}
 
 beforeAll(() => {
   process.env.NODE_ENV = 'test';

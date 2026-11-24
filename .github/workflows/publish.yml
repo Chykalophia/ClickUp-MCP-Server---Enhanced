@@ -3,40 +3,52 @@ name: Publish Package
 on:
   release:
     types: [created]
-  # Allow triggering the publish manually (e.g. to release from main without
-  # cutting a GitHub Release from an environment that cannot create one). The
-  # job already skips versions that are already on the registry.
   workflow_dispatch:
-  # Also publish when a version tag is pushed (v1.2.3). This lets a release be
-  # cut by pushing a tag, without needing GitHub Release or workflow-dispatch
-  # API permissions.
+    inputs:
+      dry_run:
+        description: 'Run npm publish --dry-run (nothing is published)'
+        type: boolean
+        default: true
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
+
+# Pushing a tag and then creating its release starts two runs. Queue them so the
+# second skips the published version; queue: max stops a newer run replacing a pending one.
+concurrency:
+  group: publish
+  queue: max
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  # npm trusted publishing (OIDC) exchanges this token for a short-lived publish token.
+  id-token: write
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          node-version: '18.x'
+          # Trusted publishing needs npm >= 11.5.1 and Node >= 22.14.
+          node-version: '24.x'
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build
         run: npm run build
 
-      # The repository root is a private monorepo (`private: true`), so a bare
-      # `npm publish` fails. Publish each public workspace package instead, and
-      # skip any version already on the registry so re-running the release (or
-      # an unchanged supporting package) does not fail the job.
+      # The root is a private monorepo, so publish each public workspace and skip
+      # versions already on the registry, which keeps re-runs safe.
       - name: Publish workspace packages
         run: |
           set -euo pipefail
+          flags=(--access public)
+          if [ "$DRY_RUN" = "true" ]; then flags+=(--dry-run); fi
           for dir in packages/*/; do
             pkg="${dir}package.json"
             [ -f "$pkg" ] || continue
@@ -50,9 +62,11 @@ jobs:
             if npm view "$name@$version" version >/dev/null 2>&1; then
               echo "Skipping $name@$version (already published)"
             else
-              echo "Publishing $name@$version"
-              npm publish -w "$name" --access public
+              echo "Publishing $name@$version ${flags[*]}"
+              npm publish -w "$name" "${flags[@]}"
             fi
           done
         env:
+          DRY_RUN: ${{ inputs.dry_run }}
+          # npm tries OIDC first; this token is only the fallback when no trusted publisher is set.
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

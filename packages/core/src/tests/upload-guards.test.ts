@@ -192,8 +192,9 @@ describe('resolveUploadFilePath', () => {
     try {
       const result = await readUploadFile('shrinks.bin', { maxBytes: 1_000_000, uploadDir });
       expect(result).toEqual(Buffer.from('short'));
-      // Copied out rather than a view onto the stat-sized buffer.
-      expect(result.buffer.byteLength).toBeLessThan(64 * 1024);
+      // Copied out rather than a view onto the 500_001-byte stat-sized buffer. A small
+      // copy can still sit in Buffer's shared pool (64 KiB from Node 24.22), so bound by that size.
+      expect(result.buffer.byteLength).toBeLessThan(500_001);
       expect(spy).toHaveBeenCalled();
     } finally {
       spy.mockRestore();

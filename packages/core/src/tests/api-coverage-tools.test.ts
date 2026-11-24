@@ -387,7 +387,7 @@ describe('custom-fields setup', () => {
   });
 });
 
-describe('v3 coverage added after the Sheets review', () => {
+describe('per-user estimates, task members, post subtypes, ACLs, audit logs', () => {
   it('clickup_set_task_time_estimates_by_user PATCHes by default', async () => {
     mockPatch.mockResolvedValue({ data: { total_time_estimate: 3600000, updated_estimates: {} } });
     const outcome = await call('clickup_set_task_time_estimates_by_user', {
@@ -512,5 +512,38 @@ describe('v3 coverage added after the Sheets review', () => {
     expect(body.filter).toBeUndefined();
     expect(body.pagination.pageTimestamp).toBeGreaterThanOrEqual(before);
     expect(body.pagination.pageDirection).toBe('before');
+  });
+
+  it('clickup_get_audit_logs pages forward from start_time', async () => {
+    await call('clickup_get_audit_logs', {
+      workspace_id: '1',
+      start_time: 1000,
+      page_direction: 'after',
+    });
+    expect(mockPost.mock.calls[0][1].pagination).toEqual({
+      pageRows: undefined,
+      pageTimestamp: 1000,
+      pageDirection: 'after',
+    });
+  });
+
+  it('clickup_get_audit_logs refuses to page forward from nowhere', async () => {
+    const outcome = await call('clickup_get_audit_logs', {
+      workspace_id: '1',
+      page_direction: 'after',
+    });
+    expect(outcome.failed).toBe(true);
+    expect(mockPost).not.toHaveBeenCalled();
+  });
+
+  it('clickup_update_privacy_and_access reports an empty response body as {}', async () => {
+    mockPatch.mockResolvedValue('');
+    const outcome = await call('clickup_update_privacy_and_access', {
+      workspace_id: '1',
+      object_type: 'list',
+      object_id: '900',
+      private: false,
+    });
+    expect(outcome.text).toBe('{}');
   });
 });

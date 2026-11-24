@@ -23,7 +23,8 @@
 /** Toolset name -> what it covers, and whether other ClickUp MCP servers lack it. */
 export const TOOLSETS = {
   tasks: {
-    description: 'Task create/read/update/delete, search, filtering, tags, templates, merging',
+    description:
+      'Task create/read/update/delete, search, filtering, tags, templates, merging, members, per-user time estimates',
     unique: false,
   },
   lists: {

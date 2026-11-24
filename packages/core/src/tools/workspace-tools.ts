@@ -435,7 +435,7 @@ export function setupWorkspaceTools(server: McpServer): void {
           throw new Error('Pass private, entries, or both');
         }
         const result = await authClient.updateAcl(workspace_id, object_type, object_id, update);
-        return { content: [{ type: 'text', text: JSON.stringify(result ?? {}) }] };
+        return { content: [{ type: 'text', text: JSON.stringify(result || {}) }] };
       } catch (error: unknown) {
         return mcpError('updating privacy and access', error);
       }
@@ -485,7 +485,9 @@ export function setupWorkspaceTools(server: McpServer): void {
         .int()
         .min(0)
         .optional()
-        .describe('Timestamp to page from, Unix ms. Defaults to now'),
+        .describe(
+          "Timestamp to page from, Unix ms. Defaults to now for 'before' and to start_time for 'after'"
+        ),
       page_direction: z
         .enum(['before', 'after'])
         .optional()
@@ -494,6 +496,11 @@ export function setupWorkspaceTools(server: McpServer): void {
     },
     async args => {
       try {
+        const pageTimestamp =
+          args.page_timestamp ?? (args.page_direction === 'after' ? args.start_time : Date.now());
+        if (pageTimestamp === undefined) {
+          throw new Error("page_direction 'after' needs page_timestamp or start_time");
+        }
         const filter = {
           userId: args.user_ids,
           userEmail: args.user_emails,
@@ -507,12 +514,12 @@ export function setupWorkspaceTools(server: McpServer): void {
           filter: Object.values(filter).some(v => v !== undefined) ? filter : undefined,
           pagination: {
             pageRows: args.page_rows,
-            pageTimestamp: args.page_timestamp ?? Date.now(),
+            pageTimestamp,
             pageDirection: args.page_direction,
           },
         };
         const result = await authClient.queryAuditLogs(args.workspace_id, query);
-        return { content: [{ type: 'text', text: JSON.stringify(result ?? {}) }] };
+        return { content: [{ type: 'text', text: JSON.stringify(result || {}) }] };
       } catch (error: unknown) {
         return mcpError('querying audit logs', error);
       }

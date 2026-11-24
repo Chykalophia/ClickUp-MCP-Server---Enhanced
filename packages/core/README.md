@@ -10,7 +10,7 @@
   <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D18.14.0-brightgreen" alt="Node.js Version"></a>
 </p>
 
-A comprehensive Model Context Protocol (MCP) server providing AI assistants with complete ClickUp integration. Features **177+ core tools**, **production-grade security**, and **full GitHub Flavored Markdown support**.
+A comprehensive Model Context Protocol (MCP) server providing AI assistants with complete ClickUp integration. Features **182+ core tools**, **production-grade security**, and **full GitHub Flavored Markdown support**.
 
 ## 🚀 Quick Start
 
@@ -38,7 +38,7 @@ Add to your MCP client configuration:
 
 ## 🛠️ Features
 
-### 177+ Core Tools
+### 182+ Core Tools
 - **Tasks**: Create, update, delete, bulk operations, merging
 - **Lists & Spaces**: Complete CRUD operations with safeguards
 - **Comments**: Rich markdown support with formatting

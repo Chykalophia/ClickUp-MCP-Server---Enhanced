@@ -74,7 +74,7 @@ Always enabled (a name is skipped if this build does not have it):
 
 | Toolset | Covers | Unique* |
 |---|---|:---:|
-| `tasks` | Task CRUD, search, filtering, tags, templates, merging | |
+| `tasks` | Task CRUD, search, filtering, tags, templates, merging, members, per-user time estimates | |
 | `lists` | Lists, folders, folderless lists, templates | |
 | `comments` | Task, list, chat-view, threaded comments | |
 | `custom-fields` | Custom field definitions and values | |

@@ -103,7 +103,7 @@ This Enhanced version is based on the original ClickUp MCP Server codebase by [D
 - **Backward Compatible**: Existing plain text content continues to work
 
 ### 🛠️ **Comprehensive API Coverage**
-- **177 Total Tools** covering 100% of major ClickUp API endpoints
+- **182 Total Tools** covering 100% of major ClickUp API endpoints
 - **9 Feature Domains**: Tasks, comments, docs, webhooks, views, dependencies, attachments, time tracking, goals
 - **Real-time Integration**: Webhook processing with HMAC validation
 - **Advanced Workflows**: Dependencies, custom fields, bulk operations

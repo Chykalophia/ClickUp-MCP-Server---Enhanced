@@ -14,9 +14,10 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+'
 
 # Pushing a tag and then creating its release starts two runs. Queue them so the
-# second sees the version already published and skips it.
+# second skips the published version; queue: max stops a newer run replacing a pending one.
 concurrency:
   group: publish
+  queue: max
   cancel-in-progress: false
 
 permissions:

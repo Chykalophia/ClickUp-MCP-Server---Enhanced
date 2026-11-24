@@ -1,5 +1,20 @@
 # Release Notes - ClickUp MCP Server Suite
 
+## core 7.1.1 (November 2026)
+
+intelligence 6.0.0 and shared 2.0.0 are unchanged. No tool or API changes.
+
+### Dependencies
+- **One copy of Express.** Core declared Express 4 while the MCP SDK depends on
+  Express 5, so every install carried both. Core now uses Express 5, and an
+  install drops from 133 to 109 packages, including the old Express 4 helpers
+  (`debug` 2.6.9, `ms` 2.0.0, `mime` 1.6.0, `safe-buffer`, `array-flatten`,
+  `utils-merge`, `methods`) (#92).
+
+### Release process
+- Published from CI with npm trusted publishing (OIDC) and signed provenance;
+  no long-lived npm token. Tests pass on Node 18, 20 and 24 (#91).
+
 ## core 7.1.0 (November 2026)
 
 intelligence 6.0.0 and shared 2.0.0 are unchanged.

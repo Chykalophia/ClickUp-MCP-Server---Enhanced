@@ -63,7 +63,17 @@ jobs:
               echo "Skipping $name@$version (already published)"
             else
               echo "Publishing $name@$version ${flags[*]}"
-              npm publish -w "$name" "${flags[@]}"
+              # npm view can lag a fresh publish by minutes, so the release-event run after a
+              # tag-push run reaches here too. npm then refuses the duplicate, which is a skip.
+              if ! out=$(npm publish -w "$name" "${flags[@]}" 2>&1); then
+                echo "$out"
+                if grep -qi "cannot publish over" <<<"$out"; then
+                  echo "Skipping $name@$version (already published by another run)"
+                  continue
+                fi
+                exit 1
+              fi
+              echo "$out"
             fi
           done
         env:

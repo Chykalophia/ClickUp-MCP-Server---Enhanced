@@ -396,4 +396,126 @@ export function setupWorkspaceTools(server: McpServer): void {
       }
     }
   );
+
+  server.tool(
+    'clickup_update_privacy_and_access',
+    "Make a ClickUp object private or public and set who can access it (ClickUp v3 ACLs). Works on Spaces, Folders, Lists, tasks, Docs, views, dashboards, goals and other object types. Sharing an item with someone new can add a paid seat or guest. permission_level: 1 read, 3 comment, 4 edit, 5 create; null removes that user's or group's access.",
+    {
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      object_type: z
+        .string()
+        .regex(/^[A-Za-z]+$/, 'object_type must be a ClickUp object type name, such as list')
+        .describe(
+          'ClickUp object type, e.g. space, folder, list, task, doc, page, view, dashboard, goal, whiteboard, form'
+        ),
+      object_id: idSchema().describe('The ID of the object'),
+      private: z
+        .boolean()
+        .optional()
+        .describe('true makes the object private; false makes it public'),
+      entries: z
+        .array(
+          z
+            .object({
+              kind: z.enum(['user', 'group']).describe('A user or a user group'),
+              id: z.string().min(1).describe('User ID or user group ID'),
+              permission_level: z
+                .union([z.literal(1), z.literal(3), z.literal(4), z.literal(5), z.null()])
+                .optional()
+                .describe('1 read, 3 comment, 4 edit, 5 create; null removes access'),
+            })
+            .strict()
+        )
+        .optional()
+        .describe('Users and groups whose access to set'),
+    },
+    async ({ workspace_id, object_type, object_id, ...update }) => {
+      try {
+        if (update.private === undefined && !update.entries?.length) {
+          throw new Error('Pass private, entries, or both');
+        }
+        const result = await authClient.updateAcl(workspace_id, object_type, object_id, update);
+        return { content: [{ type: 'text', text: JSON.stringify(result ?? {}) }] };
+      } catch (error: unknown) {
+        return mcpError('updating privacy and access', error);
+      }
+    }
+  );
+
+  server.tool(
+    'clickup_get_audit_logs',
+    'Query a workspace\'s audit logs (ClickUp v3, Enterprise plan only, workspace owner only). Filter by log category, user, event type, status and time range. Page backwards from now with page_direction "before" and the oldest timestamp you have seen.',
+    {
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      applicability: z
+        .enum([
+          'agent-settings-activity',
+          'auth-and-security',
+          'custom-fields',
+          'hierarchy-activity',
+          'user-activity',
+          'other-activity',
+        ])
+        .optional()
+        .describe('Category of logs to return'),
+      user_ids: z.array(z.string().min(1)).optional().describe('Only events by these user IDs'),
+      user_emails: z.array(z.string().min(1)).optional().describe('Only events by these emails'),
+      event_types: z
+        .array(z.string().regex(/^[A-Z0-9_]+$/, 'event types are upper snake case'))
+        .optional()
+        .describe('Event types, e.g. USER_LOGIN, TASK_CREATED, TASK_STATUS_CHANGED, FIELD_UPDATED'),
+      event_status: z
+        .enum([
+          'success',
+          'failed',
+          'warn',
+          'skipped',
+          'started',
+          'completed',
+          'error',
+          'system_error',
+        ])
+        .optional()
+        .describe('Only events with this status'),
+      start_time: z.number().int().min(0).optional().describe('Earliest event time, Unix ms'),
+      end_time: z.number().int().min(0).optional().describe('Latest event time, Unix ms'),
+      page_rows: z.number().int().min(1).optional().describe('Rows to return'),
+      page_timestamp: z
+        .number()
+        .int()
+        .min(0)
+        .optional()
+        .describe('Timestamp to page from, Unix ms. Defaults to now'),
+      page_direction: z
+        .enum(['before', 'after'])
+        .optional()
+        .default('before')
+        .describe('Page before or after page_timestamp'),
+    },
+    async args => {
+      try {
+        const filter = {
+          userId: args.user_ids,
+          userEmail: args.user_emails,
+          eventType: args.event_types,
+          eventStatus: args.event_status,
+          startTime: args.start_time,
+          endTime: args.end_time,
+        };
+        const query = {
+          applicability: args.applicability,
+          filter: Object.values(filter).some(v => v !== undefined) ? filter : undefined,
+          pagination: {
+            pageRows: args.page_rows,
+            pageTimestamp: args.page_timestamp ?? Date.now(),
+            pageDirection: args.page_direction,
+          },
+        };
+        const result = await authClient.queryAuditLogs(args.workspace_id, query);
+        return { content: [{ type: 'text', text: JSON.stringify(result ?? {}) }] };
+      } catch (error: unknown) {
+        return mcpError('querying audit logs', error);
+      }
+    }
+  );
 }

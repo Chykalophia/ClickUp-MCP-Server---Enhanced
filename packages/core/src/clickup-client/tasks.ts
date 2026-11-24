@@ -168,6 +168,24 @@ export interface MoveTaskOptions {
   status_mappings?: Array<{ source_status_id: string; destination_status_id: string }>;
 }
 
+/** One per-assignee estimate for the v3 time_estimates_by_user routes. */
+export interface TaskTimeEstimate {
+  /** Numeric user ID of a current assignee, or "unassigned" */
+  assignee: number | 'unassigned';
+  /** Estimate in milliseconds */
+  time: number;
+}
+
+/** A Workspace member with explicit access to a task. */
+export interface TaskMember {
+  id: number;
+  username: string;
+  email: string;
+  color: string | null;
+  initials: string;
+  profilePicture: string | null;
+}
+
 // Move Task only exists in the v3 API. The shared client is bound to the v2
 // base URL; axios ignores baseURL when the request URL is absolute.
 const V3_API_BASE_URL = 'https://api.clickup.com/api/v3';
@@ -498,6 +516,47 @@ export class TasksClient {
       )}/home_list/${encodeURIComponent(listId)}`,
       body
     );
+  }
+
+  /**
+   * Set per-assignee time estimates on a task (v3, Business plan and above).
+   *
+   * `merge` sends PATCH, which changes only the listed assignees; `replace`
+   * sends PUT, which removes every estimate not in the request.
+   * @param workspaceId The Workspace ID
+   * @param taskId The task ID (custom task IDs are accepted by this route)
+   * @param estimates Up to 10 estimates
+   * @param mode `merge` (PATCH) or `replace` (PUT)
+   * @returns `data.total_time_estimate` plus `data.updated_estimates` (merge) or
+   *   `data.assignee_estimates` (replace), each a map of user ID to milliseconds
+   */
+  async setTimeEstimatesByUser(
+    workspaceId: string,
+    taskId: string,
+    estimates: TaskTimeEstimate[],
+    mode: 'merge' | 'replace' = 'merge'
+  ): Promise<{
+    data: {
+      total_time_estimate: number;
+      updated_estimates?: Record<string, number>;
+      assignee_estimates?: Record<string, number>;
+    };
+  }> {
+    const url = `${V3_API_BASE_URL}/workspaces/${seg(workspaceId)}/tasks/${seg(
+      taskId
+    )}/time_estimates_by_user`;
+    return mode === 'replace' ? this.client.put(url, estimates) : this.client.patch(url, estimates);
+  }
+
+  /**
+   * List the members with explicit access to a task (GET /task/{task_id}/member).
+   * People who can see the task only through a Team or its List, Folder or
+   * Space are not included.
+   * @param taskId The task ID
+   * @returns `members`
+   */
+  async getTaskMembers(taskId: string): Promise<{ members: TaskMember[] }> {
+    return this.client.get(`/task/${seg(taskId)}/member`);
   }
 
   /**

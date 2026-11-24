@@ -51,7 +51,8 @@ export const TOOLSETS = {
   },
   checklists: { description: 'Checklists and checklist items', unique: true },
   workspace: {
-    description: 'Workspaces, hierarchy, members, seats, plan, roles, and authorized user',
+    description:
+      'Workspaces, hierarchy, members, seats, plan, roles, guests, privacy and access, audit logs, and authorized user',
     unique: false,
   },
   bulk: {

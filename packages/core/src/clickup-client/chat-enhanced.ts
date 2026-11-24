@@ -260,6 +260,22 @@ export class ChatEnhancedClient {
   }
 
   /**
+   * Get the post subtype IDs (Announcement, Discussion, Idea, Update) for a
+   * Workspace. A `type: "post"` message needs one in `post_data.subtype.id`.
+   * @param workspaceId The Workspace ID
+   * @param commentType Which comment type to list subtypes for
+   * @returns ClickUp's response as sent; the route has no documented schema
+   */
+  async getPostSubtypes(
+    workspaceId: string,
+    commentType: 'post' | 'ai' | 'syncup' | 'ai_via_brain' = 'post'
+  ): Promise<unknown> {
+    return this.client.get(
+      `/workspaces/${seg(workspaceId)}/comments/types/${seg(commentType)}/subtypes`
+    );
+  }
+
+  /**
    * Search channels by name (client-side filter over the paginated
    * channel list — the v3 API has no search parameter)
    */

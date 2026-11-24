@@ -424,7 +424,7 @@ export function setupChatTools(server: McpServer): void {
           subtype: z
             .object({ id: z.string() })
             .passthrough()
-            .describe('Post subtype (required; id from Get Post Subtype IDs)'),
+            .describe('Post subtype (required; id from clickup_get_chat_post_subtypes)'),
         })
         .passthrough()
         .optional()
@@ -468,7 +468,7 @@ export function setupChatTools(server: McpServer): void {
           subtype: z
             .object({ id: z.string() })
             .passthrough()
-            .describe('Post subtype (required; id from Get Post Subtype IDs)'),
+            .describe('Post subtype (required; id from clickup_get_chat_post_subtypes)'),
         })
         .passthrough()
         .optional()
@@ -586,7 +586,7 @@ export function setupChatTools(server: McpServer): void {
           subtype: z
             .object({ id: z.string() })
             .passthrough()
-            .describe('Post subtype (required; id from Get Post Subtype IDs)'),
+            .describe('Post subtype (required; id from clickup_get_chat_post_subtypes)'),
         })
         .passthrough()
         .optional()
@@ -772,6 +772,29 @@ export function setupChatTools(server: McpServer): void {
         };
       } catch (error: unknown) {
         return mcpError('searching channels', error);
+      }
+    }
+  );
+
+  server.tool(
+    'clickup_get_chat_post_subtypes',
+    "Get a workspace's post subtype IDs (Announcement, Discussion, Idea, Update). A chat message with type 'post' needs one of these IDs in post_data.subtype.id. Subtype IDs differ per workspace.",
+    {
+      workspace_id: idSchema().describe('The ID of the workspace'),
+      comment_type: z
+        .enum(['post', 'ai', 'syncup', 'ai_via_brain'])
+        .optional()
+        .default('post')
+        .describe("Comment type to list subtypes for (default 'post')"),
+    },
+    async ({ workspace_id, comment_type }) => {
+      try {
+        const result = await chatClient.getPostSubtypes(workspace_id, comment_type);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result) }],
+        };
+      } catch (error: unknown) {
+        return mcpError('getting post subtypes', error);
       }
     }
   );

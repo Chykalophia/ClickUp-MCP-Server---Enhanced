@@ -91,7 +91,7 @@ attachment uploads over roughly 3 MB fail there (the server itself allows 50 MB 
 other hosts). `maxDuration` is 60 s; a ClickUp call that waits out repeated rate
 limits can exceed it.
 
-**Any Node host** (Railway, Fly, Render, a VPS, Docker), Node 18+:
+**Any Node host** (Railway, Fly, Render, a VPS, Docker), Node 20.19+:
 
 ```sh
 npm run build

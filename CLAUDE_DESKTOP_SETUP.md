@@ -83,4 +83,4 @@ bins are aliases of `index-enhanced.js` with the same tools.
 - **Token Invalid**: Verify your ClickUp API token is correct and has proper permissions
 - **Connection Failed**: Check internet connection and firewall settings
 - **Package Not Found**: Ensure you're using the correct package name `@chykalophia/clickup-mcp-server`
-- **Build Errors**: If building from source, ensure Node.js 18+ is installed and run `npm install` first
+- **Build Errors**: If building from source, ensure Node.js 20.19+ is installed and run `npm install` first

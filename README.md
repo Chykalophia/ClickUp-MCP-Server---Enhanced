@@ -8,7 +8,7 @@
   <a href="https://www.npmjs.com/package/@chykalophia/clickup-mcp-server"><img src="https://img.shields.io/npm/v/@chykalophia/clickup-mcp-server.svg" alt="Core Server Version"></a>
   <a href="https://www.npmjs.com/package/@chykalophia/clickup-intelligence-mcp-server"><img src="https://img.shields.io/npm/v/@chykalophia/clickup-intelligence-mcp-server.svg" alt="Intelligence Server Version"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
-  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D18.14.0-brightgreen" alt="Node.js Version"></a>
+  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/node-%3E%3D20.19.0-brightgreen" alt="Node.js Version"></a>
   <a href="https://github.com/modelcontextprotocol/typescript-sdk"><img src="https://img.shields.io/badge/MCP%20SDK-1.6.1-orange" alt="MCP SDK"></a>
 </p>
 
@@ -618,7 +618,7 @@ Run examples with: `node examples/basic-usage.js`
 ## Development
 
 ### Environment Requirements
-- **Node.js**: Version 18.14.0 or higher
+- **Node.js**: Version 20.19.0 or higher
 - **Package Manager**: npm or yarn
 - **IDE**: VSCode recommended with TypeScript support
 

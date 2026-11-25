@@ -10,7 +10,7 @@ tsconfig.json
 .env
 .env.example
 .gitignore
-.eslintrc
+eslint.config.mjs
 .eslintignore
 .prettierrc
 .prettierignore

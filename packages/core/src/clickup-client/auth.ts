@@ -49,6 +49,42 @@ export interface GuestInviteParams extends GuestPermissionParams {
   email: string;
 }
 
+/** One user or user-group entry in a v3 privacy and access (ACL) update. */
+export interface AclEntry {
+  kind: 'user' | 'group';
+  /** User ID or user group ID */
+  id: string;
+  /** 1 read, 3 comment, 4 edit, 5 create; null removes the entry's access */
+  permission_level?: 1 | 3 | 4 | 5 | null;
+}
+
+export interface AclUpdate {
+  private?: boolean;
+  entries?: AclEntry[];
+}
+
+/** Body of the v3 audit-log query (POST /workspaces/{id}/auditlogs). */
+export interface AuditLogQuery {
+  applicability?: string;
+  filter?: {
+    userId?: string[];
+    userEmail?: string[];
+    eventType?: string[];
+    eventStatus?: string;
+    startTime?: number;
+    endTime?: number;
+  };
+  pagination?: {
+    pageRows?: number;
+    pageTimestamp?: number;
+    pageDirection?: 'before' | 'after';
+  };
+}
+
+// ACLs and audit logs exist only in the v3 API; axios ignores the v2 baseURL
+// for an absolute URL.
+const V3_API_BASE_URL = 'https://api.clickup.com/api/v3';
+
 export type GuestItemType = 'task' | 'list' | 'folder';
 export type GuestPermissionLevel = 'read' | 'comment' | 'edit' | 'create';
 
@@ -635,6 +671,38 @@ export class AuthClient {
     return this.client.delete(
       `${guestItemPath(itemType, itemId, guestId)}${guestItemQuery(itemType, options)}`
     );
+  }
+
+  /**
+   * Change the privacy of an object or location and who can access it
+   * (v3 PATCH /workspaces/{id}/{object_type}/{object_id}/acls).
+   * @param workspaceId The Workspace ID
+   * @param objectType ClickUp object type, such as `space`, `folder`, `list`, `task`, `doc`
+   * @param objectId The object's ID
+   * @param update `private` and/or the user and group `entries` to set
+   * @returns ClickUp's response as sent; the route has no documented schema
+   */
+  async updateAcl(
+    workspaceId: string,
+    objectType: string,
+    objectId: string,
+    update: AclUpdate
+  ): Promise<unknown> {
+    return this.client.patch(
+      `${V3_API_BASE_URL}/workspaces/${seg(workspaceId)}/${seg(objectType)}/${seg(objectId)}/acls`,
+      update
+    );
+  }
+
+  /**
+   * Query a Workspace's audit logs (v3 POST /workspaces/{id}/auditlogs).
+   * Enterprise plan only, and only the Workspace owner may call it.
+   * @param workspaceId The Workspace ID
+   * @param query Applicability, filters and pagination
+   * @returns ClickUp's response as sent; the route has no documented schema
+   */
+  async queryAuditLogs(workspaceId: string, query: AuditLogQuery): Promise<unknown> {
+    return this.client.post(`${V3_API_BASE_URL}/workspaces/${seg(workspaceId)}/auditlogs`, query);
   }
 }
 

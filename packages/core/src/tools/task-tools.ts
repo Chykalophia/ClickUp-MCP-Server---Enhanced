@@ -593,6 +593,67 @@ export function setupTaskTools(server: McpServer): void {
   );
 
   server.tool(
+    'clickup_set_task_time_estimates_by_user',
+    "Set per-assignee time estimates on a task (ClickUp v3, Business plan and above). mode 'merge' (default) changes only the listed assignees; mode 'replace' removes every estimate not listed. Each assignee must currently be assigned to the task, or be \"unassigned\". Times are in milliseconds.",
+    {
+      workspace_id: idSchema().describe('The ID of the workspace (team) the task belongs to'),
+      task_id: idSchema().describe('The ID of the task (custom task IDs are accepted)'),
+      estimates: z
+        .array(
+          z
+            .object({
+              assignee: z
+                .union([z.number().int().positive(), z.literal('unassigned')])
+                .describe('Numeric user ID of a current assignee, or "unassigned"'),
+              time: z.number().int().min(0).describe('Estimate in milliseconds'),
+            })
+            .strict()
+        )
+        .min(1)
+        .max(10)
+        .describe('1 to 10 estimates'),
+      mode: z
+        .enum(['merge', 'replace'])
+        .optional()
+        .default('merge')
+        .describe("'merge' updates the listed assignees only; 'replace' clears all others"),
+    },
+    async ({ workspace_id, task_id, estimates, mode }) => {
+      try {
+        const result = await tasksClient.setTimeEstimatesByUser(
+          workspace_id,
+          task_id,
+          estimates,
+          mode
+        );
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result) }],
+        };
+      } catch (error: unknown) {
+        return mcpError('setting task time estimates', error);
+      }
+    }
+  );
+
+  server.tool(
+    'clickup_get_task_members',
+    'Get the workspace members with explicit access to a task. People who see the task only through a Team or its List, Folder or Space are not included (use clickup_get_list_members for those).',
+    {
+      task_id: idSchema().describe('The ID of the task'),
+    },
+    async ({ task_id }) => {
+      try {
+        const result = await tasksClient.getTaskMembers(task_id);
+        return {
+          content: [{ type: 'text', text: JSON.stringify(result) }],
+        };
+      } catch (error: unknown) {
+        return mcpError('getting task members', error);
+      }
+    }
+  );
+
+  server.tool(
     'clickup_get_task_templates',
     'List the task templates available in a ClickUp workspace. Use a returned template ID with clickup_create_task_from_template.',
     {

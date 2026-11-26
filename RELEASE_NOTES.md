@@ -1,5 +1,23 @@
 # Release Notes - ClickUp MCP Server Suite
 
+## Unreleased (core)
+
+### New tools
+Five tools close the remaining gaps against ClickUp's public API reference:
+- `clickup_set_task_time_estimates_by_user` sets per-assignee time estimates
+  on a task, merging (PATCH) or replacing (PUT) them (v3, Business plan and up).
+- `clickup_get_task_members` lists the people with explicit access to a task.
+- `clickup_get_chat_post_subtypes` returns the post subtype IDs that a
+  `type: "post"` chat message needs.
+- `clickup_update_privacy_and_access` makes an object private or public and
+  sets user and group permission levels (v3 ACLs).
+- `clickup_get_audit_logs` queries workspace audit logs (v3, Enterprise plan,
+  workspace owner only).
+
+### ClickUp Sheets
+ClickUp Sheets is in beta and has no public API yet, so this release has no
+Sheets tools.
+
 ## core 7.1.1 (November 2026)
 
 intelligence 6.0.0 and shared 2.0.0 are unchanged. No tool or API changes.

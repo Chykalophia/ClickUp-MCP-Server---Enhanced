@@ -74,12 +74,12 @@ Always enabled (a name is skipped if this build does not have it):
 
 | Toolset | Covers | Unique* |
 |---|---|:---:|
-| `tasks` | Task CRUD, search, filtering, tags, templates, merging | |
+| `tasks` | Task CRUD, search, filtering, tags, templates, merging, members, per-user time estimates | |
 | `lists` | Lists, folders, folderless lists, templates | |
 | `comments` | Task, list, chat-view, threaded comments | |
 | `custom-fields` | Custom field definitions and values | |
 | `docs` | Docs, doc pages, doc search | |
-| `workspace` | Workspaces, hierarchy, members, seats, plan, roles | |
+| `workspace` | Workspaces, hierarchy, members, seats, plan, roles, guests, privacy and access, audit logs | |
 | `bulk` | Bulk create/update/delete, bulk custom fields | |
 | `attachments` | Task attachments and uploads | |
 | `time-tracking` | Time entries, timers, tags, history, time in status | ✓ |

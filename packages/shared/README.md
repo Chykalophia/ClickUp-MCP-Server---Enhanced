@@ -108,7 +108,7 @@ npm run lint
 
 ## 🤝 Related Packages
 
-- **[@chykalophia/clickup-mcp-server](https://www.npmjs.com/package/@chykalophia/clickup-mcp-server)** - Core ClickUp integration (177+ tools)
+- **[@chykalophia/clickup-mcp-server](https://www.npmjs.com/package/@chykalophia/clickup-mcp-server)** - Core ClickUp integration (182+ tools)
 - **[@chykalophia/clickup-intelligence-mcp-server](https://www.npmjs.com/package/@chykalophia/clickup-intelligence-mcp-server)** - AI-powered project intelligence
 
 ## 📚 API Reference

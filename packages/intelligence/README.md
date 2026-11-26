@@ -206,7 +206,7 @@ This is a **conversational AI tool** - interact through natural language:
 
 ## 🤝 Related Packages
 
-- **[@chykalophia/clickup-mcp-server](https://www.npmjs.com/package/@chykalophia/clickup-mcp-server)** - Core ClickUp integration (177+ tools)
+- **[@chykalophia/clickup-mcp-server](https://www.npmjs.com/package/@chykalophia/clickup-mcp-server)** - Core ClickUp integration (182+ tools)
 - **[@chykalophia/clickup-mcp-shared](https://www.npmjs.com/package/@chykalophia/clickup-mcp-shared)** - Shared utilities
 
 ## 🔮 Roadmap

@@ -9,6 +9,7 @@ const mockGet = jest.fn();
 const mockPost = jest.fn();
 const mockPut = jest.fn();
 const mockDelete = jest.fn();
+const mockPatch = jest.fn();
 const mockAxiosGet = jest.fn();
 const mockAxiosPost = jest.fn();
 const mockAxiosPut = jest.fn();
@@ -19,6 +20,7 @@ const mockClient = {
   post: mockPost,
   put: mockPut,
   delete: mockDelete,
+  patch: mockPatch,
   getAxiosInstance: () => ({
     get: mockAxiosGet,
     post: mockAxiosPost,
@@ -51,6 +53,7 @@ beforeEach(async () => {
     mockPost,
     mockPut,
     mockDelete,
+    mockPatch,
     mockAxiosGet,
     mockAxiosPost,
     mockAxiosPut,
@@ -381,5 +384,166 @@ describe('custom-fields setup', () => {
     });
     expect(outcome.failed).toBe(true);
     expect(mockAxiosPost).not.toHaveBeenCalled();
+  });
+});
+
+describe('per-user estimates, task members, post subtypes, ACLs, audit logs', () => {
+  it('clickup_set_task_time_estimates_by_user PATCHes by default', async () => {
+    mockPatch.mockResolvedValue({ data: { total_time_estimate: 3600000, updated_estimates: {} } });
+    const outcome = await call('clickup_set_task_time_estimates_by_user', {
+      workspace_id: '1',
+      task_id: 'abc',
+      estimates: [{ assignee: 42, time: 3600000 }],
+    });
+    expect(outcome.failed).toBe(false);
+    expect(mockPatch).toHaveBeenCalledWith(`${V3}/workspaces/1/tasks/abc/time_estimates_by_user`, [
+      { assignee: 42, time: 3600000 },
+    ]);
+    expect(mockPut).not.toHaveBeenCalled();
+  });
+
+  it('clickup_set_task_time_estimates_by_user PUTs in replace mode', async () => {
+    await call('clickup_set_task_time_estimates_by_user', {
+      workspace_id: '1',
+      task_id: 'abc',
+      estimates: [{ assignee: 'unassigned', time: 0 }],
+      mode: 'replace',
+    });
+    expect(mockPut).toHaveBeenCalledWith(`${V3}/workspaces/1/tasks/abc/time_estimates_by_user`, [
+      { assignee: 'unassigned', time: 0 },
+    ]);
+    expect(mockPatch).not.toHaveBeenCalled();
+  });
+
+  it('clickup_set_task_time_estimates_by_user rejects more than 10 estimates', async () => {
+    const estimates = Array.from({ length: 11 }, (_, i) => ({ assignee: i + 1, time: 1 }));
+    const outcome = await call('clickup_set_task_time_estimates_by_user', {
+      workspace_id: '1',
+      task_id: 'abc',
+      estimates,
+    });
+    expect(outcome.failed).toBe(true);
+    expect(mockPatch).not.toHaveBeenCalled();
+  });
+
+  it('clickup_get_task_members GETs /task/{id}/member', async () => {
+    mockGet.mockResolvedValue({ members: [{ id: 1, username: 'a' }] });
+    const outcome = await call('clickup_get_task_members', { task_id: 'abc' });
+    expect(mockGet).toHaveBeenCalledWith('/task/abc/member');
+    expect(JSON.parse(outcome.text).members[0].id).toBe(1);
+  });
+
+  it('clickup_get_chat_post_subtypes GETs the post subtypes route', async () => {
+    await call('clickup_get_chat_post_subtypes', { workspace_id: '1' });
+    expect(mockGet).toHaveBeenCalledWith('/workspaces/1/comments/types/post/subtypes');
+  });
+
+  it('clickup_update_privacy_and_access PATCHes the v3 acls route', async () => {
+    const outcome = await call('clickup_update_privacy_and_access', {
+      workspace_id: '1',
+      object_type: 'list',
+      object_id: '900',
+      private: true,
+      entries: [
+        { kind: 'user', id: '42', permission_level: 4 },
+        { kind: 'group', id: 'g1', permission_level: null },
+      ],
+    });
+    expect(outcome.failed).toBe(false);
+    expect(mockPatch).toHaveBeenCalledWith(`${V3}/workspaces/1/list/900/acls`, {
+      private: true,
+      entries: [
+        { kind: 'user', id: '42', permission_level: 4 },
+        { kind: 'group', id: 'g1', permission_level: null },
+      ],
+    });
+  });
+
+  it('clickup_update_privacy_and_access refuses an empty update', async () => {
+    const outcome = await call('clickup_update_privacy_and_access', {
+      workspace_id: '1',
+      object_type: 'list',
+      object_id: '900',
+    });
+    expect(outcome.failed).toBe(true);
+    expect(mockPatch).not.toHaveBeenCalled();
+  });
+
+  it('clickup_update_privacy_and_access rejects a path-like object_type', async () => {
+    const outcome = await call('clickup_update_privacy_and_access', {
+      workspace_id: '1',
+      object_type: '../task',
+      object_id: '900',
+      private: true,
+    });
+    expect(outcome.failed).toBe(true);
+    expect(mockPatch).not.toHaveBeenCalled();
+  });
+
+  it('clickup_get_audit_logs POSTs filters and pagination in ClickUp field names', async () => {
+    const outcome = await call('clickup_get_audit_logs', {
+      workspace_id: '1',
+      applicability: 'auth-and-security',
+      user_ids: ['42'],
+      event_types: ['USER_LOGIN'],
+      start_time: 1000,
+      page_rows: 50,
+      page_timestamp: 2000,
+    });
+    expect(outcome.failed).toBe(false);
+    expect(mockPost).toHaveBeenCalledWith(`${V3}/workspaces/1/auditlogs`, {
+      applicability: 'auth-and-security',
+      filter: {
+        userId: ['42'],
+        userEmail: undefined,
+        eventType: ['USER_LOGIN'],
+        eventStatus: undefined,
+        startTime: 1000,
+        endTime: undefined,
+      },
+      pagination: { pageRows: 50, pageTimestamp: 2000, pageDirection: 'before' },
+    });
+  });
+
+  it('clickup_get_audit_logs omits an empty filter and pages from now', async () => {
+    const before = Date.now();
+    await call('clickup_get_audit_logs', { workspace_id: '1' });
+    const body = mockPost.mock.calls[0][1];
+    expect(body.filter).toBeUndefined();
+    expect(body.pagination.pageTimestamp).toBeGreaterThanOrEqual(before);
+    expect(body.pagination.pageDirection).toBe('before');
+  });
+
+  it('clickup_get_audit_logs pages forward from start_time', async () => {
+    await call('clickup_get_audit_logs', {
+      workspace_id: '1',
+      start_time: 1000,
+      page_direction: 'after',
+    });
+    expect(mockPost.mock.calls[0][1].pagination).toEqual({
+      pageRows: undefined,
+      pageTimestamp: 1000,
+      pageDirection: 'after',
+    });
+  });
+
+  it('clickup_get_audit_logs refuses to page forward from nowhere', async () => {
+    const outcome = await call('clickup_get_audit_logs', {
+      workspace_id: '1',
+      page_direction: 'after',
+    });
+    expect(outcome.failed).toBe(true);
+    expect(mockPost).not.toHaveBeenCalled();
+  });
+
+  it('clickup_update_privacy_and_access reports an empty response body as {}', async () => {
+    mockPatch.mockResolvedValue('');
+    const outcome = await call('clickup_update_privacy_and_access', {
+      workspace_id: '1',
+      object_type: 'list',
+      object_id: '900',
+      private: false,
+    });
+    expect(outcome.text).toBe('{}');
   });
 });

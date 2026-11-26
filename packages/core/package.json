@@ -85,7 +85,7 @@
   },
   "homepage": "https://github.com/Chykalophia/ClickUp-MCP-Server---Enhanced#readme",
   "engines": {
-    "node": ">=18.14.0"
+    "node": ">=20.19.0"
   },
   "type": "module",
   "dependencies": {

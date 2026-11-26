@@ -5,7 +5,7 @@ Welcome to the ClickUp Intelligence MCP Server project! This guide will help you
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
+- Node.js 20.19+
 - npm 8+
 - Git
 - ClickUp API token (for testing)
